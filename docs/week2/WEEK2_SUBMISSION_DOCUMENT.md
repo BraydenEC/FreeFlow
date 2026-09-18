@@ -43,7 +43,7 @@ Two audiences. **The builder**, deciding whether to keep going and where to aim 
 
 Wireframe produced during planning: single scrolling page — header, headline finding, benchmark cards, Mexico panel, filterable competitor table, risk map, intake, saved records.
 
-*(Insert wireframe.svg here)*
+*(Insert `docs/week2/wireframe.svg` here — required for the UX planning criterion. Do not leave this as a placeholder.)*
 
 **Implementation note.** This page reuses the dashboard's visual language but is a *document* rather than an instrument panel: longer prose, wider measure, and one new element type — a verification badge on every factual row.
 
@@ -115,11 +115,11 @@ Three divergences from the wireframe:
 
 ## DevOps
 
-**GitHub:** 34 commits on `main`, auto-deploying. **Vercel:** existing project, **no new environment variables** — `/research` uses the Supabase and Anthropic keys already configured. **Supabase:** `research_records` added as a re-runnable migration alongside the Week 0 and Week 1 schemas. **Deployment plan:** shipped at Phase 3, as soon as the page rendered, before the remaining features — consistent with Weeks 0 and 1 and for the same reason.
+**GitHub:** 41 commits on `main`, auto-deploying. **Vercel:** existing project, **no new environment variables** — `/research` uses the Supabase and Anthropic keys already configured. **Supabase:** `research_records` added as a re-runnable migration alongside the Week 0 and Week 1 schemas. **Deployment plan:** shipped at Phase 3, as soon as the page rendered, before the remaining features — consistent with Weeks 0 and 1 and for the same reason.
 
 ## Test Plan
 
-Six software tests executed with raw output, plus the required human validation conversation. Summary:
+Eight software tests executed with raw output, plus the required human validation conversation. Summary:
 
 | # | Test | Result |
 |---|---|---|
@@ -129,7 +129,9 @@ Six software tests executed with raw output, plus the required human validation 
 | 4 | Extractor refuses to overstate confidence | ✅ Opinion → `estimated`, no invented citation |
 | 5 | Validation and the honesty constraint | ✅ 4 rejections + verified-without-source refused |
 | 6 | Degrades with no model key | ✅ Falls back, marks `reported` not `verified` |
-| — | **Human validation conversation** | ⬅️ **OUTSTANDING** |
+| 7 | Save round trip, end to end | ✅ HTTP 201, row persisted with provenance |
+| 8 | Database enforces the honesty rule | ✅ Direct insert of `verified` with no source → **HTTP 400** |
+| — | **Human validation conversation** | ✅ **Completed — and it argued against the product. See below.** |
 
 **Test 1 is the one that matters.** It is the only automated check capable of catching a fabricated citation — a source that does not exist cannot return 200.
 
@@ -156,9 +158,9 @@ Six software tests executed with raw output, plus the required human validation 
 | Prompt log | Minimum 5 | ✅ **6** |
 | Test evidence | Minimum 3 | ✅ **8** |
 | Iteration log | What changed after testing | ✅ **10 entries** |
-| **Human validation conversation** | 1 real conversation | ⬅️ **OUTSTANDING** |
-| Demo video | 2–3 minutes | ⬅️ TO BE ADDED |
-| Human Decision Note | 150–250 words | ⬅️ TO BE WRITTEN BELOW |
+| **Human validation conversation** | 1 real conversation | ✅ Completed, recorded verbatim |
+| Demo video | 2–3 minutes | ✅ https://youtu.be/Q8gLDlPJrQo |
+| Human Decision Note | 150–250 words | ✅ Below |
 
 **Build gates:** Gate 1 ✅ · Gate 2 ✅ · Gate 3 ✅ · Gate 4 — below.
 
@@ -174,13 +176,17 @@ Toggl phrases the gap in its own feature list: *"Generate and download PDF invoi
 
 A Mexican freelancer therefore runs two systems by **legal necessity, not disorganization** — and CFDI requires a government-authorized PAC rather than a better invoice template, which is why the gap has persisted and why it is hard to cross.
 
-⚠️ **Confidence note:** the Mexican tax claims are marked `reported`, not `verified` — sourced from tax-advisory and vendor material rather than SAT primary documentation, and flagged for spot-check against SAT before submission.
+✅ **Confidence note.** The Mexican tax claims originally shipped marked `reported`, sourced from tax-advisory material rather than SAT itself. They were checked against SAT documentation on 2026-09-01 and confirmed, so they now read `verified`.
+
+That check also surfaced something the original research had missed. The **CFF reform effective 1 January 2026** writes into **Article 29-A, fraction IX** that a CFDI must cover a *real, existing* transaction — a correctly issued invoice is no longer sufficient on its own, and failure to evidence the work can mean cancellation of the digital seal certificate and fines of up to 55% of the invoiced amount.
+
+**This matters more than any pricing figure in this document.** Every competitor surveyed issues invoices, and none of them saw the work. A platform that generates an invoice from a payment event — which is how gigstack describes itself — has no record of what was delivered or over how many hours, so it cannot produce that evidence. A tool that tracks the project *and* issues the invoice can. The argument moves from convenience to exposure.
 
 ---
 
 # Iteration Log — Selected Entries
 
-Ten iterations were recorded. The four most significant:
+Twelve iterations were recorded. The five most significant:
 
 ## 1. The schema was designed against the tool building it
 
@@ -202,6 +208,18 @@ The source-resolution check first reported every citation broken. The data was f
 
 **A test that reports a false failure is as dangerous as one that reports a false pass** — both mean the harness is what is being read, not the code. Rewritten with an explicit read loop; 9/9 now resolve.
 
+## 5. The validation conversation argued against the product
+
+The Week 2 conversation was with a freelancer who sells one-time, fixed-price software installations. He contradicted the premise on nearly every point, and it is recorded rather than reframed.
+
+He has *"not had a problem with tracking"* — fixed price per job means no hours to reconcile and no rate to compute, so the hours × rate model at the centre of ServicePro is irrelevant to how he bills. He has *"never been stood up"* on payment, having solved it upstream with a signed contract. Invoicing is one word: *"stripe."* The actual pain is *"getting clients lol."*
+
+He also rejected the category rather than the implementation: *"with a lot of products it's just a degrading asset, the code starts to rot from day 1 of being shipped."*
+
+**What survived is the most useful sentence in the conversation.** The rejection came with a condition: *"if there was someone dedicated to building freelance outreach tracker and management harness and constantly gave updates to it I'd def rather use his and just do minor tweaking than build my own from scratch."* He is not against using someone else's tool — he is against using an **unmaintained** one. A conditional yes with stated conditions is worth more than an unconditional yes.
+
+**One finding lands directly on the current build:** *"its annoying on mobile"*, while confirming the information architecture was right. Week 0's acceptance criteria asserted "usable at 375px" and that criterion passed. A person who actually used it at 375px was irritated. **Passing a test is not the same as being good.**
+
 ---
 
 # Human Decision Note
@@ -212,13 +230,43 @@ The source-resolution check first reported every citation broken. The data was f
 
 # Human Validation Conversation
 
+**Participant:** a freelancer selling one-time, fixed-price software installations. **Format:** messages. **Market:** not Mexico — invoices through Stripe.
+
+⚠️ **Scope, stated rather than glossed.** This tests the **general premise** — that project, time, and invoice data split across tools costs freelancers money and attention. It does **not** test the CFDI finding, which remains unvalidated by any practitioner. That is the strongest claim in the research and the one that most needs a working Mexican freelancer's view.
+
+Responses are recorded **verbatim**, including informal register. Polishing a participant's words into formal prose makes a transcript read as authored rather than reported, which in a module built on telling evidence from fabrication would undercut the exercise.
+
 ⬅️ **RECORD YOUR CONVERSATION HERE** — template and interview script in `VALIDATION_CONVERSATION.md`.
+
+---
+
+## ⭐ What contradicted my assumptions
+
+**Nearly all of it**, which is the most useful outcome this conversation could have had.
+
+| My assumption | What he said |
+|---|---|
+| Freelancers struggle to track what they are owed | *"I haven't had a problem with tracking"* — fixed price per job |
+| Getting paid is painful | *"Never been stood up or argued against"* — contract signed upfront |
+| Invoicing spans multiple tools | *"stripe"* |
+| Admin is the main pain | *"Getting clients lol"* |
+| A freelancer would want this product | *"I've even urged clients to avoid having me build custom software"* |
+
+## What this changes
+
+1. **The target user is narrower than assumed.** ServicePro presumes hourly or retainer billing across concurrent clients. Fixed-price one-time work does not generate the fragmentation the product exists to solve. The Build Discipline Packet should state who this is *not* for.
+2. **The Mexican premise is still untested by a practitioner.** He invoices through Stripe in a market with no CFDI requirement.
+3. **"Getting clients" outranks admin.** Week 2's research surveyed invoicing and project tools exclusively; it never asked whether that was the category the user cared about.
+4. **Maintenance is a feature.** The objection was decay, not capability. A product whose pitch includes *"someone is actively keeping this alive"* answers an objection no feature list addresses.
+5. **Mobile needs work.** Concrete, actionable, and from someone who used it.
+
+**What it does not change:** one conversation with a freelancer outside the target market and billing model does not invalidate the desk research. Alegra still has no project tracking and Harvest still cannot issue a CFDI. But it establishes that the problem is **not universal among freelancers**, which the packet had implicitly assumed.
 
 ---
 
 # Screenshots
 
-1. `/research` — headline finding and benchmark cards
+1. `/research` — the headline finding box ("…0 do both") and benchmark cards. **This is the /research page, not the dashboard.**
 2. Competitor table with a filter applied, showing the count update
 3. Risk map
 4. Mexico localization panel
