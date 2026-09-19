@@ -243,7 +243,30 @@ there is no environment-variable trap of the kind that cost Weeks 0 and 1.
 
 ---
 
-## 9. First question
+## 9. Decisions — confirmed
+
+| # | Decision | Confirmed |
+|---|---|---|
+| 1 | Currency | Show **both USD and MXN** |
+| 2 | Solo tier price | **Free, capped by project count** — Harvest free is a verified competitor |
+| 3 | **Segment B** | **Small studio, 2–5 people** |
+| 4 | Scenario persistence | **Supabase** — the assignment requires saved scenarios as evidence |
+| 5 | CFDI per-stamp cost line | **Omitted**, and the omission stated. PAC pricing is unsourced and would import a guess into the cost side |
+
+**On decision 3.** A studio is Segment A multiplied — same problem, same product, more seats —
+so the model extends what Week 2 already validated rather than making a new strategic claim.
+
+The rejected option is worth recording because the reason matters. A *contador* serving many
+freelancers is a larger market, but Week 2's own research classified contadores as a
+**substitute**: freelancers hire one precisely so they never touch CFDI themselves. Selling to
+them would mean selling to the thing identified as competition, which may well be a good business
+and is not a claim a pricing page should make quietly in week three. It also implies a different
+data model — many isolated clients rather than one shared team — which belongs in a later week if
+it happens at all.
+
+---
+
+## 10. Original open question (resolved above)
 
 **Decision 3 is the one that changes the work.** Segment B defines half the revenue model, and
 "small studio" versus "contador serving freelancers" are genuinely different products with
