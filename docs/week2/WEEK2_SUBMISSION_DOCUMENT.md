@@ -1,6 +1,6 @@
 # Week 2: Research + Benchmarking Dashboard — Submission Packet
 
-**Student:** Brayden Credeur **Course:** Negocios Inteligentes **Project:** ServicePro Research — evidence, competitors, benchmarks, and gaps **Date:** August 2026
+**Student:** Brayden Credeur **Course:** Negocios Inteligentes **Project:** ServicePro Research — evidence, competitors, benchmarks, and gaps **Date:** September 2026
 
 ---
 
@@ -11,7 +11,7 @@
 | **Live page (`/research`)** | https://servicepro-orpin.vercel.app/research |
 | Dashboard | https://servicepro-orpin.vercel.app |
 | **GitHub** | https://github.com/BraydenEC/servicepro |
-| **Demo video** | ⬅️ PASTE YOUR VIDEO LINK HERE |
+| **Demo video** | https://youtu.be/Q8gLDlPJrQo |
 
 ---
 
@@ -224,7 +224,13 @@ He also rejected the category rather than the implementation: *"with a lot of pr
 
 # Human Decision Note
 
-⬅️ **WRITE YOUR NOTE HERE** — 150–250 words covering decisions, rejections, corrections, and tradeoffs. Material in `DECISION_NOTE_MATERIAL.md`.
+The central decision this week was to design the database schema against the tool I was using to fill it. A research assignment asks for competitor pricing and market evidence which is exactly the material a language model is trained to produce, whether true/verified or not. Additionally, its hallucinations are indistinguishable from a real one by reading unless doing independent research. So every record carries a source URL, a date, and a required confidence level in addition to four separate layers to check for invented citations, the prompt, the code, the API and a constraint in Postgres.
+
+I rejected making the source field mandatory. It looks like the responsible choice and it is worse. A required source pushes you to paste a plausible looking link to satisfy the constraint which is fabrication with extra steps. Leaving it nullable means an unsourced claim is visible rather than impossible.
+
+The correction I did not expect came from verifying my own work. Checking my Mexican tax claims against the SAT confirmed them, but also surfaced a 2026 reform I had missed. An invoice must now be backed by evidence the work actually happened. None of the tools I surveyed ever saw the work, so they cannot produce that evidence. My argument changed from convenience to exposure, the check meant to confirm what I had written found something better than what I was checking.
+
+The tradeoff is that the page reads as less authoritative. Three rows say "unsourced" instead of quietly appearing as a fact.
 
 ---
 
@@ -236,7 +242,33 @@ He also rejected the category rather than the implementation: *"with a lot of pr
 
 Responses are recorded **verbatim**, including informal register. Polishing a participant's words into formal prose makes a transcript read as authored rather than reported, which in a module built on telling evidence from fabrication would undercut the exercise.
 
-⬅️ **RECORD YOUR CONVERSATION HERE** — template and interview script in `VALIDATION_CONVERSATION.md`.
+**1. How do you currently keep track of what clients owe you?**
+
+> I sell 1 time install shit so not a retainer model and it's always priced per job too so I haven't had a problem with tracking but if I were to ever try and scale I'd prob need to be more diligent
+
+**2. Walk me through what happens between finishing work and getting paid.**
+
+> Making sure their employees use the software and the business owner is happy then send them a bill. Never been stood up or argued against before because I communicate price thoroughly beforehand and I always have a contract signed beforehand and in case I ever need to escalate.
+
+**3. What do you use to invoice?**
+
+> stripe
+
+**4. What is the most annoying part of the admin side?**
+
+> Getting clients lol, oh and like actually getting office employees to build the new software.
+
+**5. Have you ever tried a tool for this?**
+
+> For invoicing or for getting clients? For invoicing like i said stripe and for getting clients nah i run cold email (which is hit or miss depending on the niche) and cold sms and when im feeling real ballsy ive been known to cold call, and i took one out the Adam chu books and got 2 clients from walking in to the firm in person (100% success rate so far lol). So nah no type of software I just make agents to automate the research for list building and enrichment and for sending the sms and emails but I find my best method is when I personally will research firms and write my own scripts and call (or walk in person)
+
+**6. What would have to be true for you to switch to something new?**
+
+> Idk, I've toyed with the idea of building town personal product for out reach and CRM but tbh with a lot of products it's just a degrading asset, the code starts to rot from day 1 of being shipped so I'd have to constantly keep updating it and tbh I just think making agent skills and lean workflow automations are the best, I've even urged clients to also avoid having me build custom software and instead just teach their employees how to use Claude code. What would need to be present in an app is really more of like hyper customization, so maybe something more like an agent harness optimized for a particular product-service with a clean interface and allows users to vibe customize how the harness runs. Like if there was someone dedicated to building freelance outreach tracker and management harness and constantly gave updates to it I'd def rather use his and just do minor tweaking than build my own from scratch.
+
+**7. Reaction to the product itself.**
+
+> I'd say pretty much all the info id want to see is there but if any recommendation it'd be that there prob a cleaner simpler UI for this app but idk what that would be, I kinda just like to see all data laid out on a dashboard which is kinda what u got just its annoying on mobile
 
 ---
 
