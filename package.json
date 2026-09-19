@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:filters": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-filters.ts"
+    "test:filters": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-filters.ts",
+    "test:pricing": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-pricing.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.120.0",
