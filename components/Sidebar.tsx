@@ -68,6 +68,25 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
+    label: "Product",
+    href: "/product",
+    icon: (
+      <svg {...iconProps}>
+        <path d="M12 2.5 3.5 7v10L12 21.5 20.5 17V7Z" />
+        <path d="M3.5 7 12 11.5 20.5 7M12 11.5v10" />
+      </svg>
+    ),
+  },
+  {
+    label: "Pricing",
+    href: "/pricing",
+    icon: (
+      <svg {...iconProps}>
+        <path d="M12 2.5v19M16.5 6.5H9.75a2.75 2.75 0 0 0 0 5.5h4.5a2.75 2.75 0 0 1 0 5.5H7" />
+      </svg>
+    ),
+  },
+  {
     label: "Projects",
     icon: (
       <svg {...iconProps}>
