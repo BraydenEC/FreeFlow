@@ -1,4 +1,7 @@
 import AssumptionsTable from "@/components/pricing/AssumptionsTable";
+import Reasoning from "@/components/prefs/Reasoning";
+import Tabs from "@/components/prefs/Tabs";
+import { Suspense } from "react";
 import PricingCalculator from "@/components/pricing/PricingCalculator";
 import SavedScenarios from "@/components/pricing/SavedScenarios";
 import SegmentPanel from "@/components/pricing/SegmentPanel";
@@ -30,7 +33,12 @@ const usd = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
 });
 
-export default async function PricingPage() {
+export default async function PricingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string }>;
+}) {
+  const { tab } = await searchParams;
   const saved = await getSavedScenarios();
 
   // Computed, not written — the claim below cannot drift from the model.
@@ -47,18 +55,21 @@ export default async function PricingPage() {
             aria-hidden
             className="from-accent/8 pointer-events-none absolute inset-x-0 top-0 h-64 bg-linear-to-b to-transparent"
           />
-          <div className="relative mx-auto max-w-6xl space-y-10 px-5 py-8 sm:px-8 sm:py-10 lg:px-10">
+          <div className="relative mx-auto max-w-6xl page-stack px-5 sm:px-8 lg:px-10">
             <header className="max-w-3xl">
               <h1 className="text-2xl font-semibold tracking-tight">
                 Pricing &amp; Revenue Simulator
               </h1>
-              <p className="text-ink-muted mt-2 text-sm leading-relaxed">
-                A pricing simulator is a machine for producing encouraging
-                numbers — you choose the inputs, so the output is whatever you
-                already believed. This one states every assumption, anchors
-                every price to a competitor that was actually checked, and
-                includes a pessimistic case that genuinely hurts.
-              </p>
+              <Reasoning label="Why this page is built the way it is">
+                <p className="text-ink-muted text-sm leading-relaxed">
+                  A pricing simulator is a machine for producing encouraging
+                  numbers — you choose the inputs, so the output is whatever
+                  you already believed. This one states every assumption,
+                  anchors every price to a competitor that was actually
+                  checked, and includes a pessimistic case that genuinely
+                  hurts.
+                </p>
+              </Reasoning>
             </header>
 
             <section
@@ -76,20 +87,40 @@ export default async function PricingPage() {
                 </span>{" "}
                 — <span className="numeric">{ratio}%</span> of it, and falling.
               </p>
-              <p className="text-ink-muted mt-3 text-sm leading-relaxed">
-                Both numbers come from the same model with different
-                assumptions. The conservative case is not the base case reduced
-                — it encodes what the Week 2 validation conversation actually
-                found: that most freelancers are content with a spreadsheet, and
-                that the one person interviewed said he would not buy.
-              </p>
+              <Reasoning className="mt-3">
+                <p className="text-ink-muted text-sm leading-relaxed">
+                  Both numbers come from the same model with different
+                  assumptions. The conservative case is not the base case
+                  reduced — it encodes what the Week 2 validation conversation
+                  actually found: that most freelancers are content with a
+                  spreadsheet, and that the one person interviewed said he
+                  would not buy.
+                </p>
+              </Reasoning>
             </section>
 
-            <TierCards />
-            <SegmentPanel />
-            <PricingCalculator />
-            <AssumptionsTable />
-            <SavedScenarios scenarios={saved} />
+            {/* Tabs hide inactive panels with CSS rather than unmounting
+                them, so every content check still sees the full page. */}
+            <Suspense fallback={null}>
+              <Tabs
+                initial={tab ?? "simulator"}
+                tabs={[
+                  { id: "simulator", label: "Simulator", content: <PricingCalculator /> },
+                  {
+                    id: "tiers",
+                    label: "Tiers & segments",
+                    content: (
+                      <>
+                        <TierCards />
+                        <SegmentPanel />
+                      </>
+                    ),
+                  },
+                  { id: "assumptions", label: "Assumptions", content: <AssumptionsTable /> },
+                  { id: "saved", label: "Saved", content: <SavedScenarios scenarios={saved} /> },
+                ]}
+              />
+            </Suspense>
           </div>
         </div>
       </main>

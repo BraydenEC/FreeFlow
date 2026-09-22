@@ -1,80 +1,51 @@
 import CorePreview from "@/components/core/CorePreview";
+import DashboardGrid from "@/components/dashboard/DashboardGrid";
+import OverdueAlert from "@/components/dashboard/OverdueAlert";
 import ProjectsTable from "@/components/ProjectsTable";
 import ResearchWidget from "@/components/research/ResearchWidget";
 import Sidebar from "@/components/Sidebar";
 import SummaryCards from "@/components/SummaryCards";
 import { getSavedOutputs } from "@/lib/core/saved";
+import { daysUntil } from "@/lib/format";
 import { getDashboardData } from "@/lib/projects";
 
 /*
-  The dashboard — the single route this sprint delivers.
+  The dashboard.
 
-  A Server Component, so the data fetch happens before HTML is sent: no
-  loading spinner, no client-side waterfall, and no Supabase round trip from
-  the browser.
+  A Server Component that fetches everything, then hands each widget's
+  rendered content to a client grid that arranges them by the user's saved
+  preferences — order, visibility, width. Data never leaves the server side
+  of that boundary; only layout decisions happen in the browser.
 
-  `now` is captured once here and threaded down to every child. Reading the
-  clock inside components would let two of them disagree across a midnight
-  boundary and would risk server/client hydration mismatches.
+  `now` is captured once and threaded to every child so no two components can
+  disagree across a midnight boundary or hydration.
 */
 
-/*
-  Render per request, never at build time.
-
-  Without this the route prerenders as static and `new Date()` is frozen into
-  the HTML at build time — so "in 3 days" would count from whenever the site
-  was last deployed and drift further wrong every day it sits unbuilt. The
-  deadline column is the whole point of the table, so it has to be computed
-  against the viewer's actual today.
-
-  Segment configs like this still apply in Next 16 because `cacheComponents`
-  is off (the default). This is also what Phase 5 needs so Supabase edits
-  appear on refresh instead of being cached from the last build.
-*/
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const now = new Date();
-
-  /*
-    Both reads are independent, so they run concurrently rather than in
-    sequence — awaiting them one after the other would add the core query's
-    latency to every dashboard render for no reason.
-
-    getSavedOutputs never throws: an unconfigured or unreachable database
-    returns an empty list, which the preview renders as its empty state. The
-    dashboard cannot be broken by the core module failing.
-  */
   const [{ projects, metrics, source }, savedOutputs] = await Promise.all([
     getDashboardData(now),
-    getSavedOutputs(4),
+    getSavedOutputs(),
   ]);
 
-  return (
-    /*
-      `data-source` records whether this render came from Supabase or the mock
-      fallback. It exists because the two are deliberately indistinguishable to
-      a viewer — same projects, same figures — which is the right behaviour for
-      resilience but leaves no way to prove the deployed site is actually
-      reading the database.
+  const hasOverdue = projects.some(
+    (p) => !p.isPaid && (p.status === "overdue" || daysUntil(p.deadline, now) < 0),
+  );
 
-      An attribute rather than visible UI: it must not look like a debug badge
-      on a finished product, but `curl … | grep data-source` answers the
-      question in one command.
-    */
+  return (
     <div data-source={source} className="flex min-h-screen">
       <Sidebar />
 
       <main className="min-w-0 flex-1">
         <div className="relative">
-          {/* The only decorative effect in the design — depth otherwise comes
-              from 1px hairlines and generous spacing rather than shadows. */}
           <div
             aria-hidden
             className="from-accent/8 pointer-events-none absolute inset-x-0 top-0 h-64 bg-linear-to-b to-transparent"
           />
 
-          <div className="relative mx-auto max-w-7xl space-y-8 px-5 py-8 sm:px-8 sm:py-10 lg:px-10">
+          <div className="relative mx-auto max-w-7xl page-stack px-5 sm:px-8 lg:px-10">
             <header>
               <h1 className="text-2xl font-semibold tracking-tight">
                 Projects Overview
@@ -85,10 +56,16 @@ export default async function Home() {
               </p>
             </header>
 
-            <SummaryCards metrics={metrics} />
-            <ProjectsTable projects={projects} now={now} />
-            <ResearchWidget />
-            <CorePreview outputs={savedOutputs} now={now} />
+            <DashboardGrid
+              hasOverdue={hasOverdue}
+              widgets={{
+                overdue: <OverdueAlert projects={projects} now={now} />,
+                metrics: <SummaryCards metrics={metrics} />,
+                projects: <ProjectsTable projects={projects} now={now} />,
+                core: <CorePreview outputs={savedOutputs} now={now} />,
+                research: <ResearchWidget />,
+              }}
+            />
           </div>
         </div>
       </main>

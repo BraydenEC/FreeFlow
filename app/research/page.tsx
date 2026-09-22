@@ -1,4 +1,7 @@
 import BenchmarkCards from "@/components/research/BenchmarkCards";
+import Reasoning from "@/components/prefs/Reasoning";
+import Tabs from "@/components/prefs/Tabs";
+import { Suspense } from "react";
 import CompetitorTable from "@/components/research/CompetitorTable";
 import MexicoPanel from "@/components/research/MexicoPanel";
 import ResearchIntake from "@/components/research/ResearchIntake";
@@ -25,7 +28,12 @@ export const metadata = {
     "Evidence that the problem is real: competitors, substitutes, benchmarks, and the CFDI gap in the Mexican market.",
 };
 
-export default async function ResearchPage() {
+export default async function ResearchPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string }>;
+}) {
+  const { tab } = await searchParams;
   const summary = researchSummary();
   const saved = await getSavedResearch();
 
@@ -40,17 +48,19 @@ export default async function ResearchPage() {
             className="from-accent/8 pointer-events-none absolute inset-x-0 top-0 h-64 bg-linear-to-b to-transparent"
           />
 
-          <div className="relative mx-auto max-w-6xl space-y-10 px-5 py-8 sm:px-8 sm:py-10 lg:px-10">
+          <div className="relative mx-auto max-w-6xl page-stack px-5 sm:px-8 lg:px-10">
             <header className="max-w-3xl">
               <h1 className="text-2xl font-semibold tracking-tight">
                 Research &amp; Benchmarking
               </h1>
-              <p className="text-ink-muted mt-2 text-sm leading-relaxed">
-                ServicePro was built on an assumption: that freelancers lose
-                money because their projects, time, and invoices live in
-                separate places. This page tests that assumption against the
-                market — including the possibility that it is wrong.
-              </p>
+              <Reasoning label="What this page is for">
+                <p className="text-ink-muted text-sm leading-relaxed">
+                  ServicePro was built on an assumption: that freelancers lose
+                  money because their projects, time, and invoices live in
+                  separate places. This page tests that assumption against the
+                  market — including the possibility that it is wrong.
+                </p>
+              </Reasoning>
             </header>
 
             {/* The finding, stated before the evidence. `withBoth` is computed
@@ -79,30 +89,57 @@ export default async function ResearchPage() {
                 </span>{" "}
                 do both.
               </p>
-              <p className="text-ink-muted mt-3 text-sm leading-relaxed">
-                That gap is the entire thesis, and it holds from both
-                directions: the global tools have the projects and cannot
-                invoice legally in Mexico, while the Mexican invoicing tools are
-                legally correct and do not track work.{" "}
-                <span className="text-ink-faint">
-                  {summary.sourced} of {summary.playersSurveyed} entries carry a
-                  primary source, verified {summary.verifiedOn}. The rest are
-                  marked estimated.
-                </span>
-              </p>
+              <Reasoning className="mt-3">
+                <p className="text-ink-muted text-sm leading-relaxed">
+                  That gap is the entire thesis, and it holds from both
+                  directions: the global tools have the projects and cannot
+                  invoice legally in Mexico, while the Mexican invoicing tools
+                  are legally correct and do not track work.{" "}
+                  <span className="text-ink-faint">
+                    {summary.sourced} of {summary.playersSurveyed} entries
+                    carry a primary source, verified {summary.verifiedOn}. The
+                    rest are marked estimated.
+                  </span>
+                </p>
+              </Reasoning>
             </section>
 
-            <BenchmarkCards />
-            <MexicoPanel />
-
-            {/* PLAYERS is passed from the server to a Client Component. The
-                dataset is eleven rows, so shipping it once and filtering in
-                the browser beats a request per keystroke by a wide margin. */}
-            <CompetitorTable players={PLAYERS} />
-
-            <RiskMap />
-            <ResearchIntake />
-            <SavedResearch records={saved} />
+            <Suspense fallback={null}>
+              <Tabs
+                initial={tab ?? "competitors"}
+                tabs={[
+                  {
+                    id: "competitors",
+                    label: "Competitors",
+                    /* PLAYERS goes from the server to a Client Component once;
+                       eleven rows filtered in the browser beats a request per
+                       keystroke by a wide margin. */
+                    content: <CompetitorTable players={PLAYERS} />,
+                  },
+                  {
+                    id: "benchmarks",
+                    label: "Benchmarks & Mexico",
+                    content: (
+                      <>
+                        <BenchmarkCards />
+                        <MexicoPanel />
+                      </>
+                    ),
+                  },
+                  { id: "risks", label: "Risk map", content: <RiskMap /> },
+                  {
+                    id: "intake",
+                    label: "Intake & saved",
+                    content: (
+                      <>
+                        <ResearchIntake />
+                        <SavedResearch records={saved} />
+                      </>
+                    ),
+                  },
+                ]}
+              />
+            </Suspense>
           </div>
         </div>
       </main>

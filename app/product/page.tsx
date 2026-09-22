@@ -31,7 +31,7 @@ export default async function ProductPage() {
             aria-hidden
             className="from-accent/8 pointer-events-none absolute inset-x-0 top-0 h-64 bg-linear-to-b to-transparent"
           />
-          <div className="relative mx-auto max-w-5xl space-y-8 px-5 py-8 sm:px-8 sm:py-10 lg:px-10">
+          <div className="relative mx-auto max-w-5xl page-stack px-5 sm:px-8 lg:px-10">
             <header className="max-w-3xl">
               <h1 className="text-2xl font-semibold tracking-tight">
                 Product Architecture

@@ -8,17 +8,24 @@
   with an active state driven by the current pathname; the rest keep the
   original inert treatment. The rule is unchanged — a link exists only if it
   leads somewhere.
+
+  After Week 3, Settings — inert since Week 0 — opens the layout drawer. It
+  became a control the moment it had something to control.
 */
 
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
+import LayoutDrawer from "@/components/prefs/LayoutDrawer";
 
 type NavItem = {
   label: string;
   icon: React.ReactNode;
   href?: string;
+  /** An action instead of a destination. Settings opens the layout drawer. */
+  action?: "settings";
 };
 
 /* Inline SVGs rather than an icon package: zero dependencies, zero network
@@ -105,6 +112,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     label: "Settings",
+    action: "settings",
     icon: (
       <svg {...iconProps}>
         <circle cx="12" cy="12" r="3" />
@@ -116,6 +124,7 @@ const NAV_ITEMS: NavItem[] = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
     <aside className="border-hairline bg-surface flex w-16 shrink-0 flex-col border-r md:w-60">
@@ -131,7 +140,18 @@ export default function Sidebar() {
 
       <nav aria-label="Main" className="flex flex-col gap-1 px-2 py-4 md:px-3">
         {NAV_ITEMS.map((item) =>
-          item.href ? (
+          item.action === "settings" ? (
+            <button
+              key={item.label}
+              type="button"
+              onClick={() => setDrawerOpen(true)}
+              aria-haspopup="dialog"
+              className="text-ink-muted hover:bg-raised/50 hover:text-ink focus-visible:ring-accent flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none"
+            >
+              {item.icon}
+              <span className="hidden md:inline">{item.label}</span>
+            </button>
+          ) : item.href ? (
             <Link
               key={item.label}
               href={item.href}
@@ -171,6 +191,8 @@ export default function Sidebar() {
           </div>
         </div>
       </div>
+
+      <LayoutDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </aside>
   );
 }

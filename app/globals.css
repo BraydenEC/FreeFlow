@@ -53,3 +53,36 @@ body {
 .numeric {
   font-variant-numeric: tabular-nums;
 }
+
+/*
+  Density.
+
+  Driven by data-density on a wrapper set from user preferences. Two values
+  are enough: the compact default that both people who gave feedback asked
+  for, and a comfortable option for anyone who prefers air.
+
+  Only the page-level section gap and the base type size change. Card
+  padding, table rows, and everything else scale with the font size, so one
+  variable and one font-size rule reach the whole page without touching
+  individual components.
+*/
+[data-density="compact"] {
+  --section-gap: 1.25rem;
+  --page-pad-y: 1.5rem;
+}
+[data-density="comfortable"] {
+  --section-gap: 2.5rem;
+  --page-pad-y: 2.5rem;
+}
+[data-density="compact"] main {
+  font-size: 0.9375rem;
+}
+
+/* The vertical stack every page uses. Replaces per-page space-y utilities. */
+.page-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap, 2rem);
+  padding-top: var(--page-pad-y, 2rem);
+  padding-bottom: var(--page-pad-y, 2rem);
+}
