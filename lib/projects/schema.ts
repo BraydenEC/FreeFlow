@@ -17,6 +17,44 @@ import { z } from "zod";
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
+/*
+  A real calendar date, not merely a parseable one.
+
+  The obvious check — Number.isNaN(new Date(`${d}T00:00:00Z`).getTime()) — is
+  what this used to do, and it is wrong. JavaScript rolls impossible dates
+  over rather than rejecting them: "2026-02-31" becomes 3 March and reports
+  itself as perfectly valid. A deadline silently moved three days is exactly
+  the kind of quiet wrong answer this project has tried to avoid everywhere
+  else, and it had been accepting them since the form was written.
+
+  Round-tripping catches it. If any component comes back different from what
+  went in, the date did not exist.
+*/
+export function isRealCalendarDate(value: string): boolean {
+  if (!ISO_DATE.test(value)) return false;
+  const [y, m, d] = value.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  return (
+    dt.getUTCFullYear() === y &&
+    dt.getUTCMonth() === m - 1 &&
+    dt.getUTCDate() === d
+  );
+}
+
+/*
+  Links are checked for a scheme rather than run through a URL validator.
+  The two that land here are a contract and a Stripe payment page, and the
+  failure worth catching is a pasted "www.stripe.com/..." that renders as a
+  relative path and silently 404s inside the app. Requiring http(s) catches
+  that; anything stricter would reject working links for no benefit.
+*/
+const HTTP_URL = /^https?:\/\/\S+$/i;
+
+/** An optional link: absent, empty, or a real absolute URL. */
+const optionalUrl = z
+  .union([z.literal(""), z.string().trim().max(500).regex(HTTP_URL, "Must start with http:// or https://")])
+  .optional();
+
 const nonNegative = z.coerce
   .number()
   .refine(Number.isFinite, "Must be a number")
@@ -26,15 +64,32 @@ export const NewProjectSchema = z
   .object({
     name: z.string().trim().min(1, "Name is required").max(120),
     client: z.string().trim().min(1, "Client is required").max(120),
-    status: z.enum(["in_progress", "awaiting_review", "invoice_sent", "overdue"]),
+    status: z.enum([
+      "contracted",
+      "in_progress",
+      "awaiting_review",
+      "invoice_sent",
+      "overdue",
+    ]),
     deadline: z
       .string()
       .regex(ISO_DATE, "Deadline must be YYYY-MM-DD")
-      .refine((d) => !Number.isNaN(new Date(`${d}T00:00:00Z`).getTime()), "Not a real date"),
+      .refine(isRealCalendarDate, "Not a real date"),
     billing: z.enum(["hourly", "fixed"]),
     hours_logged: nonNegative.max(9999.99).default(0),
     hourly_rate: nonNegative.max(999999.99).default(0),
     invoice_total: z.union([z.literal(""), nonNegative.max(99999999.99)]).optional(),
+    contract_signed_on: z
+      .union([
+        z.literal(""),
+        z
+          .string()
+          .regex(ISO_DATE, "Contract date must be YYYY-MM-DD")
+          .refine(isRealCalendarDate, "Not a real date"),
+      ])
+      .optional(),
+    contract_url: optionalUrl,
+    payment_url: optionalUrl,
   })
   .superRefine((v, ctx) => {
     if (v.billing === "fixed") {
@@ -57,6 +112,11 @@ export const NewProjectSchema = z
 export type NewProjectInput = z.input<typeof NewProjectSchema>;
 export type NewProject = z.output<typeof NewProjectSchema>;
 
+/** Empty string means "not provided" from a form; the column wants null. */
+function orNull(v: string | undefined): string | null {
+  return v === undefined || v === "" ? null : v;
+}
+
 /** The row the API inserts. One place decides how billing maps to columns. */
 export function toRow(p: NewProject) {
   return {
@@ -69,5 +129,8 @@ export function toRow(p: NewProject) {
     invoice_total: p.billing === "fixed" ? p.invoice_total : null,
     is_paid: false,
     paid_at: null,
+    contract_signed_on: orNull(p.contract_signed_on),
+    contract_url: orNull(p.contract_url),
+    payment_url: orNull(p.payment_url),
   };
 }

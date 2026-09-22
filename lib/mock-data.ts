@@ -52,6 +52,9 @@ export function getMockProjects(now: Date): Project[] {
       invoiceTotal: null,
       isPaid: false,
       paidAt: null,
+      contractSignedOn: null,
+      contractUrl: null,
+      paymentUrl: null,
     },
     {
       id: "mock-2",
@@ -64,6 +67,9 @@ export function getMockProjects(now: Date): Project[] {
       invoiceTotal: null,
       isPaid: false,
       paidAt: null,
+      contractSignedOn: null,
+      contractUrl: null,
+      paymentUrl: null,
     },
     {
       id: "mock-3",
@@ -76,6 +82,9 @@ export function getMockProjects(now: Date): Project[] {
       invoiceTotal: null,
       isPaid: false,
       paidAt: null,
+      contractSignedOn: null,
+      contractUrl: null,
+      paymentUrl: null,
     },
     {
       id: "mock-4",
@@ -88,6 +97,9 @@ export function getMockProjects(now: Date): Project[] {
       invoiceTotal: null,
       isPaid: false,
       paidAt: null,
+      contractSignedOn: null,
+      contractUrl: null,
+      paymentUrl: null,
     },
     {
       id: "mock-5",
@@ -100,6 +112,9 @@ export function getMockProjects(now: Date): Project[] {
       invoiceTotal: null,
       isPaid: false,
       paidAt: null,
+      contractSignedOn: null,
+      contractUrl: null,
+      paymentUrl: null,
     },
     {
       // Fixed-fee engagement: invoiceTotal deliberately differs from
@@ -114,6 +129,9 @@ export function getMockProjects(now: Date): Project[] {
       invoiceTotal: 4200,
       isPaid: true,
       paidAt: isoPaidThisMonth(now),
+      contractSignedOn: null,
+      contractUrl: null,
+      paymentUrl: null,
     },
   ];
 }

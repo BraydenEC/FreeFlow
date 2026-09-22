@@ -36,6 +36,9 @@ function project(over: Partial<Project> = {}): Project {
     invoiceTotal: null,
     isPaid: false,
     paidAt: null,
+    contractSignedOn: null,
+    contractUrl: null,
+    paymentUrl: null,
     ...over,
   };
 }
@@ -44,10 +47,11 @@ console.log("\nPIPELINE PROGRESS\n" + "─".repeat(64));
 
 // --- Each stage maps to its own percentage --------------------------------
 const expected: [ProjectStatus, number, string][] = [
-  ["in_progress", 25, "In Progress"],
-  ["awaiting_review", 50, "Awaiting Review"],
-  ["invoice_sent", 75, "Invoice Sent"],
-  ["overdue", 75, "Overdue"],
+  ["contracted", 10, "Contract Signed"],
+  ["in_progress", 30, "In Progress"],
+  ["awaiting_review", 55, "Awaiting Review"],
+  ["invoice_sent", 80, "Invoice Sent"],
+  ["overdue", 80, "Overdue"],
 ];
 
 for (const [status, percent, label] of expected) {
@@ -82,6 +86,16 @@ assert(
 // --- Overdue and Invoice Sent are the same stage ---------------------------
 // Deliberate: lateness is urgency, not progress. If this ever diverges it
 // should be a decision, not an accident.
+// The pipeline only moves forward, so its percentages must too. This is the
+// assertion that catches a future stage being inserted with a careless number.
+const ladder = expected.map(([, percent]) => percent);
+assert(
+  "percentages never decrease along the pipeline",
+  ladder.every((v, i) => i === 0 || v >= ladder[i - 1]),
+  ladder.join(" "),
+);
+assert("contract signed is the earliest stage", ladder[0] === 10);
+
 assert(
   "overdue and invoice_sent share a percentage",
   projectProgress(project({ status: "overdue" })).percent ===

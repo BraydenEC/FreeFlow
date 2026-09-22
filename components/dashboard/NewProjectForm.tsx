@@ -22,6 +22,7 @@ import type { NewProjectInput } from "@/lib/projects/schema";
 */
 
 const STATUS_OPTIONS: { value: NewProjectInput["status"]; label: string }[] = [
+  { value: "contracted", label: "Contract signed" },
   { value: "in_progress", label: "In progress" },
   { value: "awaiting_review", label: "Awaiting review" },
   { value: "invoice_sent", label: "Invoice sent" },
@@ -33,12 +34,15 @@ const todayIso = () => new Date().toISOString().slice(0, 10);
 const blank = (): NewProjectInput => ({
   name: "",
   client: "",
-  status: "in_progress",
+  status: "contracted",
   deadline: todayIso(),
   billing: "fixed",
   hours_logged: "" as unknown as number,
   hourly_rate: "" as unknown as number,
   invoice_total: "",
+  contract_signed_on: todayIso(),
+  contract_url: "",
+  payment_url: "",
 });
 
 export default function NewProjectForm({
@@ -182,6 +186,43 @@ export default function NewProjectForm({
             {err("invoice_total")}
           </label>
         )}
+      </div>
+
+      <div className="border-hairline mt-4 grid gap-4 border-t pt-4 sm:grid-cols-2">
+        <label className="flex flex-col gap-1">
+          <span className={label}>Contract signed</span>
+          <input
+            type="date"
+            className={input}
+            value={form.contract_signed_on ?? ""}
+            onChange={(e) => set("contract_signed_on", e.target.value)}
+          />
+          {err("contract_signed_on")}
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className={label}>Contract link</span>
+          <input
+            type="url"
+            inputMode="url"
+            placeholder="https://…"
+            className={input}
+            value={form.contract_url ?? ""}
+            onChange={(e) => set("contract_url", e.target.value)}
+          />
+          {err("contract_url")}
+        </label>
+        <label className="flex flex-col gap-1 sm:col-span-2">
+          <span className={label}>Stripe invoice or payment link</span>
+          <input
+            type="url"
+            inputMode="url"
+            placeholder="https://…"
+            className={input}
+            value={form.payment_url ?? ""}
+            onChange={(e) => set("payment_url", e.target.value)}
+          />
+          {err("payment_url")}
+        </label>
       </div>
 
       {error && error.field === null && (

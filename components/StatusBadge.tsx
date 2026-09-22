@@ -17,20 +17,33 @@ import type { ProjectStatus } from "@/types/project";
 */
 
 const LABELS: Record<ProjectStatus, string> = {
+  contracted: "Contract Signed",
   in_progress: "In Progress",
   awaiting_review: "Awaiting Review",
   invoice_sent: "Invoice Sent",
   overdue: "Overdue",
 };
 
-export default function StatusBadge({ status }: { status: ProjectStatus }) {
+export default function StatusBadge({
+  status,
+  isPaid = false,
+}: {
+  status: ProjectStatus;
+  isPaid?: boolean;
+}) {
+  // Payment outranks status. A paid project whose row still says "Overdue"
+  // is the one case where the stored status actively misleads, and the
+  // progress bar already resolves it the same way.
+  const label = isPaid ? "Paid" : LABELS[status];
+  const late = !isPaid && status === "overdue";
+
   return (
     <span
       className={`text-sm whitespace-nowrap ${
-        status === "overdue" ? "text-status-overdue" : "text-ink"
+        late ? "text-status-overdue" : isPaid ? "text-ink-muted" : "text-ink"
       }`}
     >
-      {LABELS[status]}
+      {label}
     </span>
   );
 }

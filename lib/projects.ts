@@ -35,9 +35,13 @@ type ProjectRow = {
   invoice_total: number | string | null;
   is_paid: boolean;
   paid_at: string | null;
+  contract_signed_on: string | null;
+  contract_url: string | null;
+  payment_url: string | null;
 };
 
 const VALID_STATUSES: ProjectStatus[] = [
+  "contracted",
   "in_progress",
   "awaiting_review",
   "invoice_sent",
@@ -94,6 +98,9 @@ function mapRow(row: ProjectRow): Project {
     invoiceTotal: toNullableNumber(row.invoice_total),
     isPaid: Boolean(row.is_paid),
     paidAt: row.paid_at,
+    contractSignedOn: row.contract_signed_on,
+    contractUrl: row.contract_url,
+    paymentUrl: row.payment_url,
   };
 }
 
@@ -117,7 +124,7 @@ async function fetchFromSupabase(): Promise<Project[] | null> {
     const { data, error } = await supabase
       .from("projects")
       .select(
-        "id, name, client, status, deadline, hours_logged, hourly_rate, invoice_total, is_paid, paid_at",
+        "id, name, client, status, deadline, hours_logged, hourly_rate, invoice_total, is_paid, paid_at, contract_signed_on, contract_url, payment_url",
       )
       .order("deadline", { ascending: true });
 

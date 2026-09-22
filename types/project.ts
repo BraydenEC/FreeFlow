@@ -1,5 +1,12 @@
-/** The four actionable states a project can be in, per the handoff spec. */
+/**
+ * The five actionable states a project can be in.
+ *
+ * "contracted" was added after the Week 2 validation interview: the
+ * interviewee's pipeline begins at a signed contract, not at the first hour
+ * of work, and he credits that signature with never having been stood up.
+ */
 export type ProjectStatus =
+  | "contracted"
   | "in_progress"
   | "awaiting_review"
   | "invoice_sent"
@@ -23,6 +30,12 @@ export type Project = {
   isPaid: boolean;
   /** ISO date the invoice was paid, or null. Drives "This Month's Earnings". */
   paidAt: string | null;
+  /** ISO date the contract was signed, or null if never recorded. */
+  contractSignedOn: string | null;
+  /** Link to the signed contract — the artifact behind an escalation. */
+  contractUrl: string | null;
+  /** Link to the Stripe invoice or payment page that settles this project. */
+  paymentUrl: string | null;
 };
 
 /** The three cash-flow figures shown above the table. */

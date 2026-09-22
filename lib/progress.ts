@@ -9,10 +9,11 @@ import type { Project } from "@/types/project";
   derived from the two things that are real: where the project sits in the
   billing pipeline, and whether the money has arrived.
 
-    In Progress      25%   work underway
-    Awaiting Review  50%   delivered, not yet billed
-    Invoice Sent     75%   billed, unpaid
-    Overdue          75%   billed, unpaid, and late
+    Contract Signed  10%   agreed, work not started
+    In Progress      30%   work underway
+    Awaiting Review  55%   delivered, not yet billed
+    Invoice Sent     80%   billed, unpaid
+    Overdue          80%   billed, unpaid, and late
     Paid            100%   done
 
   `isPaid` wins over `status`. A paid project is finished whatever its status
@@ -36,13 +37,15 @@ export function projectProgress(project: Project): ProjectProgress {
   if (project.isPaid) return { label: "Paid", percent: 100, complete: true };
 
   switch (project.status) {
+    case "contracted":
+      return { label: "Contract Signed", percent: 10, complete: false };
     case "in_progress":
-      return { label: "In Progress", percent: 25, complete: false };
+      return { label: "In Progress", percent: 30, complete: false };
     case "awaiting_review":
-      return { label: "Awaiting Review", percent: 50, complete: false };
+      return { label: "Awaiting Review", percent: 55, complete: false };
     case "invoice_sent":
-      return { label: "Invoice Sent", percent: 75, complete: false };
+      return { label: "Invoice Sent", percent: 80, complete: false };
     case "overdue":
-      return { label: "Overdue", percent: 75, complete: false };
+      return { label: "Overdue", percent: 80, complete: false };
   }
 }

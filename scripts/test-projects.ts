@@ -112,6 +112,12 @@ rejects("status outside the four the UI has badges for", { ...base, status: "arc
 rejects("US-format date", { ...base, deadline: "10/01/2026" }, "deadline");
 rejects("date with no day", { ...base, deadline: "2026-10" }, "deadline");
 rejects("month 13", { ...base, deadline: "2026-13-01" }, "deadline");
+// Regression: JavaScript rolls "2026-02-31" over to 3 March and calls it
+// valid. A deadline silently moved three days is a quiet wrong answer.
+rejects("31 February as a deadline", { ...base, deadline: "2026-02-31" }, "deadline");
+rejects("31 April as a deadline", { ...base, deadline: "2026-04-31" }, "deadline");
+rejects("29 February in a non-leap year", { ...base, deadline: "2026-02-29" }, "deadline");
+accepts("29 February in a leap year", { ...base, deadline: "2028-02-29" });
 rejects("blank deadline", { ...base, deadline: "" }, "deadline");
 accepts("a date in the past", { ...base, deadline: "2020-01-01" });
 
@@ -119,6 +125,44 @@ accepts("a date in the past", { ...base, deadline: "2020-01-01" });
 rejects("null body", null);
 rejects("array body", []);
 rejects("empty object", {});
+
+// --- Contract and payment links -------------------------------------------
+// Added after the Week 2 validation interview. Empty means "not recorded" and
+// must survive; a pasted link without a scheme must not, because it would
+// render as a relative path and 404 inside the app.
+accepts("no contract or links at all", base);
+accepts("empty strings for all three", {
+  ...base,
+  contract_signed_on: "",
+  contract_url: "",
+  payment_url: "",
+});
+accepts("a full contract record", {
+  ...base,
+  contract_signed_on: "2026-09-01",
+  contract_url: "https://example.com/contract.pdf",
+  payment_url: "https://invoice.stripe.com/i/abc123",
+});
+rejects("contract link with no scheme", { ...base, contract_url: "www.example.com/c.pdf" }, "contract_url");
+rejects("payment link with no scheme", { ...base, payment_url: "invoice.stripe.com/i/abc" }, "payment_url");
+rejects("javascript: contract link", { ...base, contract_url: "javascript:alert(1)" }, "contract_url");
+rejects("US-format contract date", { ...base, contract_signed_on: "09/01/2026" }, "contract_signed_on");
+rejects("impossible contract date", { ...base, contract_signed_on: "2026-02-31" }, "contract_signed_on");
+accepts("contract signed status", { ...base, status: "contracted" });
+
+// Empty string must reach the database as null, not "".
+const withEmpties = NewProjectSchema.safeParse({
+  ...base,
+  contract_signed_on: "",
+  contract_url: "",
+  payment_url: "",
+});
+if (withEmpties.success) {
+  const row = toRow(withEmpties.data);
+  assert("empty contract date becomes null", row.contract_signed_on === null);
+  assert("empty contract link becomes null", row.contract_url === null);
+  assert("empty payment link becomes null", row.payment_url === null);
+}
 
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed\n`);

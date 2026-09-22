@@ -1,3 +1,4 @@
+import MarkPaidButton from "@/components/dashboard/MarkPaidButton";
 import ProgressBar from "@/components/ProgressBar";
 import StatusBadge from "@/components/StatusBadge";
 import {
@@ -22,6 +23,35 @@ import type { Project } from "@/types/project";
   `now` is passed down instead of read here, so every row measures its deadline
   against the same instant the server used. See lib/format.ts.
 */
+
+/* Contract and payment links, shown only when they exist. Both come straight
+   from the validation interview: the signed contract is what makes an
+   escalation possible, and the Stripe link connects a row to the payment that
+   settled it. A row with neither shows nothing rather than empty affordances. */
+function RowLinks({ project }: { project: Project }) {
+  const links = [
+    { href: project.contractUrl, label: "Contract" },
+    { href: project.paymentUrl, label: "Invoice" },
+  ].filter((l): l is { href: string; label: string } => Boolean(l.href));
+
+  if (links.length === 0) return null;
+
+  return (
+    <span className="mt-0.5 flex gap-2">
+      {links.map((l) => (
+        <a
+          key={l.label}
+          href={l.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-ink-faint hover:text-ink text-[11px] underline-offset-2 hover:underline"
+        >
+          {l.label} ↗
+        </a>
+      ))}
+    </span>
+  );
+}
 
 function DeadlineText({ project, now }: { project: Project; now: Date }) {
   const days = daysUntil(project.deadline, now);
@@ -104,7 +134,7 @@ export default function ProjectsTable({
         <table className="hidden w-full text-left text-sm sm:table">
           <caption className="sr-only">
             Recent freelance projects with client, status, financial value,
-            pipeline progress, and deadline.
+            pipeline progress, deadline, and a control to record payment.
           </caption>
           <thead className="bg-raised/60 text-ink-faint border-hairline border-b">
             <tr>
@@ -123,6 +153,9 @@ export default function ProjectsTable({
               <th scope="col" className={TH}>
                 Due Date
               </th>
+              <th scope="col" className={`${TH} text-right`}>
+                <span className="sr-only">Actions</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -140,9 +173,10 @@ export default function ProjectsTable({
                     <span className="text-ink-muted block text-xs">
                       {project.client}
                     </span>
+                    <RowLinks project={project} />
                   </th>
                   <td className="px-5 py-3.5">
-                    <StatusBadge status={project.status} />
+                    <StatusBadge status={project.status} isPaid={project.isPaid} />
                   </td>
                   <td className="numeric px-5 py-3.5 text-right font-medium">
                     {formatCurrency(projectValue(project))}
@@ -161,6 +195,9 @@ export default function ProjectsTable({
                   </td>
                   <td className="px-5 py-3.5 whitespace-nowrap">
                     <DeadlineText project={project} now={now} />
+                  </td>
+                  <td className="px-5 py-3.5 text-right">
+                    {!project.isPaid && <MarkPaidButton projectId={project.id} />}
                   </td>
                 </tr>
               );
@@ -183,8 +220,9 @@ export default function ProjectsTable({
                     <p className="text-ink-muted truncate text-xs">
                       {project.client}
                     </p>
+                    <RowLinks project={project} />
                   </div>
-                  <StatusBadge status={project.status} />
+                  <StatusBadge status={project.status} isPaid={project.isPaid} />
                 </div>
                 <ProgressBar
                   percent={progress.percent}
@@ -199,6 +237,11 @@ export default function ProjectsTable({
                     <DeadlineText project={project} now={now} />
                   </span>
                 </div>
+                {!project.isPaid && (
+                  <div className="flex justify-end">
+                    <MarkPaidButton projectId={project.id} />
+                  </div>
+                )}
               </li>
             );
           })}
