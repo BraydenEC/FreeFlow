@@ -1,4 +1,4 @@
--- ServicePro Research — Week 2 schema
+-- FreeFlow Research — Week 2 schema
 --
 -- HOW TO RUN
 --   Supabase dashboard → SQL Editor → New query → paste → Run

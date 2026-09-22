@@ -48,7 +48,7 @@ address rather than requiring you to own a domain.
    - Username: the Brevo SMTP login
    - Password: the Brevo SMTP key
    - Sender email: `braydencredeur@gmail.com`
-   - Sender name: `ServicePro`
+   - Sender name: `FreeFlow`
 5. Save.
 
 Why Brevo and not Resend: Resend's free tier without a domain can only deliver

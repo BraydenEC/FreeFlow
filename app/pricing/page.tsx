@@ -22,7 +22,7 @@ import { SCENARIOS } from "@/lib/pricing/scenarios";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Pricing & Revenue Simulator — ServicePro",
+  title: "Pricing & Revenue Simulator — FreeFlow",
   description:
     "Three tiers anchored to verified competitor pricing, two customer segments, and a revenue model whose assumptions are stated rather than hidden.",
 };
@@ -47,7 +47,7 @@ export default async function PricingPage({
   const ratio = Math.round((conservative.arr / base.arr) * 100);
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-[calc(100vh-3.5rem)]">
       <Sidebar />
       <main className="min-w-0 flex-1">
         <div className="relative">
@@ -57,7 +57,7 @@ export default async function PricingPage({
           />
           <div className="relative mx-auto max-w-6xl page-stack px-5 sm:px-8 lg:px-10">
             <header className="max-w-3xl">
-              <h1 className="text-2xl font-semibold tracking-tight">
+              <h1 className="page-title">
                 Pricing &amp; Revenue Simulator
               </h1>
               <Reasoning label="Why this page is built the way it is">

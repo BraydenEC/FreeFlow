@@ -102,7 +102,7 @@ export default function MexicoPanel() {
             Mexican freelancer runs two systems by legal necessity, not
             disorganization — a foreign tool for projects and time, and a local
             tool for the invoice the law actually requires. The fragmentation
-            ServicePro set out to solve is structural here, not a discipline
+            FreeFlow set out to solve is structural here, not a discipline
             problem.
           </p>
           <p className="text-sm leading-relaxed">

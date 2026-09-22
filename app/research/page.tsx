@@ -23,7 +23,7 @@ import { getSavedResearch } from "@/lib/research/saved";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Research & Benchmarking — ServicePro",
+  title: "Research & Benchmarking — FreeFlow",
   description:
     "Evidence that the problem is real: competitors, substitutes, benchmarks, and the CFDI gap in the Mexican market.",
 };
@@ -38,7 +38,7 @@ export default async function ResearchPage({
   const saved = await getSavedResearch();
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-[calc(100vh-3.5rem)]">
       <Sidebar />
 
       <main className="min-w-0 flex-1">
@@ -50,12 +50,12 @@ export default async function ResearchPage({
 
           <div className="relative mx-auto max-w-6xl page-stack px-5 sm:px-8 lg:px-10">
             <header className="max-w-3xl">
-              <h1 className="text-2xl font-semibold tracking-tight">
+              <h1 className="page-title">
                 Research &amp; Benchmarking
               </h1>
               <Reasoning label="What this page is for">
                 <p className="text-ink-muted text-sm leading-relaxed">
-                  ServicePro was built on an assumption: that freelancers lose
+                  FreeFlow was built on an assumption: that freelancers lose
                   money because their projects, time, and invoices live in
                   separate places. This page tests that assumption against the
                   market — including the possibility that it is wrong.

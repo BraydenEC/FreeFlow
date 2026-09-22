@@ -9,7 +9,7 @@ import type { Risk } from "@/types/research";
   justify a dependency, and this project has added zero third-party packages
   since Week 1.
 
-  The map includes risks to ServicePro's own thesis, not just external threats.
+  The map includes risks to FreeFlow's own thesis, not just external threats.
   A risk map that only lists things other people might do is a marketing
   slide, and the highest-severity cell here is occupied by the possibility
   that the gap closes from the Mexican side — which would make this whole
@@ -52,7 +52,7 @@ export default function RiskMap() {
         </h2>
         <p className="text-ink-muted mt-1 text-sm">
           Including risks to this project&rsquo;s own thesis. The top-right cell
-          is the one that would make ServicePro unnecessary.
+          is the one that would make FreeFlow unnecessary.
         </p>
       </div>
 

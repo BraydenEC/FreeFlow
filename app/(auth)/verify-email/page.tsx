@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import VerifyEmailPanel from "@/components/auth/VerifyEmailPanel";
 
-export const metadata: Metadata = { title: "Confirm your email — ServicePro" };
+export const metadata: Metadata = { title: "Confirm your email — FreeFlow" };
 export const dynamic = "force-dynamic";
 
 export default async function VerifyEmailPage({

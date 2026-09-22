@@ -1,4 +1,4 @@
--- ServicePro Pricing — Week 3 schema
+-- FreeFlow Pricing — Week 3 schema
 --
 -- HOW TO RUN
 --   Supabase dashboard → SQL Editor → New query → paste → Run

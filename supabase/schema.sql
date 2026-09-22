@@ -1,4 +1,4 @@
--- ServicePro — Supabase schema + seed data
+-- FreeFlow — Supabase schema + seed data
 --
 -- HOW TO RUN
 --   1. Supabase dashboard → SQL Editor → New query

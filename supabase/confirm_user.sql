@@ -1,4 +1,4 @@
--- ServicePro — manually confirm an account
+-- FreeFlow — manually confirm an account
 --
 -- HOW TO RUN
 --   Supabase → SQL Editor → New query → paste this file → Run

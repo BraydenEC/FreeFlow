@@ -1,4 +1,4 @@
-# 🏗 Architecture — ServicePro
+# 🏗 Architecture — FreeFlow
 
 Rubric item: *"Architecture sketch and stack table explain how the feature works."*
 

@@ -47,10 +47,10 @@ export default function VerifyEmailPanel({ email }: { email: string }) {
     <div className="border-hairline bg-surface w-full max-w-sm rounded-2xl border p-6 sm:p-8">
       <div className="mb-6 flex items-center gap-2.5">
         <span className="bg-ink text-app flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold">
-          S
+          F
         </span>
         <span className="text-[15px] font-semibold tracking-tight">
-          Service<span className="text-ink-muted">Pro</span>
+          Free<span className="text-ink-muted">Flow</span>
         </span>
       </div>
 

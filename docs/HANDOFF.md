@@ -1,4 +1,4 @@
-# 🤝 ServicePro — Session Handoff
+# 🤝 FreeFlow — Session Handoff
 
 **Last updated:** Aug 17, 2026 · end of Phase 5 (code) + Phase 9 (docs)
 **Project root:** `/Users/braydencredeur/Antigravity/Website/Dev/servicepro`
@@ -90,7 +90,7 @@ npm run dev     # → http://localhost:3000
 app/
   globals.css      Design tokens in @theme (Tailwind v4 CSS-first). Dark-only —
                    the default prefers-color-scheme block was removed, not overridden.
-  layout.tsx       Geist fonts, ServicePro metadata
+  layout.tsx       Geist fonts, FreeFlow metadata
   page.tsx         The dashboard. Server Component, force-dynamic, captures `now` once
 components/
   Sidebar.tsx      4 items; Dashboard active, other 3 inert <span>s (not dead links)
@@ -199,7 +199,7 @@ agent.
 | Decision | Reason |
 |---|---|
 | Sidebar links inert + dimmed | Resolves handoff §2.1 vs §4 contradiction without dead links |
-| Brand is **ServicePro**, 4 nav items | Handoff overrides the mockup's "FreelanceIO" / 7 items |
+| Brand is **FreeFlow**, 4 nav items | Handoff overrides the mockup's "FreelanceIO" / 7 items |
 | Deadlines computed **relative to today** | Mockup's hardcoded 2023 dates would read as years overdue at grading |
 | Dates/currency formatted **server-side**, locale pinned `en-US` | Prevents hydration mismatch — red console errors during a recorded demo |
 | Summary metrics **derived**, not hardcoded | Handoff §2.2 hardcodes them while §3 fetches live rows; cards would contradict the table on camera |

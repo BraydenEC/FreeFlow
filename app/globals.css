@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /*
-  ServicePro design tokens.
+  FreeFlow design tokens.
 
   Tailwind v4 is CSS-first — there is no tailwind.config.ts in this project.
   Anything declared in @theme becomes a real utility, so --color-surface
@@ -85,4 +85,19 @@ body {
   gap: var(--section-gap, 2rem);
   padding-top: var(--page-pad-y, 2rem);
   padding-bottom: var(--page-pad-y, 2rem);
+}
+
+/*
+  Page title.
+
+  Uppercase and widely letterspaced, matching the column headers and status
+  labels. In an interface with no colour and no icons, letterspacing is what
+  separates a label from a value — so it is used consistently and only for
+  that, never for emphasis.
+*/
+.page-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }

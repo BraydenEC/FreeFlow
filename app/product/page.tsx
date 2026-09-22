@@ -14,16 +14,16 @@ import { featureSummary } from "@/lib/product/features";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Product Architecture — ServicePro",
+  title: "Product Architecture — FreeFlow",
   description:
-    "What ServicePro does today, what each tier includes, and what remains unbuilt.",
+    "What FreeFlow does today, what each tier includes, and what remains unbuilt.",
 };
 
 export default async function ProductPage() {
   const s = featureSummary();
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-[calc(100vh-3.5rem)]">
       <Sidebar />
       <main className="min-w-0 flex-1">
         <div className="relative">
@@ -33,7 +33,7 @@ export default async function ProductPage() {
           />
           <div className="relative mx-auto max-w-5xl page-stack px-5 sm:px-8 lg:px-10">
             <header className="max-w-3xl">
-              <h1 className="text-2xl font-semibold tracking-tight">
+              <h1 className="page-title">
                 Product Architecture
               </h1>
               <p className="text-ink-muted mt-2 text-sm leading-relaxed">

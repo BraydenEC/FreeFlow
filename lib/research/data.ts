@@ -67,7 +67,7 @@ export const BENCHMARKS: Benchmark[] = [
     name: "Toggl Track",
     headline: "States the gap in its own words",
     detail:
-      'Its invoicing feature is described as "Generate and download PDF invoices." In Mexico a PDF is a picture of a fiscal document, not a fiscal document — this single line is the clearest statement of the gap ServicePro targets.',
+      'Its invoicing feature is described as "Generate and download PDF invoices." In Mexico a PDF is a picture of a fiscal document, not a fiscal document — this single line is the clearest statement of the gap FreeFlow targets.',
     pricing: "Free · Starter $9 · Premium $14/license/mo",
     sourceUrl: "https://toggl.com/track/pricing/",
     verifiedOn: VERIFIED_ON,

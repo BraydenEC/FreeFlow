@@ -1,4 +1,4 @@
--- ServicePro Core — Week 1 schema
+-- FreeFlow Core — Week 1 schema
 --
 -- HOW TO RUN
 --   Supabase dashboard → SQL Editor → New query → paste → Run

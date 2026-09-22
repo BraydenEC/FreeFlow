@@ -1,4 +1,4 @@
-# ServicePro
+# FreeFlow
 
 **A project and invoice tracker for freelancers.** Built for the Week 0 Setup
 Sprint of *Negocios Inteligentes*.
@@ -16,7 +16,7 @@ deadlines. Nothing reconciles. The two questions that actually matter —
 *"how much am I owed?"* and *"what's due next?"* — require manual assembly every
 single time.
 
-ServicePro answers both on one screen.
+FreeFlow answers both on one screen.
 
 ## Who it's for
 

@@ -1,4 +1,4 @@
--- ServicePro — user accounts migration
+-- FreeFlow — user accounts migration
 --
 -- HOW TO RUN
 --   1. Supabase → Authentication → Providers → Email → turn "Confirm email" OFF

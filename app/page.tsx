@@ -36,7 +36,7 @@ export default async function Home() {
   );
 
   return (
-    <div data-source={source} className="flex min-h-screen">
+    <div data-source={source} className="flex min-h-[calc(100vh-3.5rem)]">
       <Sidebar />
 
       <main className="min-w-0 flex-1">
@@ -48,7 +48,7 @@ export default async function Home() {
 
           <div className="relative mx-auto max-w-7xl page-stack px-5 sm:px-8 lg:px-10">
             <header>
-              <h1 className="text-2xl font-semibold tracking-tight">
+              <h1 className="page-title">
                 Projects Overview
               </h1>
               <p className="text-ink-muted mt-1 text-sm">

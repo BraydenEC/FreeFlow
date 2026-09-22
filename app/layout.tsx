@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { PrefsProvider } from "@/components/prefs/PrefsProvider";
 import { SessionProvider } from "@/components/auth/SessionProvider";
+import TopBar from "@/components/TopBar";
 import { getUserPrefs } from "@/lib/prefs/server";
 import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
 
@@ -17,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ServicePro — Freelance Project & Invoice Tracker",
+  title: "FreeFlow — Freelance Project & Invoice Tracker",
   description:
     "Track projects, cash flow, and deadlines in one place. Built for independent contractors, freelance developers, designers, and consultants.",
 };
@@ -41,6 +42,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <body className="bg-app text-ink min-h-full">
         <SessionProvider user={user}>
           <PrefsProvider initial={prefs} scope={user?.id ?? null}>
+            <TopBar />
             {children}
           </PrefsProvider>
         </SessionProvider>

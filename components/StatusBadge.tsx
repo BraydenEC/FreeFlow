@@ -1,44 +1,35 @@
 import type { ProjectStatus } from "@/types/project";
 
 /*
-  Status pill.
+  Status label.
 
-  Colour carries meaning here, so it can't be the only signal — the label is
-  always present, which keeps the badge readable for colour-blind viewers and
-  in a greyscale printout of the submission PDF.
+  Weeks 0-3 rendered this as a coloured pill — one hue per state. The interface
+  is now monochrome and typographic, so the pill is gone and the label carries
+  itself: small, uppercase, letterspaced, the same treatment as the column
+  headers.
 
-  Tailwind v4 scans source files for complete class strings, so these are
-  written out in full rather than assembled from fragments. `bg-${color}/10`
-  would silently produce no styles.
+  One exception. Overdue keeps its colour, because it is the only status that
+  means money is late, and stripping every signal in the name of restraint
+  would make the page prettier and less useful. Colour is never the only cue —
+  the word "Overdue" is always printed — so this stays readable in greyscale
+  and for colour-blind readers.
 */
 
-const STYLES: Record<ProjectStatus, { label: string; className: string }> = {
-  in_progress: {
-    label: "In Progress",
-    className: "bg-indigo-400/10 text-indigo-300 ring-indigo-400/20",
-  },
-  awaiting_review: {
-    label: "Awaiting Review",
-    className: "bg-amber-400/10 text-amber-300 ring-amber-400/20",
-  },
-  invoice_sent: {
-    label: "Invoice Sent",
-    className: "bg-sky-400/10 text-sky-300 ring-sky-400/20",
-  },
-  overdue: {
-    label: "Overdue",
-    className: "bg-rose-400/10 text-rose-300 ring-rose-400/20",
-  },
+const LABELS: Record<ProjectStatus, string> = {
+  in_progress: "In Progress",
+  awaiting_review: "Awaiting Review",
+  invoice_sent: "Invoice Sent",
+  overdue: "Overdue",
 };
 
 export default function StatusBadge({ status }: { status: ProjectStatus }) {
-  const { label, className } = STYLES[status];
-
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium whitespace-nowrap ring-1 ring-inset ${className}`}
+      className={`text-[11px] font-medium tracking-[0.08em] whitespace-nowrap uppercase ${
+        status === "overdue" ? "text-status-overdue" : "text-ink-muted"
+      }`}
     >
-      {label}
+      {LABELS[status]}
     </span>
   );
 }
