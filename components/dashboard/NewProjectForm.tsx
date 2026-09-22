@@ -14,6 +14,11 @@ import type { NewProjectInput } from "@/lib/projects/schema";
 
   On success: router.refresh() re-runs the Server Component that fetched the
   projects, so the new row appears without a client-side cache to keep.
+
+  Fixed fee is the default, and is listed first. The Week 2 validation
+  interviewee: "I sell 1 time install shit so not a retainer model and it's
+  always priced per job too." The hourly path stays, because the excluded
+  segment work assumes it exists, but it is no longer what the form opens on.
 */
 
 const STATUS_OPTIONS: { value: NewProjectInput["status"]; label: string }[] = [
@@ -30,7 +35,7 @@ const blank = (): NewProjectInput => ({
   client: "",
   status: "in_progress",
   deadline: todayIso(),
-  billing: "hourly",
+  billing: "fixed",
   hours_logged: "" as unknown as number,
   hourly_rate: "" as unknown as number,
   invoice_total: "",
@@ -148,7 +153,7 @@ export default function NewProjectForm({
         <fieldset className="flex flex-col gap-2 sm:col-span-2">
           <legend className={label}>Billing</legend>
           <div className="flex gap-4 text-sm" role="radiogroup">
-            {(["hourly", "fixed"] as const).map((b) => (
+            {(["fixed", "hourly"] as const).map((b) => (
               <label key={b} className="flex items-center gap-1.5">
                 <input type="radio" name={`${id}-billing`} checked={form.billing === b} onChange={() => set("billing", b)} />
                 {b === "hourly" ? "Hourly" : "Fixed fee"}
