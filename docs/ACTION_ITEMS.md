@@ -59,14 +59,26 @@ Brevo sends to anyone.
 below. Everything works — it just breaks again the next time two people sign up
 close together.
 
-### Step 2 — point Supabase at the live site (2 min) 🔴
+### Step 2 — point Supabase at the live site (2 min) 🔴 THIS IS THE LOCALHOST BUG
 
 Supabase → **Authentication** → **URL Configuration**:
-- **Site URL**: `https://servicepro-orpin.vercel.app`
-- **Redirect URLs**: add `https://servicepro-orpin.vercel.app/**`
 
-Without this the confirmation link sends people to `localhost` and the click
-does nothing on their machine.
+- **Site URL**: `https://www.freeflow.website`
+- **Redirect URLs** — add all four:
+  - `https://www.freeflow.website/**`
+  - `https://freeflow.website/**`
+  - `https://servicepro-orpin.vercel.app/**`
+  - `http://localhost:3000/**`
+
+This is why your confirmation link opened `localhost:3000`. Site URL is still
+the default from when the project was created, and Supabase falls back to it
+whenever the requested redirect is not on the allow-list.
+
+Note the confirmation email you already received is spent — a link is
+single-use, and `otp_expired` means it was consumed on the first click. Get a
+fresh one from `/login` → **Resend the link**.
+
+Full write-up: `docs/extras/DOMAIN_AND_EMAIL_SETUP.md`
 
 ### Step 3 — use the cleaner confirmation link (3 min) 🟡
 
@@ -90,13 +102,13 @@ Supabase → **Authentication** → **Users** → delete
 
 ### Step 5 — sign up for real (2 min) 🔴
 
-Go to <https://servicepro-orpin.vercel.app/signup> and use
+Go to <https://www.freeflow.website/signup> and use
 **braydencredeur@gmail.com**. The migration in step 6 looks for that exact
 address.
 
 **If your earlier attempt already created the account**, signing up again will
 say the user exists. In that case go to
-<https://servicepro-orpin.vercel.app/login>, sign in with the password you
+<https://www.freeflow.website/login>, sign in with the password you
 chose, and the app will send you to the waiting room with a **Resend the link**
 button. Either route gets you confirmed.
 
