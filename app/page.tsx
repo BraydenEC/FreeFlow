@@ -1,5 +1,6 @@
 import CorePreview from "@/components/core/CorePreview";
 import DashboardGrid from "@/components/dashboard/DashboardGrid";
+import NewProjectForm from "@/components/dashboard/NewProjectForm";
 import OverdueAlert from "@/components/dashboard/OverdueAlert";
 import ProjectsTable from "@/components/ProjectsTable";
 import ResearchWidget from "@/components/research/ResearchWidget";
@@ -61,7 +62,13 @@ export default async function Home() {
               widgets={{
                 overdue: <OverdueAlert projects={projects} now={now} />,
                 metrics: <SummaryCards metrics={metrics} />,
-                projects: <ProjectsTable projects={projects} now={now} />,
+                projects: (
+                  <ProjectsTable
+                    projects={projects}
+                    now={now}
+                    action={<NewProjectForm defaultOpen={projects.length === 0} />}
+                  />
+                ),
                 core: <CorePreview outputs={savedOutputs} now={now} />,
                 research: <ResearchWidget />,
               }}

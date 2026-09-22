@@ -124,3 +124,87 @@ deletion. Each is a form or a Supabase setting away, none blocks the goal.
 2. Open the live site, sign up with `braydencredeur@gmail.com`.
 3. Supabase → SQL Editor → run `supabase/accounts.sql`. The verify query at the
    bottom reports how many rows moved to the account.
+
+---
+
+## Build record — 2026-09-22
+
+Built as planned. Deviations and findings, in the order they surfaced.
+
+### The empty-vs-broken distinction was the real change
+
+`lib/projects.ts` treated zero rows as a failure and substituted mock data.
+That was right for three weeks: with a public read policy and seeded rows, the
+only way to get zero was a broken database. With accounts it is the first thing
+every new user sees, and answering it with six fictional projects would be a
+lie told on the most important screen. Zero rows now returns an empty list with
+`source = "supabase"`. Mock data survives for the two cases that are still
+genuinely broken: no credentials, and a query that errored.
+
+### Auth before validation
+
+The research and pricing save routes parsed and validated the body before
+touching Supabase, so the auth guard first landed after validation and a
+logged-out POST returned `400` describing which fields were wrong. The refusal
+was correct and the status was not — and it volunteered the payload shape to
+anyone who asked. Auth is now the first statement in all five write handlers.
+Verified: every one returns `401` with no session.
+
+### The old client was deleted, not deprecated
+
+`lib/supabase.ts` built one process-wide client with `persistSession: false`.
+Under per-user RLS that client sees nothing, so every call site had to move to
+the request-scoped `getServerSupabase()`. Leaving the old module in place would
+have left a working import that silently returns empty results — the worst kind
+of survivor. It is gone, and nothing references it.
+
+### Email confirmation is ON in Supabase
+
+Probed directly against the live project: a sign-up returns a user row and no
+session, which means Supabase is still set to require inbox confirmation. The
+app handles it — the form says "Check your inbox to confirm your email, then
+sign in" rather than appearing to hang — but the intended flow needs the
+setting off. This is action 1 below and it blocks end-to-end verification of
+every signed-in path.
+
+One test user (`servicepro.smoketest@outlook.com`) was created by that probe
+and should be deleted: Supabase → Authentication → Users.
+
+### What is verified, and what is not
+
+Verified locally against the live database:
+
+| Check | Result |
+|---|---|
+| `/` and `/core` with no session | `307` → `/signup` |
+| `/research`, `/pricing`, `/product`, `/signup`, `/login` | `200` |
+| All five write endpoints with no session | `401` |
+| `/research?tab=risks` unsourced badges | 11, unchanged |
+| `/pricing` `$14` occurrences | 31, unchanged |
+| Test suites | 100 passing (27 + 17 + 21 + 35) |
+| Lint, types, build | clean |
+
+Not verified, because it requires a confirmed account: sign-in, the per-user
+dashboard, creating a project, and preferences syncing to `user_prefs`. Each
+is reachable the moment action 1 is done.
+
+### Tests
+
+`scripts/test-projects.ts`, 35 assertions on the new-project schema: billing
+model exclusivity, pasted currency strings, negative and non-numeric input,
+the `numeric(8,2)` ceiling, all four statuses and one outside them, four bad
+date formats, and three malformed bodies. `npm test` now runs four suites.
+
+## Actions only Brayden can take
+
+1. **Supabase → Authentication → Providers → Email → turn "Confirm email" OFF.**
+   Everything below waits on this.
+2. **Delete the test user** `servicepro.smoketest@outlook.com` under
+   Authentication → Users.
+3. **Sign up on the live site** with `braydencredeur@gmail.com`.
+4. **Run `supabase/accounts.sql`** in the SQL Editor. The verify query reports
+   `moved_projects` — expect 6 — and `orphan_*` counts, which should all be 0.
+
+Between steps 3 and 4 the account exists but owns nothing and cannot insert,
+because the per-user policies do not exist yet. That window is a few minutes
+and resolves itself the moment the migration runs.

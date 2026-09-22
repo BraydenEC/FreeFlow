@@ -1,4 +1,4 @@
-import { getSupabaseClient } from "@/lib/supabase";
+import { getServerSupabase } from "@/lib/supabase/server";
 import type { Confidence, Region } from "@/types/research";
 import type { ExtractorKind } from "@/lib/research/schema";
 
@@ -39,7 +39,7 @@ type Row = {
 const CONFIDENCES: Confidence[] = ["verified", "reported", "estimated"];
 
 export async function getSavedResearch(limit = 12): Promise<SavedResearch[]> {
-  const supabase = getSupabaseClient();
+  const supabase = await getServerSupabase();
   if (!supabase) return [];
 
   try {

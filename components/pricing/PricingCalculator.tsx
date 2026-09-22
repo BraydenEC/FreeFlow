@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import SignInToSave from "@/components/auth/SignInToSave";
+import { useSession } from "@/components/auth/SessionProvider";
 import { computePricing } from "@/lib/pricing/model";
 import { SCENARIOS, SCENARIO_ORDER } from "@/lib/pricing/scenarios";
 import { toMxn, USD_TO_MXN, FX_DATE } from "@/lib/pricing/tiers";
@@ -106,6 +108,7 @@ function Stat({
 }
 
 export default function PricingCalculator() {
+  const user = useSession();
   const [scenario, setScenario] = useState<ScenarioId>("base");
   const [inputs, setInputs] = useState<PricingInputs>(SCENARIOS.base.inputs);
   const [dirty, setDirty] = useState(false);
@@ -347,18 +350,22 @@ export default function PricingCalculator() {
 
           <div className="border-hairline bg-surface rounded-xl border p-5 sm:p-6">
             <div className="flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={save}
-                disabled={saveState === "saving" || saveState === "saved"}
-                className="bg-accent focus-visible:ring-accent rounded-lg px-4 py-2 text-sm font-medium text-app transition-opacity disabled:cursor-not-allowed disabled:opacity-40 focus-visible:ring-2 focus-visible:outline-none"
-              >
-                {saveState === "saved"
-                  ? "Saved ✓"
-                  : saveState === "saving"
-                    ? "Saving…"
-                    : "Save this scenario"}
-              </button>
+              {user ? (
+                <button
+                  type="button"
+                  onClick={save}
+                  disabled={saveState === "saving" || saveState === "saved"}
+                  className="bg-accent focus-visible:ring-accent rounded-lg px-4 py-2 text-sm font-medium text-app transition-opacity disabled:cursor-not-allowed disabled:opacity-40 focus-visible:ring-2 focus-visible:outline-none"
+                >
+                  {saveState === "saved"
+                    ? "Saved ✓"
+                    : saveState === "saving"
+                      ? "Saving…"
+                      : "Save this scenario"}
+                </button>
+              ) : (
+                <SignInToSave className="px-4 text-sm" />
+              )}
               <span className="text-ink-faint text-xs">
                 Inputs and results are both stored, so a saved scenario can be
                 recomputed and checked.

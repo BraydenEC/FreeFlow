@@ -10,10 +10,12 @@
     "test:filters": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-filters.ts",
     "test:pricing": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-pricing.ts",
     "test:prefs": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-prefs.ts",
-    "test": "npm run test:pricing && npm run test:filters && npm run test:prefs"
+    "test:projects": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-projects.ts",
+    "test": "npm run test:pricing && npm run test:filters && npm run test:prefs && npm run test:projects"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.120.0",
+    "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.112.3",
     "next": "16.3.1",
     "react": "19.2.8",

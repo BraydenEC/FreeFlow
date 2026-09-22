@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getSupabaseClient } from "@/lib/supabase";
+import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
 import { RESEARCH_PROMPT_VERSION } from "@/lib/research/prompt";
 import {
   RESEARCH_CATEGORIES,
@@ -32,6 +32,23 @@ const SaveSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  // Auth is the first gate. Validating a payload we would refuse anyway tells
+  // an anonymous caller which fields exist; "sign in" is the honest answer and
+  // the cheaper one.
+  const supabase = await getServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { error: "Database is not configured on the server." },
+      { status: 503 },
+    );
+  }
+
+  // Writes belong to someone. Public pages may read; only accounts save.
+  const user = await getSessionUser(supabase);
+  if (!user) {
+    return NextResponse.json({ error: "Sign in to save." }, { status: 401 });
+  }
+
   let body: unknown;
   try {
     body = await request.json();
@@ -65,17 +82,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const supabase = getSupabaseClient();
-  if (!supabase) {
-    return NextResponse.json(
-      { error: "Database is not configured on the server." },
-      { status: 503 },
-    );
-  }
-
   const { data, error } = await supabase
     .from("research_records")
     .insert({
+      user_id: user.id,
       raw_input: parsed.data.raw_input,
       title: parsed.data.title,
       summary: parsed.data.summary,

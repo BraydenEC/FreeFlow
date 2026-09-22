@@ -43,12 +43,33 @@ function DeadlineText({ project, now }: { project: Project; now: Date }) {
 export default function ProjectsTable({
   projects,
   now,
+  action,
 }: {
   projects: Project[];
   now: Date;
+  /** Rendered in the header — the dashboard passes the New project control. */
+  action?: React.ReactNode;
 }) {
+  // A new account has no projects. That is a state, not an error, and the
+  // table says so instead of rendering an empty grid.
+  if (projects.length === 0) {
+    return (
+      <section aria-labelledby="recent-projects-heading" className="flex flex-col gap-4">
+        <div className="border-hairline bg-surface rounded-xl border px-6 py-10 text-center">
+          <h2 id="recent-projects-heading" className="text-[15px] font-semibold">
+            No projects yet
+          </h2>
+          <p className="text-ink-muted mt-1 text-sm">
+            Add your first project and the dashboard fills in from there.
+          </p>
+        </div>
+        {action}
+      </section>
+    );
+  }
+
   return (
-    <section aria-labelledby="recent-projects-heading">
+    <section aria-labelledby="recent-projects-heading" className="flex flex-col gap-4">
       <div className="border-hairline bg-surface overflow-hidden rounded-xl border">
         <div className="border-hairline flex items-center justify-between border-b px-5 py-4 sm:px-6">
           <h2
@@ -145,6 +166,7 @@ export default function ProjectsTable({
           ))}
         </ul>
       </div>
+      {action}
     </section>
   );
 }

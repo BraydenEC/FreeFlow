@@ -19,6 +19,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import LayoutDrawer from "@/components/prefs/LayoutDrawer";
+import SignOutButton from "@/components/auth/SignOutButton";
+import { useSession } from "@/components/auth/SessionProvider";
 
 type NavItem = {
   label: string;
@@ -125,6 +127,8 @@ const NAV_ITEMS: NavItem[] = [
 export default function Sidebar() {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const user = useSession();
+  const initials = user?.email ? user.email.slice(0, 2).toUpperCase() : "?";
 
   return (
     <aside className="border-hairline bg-surface flex w-16 shrink-0 flex-col border-r md:w-60">
@@ -178,18 +182,33 @@ export default function Sidebar() {
         )}
       </nav>
 
-      {/* Single-user context — no auth this sprint, so this is a static stamp
-          rather than a session-backed account menu. */}
+      {/* Account block. Weeks 0–3 showed a static stamp here because there was
+          no session to show. Now it is the session: email and sign-out when
+          signed in, a sign-in link on public pages when not. */}
       <div className="border-hairline mt-auto hidden border-t p-4 md:block">
-        <div className="flex items-center gap-2.5">
-          <span className="bg-raised text-ink-muted flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold">
-            BC
-          </span>
-          <div className="min-w-0">
-            <p className="truncate text-[13px] font-medium">Brayden C.</p>
-            <p className="text-ink-faint truncate text-[11px]">Freelance</p>
+        {user ? (
+          <div className="flex items-center gap-2.5">
+            <span className="bg-raised text-ink-muted flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold">
+              {initials}
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-[13px] font-medium" title={user.email ?? undefined}>
+                {user.email ?? "Signed in"}
+              </p>
+              <SignOutButton />
+            </div>
           </div>
-        </div>
+        ) : (
+          <Link
+            href="/login"
+            className="text-ink-muted hover:text-ink flex items-center gap-2.5 text-[13px] font-medium"
+          >
+            <span className="bg-raised flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs">
+              →
+            </span>
+            Sign in
+          </Link>
+        )}
       </div>
 
       <LayoutDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />

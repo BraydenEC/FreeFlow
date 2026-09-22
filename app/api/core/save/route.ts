@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSupabaseClient } from "@/lib/supabase";
+import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
 import { PROMPT_VERSION } from "@/lib/core/prompt";
 import { CoreExtractionSchema } from "@/lib/core/schema";
 import { z } from "zod";
@@ -21,13 +21,19 @@ const SaveRequestSchema = z.object({
 });
 
 export async function POST(request: Request) {
-  const supabase = getSupabaseClient();
+  const supabase = await getServerSupabase();
 
   if (!supabase) {
     return NextResponse.json(
       { error: "Database is not configured on this deployment." },
       { status: 503 },
     );
+  }
+
+  // Writes belong to someone. Public pages may read; only accounts save.
+  const user = await getSessionUser(supabase);
+  if (!user) {
+    return NextResponse.json({ error: "Sign in to save." }, { status: 401 });
   }
 
   let body: unknown;
@@ -50,6 +56,7 @@ export async function POST(request: Request) {
   const { data, error } = await supabase
     .from("core_outputs")
     .insert({
+      user_id: user.id,
       raw_input,
       project_name: fields.project_name,
       client: fields.client,

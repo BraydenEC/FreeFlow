@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { PrefsProvider } from "@/components/prefs/PrefsProvider";
+import { SessionProvider } from "@/components/auth/SessionProvider";
+import { getUserPrefs } from "@/lib/prefs/server";
+import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,14 +22,28 @@ export const metadata: Metadata = {
     "Track projects, cash flow, and deadlines in one place. Built for independent contractors, freelance developers, designers, and consultants.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+/*
+  The layout resolves the session once per request and hands two things down:
+  who is signed in, and their saved preferences. Passing the preferences here
+  means the server renders the user's layout on the first paint — no flash —
+  which the localStorage-only version could not do.
+*/
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const supabase = await getServerSupabase();
+  const user = await getSessionUser(supabase);
+  const prefs = user ? await getUserPrefs(supabase, user.id) : null;
+
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="bg-app text-ink min-h-full">
-        <PrefsProvider>{children}</PrefsProvider>
+        <SessionProvider user={user}>
+          <PrefsProvider initial={prefs} scope={user?.id ?? null}>
+            {children}
+          </PrefsProvider>
+        </SessionProvider>
       </body>
     </html>
   );

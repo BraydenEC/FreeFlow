@@ -1,4 +1,4 @@
-import { getSupabaseClient } from "@/lib/supabase";
+import { getServerSupabase } from "@/lib/supabase/server";
 import type { PricingInputs, ScenarioId } from "@/types/pricing";
 
 /*
@@ -34,7 +34,7 @@ function num(v: number | string): number {
 }
 
 export async function getSavedScenarios(limit = 10): Promise<SavedScenario[]> {
-  const supabase = getSupabaseClient();
+  const supabase = await getServerSupabase();
   if (!supabase) return [];
 
   try {

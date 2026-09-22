@@ -1,6 +1,7 @@
 import { getMockProjects } from "@/lib/mock-data";
 import { projectValue } from "@/lib/format";
-import { getSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
+import { getServerSupabase } from "@/lib/supabase/server";
 import type {
   DashboardMetrics,
   DataSource,
@@ -109,7 +110,7 @@ async function fetchFromSupabase(): Promise<Project[] | null> {
     return null;
   }
 
-  const supabase = getSupabaseClient();
+  const supabase = await getServerSupabase();
   if (!supabase) return null;
 
   try {
@@ -132,12 +133,12 @@ async function fetchFromSupabase(): Promise<Project[] | null> {
       return null;
     }
 
-    if (!data || data.length === 0) {
-      console.info("[projects] Supabase returned no rows — using mock data.");
-      return null;
-    }
-
-    return (data as ProjectRow[]).map(mapRow);
+    // Zero rows used to mean "the database is broken, show the demo". With
+    // accounts it means "this user has no projects yet" — the normal state of
+    // every new account — and the honest answer is an empty dashboard. Mock
+    // data is reserved for the two cases above: no credentials, or a query
+    // that failed.
+    return ((data ?? []) as ProjectRow[]).map(mapRow);
   } catch (error) {
     // Network failure, DNS, malformed URL — anything the client throws rather
     // than returning in `error`.

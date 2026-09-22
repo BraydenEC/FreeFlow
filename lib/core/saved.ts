@@ -1,4 +1,4 @@
-import { getSupabaseClient } from "@/lib/supabase";
+import { getServerSupabase } from "@/lib/supabase/server";
 import type { ExtractorKind } from "@/lib/core/schema";
 
 /*
@@ -43,7 +43,7 @@ function num(v: number | string | null): number | null {
 }
 
 export async function getSavedOutputs(limit = 8): Promise<SavedOutput[]> {
-  const supabase = getSupabaseClient();
+  const supabase = await getServerSupabase();
   if (!supabase) return [];
 
   try {

@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import SignInToSave from "@/components/auth/SignInToSave";
+import { useSession } from "@/components/auth/SessionProvider";
 import SourceBadge from "@/components/research/SourceBadge";
 import type { ResearchExtraction, ExtractorKind } from "@/lib/research/schema";
 import { CATEGORY_LABEL } from "@/types/research";
@@ -26,6 +28,7 @@ const EXAMPLE =
   "gigstack automates CFDI 4.0 invoicing from payment events and reconciles daily against SAT, but states it does not include project management or time tracking. https://gigstack.pro/";
 
 export default function ResearchIntake() {
+  const user = useSession();
   /*
     router.refresh() re-runs the Server Component that reads research_records,
     so a saved record appears in the list below without a manual page reload.
@@ -203,14 +206,18 @@ export default function ResearchIntake() {
             )}
 
             <div className="border-hairline flex items-center gap-3 border-t pt-3">
-              <button
-                type="button"
-                onClick={save}
-                disabled={saving || saved}
-                className="bg-accent/10 text-accent-soft hover:bg-accent/15 focus-visible:ring-accent rounded-lg px-3.5 py-2 text-xs font-medium transition-colors disabled:opacity-40 focus-visible:ring-2 focus-visible:outline-none"
-              >
-                {saved ? "Saved ✓" : saving ? "Saving…" : "Save record"}
-              </button>
+              {user ? (
+                <button
+                  type="button"
+                  onClick={save}
+                  disabled={saving || saved}
+                  className="bg-accent/10 text-accent-soft hover:bg-accent/15 focus-visible:ring-accent rounded-lg px-3.5 py-2 text-xs font-medium transition-colors disabled:opacity-40 focus-visible:ring-2 focus-visible:outline-none"
+                >
+                  {saved ? "Saved ✓" : saving ? "Saving…" : "Save record"}
+                </button>
+              ) : (
+                <SignInToSave />
+              )}
               {saved && (
                 <span className="text-ink-faint text-xs">
                   {isRefreshing
