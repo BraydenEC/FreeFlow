@@ -351,7 +351,7 @@ export default function PricingCalculator() {
                 type="button"
                 onClick={save}
                 disabled={saveState === "saving" || saveState === "saved"}
-                className="bg-accent focus-visible:ring-accent rounded-lg px-4 py-2 text-sm font-medium text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-40 focus-visible:ring-2 focus-visible:outline-none"
+                className="bg-accent focus-visible:ring-accent rounded-lg px-4 py-2 text-sm font-medium text-app transition-opacity disabled:cursor-not-allowed disabled:opacity-40 focus-visible:ring-2 focus-visible:outline-none"
               >
                 {saveState === "saved"
                   ? "Saved ✓"

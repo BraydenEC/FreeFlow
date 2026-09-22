@@ -130,11 +130,11 @@ export default function Sidebar() {
     <aside className="border-hairline bg-surface flex w-16 shrink-0 flex-col border-r md:w-60">
       {/* Brand */}
       <div className="flex h-16 items-center gap-2.5 px-4 md:px-5">
-        <span className="bg-accent flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-bold text-white">
+        <span className="bg-ink flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-bold text-app">
           S
         </span>
         <span className="hidden text-[15px] font-semibold tracking-tight md:inline">
-          Service<span className="text-accent-soft">Pro</span>
+          Service<span className="text-ink-muted">Pro</span>
         </span>
       </div>
 
@@ -158,7 +158,7 @@ export default function Sidebar() {
               aria-current={pathname === item.href ? "page" : undefined}
               className={`focus-visible:ring-accent flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none ${
                 pathname === item.href
-                  ? "bg-accent/10 text-accent-soft"
+                  ? "bg-raised text-ink"
                   : "text-ink-muted hover:bg-raised/50 hover:text-ink"
               }`}
             >

@@ -15,26 +15,26 @@
   no prefers-color-scheme block. One palette, always.
 */
 @theme {
-  /* Surfaces — deep slate, layered from back to front */
-  --color-app: #020617; /* page canvas */
-  --color-surface: #0f172a; /* sidebar, cards, table container */
-  --color-raised: #1e293b; /* table header, row hover */
-  --color-hairline: #1e293b; /* 1px borders */
+  /* Surfaces — stark monochrome, layered from back to front */
+  --color-app: #000000; /* page canvas */
+  --color-surface: #000000; /* sidebar, cards, table container */
+  --color-raised: #111111; /* table header, row hover */
+  --color-hairline: #262626; /* 1px borders - sharp grey */
 
   /* Ink */
-  --color-ink: #f1f5f9; /* headings, metric values */
-  --color-ink-muted: #94a3b8; /* labels, client names */
-  --color-ink-faint: #64748b; /* meta text */
+  --color-ink: #ffffff; /* headings, metric values */
+  --color-ink-muted: #a3a3a3; /* labels, client names */
+  --color-ink-faint: #525252; /* meta text */
 
-  /* Accent — indigo, used sparingly for active state only */
-  --color-accent: #6366f1;
-  --color-accent-soft: #818cf8;
+  /* Accent — pure white */
+  --color-accent: #ffffff;
+  --color-accent-soft: #e5e5e5;
 
-  /* Status colors — one per project state */
-  --color-status-progress: #818cf8; /* indigo  — In Progress */
-  --color-status-review: #fbbf24; /* amber   — Awaiting Review */
-  --color-status-sent: #38bdf8; /* sky     — Invoice Sent */
-  --color-status-overdue: #fb7185; /* rose    — Overdue */
+  /* Status colors — sharp semantic colors */
+  --color-status-progress: #60a5fa; /* bright blue */
+  --color-status-review: #fcd34d; /* yellow */
+  --color-status-sent: #34d399; /* mint */
+  --color-status-overdue: #f87171; /* bright red */
 
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;

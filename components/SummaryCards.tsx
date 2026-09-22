@@ -63,7 +63,7 @@ export default function SummaryCards({
           label="Unpaid Invoices"
           value={formatCurrencyWhole(metrics.unpaidInvoices)}
           hint="Billed and awaiting payment"
-          accent="bg-rose-400/10 text-rose-300"
+          accent="border border-hairline text-ink"
           icon={
             <svg {...iconProps}>
               <path d="M6 3h12v18l-3-2-3 2-3-2-3 2Z" />
@@ -75,7 +75,7 @@ export default function SummaryCards({
           label="This Month's Earnings"
           value={formatCurrencyWhole(metrics.monthEarnings)}
           hint="Payments received this month"
-          accent="bg-emerald-400/10 text-emerald-300"
+          accent="border border-hairline text-ink"
           icon={
             <svg {...iconProps}>
               <path d="M4 16.5 9 11l3.5 3.5L20 7" />
@@ -87,7 +87,7 @@ export default function SummaryCards({
           label="Active Projects"
           value={String(metrics.activeProjects)}
           hint="Not yet invoiced"
-          accent="bg-accent/10 text-accent-soft"
+          accent="border border-hairline text-ink"
           icon={
             <svg {...iconProps}>
               <path d="M3 7.5A1.5 1.5 0 0 1 4.5 6h4l2 2.5h9A1.5 1.5 0 0 1 21 10v7.5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5Z" />

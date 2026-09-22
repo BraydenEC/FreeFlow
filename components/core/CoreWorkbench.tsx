@@ -160,7 +160,7 @@ export default function CoreWorkbench() {
           <button
             type="submit"
             disabled={!trimmed || extracting}
-            className="bg-accent rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+            className="bg-accent rounded-lg px-4 py-2.5 text-sm font-semibold text-app transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
           >
             {extracting ? "Extracting…" : "Extract core"}
           </button>
@@ -271,7 +271,7 @@ export default function CoreWorkbench() {
               <button
                 onClick={handleSave}
                 disabled={saveState === "saving" || saveState === "saved"}
-                className="bg-accent rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+                className="bg-accent rounded-lg px-4 py-2.5 text-sm font-semibold text-app transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {saveState === "saving"
                   ? "Saving…"
