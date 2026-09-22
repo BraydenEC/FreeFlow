@@ -158,7 +158,27 @@ the request-scoped `getServerSupabase()`. Leaving the old module in place would
 have left a working import that silently returns empty results — the worst kind
 of survivor. It is gone, and nothing references it.
 
-### Email confirmation is ON in Supabase
+### Email confirmation is ON — and is staying on
+
+Probed directly against the live project: a sign-up returns a user row and no
+session, which means Supabase requires inbox confirmation.
+
+I recommended turning it off. Brayden decided to keep it, so it is now a
+supported path rather than a tolerated one: `/auth/confirm` receives the link
+server-side, `/verify-email` is a waiting room with a resend button, and an
+expired link reports itself. See the 2026-09-22 addendum below.
+
+The remaining constraint is the mailer, not the code. Supabase's built-in SMTP
+sends two messages per hour for the entire project — a testing convenience, not
+a delivery service — and Brayden hit that limit on his first real sign-up
+attempt. My own diagnostic sign-up had consumed one of the two. That probe
+answered the question, and it should have been answered by watching his sign-up
+instead of spending a send.
+
+Custom SMTP removes the limit. That is a configuration step, written up in
+docs/ACTION_ITEMS.md.
+
+### Superseded note: email confirmation
 
 Probed directly against the live project: a sign-up returns a user row and no
 session, which means Supabase is still set to require inbox confirmation. The

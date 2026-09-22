@@ -8,55 +8,115 @@ Status legend: 🔴 blocking · 🟡 soon · ⚪ later
 
 ---
 
-## 🔴 ACCOUNTS FEATURE — 4 steps, ~6 minutes (added 2026-09-22)
+## 🔴 ACCOUNTS FEATURE — email confirmation stays ON (updated 2026-09-22)
 
-The accounts build is live and every signed-out path is verified. These four
-steps turn on the signed-in half. Do them in this order — step 4 depends on
-step 3 having happened.
+You decided to keep email verification. The app now supports it properly:
+sign-up hands off to a "confirm your email" waiting room, the link in the email
+is received by `/auth/confirm`, and an expired link says so instead of failing
+silently. All of that is live.
 
-### 1. Turn off email confirmation (2 min) 🔴
-Supabase → **Authentication** → **Providers** → **Email** → turn
-**"Confirm email"** OFF → Save.
+One thing is not code, and it is what stopped you: **the mailer.**
 
-Why: it is currently ON — I checked against your live project. With it on,
-signing up creates the account but hands back no session, so you land back on
-the form. The app says "Check your inbox to confirm your email" rather than
-appearing to hang, but Supabase's built-in mailer only sends a few messages an
-hour, which will fail you mid-demo. Off is the right setting for a school
-project, and the plan doc records that as a deliberate choice.
+### What "email rate limit exceeded" means
 
-### 2. Delete the test user (1 min) 🔴
+Supabase's built-in mailer sends **2 emails per hour for the whole project** on
+the free tier. It is a shared testing mailer, not a delivery service, and that
+limit is deliberate.
+
+My diagnostic sign-up earlier — the one that told us confirmation was on — used
+one of those two. That was a cost of my check, and I should have used your own
+sign-up to learn the same thing.
+
+The limit resets on a rolling hour. It will also hit you again during a demo if
+two people create an account in the same hour, which is why the fix below is
+worth ten minutes.
+
+### Step 1 — give Supabase a real mailer (10 min) 🔴 RECOMMENDED
+
+**Brevo** is the right fit: 300 emails/day free, and it verifies a single email
+address rather than requiring you to own a domain.
+
+1. Sign up at <https://www.brevo.com> with `braydencredeur@gmail.com`
+2. **Senders, Domains & Dedicated IPs** → **Senders** → **Add a sender** →
+   use `braydencredeur@gmail.com` → confirm the verification email Brevo sends
+3. **SMTP & API** → **SMTP** tab → copy the **login** and the **SMTP key**
+   (the key is shown once — copy it now)
+4. Supabase → **Project Settings** → **Authentication** → **SMTP Settings** →
+   **Enable Custom SMTP**:
+   - Host `smtp-relay.brevo.com`
+   - Port `587`
+   - Username: the Brevo SMTP login
+   - Password: the Brevo SMTP key
+   - Sender email: `braydencredeur@gmail.com`
+   - Sender name: `ServicePro`
+5. Save.
+
+Why Brevo and not Resend: Resend's free tier without a domain can only deliver
+to your own address, so a grader creating an account would never get the email.
+Brevo sends to anyone.
+
+**If you would rather not set this up right now:** wait an hour and do steps 2–5
+below. Everything works — it just breaks again the next time two people sign up
+close together.
+
+### Step 2 — point Supabase at the live site (2 min) 🔴
+
+Supabase → **Authentication** → **URL Configuration**:
+- **Site URL**: `https://servicepro-orpin.vercel.app`
+- **Redirect URLs**: add `https://servicepro-orpin.vercel.app/**`
+
+Without this the confirmation link sends people to `localhost` and the click
+does nothing on their machine.
+
+### Step 3 — use the cleaner confirmation link (3 min) 🟡
+
+Supabase → **Authentication** → **Email Templates** → **Confirm signup** →
+replace the link line with:
+
+```html
+<a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=signup">
+  Confirm your email
+</a>
+```
+
+This makes the link land on the server handler, which writes the session cookie
+directly. The default template works too — there is a client-side catcher for
+it — but this path is the sturdier one and skips a redirect.
+
+### Step 4 — delete the test user (1 min) 🔴
+
 Supabase → **Authentication** → **Users** → delete
-`servicepro.smoketest@outlook.com`.
+`servicepro.smoketest@outlook.com`. It has no data attached.
 
-I created it to find out whether confirmation was on. It has no data attached.
+### Step 5 — sign up for real (2 min) 🔴
 
-### 3. Sign up on the live site (1 min) 🔴
-Go to <https://servicepro-orpin.vercel.app/signup> and create an account with
-**braydencredeur@gmail.com**. Any password of 6+ characters.
+Go to <https://servicepro-orpin.vercel.app/signup> and use
+**braydencredeur@gmail.com**. The migration in step 6 looks for that exact
+address.
 
-The email matters: the migration in step 4 looks for exactly that address when
-deciding who owns the existing projects.
+**If your earlier attempt already created the account**, signing up again will
+say the user exists. In that case go to
+<https://servicepro-orpin.vercel.app/login>, sign in with the password you
+chose, and the app will send you to the waiting room with a **Resend the link**
+button. Either route gets you confirmed.
 
-### 4. Run the migration (2 min) 🔴
+### Step 6 — run the migration (2 min) 🔴
+
 Supabase → **SQL Editor** → **New query** → paste all of
 `supabase/accounts.sql` → **Run**.
 
-Read the result row at the bottom:
-- `moved_projects` should be **6** — your seed projects now belong to you
-- every `orphan_*` should be **0**
-- `policies` should read `core_outputs:2, pricing_scenarios:2, projects:4,
+Expected in the result row:
+- `moved_projects` = **6**
+- every `orphan_*` = **0**
+- `policies` = `core_outputs:2, pricing_scenarios:2, projects:4,
   research_records:2, user_prefs:3`
 
-If `moved_projects` is 0, step 3 did not finish — sign up, then run it again.
-The file is safe to re-run.
-
-**Between steps 3 and 4** your account exists but owns nothing and cannot add
-projects, because the per-user policies do not exist yet. A few minutes, then
-it resolves itself.
+If `moved_projects` is 0, step 5 did not finish. Confirm your email, then run
+it again — the file is safe to re-run.
 
 ### Then try it
-Sign in, and you should see your six projects, the Settings drawer, and
+
+Sign in and you should see your six projects, the Settings drawer, and
 **+ New project**. Change the layout, sign out, sign back in — the layout
 follows the account now, not the browser.
 
