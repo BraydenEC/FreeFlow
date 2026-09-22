@@ -5,7 +5,7 @@ import { Suspense } from "react";
 import PricingCalculator from "@/components/pricing/PricingCalculator";
 import SavedScenarios from "@/components/pricing/SavedScenarios";
 import SegmentPanel from "@/components/pricing/SegmentPanel";
-import Sidebar from "@/components/Sidebar";
+import SubNav from "@/components/SubNav";
 import TierCards from "@/components/pricing/TierCards";
 import { getSavedScenarios } from "@/lib/pricing/saved";
 import { computePricing } from "@/lib/pricing/model";
@@ -48,7 +48,7 @@ export default async function PricingPage({
 
   return (
     <div className="flex min-h-[calc(100vh-3.5rem)]">
-      <Sidebar />
+      <SubNav />
       <main className="min-w-0 flex-1">
         <div className="relative">
           <div

@@ -7,7 +7,7 @@ import MexicoPanel from "@/components/research/MexicoPanel";
 import ResearchIntake from "@/components/research/ResearchIntake";
 import RiskMap from "@/components/research/RiskMap";
 import SavedResearch from "@/components/research/SavedResearch";
-import Sidebar from "@/components/Sidebar";
+import SubNav from "@/components/SubNav";
 import { PLAYERS, researchSummary } from "@/lib/research/data";
 import { getSavedResearch } from "@/lib/research/saved";
 
@@ -39,7 +39,7 @@ export default async function ResearchPage({
 
   return (
     <div className="flex min-h-[calc(100vh-3.5rem)]">
-      <Sidebar />
+      <SubNav />
 
       <main className="min-w-0 flex-1">
         <div className="relative">

@@ -44,7 +44,7 @@ export default function Tabs({
     <div>
       <div
         role="tablist"
-        className="border-hairline bg-surface flex flex-wrap gap-1 rounded-xl border p-1"
+        className="border-hairline bg-surface flex flex-wrap gap-1 rounded-lg border p-1 md:hidden"
       >
         {tabs.map((t) => (
           <button

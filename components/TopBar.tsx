@@ -6,16 +6,18 @@ import { useState } from "react";
 import SignOutButton from "@/components/auth/SignOutButton";
 import { useSession } from "@/components/auth/SessionProvider";
 import LayoutDrawer from "@/components/prefs/LayoutDrawer";
-import { NAV_ITEMS } from "@/lib/nav";
+import { PRIMARY_NAV } from "@/lib/nav";
 
 /*
-  The application bar.
+  The application bar: brand, the sections of the product, and the account.
 
-  Holds what is global rather than page-specific: the brand, the layout
-  settings, and the account. Page navigation lives in the sidebar on wide
-  screens; below `md` the sidebar is hidden and the nav appears here as a
-  horizontal scroller, because a fixed 64px rail on a phone spends scarce
-  width on chrome. "Annoying on mobile" was the Week 2 interviewee's words.
+  This is the primary navigation now. It used to be a left rail; a horizontal
+  bar puts every section one click away at any width and gives the page its
+  full width back, which is most of what "annoying on mobile" meant. The
+  sidebar underneath is for sections of the current page, not of the product.
+
+  Settings sits at the right end with the account, separated by a rule,
+  because it acts on the application rather than navigating it.
 
   Renders nothing on the auth pages. A bar advertising Settings and an account
   menu to someone who has neither is noise, and the sign-up page is
@@ -31,56 +33,83 @@ export default function TopBar() {
 
   if (AUTH_ROUTES.includes(pathname)) return null;
 
+  const link = (active: boolean) =>
+    `flex shrink-0 items-center gap-2 rounded-md px-2.5 py-1.5 text-sm transition-colors focus-visible:ring-accent focus-visible:ring-2 focus-visible:outline-none ${
+      active ? "bg-raised text-ink font-medium" : "text-ink-muted hover:text-ink"
+    }`;
+
   return (
     <header className="border-hairline bg-surface sticky top-0 z-30 border-b">
-      <div className="flex h-14 items-center gap-4 px-4 sm:px-6">
-        {/* Brand */}
-        <Link href="/" className="flex shrink-0 items-center gap-2.5">
-          <span className="bg-ink text-app flex h-7 w-7 items-center justify-center rounded-md text-xs font-bold">
-            F
-          </span>
-          <span className="text-[15px] font-semibold tracking-tight">
-            Free<span className="text-ink-muted">Flow</span>
+      <div className="flex h-14 items-center gap-1 px-3 sm:px-4">
+        {/* Brand mark. A filled square with a notch — a shape rather than a
+            letter, so it reads as a logo at 28px instead of as text. */}
+        <Link
+          href="/"
+          aria-label="FreeFlow home"
+          className="mr-2 flex shrink-0 items-center"
+        >
+          <span className="bg-ink flex h-7 w-7 items-center justify-center rounded-md">
+            <svg viewBox="0 0 24 24" className="text-app h-4 w-4" aria-hidden>
+              <path d="M4 20V7a3 3 0 0 1 3-3h13L4 20Z" fill="currentColor" />
+            </svg>
           </span>
         </Link>
 
-        {/* Phone navigation. Hidden from md up, where the sidebar takes over.
-            aria-hidden is wrong here — it is the only nav at this width — so
-            the sidebar carries the "Main" label and this one is "Sections". */}
         <nav
-          aria-label="Sections"
-          className="-mx-1 flex min-w-0 flex-1 gap-1 overflow-x-auto px-1 md:hidden"
+          aria-label="Main"
+          className="-mx-1 flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto px-1"
         >
-          {NAV_ITEMS.filter((i) => i.href).map((item) => (
-            <Link
-              key={item.label}
-              href={item.href!}
-              aria-current={pathname === item.href ? "page" : undefined}
-              className={`shrink-0 rounded-md px-2.5 py-1.5 text-[11px] font-medium tracking-[0.08em] whitespace-nowrap uppercase transition-colors ${
-                pathname === item.href
-                  ? "bg-raised text-ink"
-                  : "text-ink-muted hover:text-ink"
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {PRIMARY_NAV.map((item) =>
+            item.href ? (
+              <Link
+                key={item.label}
+                href={item.href}
+                aria-current={pathname === item.href ? "page" : undefined}
+                className={link(pathname === item.href)}
+              >
+                {item.icon}
+                <span>{item.label}</span>
+              </Link>
+            ) : (
+              <span
+                key={item.label}
+                aria-disabled="true"
+                className="text-ink-faint/60 flex shrink-0 cursor-not-allowed items-center gap-2 px-2.5 py-1.5 text-sm"
+              >
+                {item.icon}
+                <span>{item.label}</span>
+              </span>
+            ),
+          )}
         </nav>
 
-        <div className="ml-auto flex shrink-0 items-center gap-1 md:gap-2">
+        <div className="border-hairline ml-2 flex shrink-0 items-center gap-1 border-l pl-2">
           <button
             type="button"
             onClick={() => setDrawerOpen(true)}
             aria-haspopup="dialog"
-            className="text-ink-muted hover:text-ink hover:bg-raised focus-visible:ring-accent rounded-md px-2.5 py-1.5 text-[11px] font-medium tracking-[0.08em] uppercase transition-colors focus-visible:ring-2 focus-visible:outline-none"
+            className="text-ink-muted hover:text-ink hover:bg-raised focus-visible:ring-accent flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
           >
-            Settings
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.75}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-4 w-4 shrink-0"
+              aria-hidden
+            >
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.6 1.6 0 0 0 .32 1.77l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.6 1.6 0 0 0-1.77-.32 1.6 1.6 0 0 0-1 1.47V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 9.1 19.4a1.6 1.6 0 0 0-1.77.32l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.6 1.6 0 0 0 .32-1.77 1.6 1.6 0 0 0-1.47-1H3a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4.6 9.1a1.6 1.6 0 0 0-.32-1.77l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.6 1.6 0 0 0 1.77.32H9a1.6 1.6 0 0 0 1-1.47V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.47 1.6 1.6 0 0 0 1.77-.32l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.6 1.6 0 0 0-.32 1.77V9a1.6 1.6 0 0 0 1.47 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.47 1Z" />
+            </svg>
+            <span className="hidden sm:inline">Settings</span>
           </button>
 
           {user ? (
-            <div className="border-hairline flex items-center gap-2.5 border-l pl-2 md:pl-3">
+            <div className="flex items-center gap-2">
               <span
-                className="text-ink-faint hidden max-w-40 truncate text-xs md:block"
+                className="text-ink-faint hidden max-w-36 truncate text-xs lg:block"
                 title={user.email ?? undefined}
               >
                 {user.email}
@@ -90,7 +119,7 @@ export default function TopBar() {
           ) : (
             <Link
               href="/login"
-              className="border-hairline text-ink-muted hover:text-ink border-l pl-3 text-[11px] font-medium tracking-[0.08em] uppercase"
+              className="text-ink-muted hover:text-ink px-2 text-sm"
             >
               Sign in
             </Link>

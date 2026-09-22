@@ -4,7 +4,7 @@ import NewProjectForm from "@/components/dashboard/NewProjectForm";
 import OverdueAlert from "@/components/dashboard/OverdueAlert";
 import ProjectsTable from "@/components/ProjectsTable";
 import ResearchWidget from "@/components/research/ResearchWidget";
-import Sidebar from "@/components/Sidebar";
+import SubNav from "@/components/SubNav";
 import SummaryCards from "@/components/SummaryCards";
 import { getSavedOutputs } from "@/lib/core/saved";
 import { daysUntil } from "@/lib/format";
@@ -37,7 +37,7 @@ export default async function Home() {
 
   return (
     <div data-source={source} className="flex min-h-[calc(100vh-3.5rem)]">
-      <Sidebar />
+      <SubNav />
 
       <main className="min-w-0 flex-1">
         <div className="relative">

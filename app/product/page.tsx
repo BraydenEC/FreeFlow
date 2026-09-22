@@ -1,5 +1,5 @@
 import FeatureMap from "@/components/product/FeatureMap";
-import Sidebar from "@/components/Sidebar";
+import SubNav from "@/components/SubNav";
 import Link from "next/link";
 import { featureSummary } from "@/lib/product/features";
 
@@ -24,7 +24,7 @@ export default async function ProductPage() {
 
   return (
     <div className="flex min-h-[calc(100vh-3.5rem)]">
-      <Sidebar />
+      <SubNav />
       <main className="min-w-0 flex-1">
         <div className="relative">
           <div

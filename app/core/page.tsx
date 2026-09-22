@@ -1,7 +1,7 @@
 import Link from "next/link";
 import CoreWorkbench from "@/components/core/CoreWorkbench";
 import SavedOutputs from "@/components/core/SavedOutputs";
-import Sidebar from "@/components/Sidebar";
+import SubNav from "@/components/SubNav";
 import { getSavedOutputs } from "@/lib/core/saved";
 import { isModelConfigured } from "@/lib/core/extract";
 
@@ -29,7 +29,7 @@ export default async function CorePage() {
 
   return (
     <div className="flex min-h-[calc(100vh-3.5rem)]">
-      <Sidebar />
+      <SubNav />
 
       <main className="min-w-0 flex-1">
         <div className="relative">

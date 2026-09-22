@@ -45,7 +45,8 @@ export default function DashboardGrid({
       {ordered.map((w) => (
         <div
           key={w.id}
-          className={w.width === "full" ? "lg:col-span-2" : "lg:col-span-1"}
+          id={`widget-${w.id}`}
+          className={`scroll-mt-20 ${w.width === "full" ? "lg:col-span-2" : "lg:col-span-1"}`}
         >
           {widgets[w.id]}
         </div>

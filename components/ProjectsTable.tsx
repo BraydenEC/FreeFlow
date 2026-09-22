@@ -46,9 +46,9 @@ function DeadlineText({ project, now }: { project: Project; now: Date }) {
   );
 }
 
-/* Column headers and the status label share one treatment: small, uppercase,
-   letterspaced. It is the only typographic signal the monochrome interface
-   uses to mark something as a label rather than a value. */
+/* Column headers: small, uppercase, letterspaced, over a slightly raised row.
+   That treatment marks a label. Values — including the status — are printed
+   as ordinary text, which is the whole typographic system here. */
 const TH = "px-5 py-2.5 text-[11px] font-medium tracking-[0.08em] uppercase";
 
 export default function ProjectsTable({
@@ -106,7 +106,7 @@ export default function ProjectsTable({
             Recent freelance projects with client, status, financial value,
             pipeline progress, and deadline.
           </caption>
-          <thead className="text-ink-faint border-hairline border-b">
+          <thead className="bg-raised/60 text-ink-faint border-hairline border-b">
             <tr>
               <th scope="col" className={TH}>
                 Project
