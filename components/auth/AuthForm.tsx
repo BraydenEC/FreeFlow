@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import FragmentSession from "@/components/auth/FragmentSession";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 
 /*
@@ -14,6 +15,11 @@ import { getBrowserSupabase } from "@/lib/supabase/browser";
   After success: push to the dashboard and refresh, so the server re-reads the
   new session cookie and the sidebar shows the account. Without the refresh
   the client cache would keep rendering the signed-out tree.
+
+  Sign-up does not produce a session, because this project keeps email
+  confirmation on. It hands off to /verify-email instead, which is a waiting
+  room rather than an error — the account was created; it is simply not usable
+  until a link is clicked.
 */
 
 type Mode = "signup" | "login";
@@ -35,6 +41,9 @@ const COPY: Record<Mode, { title: string; sub: string; cta: string; busy: string
 
 export default function AuthForm({ mode }: { mode: Mode }) {
   const router = useRouter();
+  const params = useSearchParams();
+  // /auth/confirm redirects here with ?error= when a link is expired or reused.
+  const linkError = params.get("error");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -54,19 +63,31 @@ export default function AuthForm({ mode }: { mode: Mode }) {
     setBusy(true);
     const result =
       mode === "signup"
-        ? await supabase.auth.signUp({ email, password })
+        ? await supabase.auth.signUp({
+            email,
+            password,
+            // Send the confirmation link to the handler that can actually
+            // write a session cookie, rather than to the bare site root.
+            options: { emailRedirectTo: `${window.location.origin}/auth/confirm` },
+          })
         : await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
 
     if (result.error) {
-      setError(result.error.message);
+      const message = result.error.message;
+      // "Email not confirmed" is not a wrong password — it is an unfinished
+      // sign-up, and the waiting room can resend the link.
+      if (/not confirmed/i.test(message)) {
+        router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+        return;
+      }
+      setError(message);
       return;
     }
 
-    // signUp with email confirmation ON returns a user but no session. The
-    // project turns confirmation off, but say so clearly if it is ever on.
+    // Confirmation is on, so sign-up returns a user and no session.
     if (mode === "signup" && !result.data.session) {
-      setError("Check your inbox to confirm your email, then sign in.");
+      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
       return;
     }
 
@@ -90,6 +111,15 @@ export default function AuthForm({ mode }: { mode: Mode }) {
 
       <h1 className="text-xl font-semibold tracking-tight">{copy.title}</h1>
       <p className="text-ink-muted mt-1 text-sm">{copy.sub}</p>
+
+      {/* Catches a session arriving in the URL fragment (default email template). */}
+      <FragmentSession />
+
+      {linkError && (
+        <p role="alert" className="text-status-review mt-4 text-sm">
+          {linkError}
+        </p>
+      )}
 
       <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-4" noValidate>
         <label className="flex flex-col gap-1.5 text-sm">

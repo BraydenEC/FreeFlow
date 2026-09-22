@@ -22,7 +22,10 @@ import { getSupabaseEnv } from "@/lib/supabase/env";
 */
 
 const PRIVATE_PREFIXES = ["/", "/core"];
-const AUTH_ROUTES = ["/signup", "/login"];
+// Pages a signed-in user has no business seeing. /auth/confirm is absent on
+// purpose: it must run even for someone already signed in, or a second click
+// of a confirmation link would bounce before verifying.
+const AUTH_ROUTES = ["/signup", "/login", "/verify-email"];
 
 function isPrivate(pathname: string): boolean {
   return PRIVATE_PREFIXES.some((p) =>
