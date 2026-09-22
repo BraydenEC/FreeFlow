@@ -8,6 +8,60 @@ Status legend: 🔴 blocking · 🟡 soon · ⚪ later
 
 ---
 
+## 🔴 ACCOUNTS FEATURE — 4 steps, ~6 minutes (added 2026-09-22)
+
+The accounts build is live and every signed-out path is verified. These four
+steps turn on the signed-in half. Do them in this order — step 4 depends on
+step 3 having happened.
+
+### 1. Turn off email confirmation (2 min) 🔴
+Supabase → **Authentication** → **Providers** → **Email** → turn
+**"Confirm email"** OFF → Save.
+
+Why: it is currently ON — I checked against your live project. With it on,
+signing up creates the account but hands back no session, so you land back on
+the form. The app says "Check your inbox to confirm your email" rather than
+appearing to hang, but Supabase's built-in mailer only sends a few messages an
+hour, which will fail you mid-demo. Off is the right setting for a school
+project, and the plan doc records that as a deliberate choice.
+
+### 2. Delete the test user (1 min) 🔴
+Supabase → **Authentication** → **Users** → delete
+`servicepro.smoketest@outlook.com`.
+
+I created it to find out whether confirmation was on. It has no data attached.
+
+### 3. Sign up on the live site (1 min) 🔴
+Go to <https://servicepro-orpin.vercel.app/signup> and create an account with
+**braydencredeur@gmail.com**. Any password of 6+ characters.
+
+The email matters: the migration in step 4 looks for exactly that address when
+deciding who owns the existing projects.
+
+### 4. Run the migration (2 min) 🔴
+Supabase → **SQL Editor** → **New query** → paste all of
+`supabase/accounts.sql` → **Run**.
+
+Read the result row at the bottom:
+- `moved_projects` should be **6** — your seed projects now belong to you
+- every `orphan_*` should be **0**
+- `policies` should read `core_outputs:2, pricing_scenarios:2, projects:4,
+  research_records:2, user_prefs:3`
+
+If `moved_projects` is 0, step 3 did not finish — sign up, then run it again.
+The file is safe to re-run.
+
+**Between steps 3 and 4** your account exists but owns nothing and cannot add
+projects, because the per-user policies do not exist yet. A few minutes, then
+it resolves itself.
+
+### Then try it
+Sign in, and you should see your six projects, the Settings drawer, and
+**+ New project**. Change the layout, sign out, sign back in — the layout
+follows the account now, not the browser.
+
+---
+
 ## 🔴 NOW — 3 accounts, ~20 minutes total
 
 These three block Phase 4 (deployment), which is the single highest-value
