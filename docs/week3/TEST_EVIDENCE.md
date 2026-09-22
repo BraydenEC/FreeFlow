@@ -1,7 +1,7 @@
 # 🧪 Week 3 Test Evidence
 
 **Required:** 2 pricing logic tests + 3 software tests.
-**Delivered:** 27 executed pricing assertions across 6 groups, plus 4 live production tests.
+**Delivered:** 27 executed pricing assertions across 6 groups, plus 6 live production tests.
 
 **Live:** https://servicepro-orpin.vercel.app/product · https://servicepro-orpin.vercel.app/pricing
 
@@ -182,19 +182,61 @@ check is a suspect too.
 
 ---
 
-## Production test 8 — save degrades honestly without the table ⏳ PARTIAL
+## Production test 8 — save round trip, end to end ✅ PASS
 
-With correct figures, the request passes recomputation and reaches the database:
+**Date:** 2026-09-21, after the migration was run.
+
+Two scenarios saved through the production route using exact figures from the model:
 
 ```
-HTTP 500
-{"error":"Could not save: Could not find the table 'public.pricing_scenarios'
-          in the schema cache"}
+conservative  HTTP 201  {"id":"119c0b46-…"}
+base          HTTP 201  {"id":"eaa1bda5-…"}
 ```
 
-Correct behaviour — the error names the exact missing object rather than failing vaguely. **The
-migration has not yet been run**, so the end-to-end round trip is unverified. Everything up to
-the insert is confirmed.
+**Rows as persisted**
+
+| Name | MRR | ARR | Inputs stored |
+|---|---|---|---|
+| Conservative case | 329.80 | 3,957.60 | 8 keys |
+| Base case | 2,688.40 | 32,260.80 | 8 keys |
+
+The full input set travelled with each row. **Criterion C14 is satisfied.**
+
+---
+
+## Production test 9 — ⭐ saved scenarios recompute identically ✅ PASS
+
+**Why this is the test that justifies the design.** Storing inputs alongside outputs only means
+something if recomputing the inputs reproduces the outputs. If it does not, either the maths
+changed or the stored figure was never the model's.
+
+**Method** — read the rows back from Supabase, recompute each from its stored inputs, compare:
+
+```
+PASS  Conservative case    stored 3957.6    recomputed 3957.6
+PASS  Base case            stored 32260.8   recomputed 32260.8
+```
+
+And on the live page, both rows render with **"recomputes identically"** and zero
+"model changed" warnings. **Criterion C15 is satisfied** — every saved scenario is now a
+regression test that runs whenever somebody views `/pricing`.
+
+---
+
+## Production test 10 — the database enforces ARR = 12 × MRR itself ✅ PASS
+
+**Why separately.** Test 7 proved the *API route* recomputes and refuses mismatches. That only
+protects writes through the route. A direct insert bypassing the application should be caught
+too.
+
+**Method** — insert straight through PostgREST with `mrr: 1000, arr: 99999`:
+
+```
+HTTP 400 — rejected by arr_is_twelve_times_mrr
+```
+
+The run-rate relationship holds regardless of which client writes. Conflating ARR with a summed
+growing projection cannot reach the table even if the application is bypassed.
 
 ---
 
@@ -202,6 +244,7 @@ the insert is confirmed.
 
 | Item | Status |
 |---|---|
-| `pricing_scenarios` migration | 🔴 Not run — blocks the save round trip |
-| Saved-scenario recomputation display | Built, untested against real rows |
 | Demo video · Decision Note · screenshots | User |
+
+**All software and production tests complete.** Every acceptance criterion in the Build
+Discipline Packet is now verified rather than pending.

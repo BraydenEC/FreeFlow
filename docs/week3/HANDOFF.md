@@ -11,11 +11,12 @@
 **All Week 3 engineering is complete and deployed.** Both required pages live, all seven required
 features built, 27 pricing assertions passing, and the save route verified in production.
 
-**Two things outstanding, neither doable by an agent:**
+**One thing outstanding, not doable by an agent:** demo video, Human Decision Note,
+screenshots, PDF assembly.
 
-1. 🟡 **The `pricing_scenarios` migration has not been run**, so the save round trip is
-   unverified end to end. Everything up to the insert is confirmed.
-2. 🔲 Demo video, Human Decision Note, screenshots, PDF assembly.
+**The migration was run on 2026-09-21 and the save round trip is verified end to end** — two
+scenarios persisted, both recompute identically from their stored inputs, and the database
+constraint rejected a direct mismatched insert.
 
 ```bash
 cd /Users/braydencredeur/Antigravity/Website/Dev/servicepro
@@ -96,9 +97,7 @@ from Week 2 — rather than inventing new ones.
 
 ## ⚠️ Known state and gotchas
 
-- **`pricing_scenarios` does not exist in the live database.** Run
-  `supabase/pricing_scenarios.sql` in the SQL Editor. Until then saving returns a 500 naming the
-  missing table, and the saved list renders empty by design.
+- **`pricing_scenarios` is live** with two saved rows. Both recompute identically on render.
 - **The save route returns 409, not 400, on a figure mismatch.** That is correct — it means the
   request was well-formed but its arithmetic disagreed with the server's.
 - **Exact figures matter when testing the save route by hand.** The model produces $2,688.40, not
@@ -128,7 +127,6 @@ from Week 2 — rather than inventing new ones.
 
 | Item | Week |
 |---|---|
-| 🟡 Run `supabase/pricing_scenarios.sql` | 3 |
 | Demo video · Decision Note · screenshots · PDF | 3 |
 | Week 2 submission — wireframe and screenshot 1 corrections | 2 |
 

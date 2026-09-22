@@ -74,8 +74,8 @@ Both pages live, with a feature map, three tiers, two segments, a live-recomputi
 | C11 | Scenario toggle changes all inputs | All update | ✅ PASS |
 | C12 | **Conservative genuinely worse** | ≤ half of base | ✅ **PASS (12%)** |
 | C13 | Every assumption shows confidence | No unmarked row | ✅ PASS |
-| C14 | Saved scenario persists | Row present | ⏳ Migration pending |
-| C15 | Saved scenario reproducible | Recompute matches | ✅ Built + displayed |
+| C14 | Saved scenario persists | Row present | ✅ PASS (HTTP 201, 2 rows) |
+| C15 | Saved scenario reproducible | Recompute matches | ✅ PASS (both rows identical) |
 | C16 | Both currencies shown | USD and MXN | ✅ PASS |
 | C17 | Works with no database | HTTP 200 | ✅ PASS |
 
@@ -166,9 +166,9 @@ Three divergences from the wireframe:
 | Architecture sketch | Data flow and components | ✅ 2 diagrams |
 | GitHub commits | Minimum 5 | ✅ **47** |
 | Vercel deployments | Minimum 2 | ✅ **18+** |
-| Supabase evidence | Table/data evidence | ⏳ Migration pending |
+| Supabase evidence | Table/data evidence | ✅ `pricing_scenarios` live, 2 rows, round trip verified |
 | Prompt log | Minimum 5 | ✅ **5** |
-| Test evidence | 2 pricing logic + 3 software | ✅ **27 assertions + 4 production tests** |
+| Test evidence | 2 pricing logic + 3 software | ✅ **27 assertions + 6 production tests** |
 | Iteration log | What changed after testing | ✅ **10 entries** |
 | Demo video | 2–3 minutes | ⬅️ TO BE ADDED |
 | Human Decision Note | 150–250 words | ⬅️ TO BE WRITTEN BELOW |
