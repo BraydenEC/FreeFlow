@@ -3,9 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import type { NewProjectInput } from "@/lib/projects/schema";
+import type { Project } from "@/types/project";
 
 /*
-  Add a project from the dashboard.
+  Create or correct a project.
 
   Collapsed behind one button so the default view stays compact; the empty
   state opens it. Validation happens on the server (lib/projects/schema.ts)
@@ -45,15 +46,41 @@ const blank = (): NewProjectInput => ({
   payment_url: "",
 });
 
-export default function NewProjectForm({
+/* An existing row, back into the shape the form edits. Billing model is
+   inferred the same way the table infers it: a fixed fee is the presence of
+   invoiceTotal, and its absence means hourly. */
+function fromProject(p: Project): NewProjectInput {
+  return {
+    name: p.name,
+    client: p.client,
+    status: p.status,
+    deadline: p.deadline,
+    billing: p.invoiceTotal === null ? "hourly" : "fixed",
+    hours_logged: p.hoursLogged as unknown as number,
+    hourly_rate: p.hourlyRate as unknown as number,
+    invoice_total: (p.invoiceTotal ?? "") as unknown as number,
+    contract_signed_on: p.contractSignedOn ?? "",
+    contract_url: p.contractUrl ?? "",
+    payment_url: p.paymentUrl ?? "",
+  };
+}
+
+export default function ProjectForm({
   defaultOpen = false,
+  project,
 }: {
   defaultOpen?: boolean;
+  /** Present for an edit, absent for a create. */
+  project?: Project;
 }) {
+  const editing = project !== undefined;
   const router = useRouter();
   const id = useId();
   const [open, setOpen] = useState(defaultOpen);
-  const [form, setForm] = useState<NewProjectInput>(blank);
+  const [form, setForm] = useState<NewProjectInput>(() =>
+    project ? fromProject(project) : blank(),
+  );
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [error, setError] = useState<{ message: string; field: string | null } | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -66,17 +93,42 @@ export default function NewProjectForm({
     setError(null);
     setBusy(true);
     try {
-      const res = await fetch("/api/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
+      const res = await fetch(
+        editing ? `/api/projects/${project.id}` : "/api/projects",
+        {
+          method: editing ? "PATCH" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        },
+      );
       const json = (await res.json()) as { error?: string; field?: string | null };
       if (!res.ok) {
         setError({ message: json.error ?? "Could not save.", field: json.field ?? null });
         return;
       }
-      setForm(blank());
+      // Only a create clears the fields. After an edit the form closes and
+      // the row it edited is the record of what happened.
+      if (!editing) setForm(blank());
+      setOpen(false);
+      router.refresh();
+    } catch {
+      setError({ message: "Network error — try again.", field: null });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onDelete() {
+    if (!editing) return;
+    setError(null);
+    setBusy(true);
+    try {
+      const res = await fetch(`/api/projects/${project.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const json = (await res.json().catch(() => ({}))) as { error?: string };
+        setError({ message: json.error ?? "Could not delete.", field: null });
+        return;
+      }
       setOpen(false);
       router.refresh();
     } catch {
@@ -99,9 +151,13 @@ export default function NewProjectForm({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="border-hairline text-ink-muted hover:text-ink hover:border-ink-faint focus-visible:ring-accent rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none"
+        className={
+          editing
+            ? "border-hairline text-ink-muted hover:text-ink hover:border-ink-faint focus-visible:ring-accent rounded-md border px-2.5 py-1 text-xs whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:outline-none"
+            : "border-hairline text-ink-muted hover:text-ink hover:border-ink-faint focus-visible:ring-accent rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none"
+        }
       >
-        + New project
+        {editing ? "Edit" : "+ New project"}
       </button>
     );
   }
@@ -115,7 +171,7 @@ export default function NewProjectForm({
     >
       <div className="mb-4 flex items-center justify-between">
         <h3 id={`${id}-title`} className="text-[15px] font-semibold">
-          New project
+          {editing ? "Edit project" : "New project"}
         </h3>
         <button
           type="button"
@@ -229,13 +285,55 @@ export default function NewProjectForm({
         <p role="alert" className="text-status-overdue mt-4 text-sm">{error.message}</p>
       )}
 
-      <div className="mt-5 flex justify-end">
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+        {/*
+          Delete asks twice, unlike Mark paid which asks not at all. The
+          difference is recoverability: a payment recorded in error can be
+          corrected, a deleted project is gone and there is no undo. So the
+          destructive action states what it will destroy, by name, before it
+          will do it.
+        */}
+        {editing ? (
+          confirmingDelete ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-status-overdue text-xs">
+                Delete &ldquo;{project.name}&rdquo; permanently?
+              </span>
+              <button
+                type="button"
+                onClick={onDelete}
+                disabled={busy}
+                className="border-status-overdue text-status-overdue rounded-md border px-2.5 py-1 text-xs disabled:opacity-40"
+              >
+                {busy ? "Deleting…" : "Yes, delete"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmingDelete(false)}
+                className="text-ink-faint hover:text-ink text-xs"
+              >
+                Keep it
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setConfirmingDelete(true)}
+              className="text-ink-faint hover:text-status-overdue text-xs transition-colors"
+            >
+              Delete project
+            </button>
+          )
+        ) : (
+          <span />
+        )}
+
         <button
           type="submit"
           disabled={busy}
           className="bg-accent text-app focus-visible:ring-accent rounded-lg px-4 py-2 text-sm font-semibold transition-opacity disabled:cursor-not-allowed disabled:opacity-40 focus-visible:ring-2 focus-visible:outline-none"
         >
-          {busy ? "Saving…" : "Add project"}
+          {busy ? "Saving…" : editing ? "Save changes" : "Add project"}
         </button>
       </div>
     </form>

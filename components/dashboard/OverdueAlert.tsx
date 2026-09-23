@@ -34,10 +34,10 @@ export default function OverdueAlert({
   return (
     <section
       aria-labelledby="overdue-heading"
-      className="rounded-xl border border-status-overdue bg-surface"
+      className="rounded-xl border border-rose-400/30 bg-rose-400/5"
     >
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-status-overdue/30 px-5 py-3 sm:px-6">
-        <h2 id="overdue-heading" className="text-[15px] font-semibold text-status-overdue">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-rose-400/20 px-5 py-3 sm:px-6">
+        <h2 id="overdue-heading" className="text-[15px] font-semibold text-rose-200">
           {overdue.length} overdue · {formatCurrency(total)} outstanding
         </h2>
         <Link
@@ -53,7 +53,7 @@ export default function OverdueAlert({
           return (
             <li
               key={p.id}
-              className="flex items-center justify-between gap-4 border-t border-hairline px-5 py-2.5 first:border-t-0 sm:px-6"
+              className="flex items-center justify-between gap-4 border-t border-rose-400/10 px-5 py-2.5 first:border-t-0 sm:px-6"
             >
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium">{p.name}</p>
@@ -61,7 +61,7 @@ export default function OverdueAlert({
               </div>
               <div className="shrink-0 text-right">
                 <p className="numeric text-sm">{formatCurrency(projectValue(p))}</p>
-                <p className="numeric text-xs text-status-overdue">
+                <p className="numeric text-xs text-rose-300">
                   {formatMonthDay(p.deadline)} · {late}d late
                 </p>
               </div>

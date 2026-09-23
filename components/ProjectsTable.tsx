@@ -1,4 +1,5 @@
 import MarkPaidButton from "@/components/dashboard/MarkPaidButton";
+import ProjectForm from "@/components/dashboard/ProjectForm";
 import ProgressBar from "@/components/ProgressBar";
 import StatusBadge from "@/components/StatusBadge";
 import {
@@ -196,8 +197,11 @@ export default function ProjectsTable({
                   <td className="px-5 py-3.5 whitespace-nowrap">
                     <DeadlineText project={project} now={now} />
                   </td>
-                  <td className="px-5 py-3.5 text-right">
-                    {!project.isPaid && <MarkPaidButton projectId={project.id} />}
+                  <td className="px-5 py-3.5">
+                    <div className="flex items-center justify-end gap-2">
+                      {!project.isPaid && <MarkPaidButton projectId={project.id} />}
+                      <ProjectForm project={project} />
+                    </div>
                   </td>
                 </tr>
               );
@@ -237,11 +241,10 @@ export default function ProjectsTable({
                     <DeadlineText project={project} now={now} />
                   </span>
                 </div>
-                {!project.isPaid && (
-                  <div className="flex justify-end">
-                    <MarkPaidButton projectId={project.id} />
-                  </div>
-                )}
+                <div className="flex justify-end gap-2">
+                  {!project.isPaid && <MarkPaidButton projectId={project.id} />}
+                  <ProjectForm project={project} />
+                </div>
               </li>
             );
           })}

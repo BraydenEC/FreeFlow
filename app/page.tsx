@@ -1,6 +1,6 @@
 import CorePreview from "@/components/core/CorePreview";
 import DashboardGrid from "@/components/dashboard/DashboardGrid";
-import NewProjectForm from "@/components/dashboard/NewProjectForm";
+import ProjectForm from "@/components/dashboard/ProjectForm";
 import OverdueAlert from "@/components/dashboard/OverdueAlert";
 import ProjectsTable from "@/components/ProjectsTable";
 import ResearchWidget from "@/components/research/ResearchWidget";
@@ -66,7 +66,7 @@ export default async function Home() {
                   <ProjectsTable
                     projects={projects}
                     now={now}
-                    action={<NewProjectForm defaultOpen={projects.length === 0} />}
+                    action={<ProjectForm defaultOpen={projects.length === 0} />}
                   />
                 ),
                 core: <CorePreview outputs={savedOutputs} now={now} />,

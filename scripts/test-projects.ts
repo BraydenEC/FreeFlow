@@ -11,7 +11,7 @@
   from the other, one of these fails.
 */
 
-import { NewProjectSchema, toRow } from "@/lib/projects/schema";
+import { NewProjectSchema, toRow, toUpdateRow } from "@/lib/projects/schema";
 
 let passed = 0;
 let failed = 0;
@@ -162,6 +162,28 @@ if (withEmpties.success) {
   assert("empty contract date becomes null", row.contract_signed_on === null);
   assert("empty contract link becomes null", row.contract_url === null);
   assert("empty payment link becomes null", row.payment_url === null);
+}
+
+// --- Editing must not touch payment state ---------------------------------
+// toRow sets is_paid false and paid_at null, which is correct for a new
+// project and destructive for an edit. Reusing it to edit a paid project
+// would silently un-pay it and pull the money back out of This Month's
+// Earnings. toUpdateRow exists to prevent exactly that.
+const edit = NewProjectSchema.safeParse(base);
+if (edit.success) {
+  const row = toUpdateRow(edit.data);
+  assert("an edit never writes is_paid", !("is_paid" in row));
+  assert("an edit never writes paid_at", !("paid_at" in row));
+  assert("an edit still writes the name", row.name === base.name);
+  assert("an edit still writes the deadline", row.deadline === base.deadline);
+  assert(
+    "an edit still resolves the billing model",
+    "invoice_total" in row && "hourly_rate" in row,
+  );
+  // The insert mapping must keep doing the opposite.
+  const insert = toRow(edit.data);
+  assert("a create does write is_paid false", insert.is_paid === false);
+  assert("a create does write paid_at null", insert.paid_at === null);
 }
 
 console.log("─".repeat(64));

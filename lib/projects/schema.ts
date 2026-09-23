@@ -117,6 +117,23 @@ function orNull(v: string | undefined): string | null {
   return v === undefined || v === "" ? null : v;
 }
 
+/*
+  The row an EDIT writes.
+
+  Deliberately not toRow(). toRow sets is_paid false and paid_at null, because
+  a new project has not been paid — correct on insert and destructive on
+  update. Reusing it to edit a paid project would silently un-pay it and take
+  the money back out of This Month's Earnings, which is the kind of quiet
+  wrong answer this project keeps testing for. Payment state is owned by the
+  mark-paid route and this mapping never touches it.
+*/
+export function toUpdateRow(p: NewProject) {
+  const { is_paid, paid_at, ...editable } = toRow(p);
+  void is_paid;
+  void paid_at;
+  return editable;
+}
+
 /** The row the API inserts. One place decides how billing maps to columns. */
 export function toRow(p: NewProject) {
   return {
