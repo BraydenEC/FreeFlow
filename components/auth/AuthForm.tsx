@@ -146,8 +146,15 @@ export default function AuthForm({ mode }: { mode: Mode }) {
             onChange={(e) => setPassword(e.target.value)}
             className={inputClass}
           />
-          {mode === "signup" && (
+          {mode === "signup" ? (
             <span className="text-ink-faint text-xs">At least 6 characters.</span>
+          ) : (
+            <Link
+              href="/forgot-password"
+              className="text-ink-faint hover:text-ink self-start text-xs underline-offset-4 hover:underline"
+            >
+              Forgot your password?
+            </Link>
           )}
         </label>
 

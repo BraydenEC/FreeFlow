@@ -24,7 +24,13 @@ import { PRIMARY_NAV } from "@/lib/nav";
   deliberately the whole screen.
 */
 
-const AUTH_ROUTES = ["/signup", "/login", "/verify-email"];
+const AUTH_ROUTES = [
+  "/signup",
+  "/login",
+  "/verify-email",
+  "/forgot-password",
+  "/reset-password",
+];
 
 export default function TopBar() {
   const pathname = usePathname();

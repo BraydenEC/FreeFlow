@@ -25,7 +25,7 @@ const PRIVATE_PREFIXES = ["/", "/core"];
 // Pages a signed-in user has no business seeing. /auth/confirm is absent on
 // purpose: it must run even for someone already signed in, or a second click
 // of a confirmation link would bounce before verifying.
-const AUTH_ROUTES = ["/signup", "/login", "/verify-email"];
+const AUTH_ROUTES = ["/signup", "/login", "/verify-email", "/forgot-password"];
 
 function isPrivate(pathname: string): boolean {
   return PRIVATE_PREFIXES.some((p) =>

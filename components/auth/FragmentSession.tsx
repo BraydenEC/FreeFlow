@@ -44,6 +44,9 @@ export default function FragmentSession() {
     const supabase = getBrowserSupabase();
     if (!supabase) return;
 
+    // Supabase marks the purpose in the fragment. A recovery link has to end
+    // at the password form, not the dashboard.
+    const isRecovery = window.location.hash.includes("type=recovery");
     let cancelled = false;
     void (async () => {
       // The client consumed the fragment as it was constructed; read the result.
@@ -52,7 +55,7 @@ export default function FragmentSession() {
       // Strip the fragment either way, so a refresh cannot replay it.
       window.history.replaceState(null, "", window.location.pathname);
       if (data.session) {
-        router.replace("/");
+        router.replace(isRecovery ? "/reset-password" : "/");
         router.refresh();
       } else {
         setFailed(true);
