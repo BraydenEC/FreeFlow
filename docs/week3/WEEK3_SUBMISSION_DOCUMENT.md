@@ -83,9 +83,13 @@ Both pages live, with a feature map, three tiers, two segments, a live-recomputi
 
 ## 5. UX concept
 
-Wireframe produced during planning — `docs/week3/wireframe.svg`.
+**Two wireframes, and the difference between them is the point.**
 
-> **Action required:** open that SVG, export or screenshot it, and paste the image here. The UX planning criterion is scored on a visible artifact; a file path is not one.
+**1. Planning wireframe — `docs/week3/wireframe.svg`.** Drawn at Gate 1, before any Week 3 code. It is the artifact that proves the page was designed rather than discovered, and it is left exactly as it was drawn — indigo palette, old name, old sidebar. Editing it after the fact would destroy the only thing it is evidence of.
+
+**2. As-built wireframe — `docs/images/wireframe-freeflow-dashboard.png`.** Drawn after the interface was rebuilt, and annotated with what changed and why. Every change on it traces to the validation interview rather than to taste.
+
+> **Action required:** paste both images here. The UX criterion is scored on a visible artifact; a file path is not one. The PNG is ready to drop in; the planning SVG needs exporting or screenshotting first.
 
 **Implementation note.** `/pricing` is an *instrument*, unlike `/research` which was a document. Numbers move as you drag, so inputs and outputs stay visible together — a calculator where you cannot see the result while adjusting the input is not a simulator.
 
