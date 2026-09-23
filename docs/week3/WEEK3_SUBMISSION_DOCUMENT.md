@@ -1,6 +1,8 @@
 # Week 3: Product Architecture + Pricing Simulator — Submission Packet
 
-**Student:** Brayden Credeur **Course:** Negocios Inteligentes **Project:** ServicePro — product tiers, feature architecture, and a revenue simulator **Date:** September 2026
+> **Note on the name.** This work was built as *ServicePro*. The product was renamed **FreeFlow** and moved to its own domain after the Week 3 build; the repository name and Week 1–2 packets still carry the old name. Same project, same commit history.
+
+**Student:** Brayden Credeur **Course:** Negocios Inteligentes **Project:** FreeFlow — product tiers, feature architecture, and a revenue simulator **Date:** September 2026
 
 ---
 
@@ -8,9 +10,9 @@
 
 | Item | Link |
 |---|---|
-| **Live page — /product** | https://servicepro-orpin.vercel.app/product |
-| **Live page — /pricing** | https://servicepro-orpin.vercel.app/pricing |
-| Dashboard | https://servicepro-orpin.vercel.app |
+| **Live page — /product** | https://www.freeflow.website/product |
+| **Live page — /pricing** | https://www.freeflow.website/pricing |
+| Dashboard | https://www.freeflow.website |
 | **GitHub** | https://github.com/BraydenEC/servicepro |
 | **Demo video** | ⬅️ PASTE YOUR VIDEO LINK HERE |
 
@@ -22,7 +24,7 @@
 
 ## 1. Problem — What user problem is this feature solving?
 
-Three weeks in, ServicePro can track a project, extract one from a client brief, and show that no competitor does both halves of the job in Mexico. **It has never had a price.**
+Three weeks in, FreeFlow can track a project, extract one from a client brief, and show that no competitor does both halves of the job in Mexico. **It has never had a price.**
 
 A freelancer evaluating it is comparing against Harvest's genuinely free tier and against the Alegra-plus-tracker combination they may already pay for. Until the product states what it costs and who it is for, the honest answer to *"why would I switch"* is unavailable to the user and the builder alike.
 
@@ -81,7 +83,9 @@ Both pages live, with a feature map, three tiers, two segments, a live-recomputi
 
 ## 5. UX concept
 
-Wireframe produced during planning. *(Insert `docs/week3/wireframe.svg` here — required for the UX planning criterion. Do not leave this as a placeholder.)*
+Wireframe produced during planning — `docs/week3/wireframe.svg`.
+
+> **Action required:** open that SVG, export or screenshot it, and paste the image here. The UX planning criterion is scored on a visible artifact; a file path is not one.
 
 **Implementation note.** `/pricing` is an *instrument*, unlike `/research` which was a document. Numbers move as you drag, so inputs and outputs stay visible together — a calculator where you cannot see the result while adjusting the input is not a simulator.
 
@@ -133,7 +137,7 @@ Three divergences from the wireframe:
 
 ## 10. Coding agent implementation prompt
 
-> Build `/product` and `/pricing` for the existing ServicePro Next.js 16 app. `/product` renders a feature map: every capability built in Weeks 0–2, each assigned to a pricing tier, plus a clearly separated planned column. `/pricing` renders three tiers — Solo (free, capped), Pro, and Studio — priced by anchoring to competitor figures already verified in `lib/research/data.ts`, shown in both USD and MXN. It defines two customer segments and states explicitly which segment is excluded and why, quoting the Week 2 validation conversation.
+> Build `/product` and `/pricing` for the existing FreeFlow Next.js 16 app. `/product` renders a feature map: every capability built in Weeks 0–2, each assigned to a pricing tier, plus a clearly separated planned column. `/pricing` renders three tiers — Solo (free, capped), Pro, and Studio — priced by anchoring to competitor figures already verified in `lib/research/data.ts`, shown in both USD and MXN. It defines two customer segments and states explicitly which segment is excluded and why, quoting the Week 2 validation conversation.
 >
 > Add a revenue calculator as a Client Component computing MRR, ARR, blended ARPU, and a 12-month projection with no network request. Add a scenario toggle where the conservative preset encodes the validation conversation's finding rather than being the base case reduced.
 >
@@ -164,14 +168,14 @@ Three divergences from the wireframe:
 | UX mockup | Image or wireframe | ✅ `wireframe.svg` + implementation note |
 | Product spec | Requirements + acceptance criteria | ✅ 17 testable criteria |
 | Architecture sketch | Data flow and components | ✅ 2 diagrams |
-| GitHub commits | Minimum 5 | ✅ **47** |
+| GitHub commits | Minimum 5 | ✅ **63** |
 | Vercel deployments | Minimum 2 | ✅ **18+** |
 | Supabase evidence | Table/data evidence | ✅ `pricing_scenarios` live, 2 rows, round trip verified |
 | Prompt log | Minimum 5 | ✅ **5** |
-| Test evidence | 2 pricing logic + 3 software | ✅ **27 assertions + 6 production tests** |
+| Test evidence | 2 pricing logic + 3 software | ✅ **27 pricing assertions + 6 production tests** (full suite now 153 across five files) |
 | Iteration log | What changed after testing | ✅ **10 entries** |
 | Demo video | 2–3 minutes | ⬅️ TO BE ADDED |
-| Human Decision Note | 150–250 words | ⬅️ TO BE WRITTEN BELOW |
+| Human Decision Note | 150–250 words | ✅ **242 words**, below — edit into your own voice |
 
 **Build gates:** Gate 1 ✅ · Gate 2 ✅ · Gate 3 ✅ · Gate 4 — below.
 
@@ -217,7 +221,17 @@ The first attempt used hand-rounded figures and was *also* refused, because the 
 
 # Human Decision Note
 
-⬅️ **WRITE YOUR NOTE HERE** — 150–250 words covering decisions, rejections, corrections, and tradeoffs. Material in `DECISION_NOTE_MATERIAL.md`.
+*Draft below — 242 words, inside the 150–250 range. Edit it into your own voice before submitting; every fact in it is verifiable in this repository.*
+
+A pricing simulator is a machine for producing encouraging numbers. You choose the assumptions, so the output is whatever you already believed — and the scenario toggle the brief requires makes that worse, because a pessimistic case that is not genuinely pessimistic looks like a stress test while proving nothing.
+
+So I built three defences before writing code. Every assumption is a table row carrying a confidence level, and six of nine read *estimated*. Every price anchors to a competitor figure I fetched and dated in Week 2 rather than invented. The conservative scenario encodes my validation conversation instead of being the base case scaled down; it lands at 12% of base, and declining.
+
+The rejection I will defend hardest: the excluded segment has no toggle. A checkbox to include fixed-price sellers "just to see" would put a flattering number one click away from a page built to resist exactly that.
+
+One correction changed how I work. The save route recomputes revenue on the server and refuses any mismatch. Testing it, my own tampering attempt was rejected — because I had hand-rounded $2,688.40 to $2,688. The guard was right and my arithmetic was wrong. That is the third time this project that a check disagreed with the code and the code won.
+
+The tradeoff: base case is roughly $32,000 ARR. A model tuned to impress was available and would have been undetectable. I traded impressiveness for a number somebody can argue with.
 
 ---
 
