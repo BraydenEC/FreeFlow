@@ -6,10 +6,16 @@ import type { TierId } from "@/types/pricing";
   differently.
 */
 
+/*
+  Monochrome, like the rest of the interface. These were four tinted pills
+  until the redesign, which this file was missed by — the tier name is the
+  information and a colour per tier was never carrying any of it.
+*/
 const STYLES: Record<TierId, { label: string; className: string }> = {
-  solo: { label: "Solo", className: "bg-slate-400/10 text-slate-300 ring-slate-400/20" },
-  pro: { label: "Pro", className: "bg-indigo-400/10 text-indigo-300 ring-indigo-400/20" },
-  studio: { label: "Studio", className: "bg-emerald-400/10 text-emerald-300 ring-emerald-400/20" },
+  solo: { label: "Solo", className: "text-ink-muted ring-hairline" },
+  pro: { label: "Pro", className: "text-ink ring-ink-faint" },
+  studio: { label: "Studio", className: "text-ink-muted ring-hairline" },
+  project: { label: "Project", className: "text-ink-muted ring-hairline" },
 };
 
 export default function TierBadge({

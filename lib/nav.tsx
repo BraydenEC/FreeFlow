@@ -109,6 +109,7 @@ export const SUB_NAV: Record<string, SubNavItem[]> = {
   "/pricing": [
     { label: "Simulator", href: "?tab=simulator" },
     { label: "Tiers", href: "?tab=tiers" },
+    { label: "Per-project", href: "?tab=project" },
     { label: "Assumptions", href: "?tab=assumptions" },
     { label: "Saved", href: "?tab=saved" },
   ],

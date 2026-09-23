@@ -10,8 +10,8 @@ import type { Confidence } from "@/types/research";
   finding rather than a gap.
 */
 
-export type TierId = "solo" | "pro" | "studio";
-export type SegmentId = "freelancer" | "studio";
+export type TierId = "solo" | "pro" | "studio" | "project";
+export type SegmentId = "freelancer" | "studio" | "project";
 export type ScenarioId = "conservative" | "base" | "optimistic";
 
 export type Tier = {

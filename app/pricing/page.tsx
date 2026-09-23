@@ -2,6 +2,7 @@ import AssumptionsTable from "@/components/pricing/AssumptionsTable";
 import Reasoning from "@/components/prefs/Reasoning";
 import Tabs from "@/components/prefs/Tabs";
 import { Suspense } from "react";
+import ProjectSegmentPanel from "@/components/pricing/ProjectSegmentPanel";
 import PricingCalculator from "@/components/pricing/PricingCalculator";
 import SavedScenarios from "@/components/pricing/SavedScenarios";
 import SegmentPanel from "@/components/pricing/SegmentPanel";
@@ -115,6 +116,11 @@ export default async function PricingPage({
                         <SegmentPanel />
                       </>
                     ),
+                  },
+                  {
+                    id: "project",
+                    label: "Per-project",
+                    content: <ProjectSegmentPanel />,
                   },
                   { id: "assumptions", label: "Assumptions", content: <AssumptionsTable /> },
                   { id: "saved", label: "Saved", content: <SavedScenarios scenarios={saved} /> },

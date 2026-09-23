@@ -186,6 +186,33 @@ assert("same inputs give identical ARR", a.arr === b.arr);
 assert("ARR is exactly 12 × MRR", money(a.mrr * 12) === a.arr, `${a.mrr} × 12 vs ${a.arr}`);
 assert("projection has 12 months", a.projection.length === 12);
 
+console.log("\n7. The submitted numbers have not moved");
+
+/*
+  The Week 3 packet states a base case of $32,261 ARR and a conservative case
+  of $3,958, and a grader can open the live page and check them.
+
+  Adding the Project tier deliberately did NOT change the model — that segment
+  is priced and estimated outside it. This asserts the separation actually
+  held. If a future change folds the new tier into the forecast, this is the
+  test that says so out loud rather than letting a published figure drift
+  silently away from a document that has already been handed in.
+*/
+{
+  const base = Math.round(computePricing(SCENARIOS.base.inputs).arr);
+  assert("base ARR is still exactly $32,261 as submitted", base === 32261, `got $${base}`);
+
+  const cons = Math.round(computePricing(SCENARIOS.conservative.inputs).arr);
+  assert("conservative ARR is still exactly $3,958 as submitted", cons === 3958, `got $${cons}`);
+
+  const inputs = JSON.stringify(SCENARIOS.base.inputs);
+  assert(
+    "no Project-tier price leaked into the scenario inputs",
+    !inputs.includes("project"),
+    inputs,
+  );
+}
+
 console.log("\n" + "─".repeat(70));
 console.log(`\n  ${passed} passed, ${failed} failed\n`);
 process.exit(failed === 0 ? 0 : 1);

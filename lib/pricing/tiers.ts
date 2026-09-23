@@ -83,6 +83,29 @@ export const TIERS: Tier[] = [
       "Priced below Pro per seat because volume should cost less per head, and well under Bonsai's $59/user/mo top monthly tier.",
     anchorSourceUrl: "https://www.hellobonsai.com/pricing",
   },
+  {
+    id: "project",
+    name: "Project",
+    monthlyUsd: 9,
+    audience: "Fixed-price work, billed per job rather than per month",
+    // The pitch cannot be "replaces two tools", because this person only uses
+    // one of the two. It has to be the thing they actually buy, which the
+    // Week 2 interviewee named himself: someone keeping it current.
+    pitch:
+      "For one-time projects. Fewer invoices, each one legally correct — and kept correct as the SAT rules move.",
+    includes: [
+      "Unlimited projects",
+      "CFDI 4.0 issuance via an authorized PAC",
+      "Contract and payment link on every project",
+      "No time tracking — it is not what you bill on",
+    ],
+    // Honest anchor: their alternative is NOT the two-tool stack Pro replaces.
+    // They do not reconcile hours, so they are only buying invoicing. Pricing
+    // against the full stack would be pricing against a cost they never had.
+    anchor:
+      "A fixed-price seller does not reconcile hours, so their real alternative is an invoicing tool alone: Alegra Inicial at 187 MXN (~$10.87/mo). Project is $9 and also holds the contract and the payment record.",
+    anchorSourceUrl: "https://www.alegra.com/mexico/precios/",
+  },
 ];
 
 export function tierById(id: Tier["id"]): Tier {
@@ -110,6 +133,13 @@ export const SEGMENTS: Segment[] = [
       "Two to five freelancers working under one name. The same problem multiplied, plus a need to see across people.",
     defaultTier: "studio",
   },
+  {
+    id: "project",
+    name: "Fixed-price, per-project freelancer",
+    description:
+      "Sells one-time work — installs, builds, launches — priced per job rather than by the hour or on retainer. Few invoices, each one large, each one needing to be a valid CFDI. Excluded from the Week 3 model; see below for what changed.",
+    defaultTier: "project",
+  },
 ];
 
 /*
@@ -125,6 +155,32 @@ export const EXCLUDED_SEGMENT = {
     "I sell 1 time install shit so not a retainer model and it's always priced per job too so I haven't had a problem with tracking",
   why: "No recurring workflow to subscribe to, no hours to reconcile, no repeat invoicing rhythm. A per-seat monthly subscription does not fit this person, and he said so directly when asked.",
   source: "Week 2 human validation conversation, recorded verbatim",
+
+  /*
+    Revised after the full interview transcript was reviewed.
+
+    The original exclusion rested on one sentence. The transcript contained
+    another, from the same person, pointing the opposite way — and the second
+    one is about why he would buy rather than build:
+
+      "with a lot of products it's just a degrading asset, the code starts to
+       rot from day 1 of being shipped ... if there was someone dedicated to
+       building [it] and constantly gave updates to it I'd def rather use his
+       and just do minor tweaking than build my own from scratch."
+
+    So he is a subscription customer who sells one-time work. Those are not in
+    conflict: what recurs is not his billing, it is the maintenance he is
+    renting. The original reasoning confused the two.
+  */
+  revised: {
+    on: "2026-09-23",
+    stillTrue:
+      "The original objection holds where it was aimed. He has no hours to reconcile and no repeat invoicing rhythm, so the Pro pitch — one system instead of two — does not describe him. He is buying one tool, not replacing two.",
+    whatChanged:
+      "He described, unprompted, wanting to rent something maintained rather than build it. That is a recurring purchase, and it is what the Project tier sells: the rules staying current, not a workflow to log into every day.",
+    effectOnModel:
+      "None. The Week 3 revenue model is unchanged and still excludes this segment — base remains $32,261 ARR, exactly as submitted. This segment is priced and estimated separately so no figure in that packet moves.",
+  },
 };
 
 /* ---------------------------------------------------------------------------
