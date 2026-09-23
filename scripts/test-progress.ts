@@ -39,6 +39,7 @@ function project(over: Partial<Project> = {}): Project {
     contractSignedOn: null,
     contractUrl: null,
     paymentUrl: null,
+    clientTaxType: null,
     ...over,
   };
 }

@@ -38,6 +38,7 @@ type ProjectRow = {
   contract_signed_on: string | null;
   contract_url: string | null;
   payment_url: string | null;
+  client_tax_type: string | null;
 };
 
 const VALID_STATUSES: ProjectStatus[] = [
@@ -101,6 +102,12 @@ function mapRow(row: ProjectRow): Project {
     contractSignedOn: row.contract_signed_on,
     contractUrl: row.contract_url,
     paymentUrl: row.payment_url,
+    // Anything the column should not hold is read as "not recorded", which
+    // the withholding calculation already treats as no withholding.
+    clientTaxType:
+      row.client_tax_type === "persona_fisica" || row.client_tax_type === "persona_moral"
+        ? row.client_tax_type
+        : null,
   };
 }
 
@@ -124,7 +131,7 @@ async function fetchFromSupabase(): Promise<Project[] | null> {
     const { data, error } = await supabase
       .from("projects")
       .select(
-        "id, name, client, status, deadline, hours_logged, hourly_rate, invoice_total, is_paid, paid_at, contract_signed_on, contract_url, payment_url",
+        "id, name, client, status, deadline, hours_logged, hourly_rate, invoice_total, is_paid, paid_at, contract_signed_on, contract_url, payment_url, client_tax_type",
       )
       .order("deadline", { ascending: true });
 

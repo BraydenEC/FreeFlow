@@ -90,6 +90,12 @@ export const NewProjectSchema = z
       .optional(),
     contract_url: optionalUrl,
     payment_url: optionalUrl,
+    // Empty means "not recorded", which the withholding calculation reads as
+    // no withholding. There is deliberately no default: guessing that a
+    // client is a company would quietly reduce the earnings figure.
+    client_tax_type: z
+      .union([z.literal(""), z.enum(["persona_fisica", "persona_moral"])])
+      .optional(),
   })
   .superRefine((v, ctx) => {
     if (v.billing === "fixed") {
@@ -149,5 +155,6 @@ export function toRow(p: NewProject) {
     contract_signed_on: orNull(p.contract_signed_on),
     contract_url: orNull(p.contract_url),
     payment_url: orNull(p.payment_url),
+    client_tax_type: orNull(p.client_tax_type),
   };
 }

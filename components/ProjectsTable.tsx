@@ -10,6 +10,7 @@ import {
   projectValue,
 } from "@/lib/format";
 import { projectProgress } from "@/lib/progress";
+import { computeWithholding } from "@/lib/tax/withholding";
 import type { Project } from "@/types/project";
 
 /*
@@ -186,6 +187,22 @@ export default function ProjectsTable({
                         {project.hoursLogged}h × ${project.hourlyRate}
                       </span>
                     )}
+                    {/* The number that actually lands, shown only where it
+                        differs from the one above it. */}
+                    {(() => {
+                      const w = computeWithholding(
+                        projectValue(project),
+                        project.clientTaxType,
+                      );
+                      return w.applies ? (
+                        <span
+                          className="text-ink-faint block text-xs font-normal"
+                          title="After IVA and ISR withheld by the client"
+                        >
+                          net {formatCurrency(w.net)}
+                        </span>
+                      ) : null;
+                    })()}
                   </td>
                   <td className="px-5 py-3.5">
                     <ProgressBar

@@ -2,6 +2,7 @@ import CorePreview from "@/components/core/CorePreview";
 import DashboardGrid from "@/components/dashboard/DashboardGrid";
 import ProjectForm from "@/components/dashboard/ProjectForm";
 import OverdueAlert from "@/components/dashboard/OverdueAlert";
+import WithholdingPanel from "@/components/dashboard/WithholdingPanel";
 import ProjectsTable from "@/components/ProjectsTable";
 import ResearchWidget from "@/components/research/ResearchWidget";
 import SubNav from "@/components/SubNav";
@@ -31,6 +32,13 @@ export default async function Home() {
     getSavedOutputs(),
   ]);
 
+  // Withholding only has something to say when an unpaid invoice is going to
+  // a company. Otherwise the panel is a row of zeroes about a tax that does
+  // not apply, so the grid is told to leave the cell out entirely.
+  const hasWithholding = projects.some(
+    (p) => !p.isPaid && p.clientTaxType === "persona_moral",
+  );
+
   const hasOverdue = projects.some(
     (p) => !p.isPaid && (p.status === "overdue" || daysUntil(p.deadline, now) < 0),
   );
@@ -59,8 +67,10 @@ export default async function Home() {
 
             <DashboardGrid
               hasOverdue={hasOverdue}
+              hidden={hasWithholding ? [] : ["withholding"]}
               widgets={{
                 overdue: <OverdueAlert projects={projects} now={now} />,
+                withholding: <WithholdingPanel projects={projects} />,
                 metrics: <SummaryCards metrics={metrics} />,
                 projects: (
                   <ProjectsTable

@@ -44,6 +44,7 @@ const blank = (): NewProjectInput => ({
   contract_signed_on: todayIso(),
   contract_url: "",
   payment_url: "",
+  client_tax_type: "",
 });
 
 /* An existing row, back into the shape the form edits. Billing model is
@@ -62,6 +63,7 @@ function fromProject(p: Project): NewProjectInput {
     contract_signed_on: p.contractSignedOn ?? "",
     contract_url: p.contractUrl ?? "",
     payment_url: p.paymentUrl ?? "",
+    client_tax_type: p.clientTaxType ?? "",
   };
 }
 
@@ -266,6 +268,24 @@ export default function ProjectForm({
             onChange={(e) => set("contract_url", e.target.value)}
           />
           {err("contract_url")}
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className={label}>Client is a…</span>
+          <select
+            className={input}
+            value={form.client_tax_type ?? ""}
+            onChange={(e) =>
+              set("client_tax_type", e.target.value as NewProjectInput["client_tax_type"])
+            }
+          >
+            <option value="">Not recorded</option>
+            <option value="persona_fisica">Persona física</option>
+            <option value="persona_moral">Persona moral (company)</option>
+          </select>
+          <span className="text-ink-faint text-[11px]">
+            A persona moral withholds IVA and ISR before paying.
+          </span>
+          {err("client_tax_type")}
         </label>
         <label className="flex flex-col gap-1 sm:col-span-2">
           <span className={label}>Stripe invoice or payment link</span>

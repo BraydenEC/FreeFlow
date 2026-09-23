@@ -20,9 +20,17 @@ import type { WidgetId } from "@/lib/prefs/schema";
 export default function DashboardGrid({
   widgets,
   hasOverdue,
+  hidden = [],
 }: {
   widgets: Record<WidgetId, React.ReactNode>;
   hasOverdue: boolean;
+  /**
+   * Widgets with nothing to say right now. Overdue used to be the only one and
+   * was special-cased; withholding is the second, so the rule is general.
+   * A widget that renders null still occupies a grid cell, which is a hole
+   * rather than an absence.
+   */
+  hidden?: WidgetId[];
 }) {
   const { prefs } = usePrefs();
 
@@ -39,6 +47,7 @@ export default function DashboardGrid({
   // The overdue widget renders nothing when nothing is overdue; skip its slot
   // so an empty cell does not leave a gap in the grid.
   ordered = ordered.filter((w) => w.id !== "overdue" || hasOverdue);
+  ordered = ordered.filter((w) => !hidden.includes(w.id));
 
   return (
     <div className="grid gap-[var(--section-gap,2rem)] lg:grid-cols-2">

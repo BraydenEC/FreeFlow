@@ -1,3 +1,5 @@
+import type { ClientTaxType } from "@/lib/tax/withholding";
+
 /**
  * The five actionable states a project can be in.
  *
@@ -36,6 +38,13 @@ export type Project = {
   contractUrl: string | null;
   /** Link to the Stripe invoice or payment page that settles this project. */
   paymentUrl: string | null;
+  /**
+   * Who is paying. Drives withholding: a persona moral withholds part of the
+   * IVA and ISR before paying, a persona física does not. Null means it was
+   * never recorded, and the calculation treats that as no withholding rather
+   * than guessing.
+   */
+  clientTaxType: ClientTaxType | null;
 };
 
 /** The three cash-flow figures shown above the table. */
