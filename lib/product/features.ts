@@ -59,6 +59,46 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
         route: "/",
       },
       {
+        id: "create-project",
+        name: "Create, correct, and remove a project",
+        description:
+          "A project can be added from the dashboard and edited afterwards. Payment state is deliberately not editable here — it is owned by the mark-paid action, so an edit cannot quietly take money back out of the monthly earnings figure.",
+        status: "built",
+        tier: "solo",
+        shippedIn: "After Week 3",
+        route: "/",
+      },
+      {
+        id: "mark-paid",
+        name: "Record a payment",
+        description:
+          "Marks a project paid and dates it. The dashboard had computed this month's earnings from that flag since Week 0 with no way to set it, which made the headline number unmaintainable without database access.",
+        status: "built",
+        tier: "solo",
+        shippedIn: "After Week 3",
+        route: "/",
+      },
+      {
+        id: "contract-record",
+        name: "Contract and payment links",
+        description:
+          "A signed-contract date and links to the contract and the Stripe invoice. From the validation interview: the signature is what the interviewee credits with never having been stood up, and it had nowhere to live.",
+        status: "built",
+        tier: "project",
+        shippedIn: "After Week 3",
+        route: "/",
+      },
+      {
+        id: "overdue-alert",
+        name: "Overdue alert",
+        description:
+          "Appears only when something is actually overdue, and pins itself above everything else. A layout that hides a late invoice under a research panel has its priorities wrong.",
+        status: "built",
+        tier: "solo",
+        shippedIn: "After Week 3",
+        route: "/",
+      },
+      {
         id: "resilience",
         name: "Works without a database",
         description:
@@ -66,6 +106,44 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
         status: "built",
         tier: "solo",
         shippedIn: "Week 0",
+        route: "/",
+      },
+    ],
+  },
+  {
+    id: "account",
+    name: "Own your data",
+    purpose:
+      "Everything above belongs to somebody. Until accounts existed the product was a single shared dataset with the door open.",
+    features: [
+      {
+        id: "accounts",
+        name: "Accounts and per-user data",
+        description:
+          "Email sign-up, and row-level security scoped to the signed-in user on every table. A new account starts empty rather than showing demo data, because six fictional projects on the first screen would be a lie.",
+        status: "built",
+        tier: "solo",
+        shippedIn: "After Week 3",
+        route: "/signup",
+      },
+      {
+        id: "password-reset",
+        name: "Password reset",
+        description:
+          "Request a link, choose a new password. Could not be built until outbound mail worked; before that a locked-out user needed the database owner to intervene.",
+        status: "built",
+        tier: "solo",
+        shippedIn: "After Week 3",
+        route: "/forgot-password",
+      },
+      {
+        id: "preferences",
+        name: "Saved layout preferences",
+        description:
+          "Density, which dashboard widgets appear, their order and width, and whether explanatory prose is shown. Stored against the account, so the layout follows the person rather than the browser.",
+        status: "built",
+        tier: "solo",
+        shippedIn: "After Week 3",
         route: "/",
       },
     ],
