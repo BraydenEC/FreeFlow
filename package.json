@@ -17,7 +17,8 @@
     "test:csv": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-csv.ts",
     "test:forecast": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-forecast.ts",
     "test:currency": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-currency.ts",
-    "test": "npm run test:pricing && npm run test:filters && npm run test:prefs && npm run test:projects && npm run test:progress && npm run test:withholding && npm run test:support && npm run test:csv && npm run test:forecast && npm run test:currency"
+    "test:features": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-features.ts",
+    "test": "npm run test:pricing && npm run test:filters && npm run test:prefs && npm run test:projects && npm run test:progress && npm run test:withholding && npm run test:support && npm run test:csv && npm run test:forecast && npm run test:currency && npm run test:features"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.120.0",

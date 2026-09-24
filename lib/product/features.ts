@@ -137,10 +137,58 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
         route: "/forgot-password",
       },
       {
+        id: "currency",
+        name: "Eleven currencies",
+        description:
+          "Amounts are written the way your region writes them, not the way the United States does. One currency per account and nothing is ever converted, because summing across currencies would need live rates and an invented rate is worse than no feature.",
+        status: "built",
+        tier: "solo",
+        shippedIn: "After Week 3",
+        route: "/",
+      },
+      {
+        id: "export",
+        name: "Export to CSV",
+        description:
+          "Every project as a spreadsheet, with the retenciones already worked out where they apply and omitted entirely where they do not. A tracker you cannot export from is a tracker you cannot leave.",
+        status: "built",
+        tier: "solo",
+        shippedIn: "After Week 3",
+        route: "/",
+      },
+      {
         id: "preferences",
         name: "Saved layout preferences",
         description:
           "Density, which dashboard widgets appear, their order and width, and whether explanatory prose is shown. Stored against the account, so the layout follows the person rather than the browser.",
+        status: "built",
+        tier: "solo",
+        shippedIn: "After Week 3",
+        route: "/",
+      },
+    ],
+  },
+  {
+    id: "plan",
+    name: "See what is coming",
+    purpose:
+      "Everything else answers what happened or what is late. This is the part that answers whether next month is going to be fine.",
+    features: [
+      {
+        id: "forecast",
+        name: "Six-month cash-flow forecast",
+        description:
+          "Reads your deadlines and payment terms and projects what lands in each of the next six months, net of withholding. Reports what is scheduled and what is likely separately, because a single blended number hides which one you are reading.",
+        status: "built",
+        tier: "solo",
+        shippedIn: "After Week 3",
+        route: "/",
+      },
+      {
+        id: "payment-terms",
+        name: "Payment terms per project",
+        description:
+          "A deadline is not a payment date. Each project records how long its client takes to pay, falling back to your account default, so the forecast reflects how you actually get paid rather than an assumption.",
         status: "built",
         tier: "solo",
         shippedIn: "After Week 3",
@@ -291,11 +339,11 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
         id: "retenciones",
         name: "Withholding handling",
         description:
-          "A company paying a RESICO freelancer withholds 1.25% ISR. The invoice and the cash received differ, and the dashboard should know that.",
-        status: "planned",
+          "A company withholds two thirds of the IVA and either 10% or 1.25% of the ISR depending on your regime, so the invoice and the cash received differ. Every figure on the dashboard — including the forecast — is the one that reaches your bank.",
+        status: "built",
         tier: "pro",
-        shippedIn: null,
-        route: null,
+        shippedIn: "After Week 3",
+        route: "/",
       },
     ],
   },
