@@ -24,8 +24,8 @@ import { isDonationConfigured } from "@/lib/support";
 
 const PROBLEMS = [
   {
-    title: "You invoiced $10,000 and received $9,533",
-    body: "A persona moral withholds two thirds of the IVA and 10% of the ISR before paying you. FreeFlow shows both numbers, so the figure on your dashboard is the one that actually reaches your bank.",
+    title: "You cannot tell whether March is going to be fine",
+    body: "Your work has deadlines, not payment dates. FreeFlow reads both, applies your terms, and shows what actually lands each month — separating what is scheduled from what is likely enough to count on.",
   },
   {
     title: "The deadline and the invoice live in different tools",
@@ -35,9 +35,14 @@ const PROBLEMS = [
     title: "You find out you were not paid by remembering",
     body: "Overdue work surfaces itself and pins to the top of the dashboard. Nothing is late because you forgot to check.",
   },
+  {
+    title: "Invoicing in Mexico takes money off the top",
+    body: "If a company withholds IVA and ISR before paying you, FreeFlow knows. Every figure — including the forecast — is what reaches your bank, not what you billed. Work outside Mexico and it stays out of your way.",
+  },
 ];
 
 const BUILT_HIGHLIGHTS = [
+  "A six-month income forecast built from work you already have",
   "Projects, deadlines and cash flow in one dashboard",
   "Turn a client brief into a project with one paste",
   "Contract, payment link and retenciones on every project",
@@ -60,15 +65,16 @@ export default function LandingPage() {
           {/* ---------- Hero ---------- */}
           <header className="max-w-3xl pt-6 sm:pt-10">
             <p className="text-ink-faint text-[11px] tracking-[0.14em] uppercase">
-              For freelancers in Mexico
+              For independent freelancers
             </p>
             <h1 className="mt-4 text-3xl leading-tight font-bold tracking-tight sm:text-4xl">
-              Know what you are owed, and what will actually arrive.
+              Know what is coming, not just what you are owed.
             </h1>
             <p className="text-ink-muted mt-4 text-base leading-relaxed">
-              FreeFlow tracks your projects, deadlines and invoices in one
-              place — and it understands retenciones, so it never tells you
-              that you earned more than you did.
+              FreeFlow keeps your projects, deadlines and invoices in one place
+              and turns them into a forecast — how much lands in each of the
+              next six months, and how much of it is certain enough to plan
+              around.
             </p>
 
             <div className="mt-7 flex flex-wrap items-center gap-3">
@@ -113,7 +119,7 @@ export default function LandingPage() {
             >
               What it is for
             </h2>
-            <div className="mt-4 grid gap-3 lg:grid-cols-3">
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {PROBLEMS.map((p) => (
                 <div
                   key={p.title}

@@ -12,6 +12,7 @@ import { z } from "zod";
 
 export const WIDGET_IDS = [
   "overdue",
+  "forecast",
   "withholding",
   "metrics",
   "projects",
@@ -22,6 +23,7 @@ export type WidgetId = (typeof WIDGET_IDS)[number];
 
 export const WIDGET_LABELS: Record<WidgetId, string> = {
   overdue: "Overdue alert",
+  forecast: "Expected income",
   withholding: "After retenciones",
   metrics: "Cash-flow metrics",
   projects: "Projects table",
@@ -65,6 +67,7 @@ export const DEFAULT_PREFS: Prefs = {
       { id: "overdue", visible: true, width: "full" },
       { id: "metrics", visible: true, width: "full" },
       { id: "projects", visible: true, width: "full" },
+      { id: "forecast", visible: true, width: "full" },
       { id: "withholding", visible: true, width: "half" },
       { id: "core", visible: true, width: "half" },
       { id: "research", visible: true, width: "half" },

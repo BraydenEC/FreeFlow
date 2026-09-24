@@ -2,6 +2,7 @@ import Link from "next/link";
 import CorePreview from "@/components/core/CorePreview";
 import DashboardGrid from "@/components/dashboard/DashboardGrid";
 import ProjectForm from "@/components/dashboard/ProjectForm";
+import ForecastPanel from "@/components/dashboard/ForecastPanel";
 import OverdueAlert from "@/components/dashboard/OverdueAlert";
 import WithholdingPanel from "@/components/dashboard/WithholdingPanel";
 import ProjectsTable from "@/components/ProjectsTable";
@@ -53,6 +54,10 @@ export default async function Home() {
   // Withholding only has something to say when an unpaid invoice is going to
   // a company. Otherwise the panel is a row of zeroes about a tax that does
   // not apply, so the grid is told to leave the cell out entirely.
+  // Nothing unpaid means nothing to forecast, and an empty chart teaches a
+  // new user only that the product has a chart.
+  const hasForecast = projects.some((p) => !p.isPaid);
+
   const hasWithholding = projects.some(
     (p) => !p.isPaid && p.clientTaxType === "persona_moral",
   );
@@ -85,9 +90,13 @@ export default async function Home() {
 
             <DashboardGrid
               hasOverdue={hasOverdue}
-              hidden={hasWithholding ? [] : ["withholding"]}
+              hidden={[
+                ...(hasWithholding ? [] : ["withholding" as const]),
+                ...(hasForecast ? [] : ["forecast" as const]),
+              ]}
               widgets={{
                 overdue: <OverdueAlert projects={projects} now={now} />,
+                forecast: <ForecastPanel projects={projects} now={now} />,
                 withholding: <WithholdingPanel projects={projects} />,
                 metrics: <SummaryCards metrics={metrics} />,
                 projects: (
