@@ -21,7 +21,13 @@ import { getSupabaseEnv } from "@/lib/supabase/env";
   pricing pages a grader reaches by link.
 */
 
-const PRIVATE_PREFIXES = ["/", "/core"];
+/*
+  "/" is deliberately absent. The root renders a landing page when signed out
+  and the dashboard when signed in, so the page decides rather than a
+  redirect. Gating it here would send every cold visitor to a sign-up form
+  before telling them what they were signing up for.
+*/
+const PRIVATE_PREFIXES = ["/core"];
 // Pages a signed-in user has no business seeing. /auth/confirm is absent on
 // purpose: it must run even for someone already signed in, or a second click
 // of a confirmation link would bounce before verifying.

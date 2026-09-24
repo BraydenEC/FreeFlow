@@ -7,10 +7,12 @@ import WithholdingPanel from "@/components/dashboard/WithholdingPanel";
 import ProjectsTable from "@/components/ProjectsTable";
 import ResearchWidget from "@/components/research/ResearchWidget";
 import SubNav from "@/components/SubNav";
+import LandingPage from "@/components/landing/LandingPage";
 import SummaryCards from "@/components/SummaryCards";
 import { getSavedOutputs } from "@/lib/core/saved";
 import { daysUntil } from "@/lib/format";
 import { getDashboardData } from "@/lib/projects";
+import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
 
 /*
   The dashboard.
@@ -26,7 +28,22 @@ import { getDashboardData } from "@/lib/projects";
 
 export const dynamic = "force-dynamic";
 
+/*
+  The root serves two different pages.
+
+  Signed out it is a landing page, because the proxy used to bounce a cold
+  visitor straight to a sign-up form whose whole explanation was one sentence.
+  Asking for an email before saying what the product is was the largest leak
+  in the funnel.
+
+  Signed in it is the dashboard, unchanged. The session decides, not the
+  proxy, so there is no redirect and no flash of the wrong page.
+*/
 export default async function Home() {
+  const supabase = await getServerSupabase();
+  const user = await getSessionUser(supabase);
+  if (!user) return <LandingPage />;
+
   const now = new Date();
   const [{ projects, metrics, source }, savedOutputs] = await Promise.all([
     getDashboardData(now),
