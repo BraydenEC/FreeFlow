@@ -91,6 +91,9 @@ export default function ProjectsTable({
   currency,
   regime,
   action,
+  filters,
+  filterActive = false,
+  total,
 }: {
   projects: Project[];
   now: Date;
@@ -98,10 +101,40 @@ export default function ProjectsTable({
   regime: TaxRegime;
   /** Rendered in the header — the dashboard passes the New project control. */
   action?: React.ReactNode;
+  /** The filter bar, rendered above the table. */
+  filters?: React.ReactNode;
+  /** True when a filter is narrowing the list. Changes what "empty" means. */
+  filterActive?: boolean;
+  /** How many projects exist before filtering. */
+  total?: number;
 }) {
   // A new account has no projects. That is a state, not an error, and the
   // table says so instead of rendering an empty grid.
+  // Two different emptinesses. "You have no projects" is encouraging for a
+  // new account and a lie to somebody whose search simply missed — telling a
+  // freelancer they have no work because they mistyped is the worst thing
+  // this table could say.
   if (projects.length === 0) {
+    if (filterActive) {
+      return (
+        <section
+          aria-labelledby="recent-projects-heading"
+          className="flex flex-col gap-4"
+        >
+          {filters}
+          <div className="border-hairline bg-surface rounded-lg border px-6 py-10 text-center">
+            <h2 id="recent-projects-heading" className="text-[15px] font-semibold">
+              No projects match
+            </h2>
+            <p className="text-ink-muted mt-1 text-sm">
+              {total ?? 0} {total === 1 ? "project" : "projects"} are hidden by
+              the current filter.
+            </p>
+          </div>
+        </section>
+      );
+    }
+
     return (
       <section
         aria-labelledby="recent-projects-heading"
@@ -125,6 +158,7 @@ export default function ProjectsTable({
       aria-labelledby="recent-projects-heading"
       className="flex flex-col gap-4"
     >
+      {filters}
       <div className="border-hairline bg-surface overflow-hidden rounded-lg border">
         <div className="border-hairline flex items-center justify-between border-b px-5 py-3.5">
           <h2

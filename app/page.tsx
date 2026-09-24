@@ -1,6 +1,7 @@
 import Link from "next/link";
 import CorePreview from "@/components/core/CorePreview";
 import DashboardGrid from "@/components/dashboard/DashboardGrid";
+import ProjectFilters from "@/components/dashboard/ProjectFilters";
 import ProjectForm from "@/components/dashboard/ProjectForm";
 import ForecastPanel from "@/components/dashboard/ForecastPanel";
 import OverdueAlert from "@/components/dashboard/OverdueAlert";
@@ -15,6 +16,7 @@ import { daysUntil } from "@/lib/format";
 import { DEFAULT_CURRENCY } from "@/lib/currency";
 import { DEFAULT_TERMS_DAYS } from "@/lib/forecast/model";
 import { DEFAULT_TAX_REGIME } from "@/lib/tax/withholding";
+import { filterFromParams, filterProjects, isFilterActive } from "@/lib/projects/filter";
 import { getDashboardData } from "@/lib/projects";
 import { getUserPrefs } from "@/lib/prefs/server";
 import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
@@ -44,7 +46,11 @@ export const dynamic = "force-dynamic";
   Signed in it is the dashboard, unchanged. The session decides, not the
   proxy, so there is no redirect and no flash of the wrong page.
 */
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; status?: string; payment?: string }>;
+}) {
   const supabase = await getServerSupabase();
   const user = await getSessionUser(supabase);
   if (!user) return <LandingPage />;
@@ -62,6 +68,15 @@ export default async function Home() {
   const currency = prefs?.currency ?? DEFAULT_CURRENCY;
   const regime = prefs?.taxRegime ?? DEFAULT_TAX_REGIME;
   const termsDays = prefs?.defaultTermsDays ?? DEFAULT_TERMS_DAYS;
+
+  // The filter narrows the TABLE only. The summary cards, the forecast and
+  // the overdue alert keep reading every project, because a filter is a way
+  // of looking at a list rather than a statement about what you are owed —
+  // and a forecast that silently dropped half your income because a search
+  // box had text in it would be the worst possible bug in this product.
+  const filter = filterFromParams(await searchParams);
+  const visibleProjects = filterProjects(projects, filter, now);
+  const filterActive = isFilterActive(filter);
 
   // Withholding only has something to say when an unpaid invoice is going to
   // a company. Otherwise the panel is a row of zeroes about a tax that does
@@ -121,11 +136,24 @@ export default async function Home() {
                 metrics: <SummaryCards metrics={metrics} currency={currency} />,
                 projects: (
                   <ProjectsTable
-                    projects={projects}
+                    projects={visibleProjects}
                     now={now}
                     currency={currency}
                     regime={regime}
                     action={<ProjectForm defaultOpen={projects.length === 0} />}
+                    filterActive={filterActive}
+                    total={projects.length}
+                    filters={
+                      projects.length > 0 ? (
+                        <ProjectFilters
+                          query={filter.query}
+                          status={filter.status}
+                          payment={filter.payment}
+                          total={projects.length}
+                          showing={visibleProjects.length}
+                        />
+                      ) : null
+                    }
                   />
                 ),
                 core: <CorePreview outputs={savedOutputs} now={now} />,

@@ -113,7 +113,14 @@ for (const f of ALL) {
     f.description.trim().length >= 40,
     `${f.description.length} chars`,
   );
-  assert(`"${f.name}" names a real tier`, TIER_IDS.has(f.tier), f.tier);
+  // tier is nullable in the type, so a null must be allowed explicitly
+  // rather than silently coerced — a feature belonging to no tier is a
+  // different claim from one belonging to a tier that does not exist.
+  assert(
+    `"${f.name}" names a real tier or none`,
+    f.tier === null || TIER_IDS.has(f.tier),
+    String(f.tier),
+  );
 }
 
 // --- The summary the pages render ----------------------------------------
