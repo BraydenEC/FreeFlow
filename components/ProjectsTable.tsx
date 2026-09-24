@@ -1,3 +1,4 @@
+import ExportButton from "@/components/dashboard/ExportButton";
 import MarkPaidButton from "@/components/dashboard/MarkPaidButton";
 import ProjectForm from "@/components/dashboard/ProjectForm";
 import ProgressBar from "@/components/ProgressBar";
@@ -267,7 +268,12 @@ export default function ProjectsTable({
           })}
         </ul>
       </div>
-      {action}
+      <div className="flex flex-wrap items-center gap-3">
+        {action}
+        {/* Only offered when there is something to export. An empty CSV is a
+            file nobody wanted. */}
+        {projects.length > 0 && <ExportButton />}
+      </div>
     </section>
   );
 }
