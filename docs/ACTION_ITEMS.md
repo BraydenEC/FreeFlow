@@ -8,6 +8,35 @@ Status legend: 🔴 blocking · 🟡 soon · ⚪ later
 
 ---
 
+## 🟡 DONATIONS — one step, ~3 minutes (added 2026-09-24)
+
+The `/support` page is live and explains everything. It has no button yet,
+because the payment link does not exist. Until you make one the page says so
+plainly rather than showing something broken.
+
+### Create a Stripe Payment Link
+
+1. Stripe dashboard → **Payment links** → **New**
+2. Product: **"Support FreeFlow"** (or whatever you want donors to see)
+3. Pricing → choose **"Customers choose what to pay"**, and set a suggested
+   amount if you like. This is what lets the suggested amounts on the page
+   pre-fill.
+4. Create it, then **copy the URL** — it looks like
+   `https://buy.stripe.com/xxxxxxxx`
+5. Vercel → your project → **Settings** → **Environment Variables** → add:
+   - Name: `NEXT_PUBLIC_DONATE_URL`
+   - Value: the URL you copied
+6. **Redeploy** — Vercel → Deployments → the latest → ⋯ → **Redeploy**, with
+   the build cache **off**
+
+The button appears the moment that variable is set. Nothing else changes.
+
+> It must be **https** and a full URL. The site refuses anything else on
+> purpose, and there are tests for it — a donate button that 404s inside the
+> app, or points at `http`, is worse than no button.
+
+---
+
 ## 🔴 ACCOUNTS FEATURE — email confirmation stays ON (updated 2026-09-22)
 
 You decided to keep email verification. The app now supports it properly:

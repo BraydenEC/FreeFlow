@@ -1,3 +1,4 @@
+import Link from "next/link";
 import AssumptionsTable from "@/components/pricing/AssumptionsTable";
 import Reasoning from "@/components/prefs/Reasoning";
 import Tabs from "@/components/prefs/Tabs";
@@ -72,6 +73,38 @@ export default async function PricingPage({
                 </p>
               </Reasoning>
             </header>
+
+            {/*
+              The page describes a model, not a bill. FreeFlow is free while it
+              is gathering users, and leaving a page of prices standing without
+              saying so would let a visitor conclude they are being charged.
+              The analysis stays published because a product that intends to
+              charge later and will not say what or when is asking people to
+              find out the hard way.
+            */}
+            <aside className="border-hairline rounded-lg border border-dashed p-5">
+              <p className="text-[15px] font-semibold">
+                None of this is being charged today.
+              </p>
+              <p className="text-ink-muted mt-2 text-sm leading-relaxed">
+                FreeFlow is free while it is early — every feature, for
+                everyone. What follows is the model it intends to move to, with
+                each price anchored to a competitor that was actually checked
+                and every assumption labelled. It is published now so that
+                nobody has to guess later.
+              </p>
+              <p className="text-ink-muted mt-2 text-sm leading-relaxed">
+                If it is useful to you in the meantime, there is an{" "}
+                <Link
+                  href="/support"
+                  className="text-ink underline-offset-4 hover:underline"
+                >
+                  optional donation
+                </Link>{" "}
+                that covers hosting and keeps the SAT rules current. It buys
+                nothing and unlocks nothing.
+              </p>
+            </aside>
 
             <section
               aria-label="Headline"

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import CorePreview from "@/components/core/CorePreview";
 import DashboardGrid from "@/components/dashboard/DashboardGrid";
 import ProjectForm from "@/components/dashboard/ProjectForm";
@@ -83,6 +84,24 @@ export default async function Home() {
                 research: <ResearchWidget />,
               }}
             />
+
+            {/*
+              The only nudge inside the product. One line, below the work,
+              never in the way of it — a tracker that interrupts someone
+              checking whether they have been paid, to ask them for money, has
+              misread the room. It is also deliberately not dismissible,
+              because a thing this quiet does not need a dismiss button.
+            */}
+            <p className="text-ink-faint text-center text-xs">
+              FreeFlow is free and always will be for what it does today.{" "}
+              <Link
+                href="/support"
+                className="text-ink-muted hover:text-ink underline-offset-4 hover:underline"
+              >
+                Chip in for hosting
+              </Link>{" "}
+              if it is earning its place.
+            </p>
           </div>
         </div>
       </main>

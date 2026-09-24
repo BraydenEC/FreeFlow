@@ -1,7 +1,7 @@
 # FreeFlow — Handoff
 
 **Live:** <https://www.freeflow.website> · **Repo:** <https://github.com/BraydenEC/servicepro>
-**Owner:** Brayden Credeur · **Last updated:** 2026-09-23 · **Commits:** 71 · **Tests:** 190
+**Owner:** Brayden Credeur · **Last updated:** 2026-09-23 · **Commits:** 72 · **Tests:** 212
 
 > The repository is still named `servicepro`. The product was renamed FreeFlow
 > after Week 3 and moved to its own domain. Same project, same history. The
@@ -42,7 +42,8 @@ Five pages, all server-rendered:
 | `/core` | required | AI extraction of a project from a client brief |
 | `/research` | public | Competitor and benchmark analysis with confidence on every claim |
 | `/product` | public | Feature map: 19 built, 6 planned |
-| `/pricing` | public | Tiers, revenue simulator, assumptions |
+| `/pricing` | public | The pricing model the product **plans** to move to. Nothing is charged today |
+| `/support` | public | Donation funnel — optional, buys nothing |
 
 `/research`, `/pricing` and `/product` stay public on purpose: a grader
 reaches them by link without needing an account.
@@ -64,6 +65,7 @@ hand-written. That constraint has held for six weeks and is worth keeping.
 NEXT_PUBLIC_SUPABASE_URL        the project URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY   the anon key — public by design, RLS does the work
 ANTHROPIC_API_KEY               optional; without it /core uses a heuristic extractor
+NEXT_PUBLIC_DONATE_URL          optional; a Stripe Payment Link. Absent = no donate button
 ```
 
 `ANTHROPIC_API_KEY` must **never** carry a `NEXT_PUBLIC_` prefix. The
@@ -144,7 +146,7 @@ anyone reads, only signed-in users write, and only as themselves.
 
 ## 6. Tests
 
-`npm test` runs six suites, 190 assertions, no browser and no database:
+`npm test` runs seven suites, 212 assertions, no browser and no database:
 
 | Suite | Count | Guards |
 |---|---|---|
@@ -154,9 +156,30 @@ anyone reads, only signed-in users write, and only as themselves.
 | `test:projects` | 58 | Project validation, impossible dates, edits never touching payment state |
 | `test:progress` | 37 | Pipeline percentages and their ordering |
 | `test:withholding` | 27 | Retenciones arithmetic against the canonical worked example |
+| `test:support` | 22 | The donate link is https and real, or absent — never a dead or unsafe link |
 
 Three of these exist because a test caught something real, not because
 coverage was wanted. See §8.
+
+---
+
+## 6b. Money
+
+**FreeFlow is free.** Every feature, for everyone. The pricing model on
+`/pricing` is what the product intends to move to later and is published
+rather than hidden, because a product that plans to charge and will not say
+what or when is asking people to find out the hard way.
+
+Funding in the meantime is an optional donation, via a **Stripe Payment
+Link** — a URL created in the Stripe dashboard, held in
+`NEXT_PUBLIC_DONATE_URL`. No secret key, no webhook, no card handling in this
+codebase, and no fourth dependency. The trade is that the app never learns who
+donated, which is fine while nothing is gated on it.
+
+`/support` says out loud what a donation does **not** buy: no features, no
+priority, no roadmap influence. That section matters more than the button. A
+donation that quietly bought influence would be a subscription wearing a
+different word.
 
 ---
 

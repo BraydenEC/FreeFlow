@@ -13,7 +13,8 @@
     "test:projects": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-projects.ts",
     "test:progress": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-progress.ts",
     "test:withholding": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-withholding.ts",
-    "test": "npm run test:pricing && npm run test:filters && npm run test:prefs && npm run test:projects && npm run test:progress && npm run test:withholding"
+    "test:support": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-support.ts",
+    "test": "npm run test:pricing && npm run test:filters && npm run test:prefs && npm run test:projects && npm run test:progress && npm run test:withholding && npm run test:support"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.120.0",
