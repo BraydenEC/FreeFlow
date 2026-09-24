@@ -1,7 +1,7 @@
 # FreeFlow — Handoff
 
 **Live:** <https://www.freeflow.website> · **Repo:** <https://github.com/BraydenEC/servicepro>
-**Owner:** Brayden Credeur · **Last updated:** 2026-09-23 · **Commits:** 72 · **Tests:** 212
+**Owner:** Brayden Credeur · **Last updated:** 2026-09-24 · **Commits:** 74 · **Tests:** 241
 
 > The repository is still named `servicepro`. The product was renamed FreeFlow
 > after Week 3 and moved to its own domain. Same project, same history. The
@@ -38,7 +38,7 @@ Five pages, all server-rendered:
 
 | Route | Auth | What it is |
 |---|---|---|
-| `/` | required | Dashboard — cash-flow cards, projects table, customisable widgets |
+| `/` | **public** | Landing page when signed out, dashboard when signed in. The page branches on the session; the proxy no longer gates it |
 | `/core` | required | AI extraction of a project from a client brief |
 | `/research` | public | Competitor and benchmark analysis with confidence on every claim |
 | `/product` | public | Feature map: 19 built, 6 planned |
@@ -136,6 +136,22 @@ Fields worth knowing:
 - `client_tax_type` nullable — **null is meaningful.** It means "not
   recorded", and withholding treats it as no withholding rather than guessing.
 
+### Getting data out
+
+`GET /api/export/projects` returns every project as CSV, with the retenciones
+already worked out — subtotal, IVA, both withholdings, and the net. That file
+is the one a freelancer hands a contador.
+
+It reads through `getDashboardData`, the same function the dashboard renders
+from, so the file and the screen cannot disagree. One guard matters: that
+function falls back to mock data when the database is unreachable, and six
+invented projects downloaded as "your projects" is worse than a refusal, so
+the export checks `source` and refuses to turn a fallback render into a file.
+
+Project names are user-controlled, so the CSV treats its own output as
+untrusted: any cell beginning with `=`, `+`, `-` or `@` is neutralised before
+quoting, because a spreadsheet executes those. Eight payloads are tested.
+
 ### RLS
 
 Private tables (`projects`, `core_outputs`, `user_prefs`): own rows only, via
@@ -146,7 +162,7 @@ anyone reads, only signed-in users write, and only as themselves.
 
 ## 6. Tests
 
-`npm test` runs seven suites, 212 assertions, no browser and no database:
+`npm test` runs eight suites, 241 assertions, no browser and no database:
 
 | Suite | Count | Guards |
 |---|---|---|
@@ -157,11 +173,31 @@ anyone reads, only signed-in users write, and only as themselves.
 | `test:progress` | 37 | Pipeline percentages and their ordering |
 | `test:withholding` | 27 | Retenciones arithmetic against the canonical worked example |
 | `test:support` | 22 | The donate link is https and real, or absent — never a dead or unsafe link |
+| `test:csv` | 29 | CSV quoting, UTF-8 BOM, and **formula injection** — project names are user-controlled |
 
 Three of these exist because a test caught something real, not because
 coverage was wanted. See §8.
 
 ---
+
+## 6a. The funnel
+
+A cold visitor now lands on a page that explains the product before asking for
+anything. That was not true until 2026-09-24: the root redirected straight to
+a sign-up form whose entire explanation was one sentence, which is the largest
+possible leak in a funnel whose goal is to gather users.
+
+```
+  /            landing page — what it is, what it is not
+  /signup      email and password, no card
+  /            dashboard, empty, with one call to action
+  /support     optional, never gated, never interrupting
+```
+
+The landing page derives its capability counts from `lib/product/features.ts`
+rather than stating them, and keeps a section on what is **not** built that
+leads with the absence of CFDI issuance. A visitor who signs up expecting that
+and finds it missing is a worse outcome than one who never signs up.
 
 ## 6b. Money
 
@@ -199,7 +235,9 @@ CFDI issuance does not exist. No amount of further app work closes that gap.
 
 | Feature | Notes |
 |---|---|
-| **Multiple seats** | The Studio tier is unsellable without it. Needs an organisations model, invitations, and an RLS rewrite. The largest remaining piece. |
+| **Multiple seats** | Needs an organisations model, invitations, and an RLS rewrite. The largest remaining piece. Less urgent now that nothing is charged. |
+| **Project search and filtering** | The table has neither. Fine at six projects, painful at sixty. `lib/research/filter.ts` is the pattern to copy. |
+| **Onboarding** | A new account lands on an empty dashboard with one call to action. It works, but nothing teaches the product. |
 | Cross-person project view | Depends on seats |
 | Per-person profitability | Depends on seats |
 | Withholding on the earnings card | The panel covers unpaid work; the monthly earnings figure is still gross. Changing it would move a number the Week 2 evidence asserts, so it needs a deliberate decision. |
@@ -242,6 +280,21 @@ database; a lie on the first screen every new account sees.
 
 **zsh does not word-split unquoted variables.** A rename loop silently did
 nothing and reported success. Use `while IFS= read -r`.
+
+**A static route inside a dynamic segment is a production-only bug.**
+`/api/projects/export` sat inside `/api/projects/[id]`. Development resolved
+the static child and returned 401; production resolved it as an id and
+returned 405 from the `[id]` handler. Every local check passed and only users
+would have seen it. Caught by testing the deployed URL rather than trusting
+the local result. It now lives at `/api/export/projects`, where nothing can
+claim it. Related: after moving a route, stale validators in `.next` report
+phantom type errors until the directory is cleared.
+
+**A derived number still needs reading.** The landing page said "invoicing
+through an authorised PAC is 6 of the planned capabilities". The 6 was
+correctly derived from the feature map; the sentence was nonsense, because
+CFDI is one of the six. Deriving a value protects it from drifting, not from
+being used in a sentence that does not parse.
 
 **`qlmanage` pads non-square SVGs**, and cropping back from the centre removes
 the top of the image. Author wireframe canvases square.
