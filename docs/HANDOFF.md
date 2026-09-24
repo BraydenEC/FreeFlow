@@ -11,20 +11,27 @@
 
 ---
 
-## 1. Do this first
+## 1. State of the deployment
 
-Two migrations are written and **not yet run**. Until they are, the newest
-fields silently fail to save.
+**All migrations have been run.** Verified against the live database on
+2026-09-24: `contract_signed_on`, `contract_url`, `payment_url` and
+`client_tax_type` all exist on `public.projects`.
 
-| # | File | Adds |
-|---|---|---|
-| 1 | `supabase/project_fields.sql` | Contract date, contract link, payment link, and the `contracted` status |
-| 2 | `supabase/client_tax_type.sql` | Whether a client is a persona física or persona moral |
+Migrations live in `supabase/` and each ends with a verify block. All are
+idempotent and safe to re-run if you are ever unsure whether one applied.
 
-Supabase → SQL Editor → New query → paste the whole file → Run. Each ends with
-a verify block that prints what it changed. Both are safe to re-run.
+| File | What it added |
+|---|---|
+| `schema.sql` | `projects`, plus the original seed data |
+| `core_outputs.sql`, `research_records.sql`, `pricing_scenarios.sql` | Week 1–3 tables |
+| `accounts.sql` | `user_id` everywhere, per-user RLS, `user_prefs` |
+| `project_fields.sql` | Contract date and links, payment link, the `contracted` status |
+| `client_tax_type.sql` | Persona física / persona moral, for withholding |
+| `confirm_user.sql` | Owner escape hatch; no longer needed now that password reset works |
 
-Everything else is live and working.
+**Outstanding owner actions:** create the Stripe Payment Link and set
+`NEXT_PUBLIC_DONATE_URL` (see `docs/ACTION_ITEMS.md`), and **rotate the
+Anthropic key after grading** — it was pasted into a chat during development.
 
 ---
 
