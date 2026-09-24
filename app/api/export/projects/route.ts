@@ -3,7 +3,14 @@ import { getDashboardData } from "@/lib/projects";
 import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
 
 /*
-  GET /api/projects/export — every project as CSV.
+  GET /api/export/projects — every project as CSV.
+
+  Deliberately NOT /api/projects/export. That path sits inside the dynamic
+  segment /api/projects/[id], and although Next resolves the static child
+  first in development, production resolved it as an id and answered 405 —
+  the method-not-allowed from the [id] handler, which only accepts PATCH and
+  DELETE. A route that works locally and 405s in production is the worst kind
+  of routing bug, so the collision is removed rather than relied upon.
 
   Reads through getDashboardData, the same function the dashboard renders
   from, so the file and the screen can never disagree about what exists.

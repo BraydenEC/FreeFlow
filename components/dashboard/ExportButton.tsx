@@ -19,7 +19,7 @@ export default function ExportButton() {
     setError(null);
     setBusy(true);
     try {
-      const res = await fetch("/api/projects/export");
+      const res = await fetch("/api/export/projects");
       if (!res.ok) {
         const json = (await res.json().catch(() => ({}))) as { error?: string };
         setError(json.error ?? "Could not export.");
