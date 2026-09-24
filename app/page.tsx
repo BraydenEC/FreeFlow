@@ -12,7 +12,9 @@ import LandingPage from "@/components/landing/LandingPage";
 import SummaryCards from "@/components/SummaryCards";
 import { getSavedOutputs } from "@/lib/core/saved";
 import { daysUntil } from "@/lib/format";
+import { DEFAULT_CURRENCY } from "@/lib/currency";
 import { getDashboardData } from "@/lib/projects";
+import { getUserPrefs } from "@/lib/prefs/server";
 import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
 
 /*
@@ -46,10 +48,16 @@ export default async function Home() {
   if (!user) return <LandingPage />;
 
   const now = new Date();
-  const [{ projects, metrics, source }, savedOutputs] = await Promise.all([
+  const [{ projects, metrics, source }, savedOutputs, prefs] = await Promise.all([
     getDashboardData(now),
     getSavedOutputs(),
+    getUserPrefs(supabase, user.id),
   ]);
+
+  // Threaded rather than read inside each component, exactly like `now`: one
+  // request renders one currency everywhere, and a value pulled from ambient
+  // state can differ between two halves of the same page.
+  const currency = prefs?.currency ?? DEFAULT_CURRENCY;
 
   // Withholding only has something to say when an unpaid invoice is going to
   // a company. Otherwise the panel is a row of zeroes about a tax that does
@@ -95,14 +103,15 @@ export default async function Home() {
                 ...(hasForecast ? [] : ["forecast" as const]),
               ]}
               widgets={{
-                overdue: <OverdueAlert projects={projects} now={now} />,
-                forecast: <ForecastPanel projects={projects} now={now} />,
-                withholding: <WithholdingPanel projects={projects} />,
-                metrics: <SummaryCards metrics={metrics} />,
+                overdue: <OverdueAlert projects={projects} now={now} currency={currency} />,
+                forecast: <ForecastPanel projects={projects} now={now} currency={currency} />,
+                withholding: <WithholdingPanel projects={projects} currency={currency} />,
+                metrics: <SummaryCards metrics={metrics} currency={currency} />,
                 projects: (
                   <ProjectsTable
                     projects={projects}
                     now={now}
+                    currency={currency}
                     action={<ProjectForm defaultOpen={projects.length === 0} />}
                   />
                 ),

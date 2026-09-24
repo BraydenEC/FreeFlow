@@ -1,3 +1,4 @@
+import { DEFAULT_CURRENCY, formatMoney, type CurrencyCode } from "@/lib/currency";
 import type { Project } from "@/types/project";
 
 /*
@@ -18,19 +19,6 @@ import type { Project } from "@/types/project";
      in UTC explicitly.
 */
 
-const currency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
-
-const currencyWhole = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-});
-
 const monthDay = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "numeric",
@@ -39,14 +27,21 @@ const monthDay = new Intl.DateTimeFormat("en-US", {
 
 const MS_PER_DAY = 86_400_000;
 
-/** "$4,837.50" — used in the table, where amounts are compared down a column. */
-export function formatCurrency(amount: number): string {
-  return currency.format(amount);
+/**
+ * "$4,837.50" — used in the table, where amounts are compared down a column.
+ *
+ * The currency is passed in rather than read from a module-level default, for
+ * the same reason `now` is passed to every component that measures a
+ * deadline: one request must render one currency everywhere, and a value read
+ * from ambient state can differ between two parts of the same page.
+ */
+export function formatCurrency(amount: number, code: CurrencyCode = DEFAULT_CURRENCY): string {
+  return formatMoney(amount, code);
 }
 
 /** "$3,450" — used on the summary cards, where cents are visual noise. */
-export function formatCurrencyWhole(amount: number): string {
-  return currencyWhole.format(amount);
+export function formatCurrencyWhole(amount: number, code: CurrencyCode = DEFAULT_CURRENCY): string {
+  return formatMoney(amount, code, { whole: true });
 }
 
 /** Parse a "YYYY-MM-DD" calendar date into a UTC-midnight Date. */

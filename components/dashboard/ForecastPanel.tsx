@@ -4,6 +4,7 @@ import {
   DEFAULT_HORIZON_MONTHS,
   STAGE_LIKELIHOOD,
 } from "@/lib/forecast/model";
+import type { CurrencyCode } from "@/lib/currency";
 import type { Project } from "@/types/project";
 
 /*
@@ -50,9 +51,11 @@ function monthLabel(startsAt: number): string {
 export default function ForecastPanel({
   projects,
   now,
+  currency,
 }: {
   projects: Project[];
   now: Date;
+  currency: CurrencyCode;
 }) {
   const f = buildForecast(projects, { now, horizonMonths: DEFAULT_HORIZON_MONTHS });
 
@@ -87,7 +90,7 @@ export default function ForecastPanel({
         <div className="px-5 py-4">
           <p className="text-ink-faint text-[11px]">Scheduled</p>
           <p className="numeric text-ink mt-1 text-xl font-semibold">
-            {formatCurrencyWhole(f.totals.scheduled)}
+            {formatCurrencyWhole(f.totals.scheduled, currency)}
           </p>
           <p className="text-ink-faint mt-0.5 text-[11px]">
             {f.totals.count} {f.totals.count === 1 ? "project" : "projects"}
@@ -96,7 +99,7 @@ export default function ForecastPanel({
         <div className="px-5 py-4">
           <p className="text-ink-faint text-[11px]">Likely</p>
           <p className="numeric text-ink mt-1 text-xl font-semibold">
-            {formatCurrencyWhole(f.totals.likely)}
+            {formatCurrencyWhole(f.totals.likely, currency)}
           </p>
           <p className="text-ink-faint mt-0.5 text-[11px]">weighted by stage</p>
         </div>
@@ -104,7 +107,7 @@ export default function ForecastPanel({
           <div className="px-5 py-4">
             <p className="text-ink-faint text-[11px]">Already late</p>
             <p className="numeric text-status-overdue mt-1 text-xl font-semibold">
-              {formatCurrencyWhole(f.late.scheduled)}
+              {formatCurrencyWhole(f.late.scheduled, currency)}
             </p>
             <p className="text-ink-faint mt-0.5 text-[11px]">
               {f.late.count} past its expected date
@@ -141,7 +144,7 @@ export default function ForecastPanel({
               </div>
 
               <span className="numeric text-ink w-20 shrink-0 text-right text-xs font-medium">
-                {m.scheduled > 0 ? formatCurrencyWhole(m.scheduled) : "—"}
+                {m.scheduled > 0 ? formatCurrencyWhole(m.scheduled, currency) : "—"}
               </span>
               <span className="text-ink-faint hidden w-24 shrink-0 truncate text-right text-[11px] sm:block">
                 {m.count > 0
@@ -165,7 +168,7 @@ export default function ForecastPanel({
           {f.beyondHorizon.count > 0 && (
             <>
               {" "}
-              {formatCurrencyWhole(f.beyondHorizon.scheduled)} falls beyond{" "}
+              {formatCurrencyWhole(f.beyondHorizon.scheduled, currency)} falls beyond{" "}
               {f.assumptions.horizonMonths} months and is not shown.
             </>
           )}

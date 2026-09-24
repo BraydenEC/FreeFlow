@@ -36,6 +36,7 @@ import {
 type PrefsContextValue = {
   prefs: Prefs;
   setDensity: (d: Prefs["density"]) => void;
+  setCurrency: (c: Prefs["currency"]) => void;
   setShowReasoning: (v: boolean) => void;
   setPinOverdue: (v: boolean) => void;
   setWidgetVisible: (id: WidgetId, visible: boolean) => void;
@@ -99,6 +100,7 @@ export function PrefsProvider({
     () => ({
       prefs,
       setDensity: (density) => setPrefs((p) => ({ ...p, density })),
+      setCurrency: (currency) => setPrefs((p) => ({ ...p, currency })),
       setShowReasoning: (showReasoning) => setPrefs((p) => ({ ...p, showReasoning })),
       setPinOverdue: (pinOverdue) =>
         setPrefs((p) => ({ ...p, dashboard: { ...p.dashboard, pinOverdue } })),

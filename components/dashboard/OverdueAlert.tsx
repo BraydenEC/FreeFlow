@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { daysUntil, formatCurrency, formatMonthDay, projectValue } from "@/lib/format";
+import type { CurrencyCode } from "@/lib/currency";
 import type { Project } from "@/types/project";
 
 /*
@@ -18,9 +19,11 @@ import type { Project } from "@/types/project";
 export default function OverdueAlert({
   projects,
   now,
+  currency,
 }: {
   projects: Project[];
   now: Date;
+  currency: CurrencyCode;
 }) {
   const overdue = projects
     .filter((p) => p.status === "overdue" || daysUntil(p.deadline, now) < 0)
@@ -38,7 +41,7 @@ export default function OverdueAlert({
     >
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-rose-400/20 px-5 py-3 sm:px-6">
         <h2 id="overdue-heading" className="text-[15px] font-semibold text-rose-200">
-          {overdue.length} overdue · {formatCurrency(total)} outstanding
+          {overdue.length} overdue · {formatCurrency(total, currency)} outstanding
         </h2>
         <Link
           href="/"
@@ -60,8 +63,8 @@ export default function OverdueAlert({
                 <p className="text-ink-muted truncate text-xs">{p.client}</p>
               </div>
               <div className="shrink-0 text-right">
-                <p className="numeric text-sm">{formatCurrency(projectValue(p))}</p>
-                <p className="numeric text-xs text-rose-300">
+                <p className="numeric text-sm">{formatCurrency(projectValue(p), currency)}</p>
+                <p className="numeric text-status-overdue text-xs">
                   {formatMonthDay(p.deadline)} · {late}d late
                 </p>
               </div>

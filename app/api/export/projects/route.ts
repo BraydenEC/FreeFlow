@@ -1,4 +1,6 @@
 import { csvFilename, projectsToCsv } from "@/lib/export/csv";
+import { DEFAULT_CURRENCY } from "@/lib/currency";
+import { getUserPrefs } from "@/lib/prefs/server";
 import { getDashboardData } from "@/lib/projects";
 import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
 
@@ -48,7 +50,8 @@ export async function GET() {
     );
   }
 
-  const csv = projectsToCsv(projects);
+  const prefs = await getUserPrefs(supabase, user.id);
+  const csv = projectsToCsv(projects, prefs?.currency ?? DEFAULT_CURRENCY);
 
   return new Response(csv, {
     status: 200,

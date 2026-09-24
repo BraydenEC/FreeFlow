@@ -80,6 +80,32 @@ const STATUS_LABEL: Record<string, string> = {
   overdue: "Overdue",
 };
 
+/*
+  Money columns carry the currency code in their header.
+
+  Six of the supported currencies render as a bare "$". Inside the app that is
+  fine, because the reader chose the setting. This file is the one place a
+  figure is read by somebody who did not — an accountant opening a
+  spreadsheet — so the header says MXN or COP rather than leaving them to
+  guess which dollar it is.
+*/
+const MONEY_COLUMNS = [
+  "Subtotal",
+  "IVA",
+  "Invoiced",
+  "IVA retenido",
+  "ISR retenido",
+  "Withheld total",
+  "Net received",
+  "Hourly rate",
+];
+
+export function projectCsvHeaders(currency: string): string[] {
+  return PROJECT_CSV_HEADERS.map((h) =>
+    MONEY_COLUMNS.includes(h) ? `${h} (${currency})` : h,
+  );
+}
+
 export const PROJECT_CSV_HEADERS = [
   "Project",
   "Client",
@@ -110,7 +136,10 @@ export const PROJECT_CSV_HEADERS = [
  * retenciones separately — are computed here rather than left as a formula
  * for somebody else to get wrong.
  */
-export function projectsToCsv(projects: Project[]): string {
+export function projectsToCsv(
+  projects: Project[],
+  currency: string = "USD",
+): string {
   const rows = projects.map((p) => {
     const subtotal = projectValue(p);
     const w = computeWithholding(subtotal, p.clientTaxType);
@@ -139,7 +168,7 @@ export function projectsToCsv(projects: Project[]): string {
     ];
   });
 
-  return toCsv(PROJECT_CSV_HEADERS, rows);
+  return toCsv(projectCsvHeaders(currency), rows);
 }
 
 /** A filename that sorts chronologically and says what it is. */

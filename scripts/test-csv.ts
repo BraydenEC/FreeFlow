@@ -16,6 +16,7 @@ import {
   csvFilename,
   projectsToCsv,
   PROJECT_CSV_HEADERS,
+  projectCsvHeaders,
   toCsv,
   UTF8_BOM,
 } from "@/lib/export/csv";
@@ -123,6 +124,24 @@ assert("numbers pass through unformatted", csvCell(1234.5) === "1234.5");
   assert("persona física row withholds nothing", lines[2].includes(",0,0,0,"), lines[2]);
 
   assert("accented client names survive", projectsToCsv([project({ client: "Martínez y Asociados" })]).includes("Martínez"));
+}
+
+// --- The currency is named, because six of them render as a bare "$" ------
+// Inside the app the symbol is unambiguous: the reader chose it. A
+// spreadsheet handed to an accountant is the one place that stops being true.
+{
+  const headers = projectCsvHeaders("MXN");
+  assert("money columns name the currency", headers.includes("Net received (MXN)"), headers.join("|"));
+  assert("the hourly rate names it too", headers.includes("Hourly rate (MXN)"));
+  assert("non-money columns are untouched", headers.includes("Project") && headers.includes("Client"));
+  assert(
+    "a different currency changes the headers",
+    projectCsvHeaders("COP").includes("Net received (COP)"),
+  );
+  assert(
+    "the export uses them",
+    projectsToCsv([project()], "BRL").includes("Net received (BRL)"),
+  );
 }
 
 // --- Empty is a file, not a crash ----------------------------------------

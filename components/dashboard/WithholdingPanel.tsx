@@ -1,5 +1,6 @@
 import { formatCurrency, projectValue } from "@/lib/format";
 import { computeWithholding, WITHHOLDING_SOURCES } from "@/lib/tax/withholding";
+import type { CurrencyCode } from "@/lib/currency";
 import type { Project } from "@/types/project";
 
 /*
@@ -18,7 +19,13 @@ import type { Project } from "@/types/project";
   panel of zeroes explaining a tax that does not apply to you is clutter.
 */
 
-export default function WithholdingPanel({ projects }: { projects: Project[] }) {
+export default function WithholdingPanel({
+  projects,
+  currency,
+}: {
+  projects: Project[];
+  currency: CurrencyCode;
+}) {
   const affected = projects.filter(
     (p) => !p.isPaid && p.clientTaxType === "persona_moral",
   );
@@ -59,19 +66,19 @@ export default function WithholdingPanel({ projects }: { projects: Project[] }) 
         <div className="px-5 py-4">
           <dt className="text-ink-faint text-[11px]">Invoiced</dt>
           <dd className="numeric text-ink mt-1 text-lg font-semibold">
-            {formatCurrency(totals.invoiced)}
+            {formatCurrency(totals.invoiced, currency)}
           </dd>
         </div>
         <div className="px-5 py-4">
           <dt className="text-ink-faint text-[11px]">Withheld</dt>
           <dd className="numeric text-ink-muted mt-1 text-lg font-semibold">
-            −{formatCurrency(totals.withheld)}
+            −{formatCurrency(totals.withheld, currency)}
           </dd>
         </div>
         <div className="px-5 py-4">
           <dt className="text-ink-faint text-[11px]">You receive</dt>
           <dd className="numeric text-ink mt-1 text-lg font-semibold">
-            {formatCurrency(totals.net)}
+            {formatCurrency(totals.net, currency)}
           </dd>
         </div>
       </dl>

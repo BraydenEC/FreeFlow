@@ -12,6 +12,7 @@ import {
 } from "@/lib/format";
 import { projectProgress } from "@/lib/progress";
 import { computeWithholding } from "@/lib/tax/withholding";
+import type { CurrencyCode } from "@/lib/currency";
 import type { Project } from "@/types/project";
 
 /*
@@ -87,10 +88,12 @@ const TH = "px-5 py-2.5 text-[11px] font-medium tracking-[0.08em] uppercase";
 export default function ProjectsTable({
   projects,
   now,
+  currency,
   action,
 }: {
   projects: Project[];
   now: Date;
+  currency: CurrencyCode;
   /** Rendered in the header — the dashboard passes the New project control. */
   action?: React.ReactNode;
 }) {
@@ -182,7 +185,7 @@ export default function ProjectsTable({
                     <StatusBadge status={project.status} isPaid={project.isPaid} />
                   </td>
                   <td className="numeric px-5 py-3.5 text-right font-medium">
-                    {formatCurrency(projectValue(project))}
+                    {formatCurrency(projectValue(project), currency)}
                     {project.invoiceTotal === null && (
                       <span className="text-ink-faint block text-xs font-normal">
                         {project.hoursLogged}h × ${project.hourlyRate}
@@ -200,7 +203,7 @@ export default function ProjectsTable({
                           className="text-ink-faint block text-xs font-normal"
                           title="After IVA and ISR withheld by the client"
                         >
-                          net {formatCurrency(w.net)}
+                          net {formatCurrency(w.net, currency)}
                         </span>
                       ) : null;
                     })()}
@@ -253,7 +256,7 @@ export default function ProjectsTable({
                 />
                 <div className="flex items-baseline justify-between gap-3 text-sm">
                   <span className="numeric font-medium">
-                    {formatCurrency(projectValue(project))}
+                    {formatCurrency(projectValue(project), currency)}
                   </span>
                   <span className="text-xs">
                     <DeadlineText project={project} now={now} />

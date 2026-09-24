@@ -1,3 +1,4 @@
+import { CURRENCY_CODES, DEFAULT_CURRENCY } from "@/lib/currency";
 import { z } from "zod";
 
 /*
@@ -40,6 +41,10 @@ const WidgetSchema = z.object({
 export const PrefsSchema = z.object({
   version: z.literal(1),
   density: z.enum(["compact", "comfortable"]),
+  // One currency per account. Per-project currency would require converting
+  // to total anything, which would require live rates this project has
+  // already argued against carrying. See lib/currency.ts.
+  currency: z.enum(CURRENCY_CODES),
   /** false = work mode. Reasoning prose is in the DOM but collapsed. */
   showReasoning: z.boolean(),
   dashboard: z.object({
@@ -60,6 +65,7 @@ export type WidgetPref = z.infer<typeof WidgetSchema>;
 export const DEFAULT_PREFS: Prefs = {
   version: 1,
   density: "compact",
+  currency: DEFAULT_CURRENCY,
   showReasoning: false,
   dashboard: {
     pinOverdue: true,

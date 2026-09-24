@@ -1,5 +1,6 @@
 "use client";
 
+import { CURRENCIES, CURRENCY_CODES } from "@/lib/currency";
 import { useEffect } from "react";
 import { usePrefs } from "@/components/prefs/PrefsProvider";
 import { WIDGET_LABELS } from "@/lib/prefs/schema";
@@ -97,7 +98,38 @@ export default function LayoutDrawer({
           </button>
         </div>
 
-        <div className="flex-1 space-y-6 overflow-y-auto px-5 py-4">
+        
+          {/* Currency. One per account: the dashboard adds amounts together,
+              and summing mixed currencies would need conversion, which would
+              need live rates this project has argued against carrying. */}
+          <div>
+            <label
+              htmlFor="prefs-currency"
+              className="text-ink text-[13px] font-medium"
+            >
+              Currency
+            </label>
+            <select
+              id="prefs-currency"
+              value={p.prefs.currency}
+              onChange={(e) =>
+                p.setCurrency(e.target.value as (typeof CURRENCY_CODES)[number])
+              }
+              className="bg-raised border-hairline text-ink focus-visible:ring-accent mt-2 w-full rounded-lg border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
+            >
+              {CURRENCY_CODES.map((c) => (
+                <option key={c} value={c}>
+                  {c} — {CURRENCIES[c].label}
+                </option>
+              ))}
+            </select>
+            <p className="text-ink-faint mt-1.5 text-[11px]">
+              Applies everywhere. Amounts are never converted, so this changes
+              how your figures are written, not what they are worth.
+            </p>
+          </div>
+
+          <div className="flex-1 space-y-6 overflow-y-auto px-5 py-4">
           <section>
             <h3 className="text-ink-muted text-xs font-medium tracking-wide uppercase">
               Density

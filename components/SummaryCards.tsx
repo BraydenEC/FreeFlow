@@ -1,4 +1,5 @@
 import { formatCurrencyWhole } from "@/lib/format";
+import type { CurrencyCode } from "@/lib/currency";
 import type { DashboardMetrics } from "@/types/project";
 
 /*
@@ -53,15 +54,17 @@ function Card({
 
 export default function SummaryCards({
   metrics,
+  currency,
 }: {
   metrics: DashboardMetrics;
+  currency: CurrencyCode;
 }) {
   return (
     <section aria-label="Cash flow summary">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card
           label="Unpaid Invoices"
-          value={formatCurrencyWhole(metrics.unpaidInvoices)}
+          value={formatCurrencyWhole(metrics.unpaidInvoices, currency)}
           hint="Billed and awaiting payment"
           accent="bg-rose-400/10 text-rose-300"
           icon={
@@ -73,7 +76,7 @@ export default function SummaryCards({
         />
         <Card
           label="This Month's Earnings"
-          value={formatCurrencyWhole(metrics.monthEarnings)}
+          value={formatCurrencyWhole(metrics.monthEarnings, currency)}
           hint="Payments received this month"
           accent="bg-emerald-400/10 text-emerald-300"
           icon={
