@@ -13,6 +13,8 @@ import SummaryCards from "@/components/SummaryCards";
 import { getSavedOutputs } from "@/lib/core/saved";
 import { daysUntil } from "@/lib/format";
 import { DEFAULT_CURRENCY } from "@/lib/currency";
+import { DEFAULT_TERMS_DAYS } from "@/lib/forecast/model";
+import { DEFAULT_TAX_REGIME } from "@/lib/tax/withholding";
 import { getDashboardData } from "@/lib/projects";
 import { getUserPrefs } from "@/lib/prefs/server";
 import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
@@ -58,6 +60,8 @@ export default async function Home() {
   // request renders one currency everywhere, and a value pulled from ambient
   // state can differ between two halves of the same page.
   const currency = prefs?.currency ?? DEFAULT_CURRENCY;
+  const regime = prefs?.taxRegime ?? DEFAULT_TAX_REGIME;
+  const termsDays = prefs?.defaultTermsDays ?? DEFAULT_TERMS_DAYS;
 
   // Withholding only has something to say when an unpaid invoice is going to
   // a company. Otherwise the panel is a row of zeroes about a tax that does
@@ -104,14 +108,23 @@ export default async function Home() {
               ]}
               widgets={{
                 overdue: <OverdueAlert projects={projects} now={now} currency={currency} />,
-                forecast: <ForecastPanel projects={projects} now={now} currency={currency} />,
-                withholding: <WithholdingPanel projects={projects} currency={currency} />,
+                forecast: (
+                  <ForecastPanel
+                    projects={projects}
+                    now={now}
+                    currency={currency}
+                    regime={regime}
+                    termsDays={termsDays}
+                  />
+                ),
+                withholding: <WithholdingPanel projects={projects} currency={currency} regime={regime} />,
                 metrics: <SummaryCards metrics={metrics} currency={currency} />,
                 projects: (
                   <ProjectsTable
                     projects={projects}
                     now={now}
                     currency={currency}
+                    regime={regime}
                     action={<ProjectForm defaultOpen={projects.length === 0} />}
                   />
                 ),

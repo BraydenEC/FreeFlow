@@ -10,9 +10,12 @@
 
 import {
   computeWithholding,
+  DEFAULT_TAX_REGIME,
   IVA_RATE,
   IVA_RETENIDO_RATE,
   ISR_RETENIDO_RATE,
+  ISR_RETENIDO_RATES,
+  TAX_REGIMES,
 } from "@/lib/tax/withholding";
 
 let passed = 0;
@@ -109,6 +112,79 @@ for (const bad of [0, -1, -0.01, Number.NaN, Number.POSITIVE_INFINITY, Number.NE
   const w = computeWithholding(10000, "persona_moral");
   const shortfall = w.invoiced - w.net;
   assert("withholding is ~17.8% of the invoiced total", Math.abs(shortfall / w.invoiced - 0.1782) < 0.001, String(shortfall / w.invoiced));
+}
+
+// --- RESICO: the same invoice, a different ISR rate ----------------------
+// The gap is 8.75% of every subtotal. Before this existed the product applied
+// 10% to everyone, which overstated withholding for the large share of
+// freelancers on the simplified regime.
+{
+  const r = computeWithholding(10000, "persona_moral", "resico");
+  assert("RESICO → IVA is still 1,600", r.iva === 1600, String(r.iva));
+  assert("RESICO → invoiced is still 11,600", r.invoiced === 11600, String(r.invoiced));
+  assert("RESICO → IVA retenido is unchanged at 1,066.67", r.ivaRetenido === 1066.67, String(r.ivaRetenido));
+  assert("RESICO → ISR retenido is 125, not 1,000", r.isrRetenido === 125, String(r.isrRetenido));
+  assert("RESICO → withheld total is 1,191.67", r.withheldTotal === 1191.67, String(r.withheldTotal));
+  assert("RESICO → net received is 10,408.33", r.net === 10408.33, String(r.net));
+  assert("RESICO reports its regime back", r.regime === "resico");
+
+  const g = computeWithholding(10000, "persona_moral", "general");
+  assert(
+    "a RESICO freelancer keeps 875 more on a 10,000 invoice",
+    Math.abs(r.net - g.net - 875) < 0.01,
+    String(r.net - g.net),
+  );
+}
+
+// --- Only the ISR rate moves ---------------------------------------------
+{
+  const g = computeWithholding(5000, "persona_moral", "general");
+  const r = computeWithholding(5000, "persona_moral", "resico");
+  assert("regime does not change the IVA", g.iva === r.iva);
+  assert("regime does not change the IVA retenido", g.ivaRetenido === r.ivaRetenido);
+  assert("regime does not change what was invoiced", g.invoiced === r.invoiced);
+  assert("regime changes only the ISR retenido", g.isrRetenido !== r.isrRetenido);
+}
+
+// --- The default is the conservative one ---------------------------------
+// Overstating withholding is the safer error: money arriving unexpectedly is
+// a better failure than money that was planned on and does not come.
+{
+  assert("the default regime is régimen general", DEFAULT_TAX_REGIME === "general");
+  assert(
+    "omitting the regime matches régimen general exactly",
+    computeWithholding(7777, "persona_moral").net ===
+      computeWithholding(7777, "persona_moral", "general").net,
+  );
+  assert(
+    "the default withholds more than RESICO would",
+    computeWithholding(7777, "persona_moral").net <
+      computeWithholding(7777, "persona_moral", "resico").net,
+  );
+  assert(
+    "an unknown regime falls back rather than producing NaN",
+    Number.isFinite(
+      computeWithholding(1000, "persona_moral", "bogus" as never).isrRetenido,
+    ),
+  );
+}
+
+// --- Rates match the law --------------------------------------------------
+assert("régimen general ISR retenido is 10%", ISR_RETENIDO_RATES.general === 0.1);
+assert("RESICO ISR retenido is 1.25%", ISR_RETENIDO_RATES.resico === 0.0125);
+assert("the legacy constant still means régimen general", ISR_RETENIDO_RATE === ISR_RETENIDO_RATES.general);
+assert("every declared regime has a rate", TAX_REGIMES.every((r) => typeof ISR_RETENIDO_RATES[r] === "number"));
+assert(
+  "no regime withholds more than the IVA charged plus 10%",
+  TAX_REGIMES.every((r) => ISR_RETENIDO_RATES[r] > 0 && ISR_RETENIDO_RATES[r] <= 0.1),
+);
+
+// --- Regime is irrelevant when nobody withholds --------------------------
+{
+  const a1 = computeWithholding(1000, "persona_fisica", "general");
+  const b1 = computeWithholding(1000, "persona_fisica", "resico");
+  assert("persona física nets the same under either regime", a1.net === b1.net);
+  assert("and still withholds nothing", a1.withheldTotal === 0 && b1.withheldTotal === 0);
 }
 
 console.log("─".repeat(64));

@@ -5,6 +5,7 @@ import {
   STAGE_LIKELIHOOD,
 } from "@/lib/forecast/model";
 import type { CurrencyCode } from "@/lib/currency";
+import type { TaxRegime } from "@/lib/tax/withholding";
 import type { Project } from "@/types/project";
 
 /*
@@ -52,12 +53,21 @@ export default function ForecastPanel({
   projects,
   now,
   currency,
+  regime,
+  termsDays,
 }: {
   projects: Project[];
   now: Date;
   currency: CurrencyCode;
+  regime: TaxRegime;
+  termsDays: number;
 }) {
-  const f = buildForecast(projects, { now, horizonMonths: DEFAULT_HORIZON_MONTHS });
+  const f = buildForecast(projects, {
+    now,
+    horizonMonths: DEFAULT_HORIZON_MONTHS,
+    regime,
+    termsDays,
+  });
 
   // Nothing unpaid anywhere means nothing to forecast. A row of empty months
   // is a chart of zero, which tells a new user nothing except that the
@@ -163,7 +173,8 @@ export default function ForecastPanel({
       {/* ---------- What this assumed ---------- */}
       <div className="border-hairline border-t px-5 py-3">
         <p className="text-ink-faint text-[11px]">
-          Assumes payment {f.assumptions.termsDays} days after each deadline.
+          Assumes payment {f.assumptions.termsDays} days after each deadline
+          unless a project sets its own.
           Net of withholding where a client tax type is recorded.
           {f.beyondHorizon.count > 0 && (
             <>

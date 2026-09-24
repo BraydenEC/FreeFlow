@@ -15,7 +15,7 @@ import {
   csvCell,
   csvFilename,
   projectsToCsv,
-  PROJECT_CSV_HEADERS,
+  exportHasTax,
   projectCsvHeaders,
   toCsv,
   UTF8_BOM,
@@ -51,6 +51,7 @@ function project(over: Partial<Project> = {}): Project {
     contractUrl: null,
     paymentUrl: null,
     clientTaxType: null,
+    paymentTermsDays: null,
     ...over,
   };
 }
@@ -111,8 +112,8 @@ assert("numbers pass through unformatted", csvCell(1234.5) === "1234.5");
 
   assert("one header row plus one row per project", lines.length === 3, String(lines.length));
   assert(
-    "header count matches the declared columns",
-    lines[0].split(",").length === PROJECT_CSV_HEADERS.length,
+    "header count matches the row width",
+    lines[0].split(",").length === lines[1].split(",").length,
   );
 
   // The whole reason a contador wants this file: the withholding is already
@@ -130,18 +131,66 @@ assert("numbers pass through unformatted", csvCell(1234.5) === "1234.5");
 // Inside the app the symbol is unambiguous: the reader chose it. A
 // spreadsheet handed to an accountant is the one place that stops being true.
 {
-  const headers = projectCsvHeaders("MXN");
+  const headers = projectCsvHeaders("MXN", true);
   assert("money columns name the currency", headers.includes("Net received (MXN)"), headers.join("|"));
   assert("the hourly rate names it too", headers.includes("Hourly rate (MXN)"));
   assert("non-money columns are untouched", headers.includes("Project") && headers.includes("Client"));
   assert(
     "a different currency changes the headers",
-    projectCsvHeaders("COP").includes("Net received (COP)"),
+    projectCsvHeaders("COP", true).includes("Net received (COP)"),
   );
   assert(
-    "the export uses them",
-    projectsToCsv([project()], "BRL").includes("Net received (BRL)"),
+    "the export uses them when there is tax to report",
+    projectsToCsv([project({ clientTaxType: "persona_moral" })], "BRL").includes(
+      "Net received (BRL)",
+    ),
   );
+}
+
+// --- The tax columns only exist when there is tax -------------------------
+// A freelancer outside Mexico has no IVA and no retenciones. Three columns of
+// zeros headed "IVA retenido" invite the question of whether they were
+// supposed to have filled them in.
+{
+  const noTax = projectsToCsv([project(), project({ name: "Second" })], "USD");
+  const header = noTax.replace(UTF8_BOM, "").split("\r\n")[0];
+  assert("no tax context omits IVA entirely", !header.includes("IVA"), header);
+  assert("no tax context omits the retenciones", !header.includes("retenido"), header);
+  assert("no tax context omits the tax regime", !header.includes("Tax regime"), header);
+  assert("no tax context uses a single Amount column", header.includes("Amount (USD)"), header);
+  assert("no tax context has no Subtotal column", !header.includes("Subtotal"), header);
+
+  const withTax = projectsToCsv([project({ clientTaxType: "persona_moral" })], "MXN");
+  const taxHeader = withTax.replace(UTF8_BOM, "").split("\r\n")[0];
+  assert("tax context restores the breakdown", taxHeader.includes("IVA retenido (MXN)"), taxHeader);
+  assert("tax context uses Subtotal rather than Amount", taxHeader.includes("Subtotal (MXN)") && !taxHeader.includes("Amount"), taxHeader);
+  assert("tax context names the regime", taxHeader.includes("Tax regime"));
+
+  // One project with tax pulls the columns back for the whole file, because
+  // a file cannot be two shapes at once.
+  const mixed = projectsToCsv([project(), project({ clientTaxType: "persona_moral" })], "MXN");
+  assert("any taxed project gives the whole file the tax shape", mixed.includes("IVA retenido (MXN)"));
+
+  assert("exportHasTax detects the context", exportHasTax([project({ clientTaxType: "persona_fisica" })]));
+  assert("exportHasTax is false when nothing is recorded", !exportHasTax([project()]));
+}
+
+// --- The regime reaches the file -----------------------------------------
+{
+  const resico = projectsToCsv(
+    [project({ invoiceTotal: 10000, clientTaxType: "persona_moral" })],
+    "MXN",
+    "resico",
+  );
+  assert("RESICO writes 125 ISR, not 1000", resico.includes("125"), resico.split("\r\n")[1]);
+  assert("RESICO names itself in the row", resico.includes("RESICO"));
+
+  const general = projectsToCsv(
+    [project({ invoiceTotal: 10000, clientTaxType: "persona_moral" })],
+    "MXN",
+    "general",
+  );
+  assert("régimen general writes 1000 ISR", general.includes("1000"));
 }
 
 // --- Empty is a file, not a crash ----------------------------------------

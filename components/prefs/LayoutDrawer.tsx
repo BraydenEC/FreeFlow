@@ -1,5 +1,6 @@
 "use client";
 
+import { TAX_REGIMES, TAX_REGIME_LABELS } from "@/lib/tax/withholding";
 import { CURRENCIES, CURRENCY_CODES } from "@/lib/currency";
 import { useEffect } from "react";
 import { usePrefs } from "@/components/prefs/PrefsProvider";
@@ -99,6 +100,66 @@ export default function LayoutDrawer({
         </div>
 
         
+          {/* The default that applies to any project not setting its own. */}
+          <div>
+            <label
+              htmlFor="prefs-terms"
+              className="text-ink text-[13px] font-medium"
+            >
+              Default payment terms
+            </label>
+            <div className="mt-2 flex items-center gap-2">
+              <input
+                id="prefs-terms"
+                type="number"
+                min={0}
+                max={365}
+                value={p.prefs.defaultTermsDays}
+                onChange={(e) => {
+                  const n = Number(e.target.value);
+                  if (Number.isFinite(n)) p.setDefaultTermsDays(Math.min(365, Math.max(0, Math.round(n))));
+                }}
+                className="bg-raised border-hairline text-ink focus-visible:ring-accent w-24 rounded-lg border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
+              />
+              <span className="text-ink-muted text-sm">days after the deadline</span>
+            </div>
+            <p className="text-ink-faint mt-1.5 text-[11px]">
+              Drives the forecast. A project can override it.
+            </p>
+          </div>
+
+          {/* Mexican tax regime. Shown to everyone rather than hidden behind a
+              currency check, because a freelancer in Mexico may well bill US
+              clients in dollars and would never find it. The helper text
+              makes it obviously skippable for everyone else. */}
+          <div>
+            <label
+              htmlFor="prefs-regime"
+              className="text-ink text-[13px] font-medium"
+            >
+              Mexican tax regime
+            </label>
+            <select
+              id="prefs-regime"
+              value={p.prefs.taxRegime}
+              onChange={(e) =>
+                p.setTaxRegime(e.target.value as (typeof TAX_REGIMES)[number])
+              }
+              className="bg-raised border-hairline text-ink focus-visible:ring-accent mt-2 w-full rounded-lg border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
+            >
+              {TAX_REGIMES.map((r) => (
+                <option key={r} value={r}>
+                  {TAX_REGIME_LABELS[r]}
+                </option>
+              ))}
+            </select>
+            <p className="text-ink-faint mt-1.5 text-[11px]">
+              Only affects invoices to Mexican companies. RESICO is withheld at
+              1.25% ISR, régimen general at 10%. Ignore this if you do not
+              invoice in Mexico.
+            </p>
+          </div>
+
           {/* Currency. One per account: the dashboard adds amounts together,
               and summing mixed currencies would need conversion, which would
               need live rates this project has argued against carrying. */}

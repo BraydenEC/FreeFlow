@@ -45,6 +45,12 @@ export type Project = {
    * than guessing.
    */
   clientTaxType: ClientTaxType | null;
+  /**
+   * Days after the deadline that payment is expected, or null to use the
+   * account default. Terms belong to the client; clients are not yet records
+   * of their own, so this is the honest intermediate.
+   */
+  paymentTermsDays: number | null;
 };
 
 /** The three cash-flow figures shown above the table. */

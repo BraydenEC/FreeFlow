@@ -47,6 +47,7 @@ function project(over: Partial<Project> = {}): Project {
     contractUrl: null,
     paymentUrl: null,
     clientTaxType: null,
+    paymentTermsDays: null,
     ...over,
   };
 }
@@ -89,6 +90,68 @@ console.log("\nCASH-FLOW FORECAST\n" + "─".repeat(64));
     "a late-month deadline rolls into the following month",
     g.months.find((m) => m.key === "2026-11")?.scheduled === 1000,
   );
+}
+
+// --- A project's own terms beat the account default ----------------------
+// The whole reason payment_terms_days is nullable rather than defaulted in
+// the database: most projects follow the account, and the client who always
+// pays on 60 says so on the project.
+{
+  const own = expectedPaymentDate(
+    project({ deadline: "2026-10-01", paymentTermsDays: 60 }),
+    30,
+  );
+  assert(
+    "a project's own terms win over the fallback",
+    own?.toISOString().slice(0, 10) === "2026-11-30",
+    String(own?.toISOString().slice(0, 10)),
+  );
+
+  const inherited = expectedPaymentDate(
+    project({ deadline: "2026-10-01", paymentTermsDays: null }),
+    15,
+  );
+  assert(
+    "null terms inherit the account default",
+    inherited?.toISOString().slice(0, 10) === "2026-10-16",
+    String(inherited?.toISOString().slice(0, 10)),
+  );
+
+  const immediate = expectedPaymentDate(
+    project({ deadline: "2026-10-01", paymentTermsDays: 0 }),
+    30,
+  );
+  assert(
+    "zero terms mean paid on the deadline, not the default",
+    immediate?.toISOString().slice(0, 10) === "2026-10-01",
+    String(immediate?.toISOString().slice(0, 10)),
+  );
+
+  // Terms move money between months, which is the point of recording them.
+  const slow = buildForecast(
+    [project({ deadline: "2026-10-01", paymentTermsDays: 60 })],
+    { now: NOW },
+  );
+  assert(
+    "longer terms push the money into a later month",
+    slow.months.find((m) => m.key === "2026-11")?.scheduled === 1000,
+    JSON.stringify(slow.months.map((m) => [m.key, m.scheduled])),
+  );
+}
+
+// --- The regime reaches the forecast -------------------------------------
+{
+  const g = buildForecast(
+    [project({ deadline: "2026-10-01", invoiceTotal: 10000, clientTaxType: "persona_moral" })],
+    { now: NOW, regime: "general" },
+  );
+  const r = buildForecast(
+    [project({ deadline: "2026-10-01", invoiceTotal: 10000, clientTaxType: "persona_moral" })],
+    { now: NOW, regime: "resico" },
+  );
+  assert("régimen general forecasts 9,533.33", g.totals.scheduled === 9533.33, String(g.totals.scheduled));
+  assert("RESICO forecasts 10,408.33", r.totals.scheduled === 10408.33, String(r.totals.scheduled));
+  assert("a RESICO freelancer forecasts 875 more", Math.abs(r.totals.scheduled - g.totals.scheduled - 875) < 0.01);
 }
 
 // --- Paid work is not a forecast -----------------------------------------

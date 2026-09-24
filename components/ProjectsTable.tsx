@@ -11,7 +11,7 @@ import {
   projectValue,
 } from "@/lib/format";
 import { projectProgress } from "@/lib/progress";
-import { computeWithholding } from "@/lib/tax/withholding";
+import { computeWithholding, type TaxRegime } from "@/lib/tax/withholding";
 import type { CurrencyCode } from "@/lib/currency";
 import type { Project } from "@/types/project";
 
@@ -89,11 +89,13 @@ export default function ProjectsTable({
   projects,
   now,
   currency,
+  regime,
   action,
 }: {
   projects: Project[];
   now: Date;
   currency: CurrencyCode;
+  regime: TaxRegime;
   /** Rendered in the header — the dashboard passes the New project control. */
   action?: React.ReactNode;
 }) {
@@ -197,6 +199,7 @@ export default function ProjectsTable({
                       const w = computeWithholding(
                         projectValue(project),
                         project.clientTaxType,
+                        regime,
                       );
                       return w.applies ? (
                         <span

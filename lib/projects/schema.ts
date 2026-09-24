@@ -96,6 +96,12 @@ export const NewProjectSchema = z
     client_tax_type: z
       .union([z.literal(""), z.enum(["persona_fisica", "persona_moral"])])
       .optional(),
+    // Empty means "use my account default". Bounded because a negative term
+    // would mean being paid before the deadline, and anything past a year is
+    // likelier to be a typo than a contract.
+    payment_terms_days: z
+      .union([z.literal(""), nonNegative.max(365)])
+      .optional(),
   })
   .superRefine((v, ctx) => {
     if (v.billing === "fixed") {
@@ -156,5 +162,9 @@ export function toRow(p: NewProject) {
     contract_url: orNull(p.contract_url),
     payment_url: orNull(p.payment_url),
     client_tax_type: orNull(p.client_tax_type),
+    payment_terms_days:
+      p.payment_terms_days === undefined || p.payment_terms_days === ""
+        ? null
+        : p.payment_terms_days,
   };
 }

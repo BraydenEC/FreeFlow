@@ -1,5 +1,9 @@
 import { projectValue } from "@/lib/format";
-import { computeWithholding } from "@/lib/tax/withholding";
+import {
+  computeWithholding,
+  DEFAULT_TAX_REGIME,
+  type TaxRegime,
+} from "@/lib/tax/withholding";
 import type { Project } from "@/types/project";
 
 /*
@@ -72,6 +76,11 @@ const CLIENT_TYPE_LABEL: Record<string, string> = {
   persona_moral: "Persona moral",
 };
 
+const TAX_REGIME_SHORT: Record<TaxRegime, string> = {
+  general: "Régimen general",
+  resico: "RESICO",
+};
+
 const STATUS_LABEL: Record<string, string> = {
   contracted: "Contract signed",
   in_progress: "In progress",
@@ -81,35 +90,27 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 /*
-  Money columns carry the currency code in their header.
+  The tax columns only appear when there is tax to report.
 
-  Six of the supported currencies render as a bare "$". Inside the app that is
-  fine, because the reader chose the setting. This file is the one place a
-  figure is read by somebody who did not — an accountant opening a
-  spreadsheet — so the header says MXN or COP rather than leaving them to
-  guess which dollar it is.
+  A freelancer in the United States has no IVA and no retenciones, and
+  handing them a spreadsheet with three columns of zeros about a Mexican tax
+  is noise at best and confusing at worst — a column headed "IVA retenido"
+  invites the question of whether they were supposed to have filled it in.
+
+  So the shape of the file follows the data: if no project in the export has
+  a client tax type recorded, the money collapses to a single Amount column.
+  If any does, the full breakdown appears, because then the numbers differ
+  and the difference is the point.
+
+  Money columns carry the currency code in their header. Six of the supported
+  currencies render as a bare "$", which is fine inside the app because the
+  reader chose the setting, and not fine in a file opened by an accountant who
+  did not.
 */
-const MONEY_COLUMNS = [
-  "Subtotal",
-  "IVA",
-  "Invoiced",
-  "IVA retenido",
-  "ISR retenido",
-  "Withheld total",
-  "Net received",
-  "Hourly rate",
-];
 
-export function projectCsvHeaders(currency: string): string[] {
-  return PROJECT_CSV_HEADERS.map((h) =>
-    MONEY_COLUMNS.includes(h) ? `${h} (${currency})` : h,
-  );
-}
-
-export const PROJECT_CSV_HEADERS = [
+const BASE_HEADERS = [
   "Project",
   "Client",
-  "Client tax type",
   "Status",
   "Paid",
   "Deadline",
@@ -117,7 +118,22 @@ export const PROJECT_CSV_HEADERS = [
   "Contract signed",
   "Billing",
   "Hours logged",
+];
+
+const TAX_HEADERS = [
+  "Client tax type",
+  "Tax regime",
+  "IVA",
+  "Invoiced",
+  "IVA retenido",
+  "ISR retenido",
+  "Withheld total",
+  "Net received",
+];
+
+const MONEY_HEADERS = new Set([
   "Hourly rate",
+  "Amount",
   "Subtotal",
   "IVA",
   "Invoiced",
@@ -125,29 +141,46 @@ export const PROJECT_CSV_HEADERS = [
   "ISR retenido",
   "Withheld total",
   "Net received",
-  "Contract link",
-  "Payment link",
-];
+]);
+
+/** Headers for an export, with money columns naming the currency. */
+export function projectCsvHeaders(currency: string, withTax: boolean): string[] {
+  const headers = [
+    ...BASE_HEADERS,
+    "Hourly rate",
+    withTax ? "Subtotal" : "Amount",
+    ...(withTax ? TAX_HEADERS : []),
+    "Contract link",
+    "Payment link",
+  ];
+  return headers.map((h) => (MONEY_HEADERS.has(h) ? `${h} (${currency})` : h));
+}
+
+/** True when any project in the set carries Mexican tax context. */
+export function exportHasTax(projects: Project[]): boolean {
+  return projects.some((p) => p.clientTaxType !== null);
+}
 
 /**
- * Every project as a row, with the withholding already worked out.
+ * Every project as a row.
  *
- * The three columns a contador actually needs — withheld, net, and the two
- * retenciones separately — are computed here rather than left as a formula
- * for somebody else to get wrong.
+ * Where tax applies the retenciones are computed into the file rather than
+ * left as a formula for somebody else to get wrong.
  */
 export function projectsToCsv(
   projects: Project[],
   currency: string = "USD",
+  regime: TaxRegime = DEFAULT_TAX_REGIME,
 ): string {
+  const withTax = exportHasTax(projects);
+
   const rows = projects.map((p) => {
     const subtotal = projectValue(p);
-    const w = computeWithholding(subtotal, p.clientTaxType);
+    const w = computeWithholding(subtotal, p.clientTaxType, regime);
 
-    return [
+    const base: (string | number | null)[] = [
       p.name,
       p.client,
-      p.clientTaxType ? (CLIENT_TYPE_LABEL[p.clientTaxType] ?? p.clientTaxType) : "",
       STATUS_LABEL[p.status] ?? p.status,
       p.isPaid ? "Yes" : "No",
       p.deadline,
@@ -156,19 +189,26 @@ export function projectsToCsv(
       p.invoiceTotal === null ? "Hourly" : "Fixed",
       p.invoiceTotal === null ? p.hoursLogged : "",
       p.invoiceTotal === null ? p.hourlyRate : "",
-      w.subtotal,
-      w.iva,
-      w.invoiced,
-      w.ivaRetenido,
-      w.isrRetenido,
-      w.withheldTotal,
-      w.net,
-      p.contractUrl ?? "",
-      p.paymentUrl ?? "",
+      subtotal,
     ];
+
+    const tax: (string | number | null)[] = withTax
+      ? [
+          p.clientTaxType ? (CLIENT_TYPE_LABEL[p.clientTaxType] ?? p.clientTaxType) : "",
+          p.clientTaxType ? TAX_REGIME_SHORT[w.regime] : "",
+          w.iva,
+          w.invoiced,
+          w.ivaRetenido,
+          w.isrRetenido,
+          w.withheldTotal,
+          w.net,
+        ]
+      : [];
+
+    return [...base, ...tax, p.contractUrl ?? "", p.paymentUrl ?? ""];
   });
 
-  return toCsv(projectCsvHeaders(currency), rows);
+  return toCsv(projectCsvHeaders(currency, withTax), rows);
 }
 
 /** A filename that sorts chronologically and says what it is. */

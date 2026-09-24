@@ -56,6 +56,7 @@ export function getMockProjects(now: Date): Project[] {
       contractUrl: null,
       paymentUrl: null,
       clientTaxType: "persona_moral" as const,
+      paymentTermsDays: null,
     },
     {
       id: "mock-2",
@@ -72,6 +73,7 @@ export function getMockProjects(now: Date): Project[] {
       contractUrl: null,
       paymentUrl: null,
       clientTaxType: "persona_moral" as const,
+      paymentTermsDays: null,
     },
     {
       id: "mock-3",
@@ -88,6 +90,7 @@ export function getMockProjects(now: Date): Project[] {
       contractUrl: null,
       paymentUrl: null,
       clientTaxType: "persona_moral" as const,
+      paymentTermsDays: null,
     },
     {
       id: "mock-4",
@@ -104,6 +107,7 @@ export function getMockProjects(now: Date): Project[] {
       contractUrl: null,
       paymentUrl: null,
       clientTaxType: "persona_moral" as const,
+      paymentTermsDays: null,
     },
     {
       id: "mock-5",
@@ -120,6 +124,7 @@ export function getMockProjects(now: Date): Project[] {
       contractUrl: null,
       paymentUrl: null,
       clientTaxType: "persona_moral" as const,
+      paymentTermsDays: null,
     },
     {
       // Fixed-fee engagement: invoiceTotal deliberately differs from
@@ -138,6 +143,7 @@ export function getMockProjects(now: Date): Project[] {
       contractUrl: null,
       paymentUrl: null,
       clientTaxType: "persona_moral" as const,
+      paymentTermsDays: null,
     },
   ];
 }

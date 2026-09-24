@@ -21,13 +21,30 @@
     IVA               16%        LIVA art. 1
     IVA retenido      two-thirds of the IVA (10.6667% of subtotal)
                                  LIVA art. 1-A fracc. II inciso a
-    ISR retenido      10% of the subtotal
-                                 LISR art. 106, último párrafo
+    ISR retenido      depends on the RECIPIENT'S regime:
+                        régimen general  10%     LISR art. 106, último párrafo
+                        RESICO           1.25%   LISR art. 113-J
 
-  These are the general-case rates for servicios profesionales. They are not
-  universal: border-zone IVA, RESICO, and exempt or zero-rated activities all
-  change the arithmetic, and none of those are modelled here. The UI says so
-  rather than implying this is tax advice.
+  WHY THE REGIME MATTERS MORE THAN IT LOOKS
+
+  RESICO has been the default simplified regime for personas físicas since
+  2022 and a large share of freelancers are on it. The gap between 10% and
+  1.25% is 8.75% of every subtotal: on a 100,000 year, roughly 8,750 that the
+  product would otherwise claim is withheld when it is not.
+
+  Withholding depends on both parties. The PAYER decides whether anything is
+  withheld at all — only a persona moral withholds — and that is recorded per
+  project, because it changes per client. The RECIPIENT'S regime decides the
+  ISR rate, and that is a property of the freelancer rather than of any one
+  job, so it lives on the account.
+
+  An unset regime is treated as régimen general. That is the conservative
+  direction: it overstates withholding rather than understating it, and money
+  that arrives unexpectedly is a better failure than money that does not.
+  The UI says which regime it assumed rather than leaving it implicit.
+
+  Still not modelled: border-zone IVA, exempt and zero-rated activities. The
+  UI says so rather than implying this is tax advice.
 
   ROUNDING
   Every component rounds to centavos independently, then the net is the
@@ -41,12 +58,32 @@
 export const IVA_RATE = 0.16;
 /** Two-thirds of the IVA rate. Expressed against the subtotal. */
 export const IVA_RETENIDO_RATE = (2 / 3) * IVA_RATE;
-export const ISR_RETENIDO_RATE = 0.1;
+
+/** The recipient's tax regime. Decides the ISR withholding rate. */
+export type TaxRegime = "general" | "resico";
+
+export const TAX_REGIMES: TaxRegime[] = ["general", "resico"];
+
+export const DEFAULT_TAX_REGIME: TaxRegime = "general";
+
+export const ISR_RETENIDO_RATES: Record<TaxRegime, number> = {
+  general: 0.1,
+  resico: 0.0125,
+};
+
+/** Kept for the régimen general, which is what it always meant. */
+export const ISR_RETENIDO_RATE = ISR_RETENIDO_RATES.general;
+
+export const TAX_REGIME_LABELS: Record<TaxRegime, string> = {
+  general: "Régimen general (actividad empresarial y profesional)",
+  resico: "RESICO (Régimen Simplificado de Confianza)",
+};
 
 export const WITHHOLDING_SOURCES = [
   { label: "IVA 16%", cite: "LIVA art. 1" },
   { label: "IVA retenido, dos terceras partes", cite: "LIVA art. 1-A fracc. II inciso a" },
-  { label: "ISR retenido 10%", cite: "LISR art. 106, último párrafo" },
+  { label: "ISR retenido, régimen general 10%", cite: "LISR art. 106, último párrafo" },
+  { label: "ISR retenido, RESICO 1.25%", cite: "LISR art. 113-J" },
 ] as const;
 
 /** Who is paying. Withholding only applies when a company pays an individual. */
@@ -71,6 +108,8 @@ export type Withholding = {
   net: number;
   /** False when no withholding applies, in which case net === invoiced. */
   applies: boolean;
+  /** Which regime's ISR rate was used. Shown rather than assumed silently. */
+  regime: TaxRegime;
 };
 
 /** Round to centavos. Half-up, which is what invoicing software does. */
@@ -88,6 +127,7 @@ function centavos(n: number): number {
 export function computeWithholding(
   subtotal: number,
   clientTaxType: ClientTaxType | null,
+  regime: TaxRegime = DEFAULT_TAX_REGIME,
 ): Withholding {
   const base = Number.isFinite(subtotal) && subtotal > 0 ? centavos(subtotal) : 0;
   const iva = centavos(base * IVA_RATE);
@@ -108,11 +148,13 @@ export function computeWithholding(
       withheldTotal: 0,
       net: invoiced,
       applies: false,
+      regime,
     };
   }
 
+  const isrRate = ISR_RETENIDO_RATES[regime] ?? ISR_RETENIDO_RATES[DEFAULT_TAX_REGIME];
   const ivaRetenido = centavos(base * IVA_RETENIDO_RATE);
-  const isrRetenido = centavos(base * ISR_RETENIDO_RATE);
+  const isrRetenido = centavos(base * isrRate);
   const withheldTotal = centavos(ivaRetenido + isrRetenido);
 
   return {
@@ -124,5 +166,6 @@ export function computeWithholding(
     withheldTotal,
     net: centavos(invoiced - withheldTotal),
     applies: true,
+    regime,
   };
 }

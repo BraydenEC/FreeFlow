@@ -1,3 +1,5 @@
+import { DEFAULT_TERMS_DAYS } from "@/lib/forecast/model";
+import { DEFAULT_TAX_REGIME, TAX_REGIMES } from "@/lib/tax/withholding";
 import { CURRENCY_CODES, DEFAULT_CURRENCY } from "@/lib/currency";
 import { z } from "zod";
 
@@ -45,6 +47,13 @@ export const PrefsSchema = z.object({
   // to total anything, which would require live rates this project has
   // already argued against carrying. See lib/currency.ts.
   currency: z.enum(CURRENCY_CODES),
+  // A property of the freelancer, not of any one job: it sets the ISR rate a
+  // Mexican company withholds. Irrelevant outside Mexico, which is why the
+  // control says so rather than being hidden.
+  taxRegime: z.enum(TAX_REGIMES),
+  // Days after a deadline that payment normally arrives. A project may set
+  // its own; this is what applies when it does not.
+  defaultTermsDays: z.number().int().min(0).max(365),
   /** false = work mode. Reasoning prose is in the DOM but collapsed. */
   showReasoning: z.boolean(),
   dashboard: z.object({
@@ -66,6 +75,8 @@ export const DEFAULT_PREFS: Prefs = {
   version: 1,
   density: "compact",
   currency: DEFAULT_CURRENCY,
+  taxRegime: DEFAULT_TAX_REGIME,
+  defaultTermsDays: DEFAULT_TERMS_DAYS,
   showReasoning: false,
   dashboard: {
     pinOverdue: true,

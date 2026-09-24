@@ -45,6 +45,7 @@ const blank = (): NewProjectInput => ({
   contract_url: "",
   payment_url: "",
   client_tax_type: "",
+  payment_terms_days: "",
 });
 
 /* An existing row, back into the shape the form edits. Billing model is
@@ -64,6 +65,7 @@ function fromProject(p: Project): NewProjectInput {
     contract_url: p.contractUrl ?? "",
     payment_url: p.paymentUrl ?? "",
     client_tax_type: p.clientTaxType ?? "",
+    payment_terms_days: (p.paymentTermsDays ?? "") as unknown as number,
   };
 }
 
@@ -268,6 +270,25 @@ export default function ProjectForm({
             onChange={(e) => set("contract_url", e.target.value)}
           />
           {err("contract_url")}
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className={label}>Payment terms</span>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={0}
+            max={365}
+            placeholder="Account default"
+            className={input}
+            value={String(form.payment_terms_days ?? "")}
+            onChange={(e) =>
+              set("payment_terms_days", e.target.value as unknown as number)
+            }
+          />
+          <span className="text-ink-faint text-[11px]">
+            Days after the deadline this client pays. Blank uses your default.
+          </span>
+          {err("payment_terms_days")}
         </label>
         <label className="flex flex-col gap-1">
           <span className={label}>Client is a…</span>

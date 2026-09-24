@@ -11,7 +11,11 @@ stage there is no revenue to offset the loss.
 
 ---
 
-## 0. FreeFlow is currently wrong for RESICO freelancers
+> **Items 0 and part of 2 were completed on 2026-09-24**, along with the two
+> internationalisation leaks found while building the forecast. What remains
+> below is unchanged. See the handoff for the current state.
+
+## 0. ~~FreeFlow is currently wrong for RESICO freelancers~~ — DONE
 
 **This is a correctness bug, not a feature, and it should go first.**
 
@@ -52,6 +56,12 @@ gap it was built to close.
 ---
 
 ## 1. The feature map drifts every time something ships
+
+> **Still true, and now worse.** The forecast, currency support, RESICO and
+> payment terms have all shipped since this was written and none of them are
+> in the map. This is the fourth drift. It needs the test, not another manual
+> correction.
+
 
 `/product` currently claims 19 built and 6 planned. The truth is closer to 22
 and 4: **withholding is still marked planned although it shipped**, and CSV

@@ -1,5 +1,9 @@
 import { parseIsoDate, projectValue } from "@/lib/format";
-import { computeWithholding } from "@/lib/tax/withholding";
+import {
+  computeWithholding,
+  DEFAULT_TAX_REGIME,
+  type TaxRegime,
+} from "@/lib/tax/withholding";
 import type { Project, ProjectStatus } from "@/types/project";
 
 /*
@@ -14,12 +18,12 @@ import type { Project, ProjectStatus } from "@/types/project";
   For every unpaid project, when the money is likely to land and how much of
   it survives withholding. Grouped by calendar month.
 
-  THE ONE ASSUMPTION THAT MATTERS
+  PAYMENT TERMS
   A project has a deadline, not a payment date. The gap between them is
-  payment terms, and the product does not yet record them per client, so a
-  single default is applied: money arrives DEFAULT_TERMS_DAYS after the
-  deadline. That is a guess, it is stated on the page, and it is the first
-  thing that should become a real per-client field.
+  payment terms, which each project may set for itself; where it does not,
+  the account default applies. Terms really belong to the client, and clients
+  are not yet records of their own, so per-project is the honest intermediate
+  — the column starts being populated from the client the day they are.
 
   THE SECOND ASSUMPTION, AND WHY IT IS SHOWN SEPARATELY
   Not every scheduled peso arrives. A signed contract can fall through; an
@@ -106,11 +110,20 @@ function monthKey(d: Date): string {
  */
 export function expectedPaymentDate(
   project: Project,
-  termsDays: number = DEFAULT_TERMS_DAYS,
+  fallbackTermsDays: number = DEFAULT_TERMS_DAYS,
 ): Date | null {
   const deadline = parseIsoDate(project.deadline);
   if (Number.isNaN(deadline.getTime())) return null;
-  return new Date(deadline.getTime() + termsDays * 24 * 60 * 60 * 1000);
+
+  // The project's own terms win. A null means the client pays on whatever
+  // this account treats as normal, which is the common case and the reason
+  // the column is nullable rather than defaulted in the database.
+  const terms =
+    project.paymentTermsDays !== null && Number.isFinite(project.paymentTermsDays)
+      ? project.paymentTermsDays
+      : fallbackTermsDays;
+
+  return new Date(deadline.getTime() + terms * 24 * 60 * 60 * 1000);
 }
 
 /**
@@ -131,9 +144,12 @@ export function expectedPaymentDate(
  * the tax authority and passed on, so a forecast of what you will earn should
  * not count it.
  */
-export function expectedNet(project: Project): number {
+export function expectedNet(
+  project: Project,
+  regime: TaxRegime = DEFAULT_TAX_REGIME,
+): number {
   const value = projectValue(project);
-  const w = computeWithholding(value, project.clientTaxType);
+  const w = computeWithholding(value, project.clientTaxType, regime);
   return w.applies ? w.net : value;
 }
 
@@ -143,11 +159,13 @@ export function buildForecast(
     now: Date;
     termsDays?: number;
     horizonMonths?: number;
+    regime?: TaxRegime;
   },
 ): Forecast {
   const termsDays = options.termsDays ?? DEFAULT_TERMS_DAYS;
   const horizonMonths = options.horizonMonths ?? DEFAULT_HORIZON_MONTHS;
   const now = options.now;
+  const regime = options.regime ?? DEFAULT_TAX_REGIME;
 
   // The horizon starts at the beginning of the current month, so money due
   // later this month is not dropped for arriving "in the past".
@@ -186,7 +204,7 @@ export function buildForecast(
     const due = expectedPaymentDate(p, termsDays);
     if (!due) continue;
 
-    const net = expectedNet(p);
+    const net = expectedNet(p, regime);
     if (net <= 0) continue;
 
     const weight = STAGE_LIKELIHOOD[p.status] ?? 0.9;

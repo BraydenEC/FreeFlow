@@ -40,6 +40,7 @@ function project(over: Partial<Project> = {}): Project {
     contractUrl: null,
     paymentUrl: null,
     clientTaxType: null,
+    paymentTermsDays: null,
     ...over,
   };
 }

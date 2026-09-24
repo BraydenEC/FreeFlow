@@ -1,5 +1,9 @@
 import { formatCurrency, projectValue } from "@/lib/format";
-import { computeWithholding, WITHHOLDING_SOURCES } from "@/lib/tax/withholding";
+import {
+  computeWithholding,
+  TAX_REGIME_LABELS,
+  type TaxRegime,
+} from "@/lib/tax/withholding";
 import type { CurrencyCode } from "@/lib/currency";
 import type { Project } from "@/types/project";
 
@@ -22,9 +26,11 @@ import type { Project } from "@/types/project";
 export default function WithholdingPanel({
   projects,
   currency,
+  regime,
 }: {
   projects: Project[];
   currency: CurrencyCode;
+  regime: TaxRegime;
 }) {
   const affected = projects.filter(
     (p) => !p.isPaid && p.clientTaxType === "persona_moral",
@@ -34,7 +40,7 @@ export default function WithholdingPanel({
 
   const totals = affected.reduce(
     (acc, p) => {
-      const w = computeWithholding(projectValue(p), p.clientTaxType);
+      const w = computeWithholding(projectValue(p), p.clientTaxType, regime);
       return {
         invoiced: acc.invoiced + w.invoiced,
         withheld: acc.withheld + w.withheldTotal,
@@ -85,8 +91,8 @@ export default function WithholdingPanel({
 
       <div className="border-hairline border-t px-5 py-3">
         <p className="text-ink-faint text-[11px]">
-          IVA retenido two-thirds · ISR retenido 10% ·{" "}
-          {WITHHOLDING_SOURCES.map((s) => s.cite).join(" · ")}
+          IVA retenido two-thirds · ISR retenido{" "}
+          {regime === "resico" ? "1.25%" : "10%"} · {TAX_REGIME_LABELS[regime]}
         </p>
         <p className="text-ink-faint mt-1 text-[11px]">
           General case for servicios profesionales. Border-zone IVA, RESICO and
