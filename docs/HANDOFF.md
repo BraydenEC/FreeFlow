@@ -1,7 +1,7 @@
 # FreeFlow — Handoff
 
 **Live:** <https://www.freeflow.website> · **Repo:** <https://github.com/BraydenEC/servicepro>
-**Owner:** Brayden Credeur · **Updated:** 2026-09-24 · **Commits:** 83 · **Tests:** 565
+**Owner:** Brayden Credeur · **Updated:** 2026-09-28 · **Commits:** 83 · **Tests:** 565
 
 > The repository is still named `servicepro`. The product was renamed FreeFlow
 > after Week 3 and moved to its own domain. Same project, same history. The
@@ -13,19 +13,17 @@
 
 ## 1. Do this first
 
-**One migration is written and not yet run.**
+**All migrations have been run.** Verified against the live database on
+2026-09-28: `contract_signed_on`, `contract_url`, `payment_url`,
+`client_tax_type` and `payment_terms_days` all exist on `public.projects`.
 
-```
-supabase/payment_terms.sql    adds projects.payment_terms_days
-```
+Migrations live in `supabase/`, each idempotent and ending in a verify block
+that prints what it changed. Safe to re-run if you are ever unsure whether one
+applied — re-running is the cheapest way to find out.
 
-Supabase → SQL Editor → New query → paste the file → Run. It ends with a
-verify block. Until it runs, per-project payment terms silently fail to save;
-everything else works, including the forecast, which falls back to the account
-default.
-
-Every earlier migration **has** been run — verified against the live database
-on 2026-09-24.
+> The verify blocks print a result row rather than saying "OK". A migration
+> that returns its own constraint definition has succeeded; that output is the
+> proof, not an error.
 
 **Two owner actions outstanding:**
 
