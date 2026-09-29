@@ -136,8 +136,10 @@ C14 works with no database ✓
    `supabase/marketing_assets.sql` → Run. Expect 0 rows and 4 policies. Until
    then the page is fully live and generates content; only the Save buttons
    return an error.
-2. **Generate the UX mockup image** from the course UX prompt (in `PLAN.md` §4),
-   and paste it into the submission. This is the 1.0-pt UX deliverable.
+2. ~~Generate the UX mockup image~~ **Done** — `docs/week4/marketing-mockup.png`
+   (source: `mockup.svg`). On-brand image of the page with the four rubric
+   zones labelled. Paste it into the submission. Regenerate any time with
+   `qlmanage -t -s 1600 -o docs/week4 docs/week4/mockup.svg`.
 3. **Demo video** (2–3 min): open `/marketing`, click Generate live, copy a
    card, pick an A/B winner, show the 14-day calendar. This is also the only
    remaining Week 3 gap.
