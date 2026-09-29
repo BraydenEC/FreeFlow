@@ -94,6 +94,16 @@ export const PRIMARY_NAV: NavItem[] = [
       </svg>
     ),
   },
+  {
+    label: "Marketing",
+    href: "/marketing",
+    icon: (
+      <svg {...iconProps}>
+        <path d="M3 11v2a1 1 0 0 0 1 1h2l4 4V7L6 11H4a1 1 0 0 0-1 0Z" />
+        <path d="M15 8.5a3.5 3.5 0 0 1 0 7M18 5a7 7 0 0 1 0 14" />
+      </svg>
+    ),
+  },
 ];
 
 export type SubNavItem = {
@@ -121,5 +131,12 @@ export const SUB_NAV: Record<string, SubNavItem[]> = {
     { label: "Per-project", href: "?tab=project" },
     { label: "Assumptions", href: "?tab=assumptions" },
     { label: "Saved", href: "?tab=saved" },
+  ],
+  "/marketing": [
+    { label: "Context", href: "#band-context" },
+    { label: "Content", href: "#band-content" },
+    { label: "Calendar", href: "#band-calendar" },
+    { label: "A/B test", href: "#band-ab" },
+    { label: "Saved", href: "#band-saved" },
   ],
 };

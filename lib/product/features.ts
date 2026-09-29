@@ -310,6 +310,44 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
     ],
   },
   {
+    id: "grow",
+    name: "Reach the freelancers",
+    purpose:
+      "A free product with no distribution is the donation-funnel problem restated. This is the engine that turns the product into posts.",
+    features: [
+      {
+        id: "marketing-engine",
+        name: "Marketing content engine",
+        description:
+          "A validated persona, 10 social posts, 3 video scripts and a 14-day calendar, generated live by the model and labelled by provenance — seed copy when no key is set, so it never renders empty.",
+        status: "built",
+        tier: "solo",
+        shippedIn: "Week 4",
+        route: "/marketing",
+      },
+      {
+        id: "ab-headlines",
+        name: "A/B headline test",
+        description:
+          "Two headline pairs with a winner you pick and persist — a chooser, not an analytics experiment, because the traffic to run one does not exist yet.",
+        status: "built",
+        tier: "solo",
+        shippedIn: "Week 4",
+        route: "/marketing",
+      },
+      {
+        id: "brand-system",
+        name: "Documented brand system",
+        description:
+          "Palette, type, voice and logo written down in BRAND.md with globals.css as the single source of truth, after an accidental indigo regression was traced and reverted.",
+        status: "built",
+        tier: "solo",
+        shippedIn: "Week 4",
+        route: "/marketing",
+      },
+    ],
+  },
+  {
     id: "cfdi",
     name: "Invoice legally in Mexico",
     purpose:
