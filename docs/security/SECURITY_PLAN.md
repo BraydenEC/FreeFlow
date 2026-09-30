@@ -12,6 +12,34 @@ inspected yet).
 
 ---
 
+## STATUS UPDATE — 2026-09-30 (decisions made, fixes shipped)
+
+Both open decisions were made:
+1. `research_records` / `pricing_scenarios` → **private per user** (this data is
+   personal and users should not be able to read each other's).
+2. Rate limiting → **zero-dependency in-memory limiter** (fits the no-new-deps
+   principle), plus **require auth on `/api/core/extract`** since its page is
+   already private. Upstash remains the documented upgrade path.
+
+All four code-side findings are now **fixed, committed, and pushed**:
+
+| Finding | Status |
+|---|---|
+| F1 — public-read tables | ✅ Migration written (`supabase/private_research_pricing.sql`) — **run it in Supabase to apply** |
+| F2 — no rate limiting | ✅ `lib/ratelimit.ts` + applied to all three paid routes; `/api/core/extract` now also 401s when signed out (17 tests) |
+| F3 — outdated deps / CVEs | ✅ Next → 16.3.8, sharp + dev tooling patched; `npm audit` = **0 vulnerabilities** |
+| F4 — raw error leaks | ✅ All save/update/delete routes log server-side, return a generic message |
+
+**One action left for you:** run `supabase/private_research_pricing.sql` in the
+Supabase SQL editor (same as the marketing migration). Until then, those two
+tables stay world-readable in the live DB even though the fix is in the repo.
+
+The "needs live verification" items below (RLS enabled on every live table,
+service_role isolation, SECURITY DEFINER functions) still stand — they can only
+be checked in the dashboard.
+
+---
+
 ## Architecture snapshot (what we're auditing)
 
 - **Framework:** Next.js 16 (App Router, route handlers, `proxy.ts` middleware).
