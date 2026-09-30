@@ -103,10 +103,11 @@ export async function POST(request: Request) {
     .single();
 
   if (error) {
-    // Surfaced verbatim — when this failed during Week 1 testing the message
-    // named the exact missing table, which is what made it a two-minute fix.
+    // Log the real cause server-side; return a generic message to the client so
+    // internal details (table names, SQL) never reach the browser.
+    console.warn("[research] Save failed:", error.message);
     return NextResponse.json(
-      { error: `Could not save: ${error.message}` },
+      { error: "Could not save. Please try again." },
       { status: 500 },
     );
   }

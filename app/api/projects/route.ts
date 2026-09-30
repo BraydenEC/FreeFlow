@@ -50,7 +50,7 @@ export async function POST(request: Request) {
 
   if (error) {
     console.warn("[projects] Insert failed:", error.message);
-    return NextResponse.json({ error: `Could not save: ${error.message}` }, { status: 500 });
+    return NextResponse.json({ error: "Could not save. Please try again." }, { status: 500 });
   }
   return NextResponse.json({ id: data.id }, { status: 201 });
 }

@@ -103,8 +103,9 @@ export async function POST(request: Request) {
     .single();
 
   if (error) {
+    console.warn("[pricing] Save failed:", error.message);
     return NextResponse.json(
-      { error: `Could not save: ${error.message}` },
+      { error: "Could not save. Please try again." },
       { status: 500 },
     );
   }

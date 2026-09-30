@@ -77,7 +77,7 @@ export async function POST(request: Request) {
     // debuggable from the browser.
     console.warn("[core] Save failed:", error.message);
     return NextResponse.json(
-      { error: `Could not save: ${error.message}` },
+      { error: "Could not save. Please try again." },
       { status: 500 },
     );
   }

@@ -20,7 +20,8 @@
     "test:features": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-features.ts",
     "test:project-filter": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-project-filter.ts",
     "test:marketing": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-marketing.ts",
-    "test": "npm run test:pricing && npm run test:filters && npm run test:prefs && npm run test:projects && npm run test:progress && npm run test:withholding && npm run test:support && npm run test:csv && npm run test:forecast && npm run test:currency && npm run test:features && npm run test:project-filter && npm run test:marketing"
+    "test:ratelimit": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-ratelimit.ts",
+    "test": "npm run test:pricing && npm run test:filters && npm run test:prefs && npm run test:projects && npm run test:progress && npm run test:withholding && npm run test:support && npm run test:csv && npm run test:forecast && npm run test:currency && npm run test:features && npm run test:project-filter && npm run test:marketing && npm run test:ratelimit"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.120.0",

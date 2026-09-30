@@ -40,7 +40,7 @@ export async function PUT(request: Request) {
 
   if (error) {
     console.warn("[prefs] Save failed:", error.message);
-    return NextResponse.json({ error: `Could not save: ${error.message}` }, { status: 500 });
+    return NextResponse.json({ error: "Could not save. Please try again." }, { status: 500 });
   }
   return NextResponse.json({ ok: true });
 }

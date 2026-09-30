@@ -68,7 +68,7 @@ export async function PATCH(
 
   if (error) {
     console.warn("[projects] Update failed:", error.message);
-    return NextResponse.json({ error: `Could not save: ${error.message}` }, { status: 500 });
+    return NextResponse.json({ error: "Could not save. Please try again." }, { status: 500 });
   }
   if (!data) {
     return NextResponse.json({ error: "Project not found." }, { status: 404 });
@@ -104,7 +104,7 @@ export async function DELETE(
 
   if (error) {
     console.warn("[projects] Delete failed:", error.message);
-    return NextResponse.json({ error: `Could not delete: ${error.message}` }, { status: 500 });
+    return NextResponse.json({ error: "Could not delete. Please try again." }, { status: 500 });
   }
   if (!data) {
     return NextResponse.json({ error: "Project not found." }, { status: 404 });

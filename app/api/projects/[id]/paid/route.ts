@@ -84,7 +84,7 @@ export async function POST(
 
   if (error) {
     console.warn("[projects] Mark paid failed:", error.message);
-    return NextResponse.json({ error: `Could not update: ${error.message}` }, { status: 500 });
+    return NextResponse.json({ error: "Could not update. Please try again." }, { status: 500 });
   }
   if (!data) {
     return NextResponse.json({ error: "Project not found." }, { status: 404 });
