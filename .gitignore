@@ -42,3 +42,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Course materials (Ibero D2L) — never commit to this public repo
+/Module 4/

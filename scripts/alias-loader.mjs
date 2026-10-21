@@ -11,7 +11,7 @@
   this project has added one dependency in three weeks.
 */
 
-import { pathToFileURL } from "node:url";
+import { pathToFileURL, fileURLToPath } from "node:url";
 import { existsSync } from "node:fs";
 import path from "node:path";
 
@@ -40,7 +40,7 @@ export async function resolve(specifier, context, nextResolve) {
   }
 
   if (specifier.startsWith(".") && context.parentURL) {
-    const parentDir = path.dirname(new URL(context.parentURL).pathname);
+    const parentDir = path.dirname(fileURLToPath(context.parentURL));
     const resolved = resolveWithExtension(path.resolve(parentDir, specifier));
     if (resolved) return { url: pathToFileURL(resolved).href, shortCircuit: true };
   }

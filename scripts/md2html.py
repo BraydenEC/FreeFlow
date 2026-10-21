@@ -10,7 +10,19 @@ Google Docs imports HTML with tables and headings intact, which .docx via
 macOS `textutil` does not — that route flattened every table when it was tried
 for Week 1. Hence HTML.
 """
-import re, sys, html
+import re, sys, html, os, base64, mimetypes
+
+# Images are embedded as data URIs, so the exported file carries them into a
+# Google Docs import or a printed PDF instead of pointing at a local path.
+SRC_DIR = os.path.dirname(os.path.abspath(sys.argv[1])) if len(sys.argv) > 1 else "."
+
+def image(alt, src):
+    path = os.path.join(SRC_DIR, src)
+    if not os.path.exists(path):
+        return f'<p><em>[missing image: {html.escape(src)}]</em></p>'
+    mime = mimetypes.guess_type(path)[0] or "image/png"
+    data = base64.b64encode(open(path, "rb").read()).decode()
+    return f'<p><img src="data:{mime};base64,{data}" alt="{html.escape(alt)}" style="max-width:100%"/></p>'
 
 def inline(t):
     t = html.escape(t)
@@ -43,6 +55,9 @@ def convert(md):
                 t.append('<tr>' + ''.join(f'<td>{inline(c)}</td>' for c in r) + '</tr>')
             t.append('</tbody></table>')
             out.append(''.join(t)); continue
+        m = re.match(r'^!\[([^\]]*)\]\(([^)]+)\)\s*$', L)
+        if m:
+            out.append(image(m.group(1), m.group(2))); i += 1; continue
         m = re.match(r'^(#{1,6})\s+(.*)$', L)
         if m:
             lv = len(m.group(1)); out.append(f'<h{lv}>{inline(m.group(2))}</h{lv}>'); i += 1; continue
