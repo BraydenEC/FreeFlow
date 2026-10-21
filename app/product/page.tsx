@@ -53,9 +53,10 @@ export default async function ProductPage() {
                 built. <span className="numeric">{s.planned}</span> are not.
               </p>
               <p className="text-ink-muted mt-3 text-sm leading-relaxed">
-                The unbuilt six are the ones that would justify the Pro and
-                Studio tiers — CFDI issuance, materialidad evidence,
-                withholding, and everything a studio needs beyond one person.
+                The unbuilt <span className="numeric">{s.planned}</span> are
+                the ones that would justify the Pro and Studio tiers — CFDI
+                issuance, materialidad evidence, and everything a studio needs
+                beyond one person.
                 Separating them out is deliberate: a feature map that blends
                 intentions with shipped code reads as a larger product than
                 exists.{" "}
