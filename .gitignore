@@ -45,3 +45,6 @@ next-env.d.ts
 
 # Course materials (Ibero D2L) — never commit to this public repo
 /Module 4/
+
+# Brainstorming companion mockups
+/.superpowers/
