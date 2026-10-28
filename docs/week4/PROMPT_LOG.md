@@ -1,16 +1,12 @@
 # Week 4 Coding-Agent Prompt Log
 
-**Agent:** Claude Code · **Requirement:** minimum 5 · **Delivered:** 13 (7 verbatim, 6 reconstructed)
+**Agent:** Claude Code · **Requirement:** minimum 5 · **Delivered:** 22 (16 verbatim, 6 reconstructed)
 
-> ⚠️ **Before submitting, read this.** Prompts 7–13 are quoted verbatim from the
-> session transcripts (2026-10-05 to 10-07 and 2026-10-21), typos included.
-> Prompts 1–6 come from the 2026-09-28 to 09-30 sessions, whose chat history is
-> not on this machine (checked in both Claude Code and Codex). Their wording is
-> **reconstructed from what each commit records**. If you still have those
-> chats, paste your exact words in place of the reconstructions. If not, keep
-> the "reconstructed" label: presenting a reconstruction as a quotation would be
-> the one dishonest line in the packet.
-
+> Prompts 7–22 are quoted verbatim from the session transcripts
+> (2026-10-05 to 10-28), typos included. Prompts 1–6 come from the 2026-09-28
+> to 09-30 sessions, whose chat history is not on this machine (checked in both
+> Claude Code and Codex). Their wording is **reconstructed from what each
+> commit records** and labelled that way.
 ---
 
 ## Prompt 1: Plan before building (2026-09-28)
@@ -114,3 +110,70 @@ two A/B tests by name, the homepage note, and the deployment count (10).
 **Result:** searched the transcripts for the original prompts, added the four
 missing verbatim ones, and rewrote the decision note draft. Both are in the
 submission document.
+
+## Prompt 14: Resume the project (2026-10-21) · *verbatim*
+> /handoff resume
+
+**Result:** the saved handoff matched the repo. The one open code item was
+fixed: `/product` said "the unbuilt six … withholding", but withholding had
+shipped and five features are planned. The count now comes from the feature
+data, so it cannot drift again. Lint, typecheck and 619 tests passed; commit
+`04f4731`, deployed.
+
+## Prompt 15: What changed, for the video (2026-10-24) · *verbatim*
+> Create a short outline for me detailing what was implemented in Module 4. I
+> have to do the video for my submission document and need to know what was
+> changed, implemented etc...
+
+**Result:** an outline checked against the code and the packet. It corrected
+the video README, which implied the homepage was built in Week 4; it was built
+on Sep 24 and reused.
+
+## Prompt 16: A demo script (2026-10-28) · *verbatim*
+> give me a script
+
+**Result:** a spoken 2:30 script, section by section.
+
+## Prompt 17: What the brief asks for (2026-10-28) · *verbatim*
+> What are the What was asked for in module 4? what were the features that was
+> requested to add in module 4
+
+**Result:** text extracted from the course PDFs: 9 required features, 6 coding
+tasks, 2 A/B + 3 software tests, the packet items and the rubric. The packet's
+requirements checklist matched the brief line for line.
+
+## Prompt 18: A script mapped to the brief (2026-10-28) · *verbatim*
+> Based on these things can you create a script
+
+**Result:** a 2:45 script where every required feature and coding task appears
+on screen, with the persona's real quote and brand rules.
+
+## Prompt 19: Finish the document and take the screenshots (2026-10-28) · *verbatim*
+> Please create a module 4 submission document with all of the information. Here
+> is the video link as well https://youtu.be/ofbeSchU0Ec. Are you able to take
+> screenshots for me as well?
+
+**Result:** video link added. Fourteen screenshots captured from the live site
+through the browser, the HTML and PDF rebuilt with captions kept beside their
+images, and the PDF copied to the course folder. It also found that generated
+copy points to "freeflow.app" instead of freeflow.website.
+
+## Prompt 20: Supabase evidence (2026-10-28) · *verbatim*
+> do supabase, I logged in for you
+
+**Result:** the `marketing_assets` table and its four owner-only RLS policies
+captured; packet committed as `45a937a`.
+
+## Prompt 21: Audit against the rubric (2026-10-28) · *verbatim*
+> What is missing in module 4 based on the rubric
+
+**Result:** every rubric category has evidence; the live page and the video
+link were checked. The open items were the decision note (still a draft), the
+prompt log's reconstructed entries, and a stale "demo pending" label, now fixed.
+
+## Prompt 22: Extend this log (2026-10-28) · *verbatim*
+> Build the prompt log based on our coversation. after I will change the human
+> decision note. After that what is left
+
+**Result:** this log, extended from 13 to 22 prompts, in the submission
+document and here.

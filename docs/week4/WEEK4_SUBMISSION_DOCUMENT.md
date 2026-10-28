@@ -213,13 +213,13 @@ Constraints: zero new dependencies; no new environment variables; lint, build an
 | 🧑‍💻 GitHub Commits | Minimum 5 | ✅ **10** for Week 4 (95 total) |
 | 🚀 Vercel Deployments | Minimum 2 | ✅ **10** production deployments, Sept 28–30 (screenshot 12b) |
 | 🗄 Supabase Evidence | Table/data evidence | ✅ `marketing_assets` with a saved row, per-user RLS (screenshots 9–10) |
-| 🤖 Prompt Log | Minimum 5 coding prompts | ✅ **13** (below) |
+| 🤖 Prompt Log | Minimum 5 coding prompts | ✅ **22** (below) |
 | 🧪 Test Evidence | 2 A/B + 3 software | ✅ 22 assertions + 6 production checks |
 | 🔁 Iteration Log | What changed after testing | ✅ **8 entries** (below) |
-| 🎥 Demo Video | 2–3 minutes | ⬅️ TO BE ADDED |
+| 🎥 Demo Video | 2–3 minutes | ✅ https://youtu.be/ofbeSchU0Ec |
 | 🧠 Human Decision Note | 150–250 words | ✅ Draft, **233 words** (below) |
 
-**Build gates:** Gate 1 Plan ✅ · Gate 2 Build ✅ · Gate 3 Test (tests documented, bug fixed, redeployed) ✅ · Gate 4 Explain: decision note ✅, demo ⬅️
+**Build gates:** Gate 1 Plan ✅ · Gate 2 Build ✅ · Gate 3 Test (tests documented, bug fixed, redeployed) ✅ · Gate 4 Explain: decision note ✅, demo ✅
 
 ## Week 4 commits
 
@@ -310,9 +310,9 @@ The test loader failed on a folder path with a space in it; the application was 
 
 # Prompt Log
 
-*Agent: Claude Code. Thirteen prompts; full entries with results in `docs/week4/PROMPT_LOG.md`. Prompts 7–13 are quoted verbatim from the session transcripts.*
+*Agent: Claude Code. Twenty-two prompts; full entries with results in `docs/week4/PROMPT_LOG.md`. Prompts 7–22 are quoted verbatim, typos included.*
 
-> ⚠️ **Edit before submitting:** prompts 1–6 are reconstructed from the commit record, because the Sept 28–30 chats are not on this machine. Replace them with your exact words if you have them, or keep the "reconstructed" label.
+*Prompts 1–6 (Sep 28–30) are reconstructed from what each commit records, because those chat histories are not on this machine. They are labelled as reconstructions, not quotations.*
 
 | # | Date | Prompt | Result |
 |---|---|---|---|
@@ -329,6 +329,15 @@ The test loader failed on a folder path with a space in it; the application was 
 | 11 | Oct 21 | "Please create a submission document for module 4 if there are none already. Please check other submission documents and copy format" | Format compared with Weeks 1–3 |
 | 12 | Oct 21 | "Make sure the submission document completes all requirements on module 4 documents" | Requirements checklist, A/B tests named, deploys counted |
 | 13 | Oct 21 | "please create a draft of the decision note and prompt log, upload it to module 4 document" | This log and the decision note redrafted |
+| 14 | Oct 21 | "/handoff resume" | Stale `/product` copy fixed (count now computed), `04f4731` |
+| 15 | Oct 24 | "Create a short outline for me detailing what was implemented in Module 4. I have to do the video for my submission document and need to know what was changed, implemented etc..." | Outline checked against the code and the packet |
+| 16 | Oct 28 | "give me a script" | First demo script |
+| 17 | Oct 28 | "What are the What was asked for in module 4? what were the features that was requested to add in module 4" | Brief re-read: 9 features, 6 coding tasks, testing, packet |
+| 18 | Oct 28 | "Based on these things can you create a script" | Demo script mapped to every requirement |
+| 19 | Oct 28 | "Please create a module 4 submission document with all of the information. Here is the video link as well https://youtu.be/ofbeSchU0Ec. Are you able to take screenshots for me as well?" | Video linked; 14 screenshots captured live; PDF rebuilt |
+| 20 | Oct 28 | "do supabase, I logged in for you" | Supabase table and RLS screenshots |
+| 21 | Oct 28 | "What is missing in module 4 based on the rubric" | Rubric audit: decision note and prompt log flagged |
+| 22 | Oct 28 | "Build the prompt log based on our coversation. after I will change the human decision note. After that what is left" | This log extended to 22 prompts |
 
 ---
 
