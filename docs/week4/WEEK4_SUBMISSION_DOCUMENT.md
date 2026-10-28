@@ -13,7 +13,7 @@
 | **Live page: /marketing** | https://www.freeflow.website/marketing |
 | Upgraded homepage | https://www.freeflow.website |
 | **GitHub** | https://github.com/BraydenEC/FreeFlow |
-| **Demo video** | ⬅️ PASTE YOUR VIDEO LINK HERE |
+| **Demo video** | https://youtu.be/ofbeSchU0Ec |
 
 ---
 
@@ -350,7 +350,7 @@ The tradeoff: live generation takes about 38 seconds and costs money, so it is r
 
 # Screenshots
 
-*Capture these following `docs/week4/SCREENSHOT_GUIDE.md` and save them into `docs/week4/screenshots/` with these exact names; they appear here on the next export.*
+*Captured on 2026-10-28 from the live site, www.freeflow.website. Shot 1 was taken in a browser with no session, so it shows exactly what a signed-out visitor sees. Shot 11 is the real output of the command, rendered as an image.*
 
 **1. Homepage, signed out: the upgraded landing page**
 
@@ -368,7 +368,7 @@ The tradeoff: live generation takes about 38 seconds and costs money, so it is r
 
 ![Video scripts](screenshots/04-video-scripts.png)
 
-**5. Copy and Export CSV**
+**5. Copy: the card confirms "Copied" (Export CSV sits beside Generate live in shot 3)**
 
 ![Copy and export](screenshots/05-copy-export.png)
 
@@ -401,3 +401,7 @@ The tradeoff: live generation takes about 38 seconds and costs money, so it is r
 ![GitHub commits](screenshots/12a-github-commits.png)
 
 ![Vercel deployments](screenshots/12b-vercel-deployments.png)
+
+**13. `/marketing` on a narrow screen: the persona's one complaint was "annoying on mobile"**
+
+![Mobile view](screenshots/13-mobile.png)
