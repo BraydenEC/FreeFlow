@@ -11,7 +11,14 @@
 
 import { redact } from "@/lib/chat/redact";
 import { answer, normalize } from "@/lib/chat/engine";
+import { GUARD_RULES } from "@/lib/chat/guards";
+import { CONTENT_RULES } from "@/lib/chat/rules";
+import { SAMPLES } from "@/lib/chat/samples";
+import { canWrite, needsTranscript, outcomeFor, replay } from "@/lib/chat/session";
+import { featureSummary } from "@/lib/product/features";
 import type { Area, Category } from "@/lib/chat/types";
+import { readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
 
 let passed = 0;
 let failed = 0;
@@ -115,6 +122,63 @@ for (const text of [
   const got = A(text, "pricing_technical", "other");
   assert(`no guard on: "${text}"`, got.kind !== "guardrail", `got ${got.ruleId}`);
 }
+
+// ── I: the rule set is honest and internally consistent ───────────────────
+function collectRoutes(dir: string, base = ""): Set<string> {
+  const out = new Set<string>();
+  for (const name of readdirSync(dir)) {
+    const full = join(dir, name);
+    if (statSync(full).isDirectory()) {
+      if (name === "api" || name.startsWith("_")) continue;
+      const seg = /^\(.*\)$/.test(name) ? "" : `/${name}`;
+      for (const r of collectRoutes(full, base + seg)) out.add(r);
+    } else if (name === "page.tsx") {
+      out.add(base || "/");
+    }
+  }
+  return out;
+}
+const routes = collectRoutes("app");
+routes.add("/chat");
+const allRules = [...CONTENT_RULES, ...GUARD_RULES];
+const ids = allRules.map((r) => r.id);
+assert("rule ids unique", new Set(ids).size === ids.length);
+for (const r of allRules) for (const l of r.links ?? []) {
+  assert(`${r.id} links to a real route: ${l.href}`, routes.has(l.href));
+}
+const PLANNED_TERMS = [/cfdi/i, /materialidad/i, /\bseats?\b/i, /cross-person/i, /per-person profitability/i];
+assert("planned list matches features.ts", featureSummary().planned === 5);
+for (const r of CONTENT_RULES) {
+  if (PLANNED_TERMS.some((t) => t.test(r.answer))) {
+    assert(`${r.id} says planned features are not built`, /not built/i.test(r.answer));
+  }
+  assert(`${r.id} has keywords`, r.keywords.length + (r.phrases?.length ?? 0) > 0);
+}
+for (const s of SAMPLES) {
+  const got = answer(s).ruleId ?? "no_match";
+  assert(`sample → ${s.expect}: "${s.text}"`, got === s.expect, `got ${got}`);
+}
+
+// ── S: session logic decides outcome and what gets stored ─────────────────
+const t = replay("broken", "forecast", ["my forecast shows zero", "the purple moon button"]);
+assert("replay alternates", t.length === 4 && t[1].role === "bot");
+assert("no_match outranks answered", outcomeFor(t, false) === "no_match");
+assert("ticket outranks all", outcomeFor(t, true) === "ticket");
+assert("guardrail-only session", outcomeFor(replay("how_to", "other", ["can I talk to a human"]), false) === "guardrail");
+assert(
+  "a content answer beats a guard for outcome",
+  outcomeFor(replay("broken", "forecast", ["my forecast shows zero", "are you a bot"]), false) === "answered",
+);
+assert("thumbs-down keeps transcript", needsTranscript("answered", [{ ruleId: "forecast-zero", up: false }]));
+assert("clean answer keeps summary only", !needsTranscript("answered", [{ ruleId: "forecast-zero", up: true }]));
+assert("guardrail keeps transcript", needsTranscript("guardrail", []));
+assert(
+  "filed ticket is frozen",
+  canWrite({ ticket_status: "open" }) === false && canWrite({ ticket_status: null }) && canWrite(null),
+);
+assert("replay redacts", replay("broken", "other", ["password: abc123"])[0].text.includes("[removed]"));
+const fb = replay("feedback", "dashboard", ["the colours are too dark"]);
+assert("feedback skips matching", fb.length === 1 && fb[0].role === "user");
 
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed`);
