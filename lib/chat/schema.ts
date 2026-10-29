@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { AREAS, CATEGORIES, MAX_MESSAGE_CHARS } from "./types";
+import { AREAS, CATEGORIES, MAX_MESSAGE_CHARS, MAX_MESSAGES } from "./types";
 
 /*
   The body of POST /api/chat/session.
@@ -16,7 +16,7 @@ export const SessionRequestSchema = z
     id: z.uuid(),
     category: z.enum(CATEGORIES),
     area: z.enum(AREAS),
-    messages: z.array(z.string().min(1).max(MAX_MESSAGE_CHARS)).min(1).max(40),
+    messages: z.array(z.string().min(1).max(MAX_MESSAGE_CHARS)).min(1).max(MAX_MESSAGES),
     ratings: z
       .array(z.object({ ruleId: z.string().max(80), up: z.boolean() }).strict())
       .max(40),

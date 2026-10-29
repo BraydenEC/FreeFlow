@@ -90,3 +90,5 @@ export type Turn = {
 export type Rating = { ruleId: string; up: boolean };
 
 export const MAX_MESSAGE_CHARS = 2000;
+/** Messages one conversation may hold; past this the user is pointed to a ticket. */
+export const MAX_MESSAGES = 40;

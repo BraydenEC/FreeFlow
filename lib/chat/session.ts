@@ -13,7 +13,16 @@
 
 import { answer } from "./engine";
 import { redact } from "./redact";
-import { MAX_MESSAGE_CHARS, type Area, type Category, type Outcome, type Rating, type Turn } from "./types";
+import {
+  MAX_MESSAGE_CHARS,
+  MAX_MESSAGES,
+  type Area,
+  type Category,
+  type EngineReply,
+  type Outcome,
+  type Rating,
+  type Turn,
+} from "./types";
 
 export function replay(category: Category, area: Area, userTexts: string[]): Turn[] {
   const turns: Turn[] = [];
@@ -51,4 +60,14 @@ export function canWrite(existing: { ticket_status: string | null } | null): boo
  */
 export function firstMessage(turns: Turn[]): string {
   return (turns.find((t) => t.role === "user")?.text ?? "").slice(0, MAX_MESSAGE_CHARS);
+}
+
+/** The ticket is offered inline after a no-match, a guard, or a thumbs-down. */
+export function shouldOfferTicket(reply: EngineReply, rating: boolean | undefined): boolean {
+  return reply.offerTicket || rating === false;
+}
+
+/** Filing a ticket adds no message, so a conversation at the cap can still file one. */
+export function canSendMore(messageCount: number): boolean {
+  return messageCount < MAX_MESSAGES;
 }

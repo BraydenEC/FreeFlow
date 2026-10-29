@@ -15,9 +15,9 @@ import { GUARD_RULES } from "@/lib/chat/guards";
 import { CONTENT_RULES } from "@/lib/chat/rules";
 import { SAMPLES } from "@/lib/chat/samples";
 import { SessionRequestSchema } from "@/lib/chat/schema";
-import { canWrite, firstMessage, needsTranscript, outcomeFor, replay } from "@/lib/chat/session";
+import { canSendMore, canWrite, firstMessage, shouldOfferTicket, needsTranscript, outcomeFor, replay } from "@/lib/chat/session";
 import { featureSummary } from "@/lib/product/features";
-import type { Area, Category } from "@/lib/chat/types";
+import { MAX_MESSAGES, type Area, type Category, type EngineReply } from "@/lib/chat/types";
 import { readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 
@@ -218,6 +218,16 @@ assert(
 const nearLimit = "x".repeat(1990) + " password:a";
 assert("first message stays within 2000 after redaction", firstMessage(replay("broken", "other", [nearLimit])).length <= 2000);
 assert("first message is the redacted user text", firstMessage(replay("broken", "other", ["password: abc123"])).includes("[removed]"));
+
+// Review of Task 6: the page's ticket offer and message cap
+const solved: EngineReply = { kind: "rule", ruleId: "forecast-zero", answer: "", links: [], offerTicket: false };
+assert("thumbs-down offers the ticket inline", shouldOfferTicket(solved, false));
+assert("a solved, unrated answer does not push the ticket", !shouldOfferTicket(solved, undefined));
+assert("thumbs-up does not push the ticket", !shouldOfferTicket(solved, true));
+assert("no-match offers the ticket", shouldOfferTicket({ ...solved, kind: "no_match", ruleId: null, offerTicket: true }, undefined));
+assert("input open below the cap", canSendMore(MAX_MESSAGES - 1));
+assert("input closed at the cap", !canSendMore(MAX_MESSAGES));
+assert("schema accepts exactly the cap", SessionRequestSchema.safeParse({ ...valid, messages: Array(MAX_MESSAGES).fill("hi") }).success);
 
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed`);
