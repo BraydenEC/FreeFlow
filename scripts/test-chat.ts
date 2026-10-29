@@ -14,6 +14,7 @@ import { answer, normalize } from "@/lib/chat/engine";
 import { GUARD_RULES } from "@/lib/chat/guards";
 import { CONTENT_RULES } from "@/lib/chat/rules";
 import { SAMPLES } from "@/lib/chat/samples";
+import { SessionRequestSchema } from "@/lib/chat/schema";
 import { canWrite, needsTranscript, outcomeFor, replay } from "@/lib/chat/session";
 import { featureSummary } from "@/lib/product/features";
 import type { Area, Category } from "@/lib/chat/types";
@@ -179,6 +180,24 @@ assert(
 assert("replay redacts", replay("broken", "other", ["password: abc123"])[0].text.includes("[removed]"));
 const fb = replay("feedback", "dashboard", ["the colours are too dark"]);
 assert("feedback skips matching", fb.length === 1 && fb[0].role === "user");
+
+// ── P: the save payload is bounded and never carries ticket_status ────────
+const valid = {
+  id: "8f14e45f-ceea-4e6a-9a5b-3c2f1d0e9a71",
+  category: "broken",
+  area: "forecast",
+  messages: ["my forecast shows zero"],
+  ratings: [{ ruleId: "forecast-zero", up: true }],
+  fileTicket: false,
+};
+assert("valid payload parses", SessionRequestSchema.safeParse(valid).success);
+assert("2001-char message rejected", !SessionRequestSchema.safeParse({ ...valid, messages: ["x".repeat(2001)] }).success);
+assert("41 messages rejected", !SessionRequestSchema.safeParse({ ...valid, messages: Array(41).fill("hi") }).success);
+assert("empty message rejected", !SessionRequestSchema.safeParse({ ...valid, messages: [""] }).success);
+assert("no messages rejected", !SessionRequestSchema.safeParse({ ...valid, messages: [] }).success);
+assert("ticket_status key rejected", !SessionRequestSchema.safeParse({ ...valid, ticket_status: "resolved" }).success);
+assert("unknown area rejected", !SessionRequestSchema.safeParse({ ...valid, area: "billing" }).success);
+assert("non-uuid id rejected", !SessionRequestSchema.safeParse({ ...valid, id: "abc" }).success);
 
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed`);
