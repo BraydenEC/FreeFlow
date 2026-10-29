@@ -32,7 +32,7 @@ export const GUARD_RULES: GuardRule[] = [
     id: "guard-secret",
     triggers: [],
     answer:
-      "Please don't share passwords, card numbers or keys here. I've removed it from this conversation, and FreeFlow will never ask you for one. To change your password, use \"Forgot password\" on the sign-in page.",
+      "Please don't share passwords, card numbers or keys here. I've removed it from this conversation, and FreeFlow will never ask you for one. To change your password, use \"Forgot your password?\" on the sign-in page.",
     links: [{ label: "Reset your password", href: "/forgot-password" }],
   },
   {

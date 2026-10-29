@@ -23,7 +23,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["forecast", "zero", "empty", "nothing", "missing", "pronostico", "blank"],
     phrases: ["next month", "shows zero", "shows 0", "is empty", "not showing"],
     answer:
-      "The forecast puts each unpaid project in the month its money is expected: the deadline plus payment terms, which are 30 days unless the project sets its own. So work due next month usually lands the month after. Paid projects aren't counted, and money already past its expected date shows as late rather than in a month.",
+      "The forecast puts each unpaid project in the month its money is expected: the deadline plus payment terms (the project's own, or your default in Settings, which starts at 30 days). So work due next month usually lands the month after. Paid projects and projects with no deadline aren't counted, and money already past its expected date shows as late rather than in a month.",
   },
   // lib/forecast/model.ts expectedPaymentDate; ProjectForm "Payment terms"; Settings "Default payment terms"
   {
@@ -53,7 +53,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["overdue", "late", "alert", "warning", "pinned"],
     phrases: ["past due", "overdue alert", "says overdue", "say overdue", "shows overdue", "marked overdue"],
     answer:
-      "A project counts as overdue when it isn't paid and its deadline has passed. The overdue alert only appears then, and it sits at the top of the dashboard so it can't be missed. Marking the project paid, or moving its deadline if the date was wrong, clears it.",
+      "A project counts as overdue when it isn't paid and either its deadline has passed or its status is Overdue. The alert only appears then, and it sits at the top of the dashboard while Pin overdue to the top is on in Settings. Marking the project paid clears it; if the deadline was wrong, move it and change the status too.",
   },
   // components/dashboard/ProjectForm.tsx — "New project", "Edit project", "Save changes", Hourly / Fixed fee
   {
@@ -113,7 +113,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["date", "deadline", "friday", "monday", "tomorrow", "year", "relative", "wrong", "picked"],
     phrases: ["next friday", "next week", "end of the month", "wrong date", "wrong year"],
     answer:
-      "Dates without a year are read as the next time that date comes around, and phrases like \"next Friday\" are worked out from the day you paste the brief. If it picked the wrong date, correct the deadline before saving.",
+      "Dates without a year are read as the next time that date comes around. Phrases like \"next Friday\" are only understood when the AI model did the extraction; if the result says pattern matching, set the deadline yourself. Either way, correct a wrong date before saving.",
   },
   // lib/currency.ts — 11 currencies, one per account, never converted
   {
@@ -177,7 +177,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["password", "reset", "forgot", "forgotten"],
     phrases: ["forgot my password", "reset my password", "change my password", "reset link"],
     answer:
-      "Use Forgot password on the sign-in page, enter your email, and follow the link to choose a new password. If the email doesn't arrive within a few minutes, check your spam folder.",
+      "Use the Forgot your password? link on the sign-in page, enter your email and choose Send reset link, then follow the link in the email to choose a new password. If it doesn't arrive within a few minutes, check your spam folder.",
     links: [{ label: "Reset your password", href: "/forgot-password" }],
   },
   // app/research; features "Competitor & substitute analysis", "Confidence on every claim", "Risk map"
@@ -235,7 +235,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["privacy", "private", "data", "shared", "secure", "security", "safe", "visible", "sell", "see"],
     phrases: ["other users", "who can see", "my data", "is my data"],
     answer:
-      "Your projects and settings belong to your account and are protected by row-level security, so other users can't see them. Help conversations are saved so the owner can fix problems.",
+      "Your projects and settings belong to your account and are protected by row-level security, so other users can't see them. Help conversations save a short summary so the owner can fix problems, and the full conversation only for tickets, thumbs-down answers and questions the guide couldn't answer.",
   },
   // features note: the Week 2 persona's complaint was "annoying on mobile"
   {

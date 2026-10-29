@@ -7,7 +7,8 @@
   computed here, the same way on both sides.
 
   "Feedback or complaint" skips matching (the spec's step 4): those turns are
-  the user's words only, and the conversation always ends as a ticket.
+  the user's words only, and the route accepts them only when filed as a
+  ticket (SessionRequestSchema).
 */
 
 import { answer } from "./engine";

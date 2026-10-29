@@ -199,6 +199,21 @@ assert("ticket_status key rejected", !SessionRequestSchema.safeParse({ ...valid,
 assert("unknown area rejected", !SessionRequestSchema.safeParse({ ...valid, area: "billing" }).success);
 assert("non-uuid id rejected", !SessionRequestSchema.safeParse({ ...valid, id: "abc" }).success);
 
+// Fact-check of Task 4: answers must say what the code does
+const ans = (id: string) => CONTENT_RULES.find((r) => r.id === id)?.answer ?? "";
+assert("relative dates: only the model reads 'next Friday'", /pattern matching/i.test(ans("relative-dates")));
+assert("overdue: pinning depends on the setting", ans("overdue-alert").includes("Pin overdue to the top"));
+assert("overdue: an Overdue status must be changed too", /status/i.test(ans("overdue-alert")));
+assert("forecast: terms fall back to the Settings default", /settings/i.test(ans("forecast-zero")));
+assert("forecast: projects with no deadline are skipped", /no deadline/i.test(ans("forecast-zero")));
+assert("password reset uses the real link text", ans("password-reset").includes("Forgot your password?"));
+assert("privacy: transcripts only when it matters", /summary/i.test(ans("data-privacy")));
+assert(
+  "feedback must be filed as a ticket",
+  !SessionRequestSchema.safeParse({ ...valid, category: "feedback", fileTicket: false }).success &&
+    SessionRequestSchema.safeParse({ ...valid, category: "feedback", fileTicket: true }).success,
+);
+
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);

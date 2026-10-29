@@ -22,6 +22,11 @@ export const SessionRequestSchema = z
       .max(40),
     fileTicket: z.boolean(),
   })
-  .strict();
+  .strict()
+  // "Feedback or complaint" has no answer step: it exists to become a ticket,
+  // so it is only ever saved when the user files it.
+  .refine((s) => s.category !== "feedback" || s.fileTicket, {
+    message: "Feedback is saved only as a ticket.",
+  });
 
 export type SessionRequest = z.infer<typeof SessionRequestSchema>;
