@@ -1,6 +1,6 @@
 # `/chat`: FreeFlow's guided help assistant (Week 5)
 
-**Status:** design, awaiting owner approval · **Date:** 2026-10-28 · **Course:** Week 5, Public Chatbot / Guided Assistant
+**Status:** approved by the owner 2026-10-29 · **Date:** 2026-10-28 · **Course:** Week 5, Public Chatbot / Guided Assistant
 
 ## Why this exists
 

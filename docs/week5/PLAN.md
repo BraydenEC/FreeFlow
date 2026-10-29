@@ -73,13 +73,18 @@ The 3 external user tests are added when testers are available.
 
 *Guided chat, chosen by Brayden over a form-first layout. The four zones the
 course image prompt asks for are labelled: user input, agent output, saved
-results and testing evidence. Source: `docs/week5/mockup.html`.*
+results and testing evidence. It shows the target state: no code existed when
+it was drawn, so the saved rows and test results in it are illustrative.
+Source: `docs/week5/mockup.html`.*
 
 **Implementation note.** One column, chat bubbles in the existing monochrome
 system. The first two intake questions are tap buttons (fast on a phone), the
 third is typed. Each bot answer shows "Answer from rule: …" and 👍/👎. "Still
 stuck? Submit a ticket" appears after the first answer. A permanent notice says
 conversations are saved and warns against pasting passwords or card numbers.
+Choosing "Feedback or complaint" skips the answer step: after the third
+question the user sees a preview of what will be sent and files it as a
+ticket on confirmation.
 
 ## 5. Scope cut: what looked nice but will not be built this week?
 
@@ -171,7 +176,10 @@ environment variables.
 > Implement `docs/superpowers/plans/2026-10-29-chat-help-assistant.md`
 > task by task against the spec `docs/superpowers/specs/2026-10-28-chat-design.md`.
 > Test first for every task, keep `npm test` green, add no dependencies, use no
-> AI at runtime, and build only the agreed scope above.
+> AI at runtime, and build only the agreed scope above. The six course coding
+> tasks map onto it as: create /chat page and build message UI (plan Task 6),
+> add intake flow (Tasks 2 and 6), implement guardrail response (Task 3), save
+> test summary (Tasks 4 and 5), add feedback rating (Tasks 5 and 6).
 
 ## Actions only Brayden can take
 
