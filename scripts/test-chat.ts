@@ -15,7 +15,7 @@ import { GUARD_RULES } from "@/lib/chat/guards";
 import { CONTENT_RULES } from "@/lib/chat/rules";
 import { SAMPLES } from "@/lib/chat/samples";
 import { SessionRequestSchema } from "@/lib/chat/schema";
-import { canWrite, needsTranscript, outcomeFor, replay } from "@/lib/chat/session";
+import { canWrite, firstMessage, needsTranscript, outcomeFor, replay } from "@/lib/chat/session";
 import { featureSummary } from "@/lib/product/features";
 import type { Area, Category } from "@/lib/chat/types";
 import { readdirSync, statSync } from "node:fs";
@@ -213,6 +213,11 @@ assert(
   !SessionRequestSchema.safeParse({ ...valid, category: "feedback", fileTicket: false }).success &&
     SessionRequestSchema.safeParse({ ...valid, category: "feedback", fileTicket: true }).success,
 );
+
+// Security review of Task 5: redaction can lengthen text past the column limit
+const nearLimit = "x".repeat(1990) + " password:a";
+assert("first message stays within 2000 after redaction", firstMessage(replay("broken", "other", [nearLimit])).length <= 2000);
+assert("first message is the redacted user text", firstMessage(replay("broken", "other", ["password: abc123"])).includes("[removed]"));
 
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed`);

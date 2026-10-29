@@ -24,9 +24,10 @@ create table if not exists public.chat_sessions (
   id             uuid primary key,
 
   user_id        uuid not null references auth.users(id) on delete cascade,
-  -- Where the owner replies. Must be the signed-in user's own address (see the
-  -- insert/update policies), so a ticket cannot name someone else.
-  user_email     text,
+  -- Where the owner replies. Filled from the signed-in user's own token, never
+  -- from the request, and the policies refuse any other value, so a ticket
+  -- cannot name someone else.
+  user_email     text default (auth.jwt() ->> 'email'),
 
   category       text not null
                  check (category in ('broken', 'how_to', 'pricing_technical', 'feedback')),
@@ -35,11 +36,17 @@ create table if not exists public.chat_sessions (
                                  'pricing', 'marketing', 'account', 'other')),
   first_message  text not null check (char_length(first_message) <= 2000),
 
-  rules_fired    text[] not null default '{}',
-  ratings        jsonb  not null default '[]',
+  -- Bounded in the database, not only in the route: a signed-in user can reach
+  -- this table with the public key, and must not be able to store megabytes.
+  -- 40 messages x 2,000 characters plus answers fits well inside 200 kB.
+  rules_fired    text[] not null default '{}'
+                 check (cardinality(rules_fired) <= 40),
+  ratings        jsonb  not null default '[]'
+                 check (jsonb_typeof(ratings) = 'array' and jsonb_array_length(ratings) <= 40),
   outcome        text   not null
                  check (outcome in ('answered', 'no_match', 'guardrail', 'ticket')),
-  transcript     jsonb,
+  transcript     jsonb
+                 check (transcript is null or octet_length(transcript::text) <= 200000),
 
   ticket_status  text check (ticket_status in ('open', 'resolved')),
 

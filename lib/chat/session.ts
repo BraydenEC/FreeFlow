@@ -13,7 +13,7 @@
 
 import { answer } from "./engine";
 import { redact } from "./redact";
-import type { Area, Category, Outcome, Rating, Turn } from "./types";
+import { MAX_MESSAGE_CHARS, type Area, type Category, type Outcome, type Rating, type Turn } from "./types";
 
 export function replay(category: Category, area: Area, userTexts: string[]): Turn[] {
   const turns: Turn[] = [];
@@ -42,4 +42,13 @@ export function needsTranscript(outcome: Outcome, ratings: Rating[]): boolean {
 /** A conversation that already became a ticket is frozen. */
 export function canWrite(existing: { ticket_status: string | null } | null): boolean {
   return !existing || existing.ticket_status === null;
+}
+
+/**
+ * The summary's opening line: the user's first message, redacted. Redaction
+ * can make text longer ("password:a" → "password:[removed]"), so it is cut
+ * back to the column's limit rather than failing the whole save.
+ */
+export function firstMessage(turns: Turn[]): string {
+  return (turns.find((t) => t.role === "user")?.text ?? "").slice(0, MAX_MESSAGE_CHARS);
 }

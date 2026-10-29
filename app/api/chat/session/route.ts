@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { SessionRequestSchema } from "@/lib/chat/schema";
-import { canWrite, needsTranscript, outcomeFor, replay } from "@/lib/chat/session";
+import { canWrite, firstMessage, needsTranscript, outcomeFor, replay } from "@/lib/chat/session";
 import { clientKey, rateLimit } from "@/lib/ratelimit";
 import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
 
@@ -93,10 +93,11 @@ export async function POST(request: Request) {
     {
       id,
       user_id: user.id,
-      user_email: user.email,
+      // user_email is not sent: the column defaults to the signed-in user's
+      // email from their token, so it always matches what RLS checks.
       category,
       area,
-      first_message: turns[0].text,
+      first_message: firstMessage(turns),
       rules_fired: rulesFired,
       ratings: keptRatings,
       outcome,
@@ -107,6 +108,15 @@ export async function POST(request: Request) {
     { onConflict: "id" },
   );
 
+  // 42501: RLS refused the write. The read above said the row was writable, so
+  // a ticket was filed in between (a double-click, or a save racing the
+  // ticket). The ticket is intact; tell the browser so.
+  if (error?.code === "42501") {
+    return NextResponse.json(
+      { error: "This conversation already has a ticket." },
+      { status: 409 },
+    );
+  }
   if (error) {
     console.warn("[chat] Session save failed:", error.message);
     return NextResponse.json({ error: "Could not save the conversation." }, { status: 500 });
