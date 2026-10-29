@@ -35,6 +35,31 @@ for (const s of ["$12,500", "2026-11-03", "MXN 4,000.00", "call 5512345678", "pr
   const r = redact(s);
   assert(`ordinary number kept: ${s}`, r.text === s && !r.redacted, `got "${r.text}"`);
 }
+// Review of Task 2: false positives a support chat would hit every day
+for (const s of [
+  "project 123e4567-e89b-12d3-a456-426614174000",
+  "my-project-2026-final-proposal-for-the-client-x",
+  "Invoice 1001 1002 1003 1004",
+  "2026-10-29 2026-10-30",
+  "call +52 1 55 1234 5678",
+  "The password is required",
+]) {
+  const r = redact(s);
+  assert(`not a secret: ${s}`, r.text === s && !r.redacted, `got "${r.text}"`);
+}
+// ...and secrets it let through or mangled
+for (const [s, leak] of [
+  ["Password is 'my secret pass'", "secret pass"],
+  ['password: "two words"', "words"],
+  ["password is: abc", "abc"],
+  ["mi contraseña es abc123", "abc123"],
+  ["key AKIAIOSFODNN7EXAMPLE", "AKIAIOSFODNN7EXAMPLE"],
+  ["Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.c2lnbmF0dXJl", "eyJhbGci"],
+  ["SK-ANT-ABC123DEF456GHI", "ABC123"],
+  ["CLABE 012180001234567891", "012180001234567891"],
+] as const) {
+  assert(`secret removed: ${s}`, !redact(s).text.includes(leak), `got "${redact(s).text}"`);
+}
 
 // ── E: the engine — guardrails first, then rules, then an honest no-match ──
 const A = (text: string, category: Category = "broken", area: Area = "forecast") =>
