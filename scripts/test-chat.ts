@@ -84,6 +84,38 @@ assert("empty is no_match", A("   ").kind === "no_match");
 assert("5000 chars does not throw", A("x ".repeat(2500)).kind === "no_match");
 assert("normalize strips accents", normalize("Pronóstico, ¡CERO!") === "pronostico cero");
 
+// Review of Task 3: guards that missed (Spanish, AI, phrasing) or over-fired
+for (const [text, id] of [
+  ["que regimen me conviene", "guard-tax-advice"],
+  ["debo cambiar a RESICO", "guard-tax-advice"],
+  ["¿puedo cambiar mi régimen fiscal?", "guard-tax-advice"],
+  ["cuanto ISR debo pagar", "guard-tax-advice"],
+  ["necesito ayuda con mi declaracion", "guard-tax-advice"],
+  ["do I owe IVA on this", "guard-tax-advice"],
+  ["hablar con una persona", "guard-human"],
+  ["quiero hablar con un humano", "guard-human"],
+  ["eres un robot", "guard-human"],
+  ["are you AI", "guard-human"],
+  ["is this a bot", "guard-human"],
+  ["am I talking to a robot", "guard-human"],
+  ["how do I contact support", "guard-human"],
+] as const) {
+  const got = A(text, "pricing_technical", "other").ruleId;
+  assert(`guard fires: "${text}" → ${id}`, got === id, `got ${got}`);
+}
+for (const text of [
+  "how do I change my honorarios rate",
+  "my client threatened a lawsuit",
+  "can other users see my projects",
+  "is my data shared with other users",
+  "does it work when raining",
+  "the temperature of the forecast",
+  "capital of my project",
+]) {
+  const got = A(text, "pricing_technical", "other");
+  assert(`no guard on: "${text}"`, got.kind !== "guardrail", `got ${got.ruleId}`);
+}
+
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);

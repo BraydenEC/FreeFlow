@@ -17,14 +17,14 @@
 import type { GuardRule } from "./types";
 
 export const OFF_TOPIC_TRIGGERS: RegExp[] = [
-  /\b(weather|temperature|raining|sunny|snowing)\b/,
+  /\b(weather)\b/,
   /\b(football|soccer|basketball|baseball|nba|nfl|world cup)\b/,
   /\b(tell me a joke|a joke|jokes)\b/,
   /\b(recipe|recipes|cooking)\b/,
   /\b(homework|my essay)\b/,
   /\b(python|javascript|wordpress|photoshop|minecraft)\b/,
   /\b(girlfriend|boyfriend|dating)\b/,
-  /\b(meaning of life|capital of|who won)\b/,
+  /\b(meaning of life)\b/,
 ];
 
 export const GUARD_RULES: GuardRule[] = [
@@ -38,11 +38,18 @@ export const GUARD_RULES: GuardRule[] = [
   {
     id: "guard-tax-advice",
     triggers: [
-      /\b(should|can|do) i\b.*\b(regime|regimen|resico|honorarios|persona fisica|persona moral|actividad empresarial)\b/,
-      /\b(switch|change|move|register)\b.*\b(regime|regimen|resico|honorarios)\b/,
-      /\bhow much\b.*\b(tax|taxes|isr|iva)\b.*\b(owe|pay)\b/,
-      /\b(file|filing)\b.*\b(tax|taxes|declaracion|return)\b/,
-      /\b(legal advice|lawyer|lawsuit|sue)\b/,
+      // English
+      /\b(should|can|do|must) i\b.{0,30}\b(regime|regimen|resico|persona fisica|persona moral|actividad empresarial)\b/,
+      /\b(switch|change|move)\b.{0,20}\bto\b.{0,20}\b(regime|regimen|resico|honorarios)\b/,
+      /\b(do|will|should) i (owe|pay)\b.{0,20}\b(tax|taxes|isr|iva|sat)\b/,
+      /\bhow much\b.{0,20}\b(tax|taxes|isr|iva)\b/,
+      /\b(file|filing)\b.{0,15}\b(tax|taxes|declaracion|return)\b/,
+      /\blegal advice\b/,
+      // Spanish
+      /\b(que|cual) regimen\b/,
+      /\b(debo|puedo|deberia|me conviene)\b.{0,25}\b(regimen|resico|honorarios|persona fisica|persona moral)\b/,
+      /\bcuanto\b.{0,15}\b(isr|iva|impuesto|impuestos)\b/,
+      /\bdeclaracion\b/,
     ],
     answer:
       "I can explain how FreeFlow calculates IVA and ISR withholding, but I can't tell you which tax regime to choose, how much you owe, or give legal advice. An accountant is the right person for that. If a figure in FreeFlow looks wrong, submit a ticket.",
@@ -53,6 +60,10 @@ export const GUARD_RULES: GuardRule[] = [
       /\b(real|actual|live) (person|human|agent|someone)\b/,
       /\b(talk|speak|chat) (to|with) (a |an |the )?(human|person|someone|owner|agent|support)\b/,
       /\bare you (a )?(human|real|bot|robot|person)\b/,
+      /\b(is this|am i talking to|are you)\b.{0,10}\b(bot|robot|ai|machine|human|person)\b/,
+      /\bcontact (support|the owner|someone|a human|you)\b/,
+      /\bhablar con\b.{0,10}\b(una persona|un humano|alguien|soporte|el dueno)\b/,
+      /\beres (un |una )?(robot|bot|humano|persona|ia)\b/,
     ],
     answer:
       "I'm an automated guide, not a person. If you'd like FreeFlow's owner to look at this, submit a ticket and the owner will reply by email.",
@@ -60,7 +71,10 @@ export const GUARD_RULES: GuardRule[] = [
   {
     id: "guard-other-account",
     triggers: [
-      /\b(coworker|co worker|colleague|friend|employee|someone else|another user|other users?|another person|other people)( s)?\b.*\b(account|projects?|data|invoices?|dashboard|email|forecast)\b/,
+      // Asking to see someone else's things — not asking who can see yours,
+      // which is a privacy question with a real answer (rule data-privacy).
+      /\b(show|see|access|open|view|look at|give me|check)\b.{0,20}\b(coworker|co worker|colleague|friend|employee|someone else|another user|another person)( s)?\b/,
+      /\b(coworker|co worker|colleague|friend|employee|someone else|another user|another person)( s)? (account|projects?|data|invoices?|dashboard|email|forecast)\b/,
       /\blog ?in as\b/,
     ],
     answer:
