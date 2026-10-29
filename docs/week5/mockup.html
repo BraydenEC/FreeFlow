@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FreeFlow /chat mockup</title>
+<style>
+  body{margin:0;background:#000;color:#e5e5e5;font:15px/1.5 -apple-system,Inter,sans-serif}
+  .top{display:flex;align-items:center;gap:22px;padding:14px 28px;border-bottom:1px solid #1f1f1f;font-size:14px;color:#aaa}
+  .logo{width:26px;height:26px;border-radius:6px;background:#fff}
+  .top .on{color:#fff;background:#151515;padding:5px 10px;border-radius:7px}
+  .wrap{display:grid;grid-template-columns:1fr 330px;gap:28px;max-width:1140px;margin:0 auto;padding:30px 28px}
+  h1{font-size:15px;letter-spacing:.18em;margin:0 0 4px;color:#fff}
+  .sub{color:#888;font-size:13.5px;margin:0 0 18px}
+  .zone{position:relative;border:1px dashed #555;border-radius:14px;padding:16px 16px 12px;margin-bottom:16px}
+  .tag{position:absolute;top:-11px;left:14px;background:#000;padding:0 8px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#bbb}
+  .bot{background:#111;border:1px solid #2a2a2a;border-radius:12px 12px 12px 3px;padding:10px 13px;margin:8px 0;max-width:86%}
+  .me{background:#e5e5e5;color:#000;border-radius:12px 12px 3px 12px;padding:9px 13px;margin:8px 0 8px auto;width:fit-content;max-width:75%}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+  .chip{border:1px solid #3a3a3a;border-radius:999px;padding:5px 11px;font-size:13px}
+  .chip.on{background:#e5e5e5;color:#000;border-color:#e5e5e5}
+  .src{display:inline-block;font-size:11px;border:1px solid #444;color:#bbb;border-radius:999px;padding:1px 9px;margin-top:7px}
+  .row{display:flex;gap:10px;align-items:center;margin-top:8px;font-size:13px;color:#999}
+  .btn{border:1px solid #3a3a3a;border-radius:8px;padding:5px 11px;color:#ddd;font-size:13px}
+  .input{border:1px solid #2a2a2a;border-radius:10px;padding:11px 13px;color:#666;margin-top:10px}
+  .note{font-size:12px;color:#777;margin-top:8px}
+  .card{border:1px solid #2a2a2a;border-radius:12px;padding:12px 14px;margin-bottom:10px}
+  .card b{color:#fff}
+  .k{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#777}
+  .pass{color:#34d399}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  td{padding:4px 0;border-bottom:1px solid #1c1c1c}
+</style>
+</head>
+<body>
+<div class="top"><div class="logo"></div><span>Dashboard</span><span>Core</span><span>Research</span><span>Product</span><span>Support</span><span class="on">Help</span></div>
+<div class="wrap">
+  <div>
+    <h1>HELP</h1>
+    <p class="sub">FreeFlow's automated guide. It answers from written rules, and anything it can't solve becomes a ticket the owner reads.</p>
+
+    <div class="zone"><span class="tag">1 · User input: three intake questions</span>
+      <div class="bot">Hi, I'm FreeFlow's automated guide. What do you need help with?
+        <div class="chips"><span class="chip on">Something isn't working</span><span class="chip">How do I use…</span><span class="chip">Pricing or technical</span><span class="chip">Feedback or complaint</span></div>
+      </div>
+      <div class="bot">Which part of FreeFlow?
+        <div class="chips"><span class="chip">Dashboard</span><span class="chip on">Forecast</span><span class="chip">Projects</span><span class="chip">Brief extraction</span><span class="chip">Research</span><span class="chip">Pricing &amp; plans</span><span class="chip">Account &amp; settings</span><span class="chip">Other</span></div>
+      </div>
+      <div class="bot">In a sentence, what happened?</div>
+      <div class="me">My forecast shows $0 for next month but I have 2 projects due</div>
+    </div>
+
+    <div class="zone"><span class="tag">2 · Agent output: rule-based answer + guardrails</span>
+      <div class="bot">The forecast counts a project once it has a deadline and payment terms. Open each project and check both are set.
+        <div><span class="src">Answer from rule: forecast-zero</span></div>
+        <div class="row">Did this help? <span class="btn">👍</span><span class="btn">👎</span></div>
+      </div>
+      <div class="me">Should I switch to RESICO?</div>
+      <div class="bot">I can explain how FreeFlow calculates withholding, but I can't advise which tax regime to choose. An accountant can.
+        <div><span class="src">Answer from rule: guard-tax-advice</span></div>
+      </div>
+      <div class="row"><span class="btn">Still stuck? Submit a ticket</span></div>
+      <div class="input">Type a follow-up…</div>
+      <div class="note">Conversations are saved so FreeFlow's owner can fix problems. Don't paste passwords or card numbers.</div>
+    </div>
+  </div>
+
+  <div>
+    <div class="zone"><span class="tag">3 · Saved results</span>
+      <div class="card"><div class="k">Ticket · open</div><b>Forecast shows $0</b><div class="note">Transcript + account email saved. The owner replies by email.</div></div>
+      <div class="card"><div class="k">Summary</div>Forecast · rule forecast-zero · 👍<div class="note">Saved for every conversation</div></div>
+    </div>
+    <div class="zone"><span class="tag">4 · Testing evidence</span>
+      <table>
+        <tr><td>Guardrails fire on their triggers</td><td class="pass">PASS</td></tr>
+        <tr><td>Samples reach their rule</td><td class="pass">PASS</td></tr>
+        <tr><td>Unknown → no match + ticket</td><td class="pass">PASS</td></tr>
+        <tr><td>Card numbers redacted</td><td class="pass">PASS</td></tr>
+        <tr><td>Filed ticket can't be reopened</td><td class="pass">PASS</td></tr>
+        <tr><td>External user tests</td><td>0 / 3</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>
