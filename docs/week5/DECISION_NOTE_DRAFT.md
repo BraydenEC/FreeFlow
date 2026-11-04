@@ -9,7 +9,7 @@
 
 ---
 
-My biggest decision this week was not to put an AI model behind /chat. FreeFlow already uses Claude to read project briefs, and I know a model can sound sure of itself while being wrong. A help desk that makes up a setting is worse than having none. So the assistant answers from 27 written rules, each checked against the code it describes. When nothing fits, it says "I don't have an answer for that yet" and offers a ticket that I read in Supabase. That ticket is the human checkpoint: I either fix the problem or email the person myself.
+My biggest decision this week was not to put an AI model behind /chat. FreeFlow already uses Claude to read project briefs, and I know a model can sound sure of itself while being wrong. A help desk that makes up a setting is worse than having none. So the assistant answers from 152 written rules, each checked against the code it describes. When nothing fits, it says "I don't have an answer for that yet" and offers a ticket that I read in Supabase. That ticket is the human checkpoint: I either fix the problem or email the person myself.
 
 I decided against opening the chat to signed-out visitors, to keep the load down, and against a live chat with me, because I can't staff one. Every conversation saves a summary. The full transcript is kept only for tickets, thumbs-down ratings, unanswered questions and guardrail hits.
 

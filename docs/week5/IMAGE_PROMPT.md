@@ -41,7 +41,7 @@ SAVED RESULTS zone (right side card or below): "Saved conversation" with
 rows: category Broken, area Forecast, outcome Answered, rating 👍, and a
 ticket row with status "open".
 
-TESTING EVIDENCE zone (small card at the bottom): "Tests: 197 passed, 0
+TESTING EVIDENCE zone (small card at the bottom): "Tests: 730 passed, 0
 failed" and "3 external user tests" with three empty checkboxes.
 
 Practical, buildable in Next.js and Tailwind. Simple startup-product
