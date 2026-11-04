@@ -1,5 +1,6 @@
 "use client";
 
+import { useSession } from "@/components/auth/SessionProvider";
 import { TAX_REGIMES, TAX_REGIME_LABELS } from "@/lib/tax/withholding";
 import { CURRENCIES, CURRENCY_CODES } from "@/lib/currency";
 import { useEffect } from "react";
@@ -54,6 +55,7 @@ export default function LayoutDrawer({
   onClose: () => void;
 }) {
   const p = usePrefs();
+  const user = useSession();
 
   // Escape closes; body scroll locks while open.
   useEffect(() => {
@@ -87,7 +89,9 @@ export default function LayoutDrawer({
               Layout
             </h2>
             <p className="text-ink-faint text-xs">
-              Saved on this device. Nothing leaves your browser.
+              {user
+                ? "Saved to your account, so it follows you to other devices."
+                : "Saved in this browser until you sign in."}
             </p>
           </div>
           <button

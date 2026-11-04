@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isRealCalendarDate } from "@/lib/projects/schema";
 
 /*
   The extraction contract.
@@ -38,7 +39,7 @@ export const CoreExtractionSchema = z.object({
   hourly_rate: z
     .number()
     .nullable()
-    .describe("Hourly rate in dollars as a number. Null if not stated."),
+    .describe("Hourly rate as a plain number, in whatever currency the brief uses, never converted. Null if not stated."),
   hours_logged: z
     .number()
     .nullable()
@@ -68,6 +69,16 @@ export type ExtractionResult = {
   /** Populated when the model was attempted and failed, so the UI can explain itself. */
   fallbackReason?: string;
 };
+
+/**
+ * The schema asks for an ISO date but can't enforce a real one, and the result
+ * card can't render anything else. A deadline that isn't one is reported as
+ * not found, the same as a brief that never gave a date.
+ */
+export function withRealDeadline(fields: CoreExtraction): CoreExtraction {
+  if (fields.deadline === null || isRealCalendarDate(fields.deadline)) return fields;
+  return { ...fields, deadline: null };
+}
 
 /** Value of an extracted project. Mirrors projectValue() for the dashboard. */
 export function extractionValue(fields: CoreExtraction): number | null {

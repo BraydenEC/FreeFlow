@@ -5,9 +5,11 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useSyncExternalStore,
 } from "react";
-import type { Prefs, WidgetId } from "@/lib/prefs/schema";
+import { useRouter } from "next/navigation";
+import { DEFAULT_PREFS, serverReadKey, type Prefs, type WidgetId } from "@/lib/prefs/schema";
 import {
   getServerSnapshot,
   getSnapshot,
@@ -51,15 +53,17 @@ const PrefsContext = createContext<PrefsContextValue | null>(null);
 
 const SYNC_DELAY_MS = 600;
 
-function putPrefs(prefs: Prefs): void {
-  fetch("/api/prefs", {
+function putPrefs(prefs: Prefs): Promise<boolean> {
+  return fetch("/api/prefs", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(prefs),
     keepalive: true,
-  }).catch(() => {
+  }).then(
+    (res) => res.ok,
     /* offline or signed out mid-session — localStorage still has it */
-  });
+    () => false,
+  );
 }
 
 export function PrefsProvider({
@@ -79,24 +83,42 @@ export function PrefsProvider({
     () => getServerSnapshot(initial),
   );
 
+  const router = useRouter();
+  // What the server last rendered figures with. Currency, regime and terms are
+  // read there, so a saved change has to redraw them or one page shows two
+  // currencies until the next reload. Waits for the save, because refreshing
+  // sooner would read the old row.
+  const serverKey = useRef(serverReadKey(initial ?? DEFAULT_PREFS));
+  // A boolean, so the refresh's fresh `initial` object doesn't reinstall the
+  // hook below and drop a change still waiting on its timer.
+  const hasRow = initial !== null;
+
   // Install the sync hook for the lifetime of a signed-in session.
   useEffect(() => {
     if (!scope) {
       setRemoteSync(null);
       return;
     }
+    const save = async (next: Prefs) => {
+      const saved = await putPrefs(next);
+      const key = serverReadKey(next);
+      if (saved && key !== serverKey.current) {
+        serverKey.current = key;
+        router.refresh();
+      }
+    };
     let timer: ReturnType<typeof setTimeout> | null = null;
     setRemoteSync((next) => {
       if (timer) clearTimeout(timer);
-      timer = setTimeout(() => putPrefs(next), SYNC_DELAY_MS);
+      timer = setTimeout(() => void save(next), SYNC_DELAY_MS);
     });
     // First sign-in with no server row: migrate whatever the browser had.
-    if (!initial) putPrefs(peek());
+    if (!hasRow) void save(peek());
     return () => {
       if (timer) clearTimeout(timer);
       setRemoteSync(null);
     };
-  }, [scope, initial]);
+  }, [scope, hasRow, router]);
 
   const value = useMemo<PrefsContextValue>(
     () => ({

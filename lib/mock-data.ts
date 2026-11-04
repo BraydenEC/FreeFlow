@@ -14,7 +14,7 @@ import type { Project } from "@/types/project";
 
     Unpaid Invoices ......... $3,450  (Brand Identity Refresh, overdue)
     This Month's Earnings ... $4,200  (Marketing Site Launch, paid)
-    Active Projects ......... 5       (everything not yet invoiced)
+    Active Projects ......... 4       (unpaid and not yet invoiced)
 
   All four status variants appear, so the badge styling is fully exercised
   without needing to edit data to demo it.

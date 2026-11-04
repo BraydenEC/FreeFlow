@@ -29,7 +29,7 @@ Status: ✅ verified · ⏳ pending deployment · 🔲 not yet run
 | 2.2 | Fixed-fee overrides the hourly calculation | Inspect "Marketing Site Launch" (41.5h × $90 = $3,735; fixed fee $4,200) | Displays **$4,200.00**, not $3,735.00 | ✅ |
 | 2.3 | Unpaid Invoices sums only billed, unpaid work | Compare the card against the table | Equals Σ value where unpaid **and** status ∈ {Invoice Sent, Overdue} = **$3,450** | ✅ |
 | 2.4 | This Month's Earnings counts only current-month payments | Compare the card against the data | Equals **$4,200** | ✅ |
-| 2.5 | Active Projects excludes invoiced work | Count table rows not marked Invoice Sent | Equals **5** | ✅ |
+| 2.5 | Active Projects counts unpaid work not yet invoiced | Count unpaid rows not marked Invoice Sent or Overdue | Equals **4** | ✅ |
 | 2.6 | Cards never contradict the table | Change any project's value and reload | Card totals move consistently with the row | 🔲 |
 | 2.7 | Currency is unambiguous | Inspect any amount | Format `$0,000.00`, two decimals, thousands separators | ✅ |
 

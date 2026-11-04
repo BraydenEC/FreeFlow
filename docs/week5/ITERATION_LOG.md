@@ -16,7 +16,7 @@ the engine, to measure the rules on phrasing they hadn't seen.
 |---|---|---|
 | Content rules | 27 | 152 |
 | Sample questions | 60 | 374 |
-| Chat test assertions | 197 | 730 |
+| Chat test assertions | 197 | 733 |
 
 **Wrong answers this found in the live bot, now corrected:**
 
@@ -59,7 +59,29 @@ known cost of choosing rules over a model.
 have an answer for that yet" and a ticket. Off-topic and legal questions such
 as "my client threatened a lawsuit" stay unanswered.
 
-## Iteration 2 onward: training sessions with the owner
+## Iteration 2: app problems the fact-check exposed (2026-11-04)
+
+Writing true answers meant reading the app closely, and that showed the app
+itself was wrong or incomplete in places. These were fixed in the app, and the
+bot's answers changed with them.
+
+| Problem | Effect on a user | Fix |
+|---|---|---|
+| A saved brief never became a project | Pasting a brief didn't get the money onto the dashboard | Create project on the result and on saved rows, using the same form, with gaps left blank |
+| CSV added 16% IVA to rows with no client type, once any row had one | A file said more arrived than the dashboard did | Those rows now show the amount entered, with no tax |
+| Active Projects counted paid and overdue work | The card overstated live work, and overdue was in two buckets | Unpaid work not yet invoiced |
+| Project form and Core results showed USD or $ whatever the account used | Wrong symbol on someone's own money | They use the account currency |
+| Settings said "Saved on this device" | Untrue when signed in | Says where it's really saved |
+| Withholding panel said RESICO isn't modelled | Untrue | Removed |
+| Product and landing pages said every figure is what reaches the bank | The cards show the amount billed | Names the figures that do |
+
+A second reviewer checked this diff and found four more, also fixed: saving
+could fail silently on a field hidden by the billing choice, a non-date deadline
+from the model crashed the Core page, changing currency left server figures in
+the old one until a reload, and older docs still quoted the old Active Projects
+figure.
+
+## Iteration 3 onward: training sessions with the owner
 
 *Not run yet. Each session adds: what was asked, what the bot said, what it
 should say, the change made.*

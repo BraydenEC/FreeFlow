@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import BriefToProject from "@/components/core/BriefToProject";
 import ExtractorBadge from "@/components/core/ExtractorBadge";
+import { usePrefs } from "@/components/prefs/PrefsProvider";
 import StatusBadge from "@/components/StatusBadge";
 import { formatCurrency, formatMonthDay, formatRelativeDeadline } from "@/lib/format";
 import { extractionValue, type ExtractionResult } from "@/lib/core/schema";
@@ -42,6 +44,7 @@ function Field({
 
 export default function CoreWorkbench() {
   const router = useRouter();
+  const { currency } = usePrefs().prefs;
   const [brief, setBrief] = useState("");
   const [result, setResult] = useState<ExtractionResult | null>(null);
   const [extracting, setExtracting] = useState(false);
@@ -205,7 +208,7 @@ export default function CoreWorkbench() {
                 value={
                   fields.hourly_rate === null
                     ? null
-                    : `${formatCurrency(fields.hourly_rate)} / hr`
+                    : `${formatCurrency(fields.hourly_rate, currency)} / hr`
                 }
               />
               <Field
@@ -246,12 +249,12 @@ export default function CoreWorkbench() {
                     needs rate and hours
                   </span>
                 ) : (
-                  formatCurrency(value)
+                  formatCurrency(value, currency)
                 )}
               </p>
               {value !== null && (
                 <p className="text-ink-faint mt-1 text-xs">
-                  {fields.hours_logged}h × {formatCurrency(fields.hourly_rate!)} —
+                  {fields.hours_logged}h × {formatCurrency(fields.hourly_rate!, currency)} —
                   calculated, not extracted
                 </p>
               )}
@@ -287,6 +290,9 @@ export default function CoreWorkbench() {
                 Re-run
               </button>
             </div>
+
+            {/* Keyed so a re-run starts from the new result, not the last one. */}
+            <BriefToProject key={JSON.stringify(fields)} fields={fields} className="border-hairline mt-4 border-t pt-4" />
           </>
         )}
       </section>

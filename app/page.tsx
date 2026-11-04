@@ -156,7 +156,7 @@ export default async function Home({
                     }
                   />
                 ),
-                core: <CorePreview outputs={savedOutputs} now={now} />,
+                core: <CorePreview outputs={savedOutputs} now={now} currency={currency} />,
                 research: <ResearchWidget />,
               }}
             />

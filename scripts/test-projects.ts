@@ -11,7 +11,12 @@
   from the other, one of these fails.
 */
 
-import { NewProjectSchema, toRow, toUpdateRow } from "@/lib/projects/schema";
+import { withRealDeadline } from "@/lib/core/schema";
+import { extractionToProject } from "@/lib/core/to-project";
+import { getMockProjects } from "@/lib/mock-data";
+import { deriveMetrics } from "@/lib/projects/metrics";
+import { fieldShownFor, NewProjectSchema, toRow, toUpdateRow } from "@/lib/projects/schema";
+import type { Project } from "@/types/project";
 
 let passed = 0;
 let failed = 0;
@@ -185,6 +190,84 @@ if (edit.success) {
   assert("a create does write is_paid false", insert.is_paid === false);
   assert("a create does write paid_at null", insert.paid_at === null);
 }
+
+// --- Active Projects: one project, one bucket -------------------------------
+{
+  const row = (over: Partial<Project>): Project => ({
+    id: "p", name: "n", client: "c", status: "in_progress", deadline: "2026-11-30",
+    hoursLogged: 0, hourlyRate: 0, invoiceTotal: 100, isPaid: false, paidAt: null,
+    contractSignedOn: null, contractUrl: null, paymentUrl: null, clientTaxType: null,
+    paymentTermsDays: null, ...over,
+  });
+  const now = new Date("2026-11-04T12:00:00Z");
+  const m = deriveMetrics(
+    [
+      row({ status: "contracted" }),
+      row({ status: "in_progress" }),
+      row({ status: "awaiting_review" }),
+      row({ status: "invoice_sent" }),
+      row({ status: "overdue" }),
+      row({ status: "in_progress", isPaid: true, paidAt: "2026-11-02" }),
+    ],
+    now,
+  );
+  assert("active counts only unpaid work not yet invoiced", m.activeProjects === 3, String(m.activeProjects));
+  assert("unpaid invoices still counts invoiced and overdue", m.unpaidInvoices === 200, String(m.unpaidInvoices));
+  assert("earnings still counts the paid one", m.monthEarnings === 100, String(m.monthEarnings));
+}
+
+// --- A saved brief becomes a project through the same form ------------------
+{
+  const full = extractionToProject({
+    project_name: "Northwind Redesign",
+    client: "Northwind Co",
+    hourly_rate: 85,
+    hours_logged: 22,
+    deadline: "2026-11-14",
+    status: "in_progress",
+  });
+  assert("a brief with a rate is an hourly project", full.billing === "hourly");
+  assert("every extracted field carries over", full.name === "Northwind Redesign" && full.client === "Northwind Co" && full.deadline === "2026-11-14" && String(full.hourly_rate) === "85" && String(full.hours_logged) === "22" && full.status === "in_progress");
+  assert("a complete brief passes the project schema", NewProjectSchema.safeParse(full).success);
+
+  const sparse = extractionToProject({
+    project_name: "Logo",
+    client: null,
+    hourly_rate: null,
+    hours_logged: null,
+    deadline: null,
+    status: "in_progress",
+  });
+  assert("no rate opens on the form's fixed fee", sparse.billing === "fixed");
+  assert("nothing is invented for missing fields", sparse.client === "" && sparse.deadline === "" && String(sparse.invoice_total) === "");
+  assert("no contract date is assumed", sparse.contract_signed_on === "");
+  const refused = NewProjectSchema.safeParse(sparse);
+  assert("a sparse brief is refused until the gaps are filled", !refused.success);
+
+  const odd = extractionToProject({ project_name: "x", client: "y", hourly_rate: 1, hours_logged: 1, deadline: "2026-11-14", status: "something_else" });
+  assert("an unknown saved status falls back", odd.status === "in_progress");
+}
+
+// --- A date the card can't render must not reach it --------------------------
+{
+  const f = (deadline: string | null) =>
+    withRealDeadline({ project_name: "x", client: null, hourly_rate: null, hours_logged: null, deadline, status: "in_progress", confidence_note: "" }).deadline;
+  assert("a real deadline survives", f("2026-11-14") === "2026-11-14");
+  assert("words instead of a date become not found", f("next friday") === null);
+  assert("an impossible date becomes not found", f("2026-02-31") === null);
+  assert("no deadline stays no deadline", f(null) === null);
+}
+
+// --- An error on a hidden field still has to be shown -----------------------
+{
+  assert("fixed fee hides hours and rate", !fieldShownFor("fixed", "hours_logged") && !fieldShownFor("fixed", "hourly_rate"));
+  assert("hourly hides the fixed total", !fieldShownFor("hourly", "invoice_total"));
+  assert("the matching fields are shown", fieldShownFor("fixed", "invoice_total") && fieldShownFor("hourly", "hourly_rate") && fieldShownFor("hourly", "hours_logged"));
+  assert("every other field is always shown", fieldShownFor("fixed", "name") && fieldShownFor("hourly", "deadline"));
+}
+
+// --- The seed data the acceptance criteria quote ----------------------------
+assert("seed data shows 4 active projects", deriveMetrics(getMockProjects(new Date("2026-11-04T12:00:00Z")), new Date("2026-11-04T12:00:00Z")).activeProjects === 4);
 
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed\n`);

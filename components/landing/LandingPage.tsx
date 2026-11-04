@@ -37,7 +37,7 @@ const PROBLEMS = [
   },
   {
     title: "Invoicing in Mexico takes money off the top",
-    body: "If a company withholds IVA and ISR before paying you, FreeFlow knows. Every figure — including the forecast — is what reaches your bank, not what you billed. Work outside Mexico and it stays out of your way.",
+    body: "If a company withholds IVA and ISR before paying you, FreeFlow knows. The forecast, the After retenciones panel and the table's net line show what reaches your bank, not what you billed. Work outside Mexico and it stays out of your way.",
   },
 ];
 

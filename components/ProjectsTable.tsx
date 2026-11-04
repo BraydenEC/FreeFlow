@@ -224,7 +224,7 @@ export default function ProjectsTable({
                     {formatCurrency(projectValue(project), currency)}
                     {project.invoiceTotal === null && (
                       <span className="text-ink-faint block text-xs font-normal">
-                        {project.hoursLogged}h × ${project.hourlyRate}
+                        {project.hoursLogged}h × {formatCurrency(project.hourlyRate, currency)}
                       </span>
                     )}
                     {/* The number that actually lands, shown only where it

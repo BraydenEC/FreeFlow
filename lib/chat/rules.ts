@@ -96,7 +96,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["brief", "extract", "extraction", "wrong", "field", "paste", "pasted", "misread", "client", "name", "rate"],
     phrases: ["client email", "wrong client", "wrong rate", "got it wrong", "read it wrong", "edit the result", "edit the fields", "can i edit"],
     answer:
-      "Brief extraction can misread things, and the fields on the result can't be edited. Change the text in the box so the detail is stated clearly and choose Extract core again, or skip it and add the project yourself with + New project on the dashboard. The note under the result names the fields to double-check.",
+      "Brief extraction can misread things. Choose Create project on the result and correct any field in the form before choosing Add project. Or change the text in the box so the detail is stated clearly and choose Extract core again. The note under the result names the fields to double-check.",
   },
   // lib/core/heuristic.ts — unknowns are null and named in the confidence note
   {
@@ -106,7 +106,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["unsure", "note", "confidence", "blank", "heuristic", "pattern", "matching", "null", "badge", "claude", "say", "says"],
     phrases: ["not sure", "left blank", "pattern matching", "empty field", "not found"],
     answer:
-      "When extraction can't find something, the field says \"not found\" and the note names it, instead of guessing. Add the detail to the brief and extract again, or enter the project yourself with + New project. A Pattern matching badge means the AI model wasn't available, so the extraction is simpler; a Claude badge means the AI model read it.",
+      "When extraction can't find something, the field says \"not found\" and the note names it, instead of guessing. Choose Create project and fill the gap in the form, or add the detail to the brief and extract again. A Pattern matching badge means the AI model wasn't available, so the extraction is simpler; a Claude badge means the AI model read it.",
   },
   // lib/core/heuristic.ts — year-less dates resolve to the next future occurrence
   {
@@ -116,7 +116,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["date", "deadline", "friday", "monday", "tomorrow", "year", "relative", "wrong", "picked"],
     phrases: ["next friday", "next week", "end of the month", "wrong date", "wrong year"],
     answer:
-      "Dates without a year are read as the next time that date comes around. Phrases like \"next Friday\" are only understood when the AI model did the extraction; if the badge says Pattern matching, write the date out, like Nov 14, and extract again.",
+      "Dates without a year are read as the next time that date comes around. Phrases like \"next Friday\" are only understood when the AI model did the extraction, so a Pattern matching badge means you should check it. To fix a wrong date, choose Create project and correct the deadline in the form, or write the date out, like Nov 14, and extract again.",
   },
   // lib/currency.ts — 11 currencies, one per account, never converted
   {
@@ -316,7 +316,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["dashboard", "unpaid", "earnings", "earned", "cards", "total", "number", "numbers", "active", "wrong", "counting", "right"],
     phrases: ["this month", "unpaid invoices", "active projects", "wrong number", "wrong total"],
     answer:
-      "The dashboard cards are worked out from your projects each time you open it. Unpaid Invoices adds up unpaid projects whose status is Invoice sent or Overdue, so work still in progress isn't counted. This Month's Earnings adds up projects marked paid this month, and starts again each month. Active Projects counts every project whose status isn't Invoice sent, including ones already marked paid. If a number looks wrong, check each project's status and whether it's been marked paid.",
+      "The dashboard cards are worked out from your projects each time you open it. Unpaid Invoices adds up unpaid projects whose status is Invoice sent or Overdue, so work still in progress isn't counted. This Month's Earnings adds up projects marked paid this month, and starts again each month. Active Projects counts unpaid projects that haven't been invoiced yet. If a number looks wrong, check each project's status and whether it's been marked paid.",
   },
 
   // ── Projects ──────────────────────────────────────────────────────────────
@@ -862,7 +862,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["core", "extract", "brief", "briefs", "workbench"],
     phrases: ["use core", "how does core", "brief extraction", "extract core", "how do i extract", "paste a brief", "what is a brief", "what do i paste", "what to paste"],
     answer:
-      "Go to Core, paste a client email, message or call notes, and choose Extract core. You get the project, client, rate, hours, deadline and status. Choose Save to database to keep it, or Re-run to try again; use example fills in a sample brief.",
+      "Go to Core, paste a client email, message or call notes, and choose Extract core. You get the project, client, rate, hours, deadline and status. Choose Create project to check it and add it to your dashboard, Save to database to keep the extraction, or Re-run to try again; use example fills in a sample brief.",
     links: [{ label: "Core", href: "/core" }],
   },
   // app/api/core/save inserts into core_outputs only; lib/core/saved.ts limit 8
@@ -873,9 +873,9 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["saved", "database", "extraction"],
     phrases: ["save to database", "saved the brief", "saved brief", "saved output", "saved outputs", "in my projects", "does saving", "add it to my", "turn it into a project", "into a project", "create a project from", "become a project"],
     answer:
-      "Save to database keeps the extraction under Saved outputs on Core and Recent extractions on the dashboard, showing the latest 8. It doesn't create a project, so its money isn't counted anywhere yet. To track it, add it with + New project on the dashboard, using those details.",
+      "Save to database keeps the extraction under Saved outputs on Core and Recent extractions on the dashboard, showing the latest 8. It doesn't create a project, so its money isn't counted yet. To track it, choose Create project on the result or on a saved row, check the form and choose Add project.",
   },
-  // lib/core/schema.ts — rate and hours only; CoreWorkbench formatCurrency without a currency
+  // lib/core/schema.ts — rate and hours only; lib/core/to-project.ts opens the form on fixed fee without a rate
   {
     id: "brief-value",
     categories: ["broken", "how_to"],
@@ -884,7 +884,7 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["computed"],
     phrases: ["needs rate and hours", "computed value", "fixed fee", "fixed price", "flat fee", "in dollars"],
     answer:
-      "Extraction reads an hourly rate and hours and multiplies them. It doesn't read a fixed fee, so that case says \"needs rate and hours\", and you can add the project yourself with + New project instead. Core results always display in dollars, even if your account uses another currency.",
+      "Extraction reads an hourly rate and hours and multiplies them. It doesn't read a fixed fee, so that case says \"needs rate and hours\". Choose Create project and enter the total as a fixed fee in the form. Amounts show in your account's currency and are never converted.",
   },
   // app/api/core/extract MAX_BRIEF_LENGTH 8000, rateLimit 15/min; CoreWorkbench error copy
   {
@@ -1228,7 +1228,7 @@ export const CONTENT_RULES: Rule[] = [
   },
 
   // ── Currency and export ───────────────────────────────────────────────────
-  // ProjectForm "Hourly rate (USD)", "Fixed total (USD)"; amounts stored unconverted
+  // ProjectForm amount labels use prefs.currency; amounts stored unconverted
   {
     id: "currency-usd-label",
     categories: ["broken", "how_to"],
@@ -1236,7 +1236,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["label", "labels"],
     phrases: ["says usd", "say usd", "form says", "shows usd", "says dollars", "showing dollars", "still dollars"],
     answer:
-      "The project form's amount labels say USD whatever your currency is, but that's only the label. FreeFlow never converts anything, so type the amount in your account's currency and the dashboard will show it in that currency. The small hours times rate line under an hourly amount also always shows $.",
+      "The project form's amount labels show your account's currency, chosen in Settings (top right). If it isn't the one you use, change it there. FreeFlow never converts anything, so type amounts in that currency and they appear as you entered them.",
   },
   // lib/currency.ts "ONE CURRENCY PER ACCOUNT, NOT PER PROJECT"
   {
@@ -1268,7 +1268,7 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["contador", "accountant", "columns"],
     phrases: ["in the csv", "csv columns", "my accountant", "mi contador"],
     answer:
-      "The CSV has one row per project, including client, status, deadline, paid date, billing and amount, with money columns naming your currency. If any project has a client type recorded, it also shows tax type, regime, IVA and calculated invoiced, withheld and net figures. Those are calculated for every row, paid or not, and a Not recorded row still has 16% IVA added, so have your accountant check them. It opens with accents intact.",
+      "The CSV has one row per project, including client, status, deadline, paid date, billing and amount, with money columns naming your currency. If any project has a client type recorded, it also shows tax type, regime, IVA and calculated invoiced, withheld and net figures, worked out for every such row, paid or not. A Not recorded row just shows the amount you entered, with no tax added. It opens with accents intact.",
   },
 
   // ── Account ───────────────────────────────────────────────────────────────
@@ -1665,7 +1665,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["brief", "core", "extraction", "wrong", "confused", "confusing", "explain"],
     phrases: ["this page", "what is this", "how does this work", "why is this", "do i need to"],
     answer:
-      "Core reads a pasted client message and pulls out the project, client, rate, hours, deadline and status. You can save the result, but it doesn't become a project by itself. Tell me which part you mean and I can go further, or submit a ticket.",
+      "Core reads a pasted client message and pulls out the project, client, rate, hours, deadline and status. Create project turns the result into a project on your dashboard, and Save to database only keeps the extraction. Tell me which part you mean and I can go further, or submit a ticket.",
     links: [{ label: "Core", href: "/core" }],
     offerTicket: true,
   },

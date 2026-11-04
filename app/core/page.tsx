@@ -4,6 +4,9 @@ import SavedOutputs from "@/components/core/SavedOutputs";
 import SubNav from "@/components/SubNav";
 import { getSavedOutputs } from "@/lib/core/saved";
 import { isModelConfigured } from "@/lib/core/extract";
+import { DEFAULT_CURRENCY } from "@/lib/currency";
+import { getUserPrefs } from "@/lib/prefs/server";
+import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
 
 /*
   /core — the generative core module.
@@ -22,9 +25,12 @@ export const metadata = {
 };
 
 export default async function CorePage() {
-  const [saved, modelConfigured] = await Promise.all([
+  const supabase = await getServerSupabase();
+  const user = await getSessionUser(supabase);
+  const [saved, modelConfigured, prefs] = await Promise.all([
     getSavedOutputs(),
     Promise.resolve(isModelConfigured()),
+    user ? getUserPrefs(supabase, user.id) : null,
   ]);
 
   return (
@@ -51,8 +57,8 @@ export default async function CorePage() {
                 )}
               </div>
               <p className="text-ink-muted mt-1 text-sm">
-                Paste a client brief. Get a structured project you can save —
-                without retyping a thing.
+                Paste a client brief. Get a structured project you can check and
+                add to your dashboard — without retyping a thing.
               </p>
               <Link
                 href="/"
@@ -69,7 +75,7 @@ export default async function CorePage() {
               <span className="text-accent-soft mb-3 block text-[15px] font-semibold">
                 3<span className="text-ink ml-2">Saved to database</span>
               </span>
-              <SavedOutputs outputs={saved} />
+              <SavedOutputs outputs={saved} currency={prefs?.currency ?? DEFAULT_CURRENCY} />
             </div>
           </div>
         </div>

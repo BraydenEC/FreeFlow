@@ -2,7 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { heuristicExtract } from "@/lib/core/heuristic";
 import { buildUserMessage, SYSTEM_PROMPT } from "@/lib/core/prompt";
-import { CoreExtractionSchema, type ExtractionResult } from "@/lib/core/schema";
+import { CoreExtractionSchema, withRealDeadline, type ExtractionResult } from "@/lib/core/schema";
 
 /*
   Extraction orchestration.
@@ -33,6 +33,14 @@ function todayIso(now: Date): string {
 }
 
 export async function extractCore(
+  brief: string,
+  now: Date,
+): Promise<ExtractionResult> {
+  const result = await runExtraction(brief, now);
+  return { ...result, fields: withRealDeadline(result.fields) };
+}
+
+async function runExtraction(
   brief: string,
   now: Date,
 ): Promise<ExtractionResult> {

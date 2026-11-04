@@ -175,6 +175,29 @@ assert("numbers pass through unformatted", csvCell(1234.5) === "1234.5");
   assert("exportHasTax is false when nothing is recorded", !exportHasTax([project()]));
 }
 
+// --- A row with no client type is not a Mexican invoice ---------------------
+// The file gains tax columns as soon as one project has a client type. The
+// other rows must not be taxed for it: a forecast of 1,000 and a CSV saying
+// 1,160 arrived is two answers to one question.
+{
+  const mixed = projectsToCsv(
+    [
+      project({ name: "Plain", invoiceTotal: 1000, clientTaxType: null }),
+      project({ name: "Taxed", invoiceTotal: 1000, clientTaxType: "persona_moral" }),
+    ],
+    "MXN",
+  ).replace(UTF8_BOM, "");
+  const [head, ...lines] = mixed.trim().split(/\r?\n/);
+  const cols = head.split(",");
+  const cell = (name: string, col: string) =>
+    lines.find((l) => l.startsWith(name))!.split(",")[cols.findIndex((c) => c.startsWith(col))];
+  assert("not recorded adds no IVA", cell("Plain", "IVA (") === "", cell("Plain", "IVA ("));
+  assert("not recorded invoices the amount entered", cell("Plain", "Invoiced") === "1000", cell("Plain", "Invoiced"));
+  assert("not recorded nets the amount entered", cell("Plain", "Net received") === "1000", cell("Plain", "Net received"));
+  assert("not recorded withholds nothing", cell("Plain", "Withheld total") === "");
+  assert("a persona moral row is still taxed", cell("Taxed", "Invoiced") === "1160" && cell("Taxed", "Net received") === "953.33", cell("Taxed", "Net received"));
+}
+
 // --- The regime reaches the file -----------------------------------------
 {
   const resico = projectsToCsv(

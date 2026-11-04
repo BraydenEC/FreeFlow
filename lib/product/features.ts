@@ -206,7 +206,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
         id: "extraction",
         name: "Brief extraction",
         description:
-          "Paste a client email and get a structured project: name, client, rate, hours, deadline, status, and a note saying what it was unsure about.",
+          "Paste a client email and get a structured project: name, client, rate, hours, deadline, status, and a note saying what it was unsure about. Check it and add it to the dashboard with one form.",
         status: "built",
         tier: "solo",
         shippedIn: "Week 1",
@@ -377,7 +377,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
         id: "retenciones",
         name: "Withholding handling",
         description:
-          "A company withholds two thirds of the IVA and either 10% or 1.25% of the ISR depending on your regime, so the invoice and the cash received differ. Every figure on the dashboard — including the forecast — is the one that reaches your bank.",
+          "A company withholds two thirds of the IVA and either 10% or 1.25% of the ISR depending on your regime, so the invoice and the cash received differ. The forecast, the After retenciones panel and the net line in the projects table show the figure that reaches your bank; the summary cards show the amount billed.",
         status: "built",
         tier: "pro",
         shippedIn: "After Week 3",

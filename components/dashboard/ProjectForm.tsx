@@ -2,7 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
-import type { NewProjectInput } from "@/lib/projects/schema";
+import { usePrefs } from "@/components/prefs/PrefsProvider";
+import { fieldShownFor, type NewProjectInput } from "@/lib/projects/schema";
 import type { Project } from "@/types/project";
 
 /*
@@ -72,17 +73,26 @@ function fromProject(p: Project): NewProjectInput {
 export default function ProjectForm({
   defaultOpen = false,
   project,
+  prefill,
+  createLabel = "+ New project",
+  onCreated,
 }: {
   defaultOpen?: boolean;
   /** Present for an edit, absent for a create. */
   project?: Project;
+  /** Starting values for a create, such as a project read from a brief. */
+  prefill?: NewProjectInput;
+  /** The closed button's text for a create. */
+  createLabel?: string;
+  onCreated?: () => void;
 }) {
   const editing = project !== undefined;
+  const { prefs } = usePrefs();
   const router = useRouter();
   const id = useId();
   const [open, setOpen] = useState(defaultOpen);
   const [form, setForm] = useState<NewProjectInput>(() =>
-    project ? fromProject(project) : blank(),
+    project ? fromProject(project) : (prefill ?? blank()),
   );
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [error, setError] = useState<{ message: string; field: string | null } | null>(null);
@@ -112,7 +122,10 @@ export default function ProjectForm({
       }
       // Only a create clears the fields. After an edit the form closes and
       // the row it edited is the record of what happened.
-      if (!editing) setForm(blank());
+      if (!editing) {
+        setForm(prefill ?? blank());
+        onCreated?.();
+      }
       setOpen(false);
       router.refresh();
     } catch {
@@ -161,7 +174,7 @@ export default function ProjectForm({
             : "border-hairline text-ink-muted hover:text-ink hover:border-ink-faint focus-visible:ring-accent rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none"
         }
       >
-        {editing ? "Edit" : "+ New project"}
+        {editing ? "Edit" : createLabel}
       </button>
     );
   }
@@ -234,14 +247,14 @@ export default function ProjectForm({
               {err("hours_logged")}
             </label>
             <label className="flex flex-col gap-1">
-              <span className={label}>Hourly rate (USD)</span>
+              <span className={label}>Hourly rate ({prefs.currency})</span>
               <input type="number" inputMode="decimal" min={0} step="0.01" className={input} value={String(form.hourly_rate ?? "")} onChange={(e) => set("hourly_rate", e.target.value as unknown as number)} />
               {err("hourly_rate")}
             </label>
           </>
         ) : (
           <label className="flex flex-col gap-1 sm:col-span-2">
-            <span className={label}>Fixed total (USD)</span>
+            <span className={label}>Fixed total ({prefs.currency})</span>
             <input type="number" inputMode="decimal" min={0} step="0.01" className={input} value={String(form.invoice_total ?? "")} onChange={(e) => set("invoice_total", e.target.value as unknown as number)} />
             {err("invoice_total")}
           </label>
@@ -322,8 +335,13 @@ export default function ProjectForm({
         </label>
       </div>
 
-      {error && error.field === null && (
-        <p role="alert" className="text-status-overdue mt-4 text-sm">{error.message}</p>
+      {error && (error.field === null || !fieldShownFor(form.billing, error.field)) && (
+        <p role="alert" className="text-status-overdue mt-4 text-sm">
+          {error.field === "hours_logged" && "Hours logged: "}
+          {error.field === "hourly_rate" && "Hourly rate: "}
+          {error.field === "invoice_total" && "Fixed total: "}
+          {error.message}
+        </p>
       )}
 
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3">

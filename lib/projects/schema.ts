@@ -121,6 +121,16 @@ export const NewProjectSchema = z
     }
   });
 
+/*
+  Whether the form draws a given field for this billing model. An error on a
+  field that isn't drawn has nowhere to appear, so the form shows it as a
+  general message rather than leaving Add project to fail in silence.
+*/
+export function fieldShownFor(billing: "hourly" | "fixed", field: string): boolean {
+  if (billing === "fixed") return field !== "hours_logged" && field !== "hourly_rate";
+  return field !== "invoice_total";
+}
+
 export type NewProjectInput = z.input<typeof NewProjectSchema>;
 export type NewProject = z.output<typeof NewProjectSchema>;
 

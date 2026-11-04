@@ -64,6 +64,11 @@ export const PrefsSchema = z.object({
 });
 
 export type Prefs = z.infer<typeof PrefsSchema>;
+
+/** The preferences server-rendered figures depend on; layout is drawn in the browser. */
+export function serverReadKey(p: Prefs): string {
+  return `${p.currency}|${p.taxRegime}|${p.defaultTermsDays}`;
+}
 export type WidgetPref = z.infer<typeof WidgetSchema>;
 
 /*

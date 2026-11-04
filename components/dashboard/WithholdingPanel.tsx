@@ -95,8 +95,8 @@ export default function WithholdingPanel({
           {regime === "resico" ? "1.25%" : "10%"} · {TAX_REGIME_LABELS[regime]}
         </p>
         <p className="text-ink-faint mt-1 text-[11px]">
-          General case for servicios profesionales. Border-zone IVA, RESICO and
-          exempt activities are not modelled. Not tax advice.
+          General case for servicios profesionales. Border-zone IVA and exempt
+          activities are not modelled. Not tax advice.
         </p>
       </div>
     </section>

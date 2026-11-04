@@ -1,13 +1,21 @@
+import BriefToProject from "@/components/core/BriefToProject";
 import ExtractorBadge from "@/components/core/ExtractorBadge";
+import type { CurrencyCode } from "@/lib/currency";
 import { formatCurrency } from "@/lib/format";
 import type { SavedOutput } from "@/lib/core/saved";
 
-function value(o: SavedOutput): string {
+function value(o: SavedOutput, currency: CurrencyCode): string {
   if (o.hourlyRate === null || o.hoursLogged === null) return "value incomplete";
-  return formatCurrency(o.hourlyRate * o.hoursLogged);
+  return formatCurrency(o.hourlyRate * o.hoursLogged, currency);
 }
 
-export default function SavedOutputs({ outputs }: { outputs: SavedOutput[] }) {
+export default function SavedOutputs({
+  outputs,
+  currency,
+}: {
+  outputs: SavedOutput[];
+  currency: CurrencyCode;
+}) {
   return (
     <section
       aria-labelledby="saved-heading"
@@ -45,12 +53,22 @@ export default function SavedOutputs({ outputs }: { outputs: SavedOutput[] }) {
                 <ExtractorBadge extractor={o.extractor} />
               </div>
               <div className="text-ink-faint flex items-center gap-3 text-xs">
-                <span className="numeric">{value(o)}</span>
+                <span className="numeric">{value(o, currency)}</span>
                 <span aria-hidden>·</span>
                 <span>{o.deadline ?? "no deadline"}</span>
                 <span aria-hidden>·</span>
                 <span>{o.promptVersion}</span>
               </div>
+              <BriefToProject
+                fields={{
+                  project_name: o.projectName,
+                  client: o.client,
+                  hourly_rate: o.hourlyRate,
+                  hours_logged: o.hoursLogged,
+                  deadline: o.deadline,
+                  status: o.status,
+                }}
+              />
             </li>
           ))}
         </ul>

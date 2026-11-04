@@ -265,7 +265,7 @@ const SIGNED_IN_BOUNCES = new Set(["/login", "/signup", "/verify-email", "/forgo
 for (const r of allRules) for (const l of r.links ?? []) {
   assert(`${r.id} doesn't link where a signed-in user is bounced: ${l.href}`, !SIGNED_IN_BOUNCES.has(l.href));
 }
-assert("csv tax columns are conditional", /If any project has a client type/.test(ans("export-contents")) && /16% IVA/.test(ans("export-contents")));
+assert("csv tax columns are conditional", /If any project has a client type/.test(ans("export-contents")) && /Not recorded/.test(ans("export-contents")) && !/16% IVA/.test(ans("export-contents")));
 assert("cards aren't net of withholding", /Unpaid Invoices and This Month's Earnings/.test(ans("withholding-explained")));
 assert("no-deadline projects can't exist", !/no deadline/i.test(ans("forecast-zero")) && /no hours logged/.test(ans("forecast-zero")));
 assert("the panel needs value, not just an unpaid project", /worth more than 0/.test(ans("widgets-missing")));
@@ -284,10 +284,15 @@ assert("clear only shows with a filter on", !/First choose Clear/.test(ans("proj
 assert("export disappears when a filter matches nothing", /matches nothing/.test(ans("csv-export")));
 assert("the visible filter label", ans("project-archive").includes("Paid and unpaid"));
 assert("arpu divides by studio members too", /freelancer or studio member/.test(ans("pricing-simulator")));
-assert("the hourly sub-line prints a dollar sign", /always shows \$/.test(ans("currency-usd-label")));
+assert("amount labels now follow the account", !/always shows/.test(ans("currency-usd-label")) && !/say USD/.test(ans("currency-usd-label")));
 
 assert("a wrong client on a project isn't a brief problem", A("i entered the wrong client", "broken", "projects").ruleId !== "brief-wrong-field");
 assert("a greyed-out project button isn't Generate live", A("the save changes button is greyed out", "broken", "projects").ruleId !== "marketing-generate");
+
+// App fixes: answers follow what the app now does
+assert("a brief becomes a project through Create project", ans("brief-saved-where").includes("Create project") && ans("brief-wrong-field").includes("Create project") && ans("brief-unsure").includes("Create project") && ans("relative-dates").includes("Create project") && ans("brief-value").includes("Create project"));
+assert("core no longer shows dollars regardless", !/always display in dollars/.test(ans("brief-value")));
+assert("active projects leaves out paid work", /unpaid/.test(ans("dashboard-numbers").split("Active Projects")[1] ?? "") && !/including ones already marked paid/.test(ans("dashboard-numbers")));
 
 // Security review of Task 5: redaction can lengthen text past the column limit
 const nearLimit = "x".repeat(1990) + " password:a";

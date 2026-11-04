@@ -8,7 +8,7 @@
   preferences object rather than a crash.
 */
 
-import { DEFAULT_PREFS, parsePrefs, WIDGET_IDS } from "@/lib/prefs/schema";
+import { DEFAULT_PREFS, parsePrefs, serverReadKey, WIDGET_IDS } from "@/lib/prefs/schema";
 
 let passed = 0;
 let failed = 0;
@@ -98,6 +98,16 @@ assert("default is work mode (reasoning hidden)", DEFAULT_PREFS.showReasoning ==
 assert("overdue pinned by default", DEFAULT_PREFS.dashboard.pinOverdue === true);
 assert("every widget visible by default", DEFAULT_PREFS.dashboard.widgets.every((w) => w.visible));
 assert("defaults themselves validate", JSON.stringify(parsePrefs(DEFAULT_PREFS)) === JSON.stringify(DEFAULT_PREFS));
+
+// Currency, regime and terms are read on the server, so changing one means the
+// server-rendered figures need redrawing. Layout changes are drawn in the browser.
+{
+  const key = serverReadKey(DEFAULT_PREFS);
+  assert("currency changes the server key", serverReadKey({ ...DEFAULT_PREFS, currency: "MXN" }) !== key);
+  assert("regime changes the server key", serverReadKey({ ...DEFAULT_PREFS, taxRegime: "resico" }) !== key);
+  assert("terms change the server key", serverReadKey({ ...DEFAULT_PREFS, defaultTermsDays: 60 }) !== key);
+  assert("density doesn't", serverReadKey({ ...DEFAULT_PREFS, density: "comfortable" }) === key);
+}
 
 console.log("\n" + "─".repeat(64));
 console.log(`\n  ${passed} passed, ${failed} failed\n`);

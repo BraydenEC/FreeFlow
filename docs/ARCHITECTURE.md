@@ -132,7 +132,7 @@ mock data while appearing to work perfectly.
 | Project value | `invoice_total ?? hours_logged × hourly_rate` |
 | Unpaid Invoices | Σ value where not paid **and** status ∈ {`invoice_sent`, `overdue`} |
 | This Month's Earnings | Σ value where paid **and** `paid_at` in the current month |
-| Active Projects | count where status ≠ `invoice_sent` |
+| Active Projects | count where not paid **and** status ∉ {`invoice_sent`, `overdue`} |
 
 Computed rather than stored so the summary cards and the table are guaranteed to
 agree — they read from the same array.

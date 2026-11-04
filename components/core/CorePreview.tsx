@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ExtractorBadge from "@/components/core/ExtractorBadge";
+import type { CurrencyCode } from "@/lib/currency";
 import { formatCurrency } from "@/lib/format";
 import type { SavedOutput } from "@/lib/core/saved";
 
@@ -16,9 +17,9 @@ import type { SavedOutput } from "@/lib/core/saved";
   field set follows the link.
 */
 
-function value(o: SavedOutput): string {
+function value(o: SavedOutput, currency: CurrencyCode): string {
   if (o.hourlyRate === null || o.hoursLogged === null) return "incomplete";
-  return formatCurrency(o.hourlyRate * o.hoursLogged);
+  return formatCurrency(o.hourlyRate * o.hoursLogged, currency);
 }
 
 /** "3m ago" / "2h ago" / "5d ago". Computed server-side against an injected
@@ -37,9 +38,11 @@ function relativeTime(iso: string, now: Date): string {
 export default function CorePreview({
   outputs,
   now,
+  currency,
 }: {
   outputs: SavedOutput[];
   now: Date;
+  currency: CurrencyCode;
 }) {
   return (
     <section
@@ -99,7 +102,7 @@ export default function CorePreview({
                   <span aria-hidden className="mx-1.5">
                     ·
                   </span>
-                  <span className="numeric">{value(o)}</span>
+                  <span className="numeric">{value(o, currency)}</span>
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-3">

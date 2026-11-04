@@ -192,18 +192,23 @@ export function projectsToCsv(
       subtotal,
     ];
 
-    const tax: (string | number | null)[] = withTax
-      ? [
-          p.clientTaxType ? (CLIENT_TYPE_LABEL[p.clientTaxType] ?? p.clientTaxType) : "",
-          p.clientTaxType ? TAX_REGIME_SHORT[w.regime] : "",
-          w.iva,
-          w.invoiced,
-          w.ivaRetenido,
-          w.isrRetenido,
-          w.withheldTotal,
-          w.net,
-        ]
-      : [];
+    // No client type means no Mexican invoice to describe, the same reading
+    // expectedNet gives the forecast. Adding 16% here would have this file say
+    // more arrived than the dashboard does, only because another row was taxed.
+    const tax: (string | number | null)[] = !withTax
+      ? []
+      : p.clientTaxType
+        ? [
+            CLIENT_TYPE_LABEL[p.clientTaxType] ?? p.clientTaxType,
+            TAX_REGIME_SHORT[w.regime],
+            w.iva,
+            w.invoiced,
+            w.ivaRetenido,
+            w.isrRetenido,
+            w.withheldTotal,
+            w.net,
+          ]
+        : ["", "", "", subtotal, "", "", "", subtotal];
 
     return [...base, ...tax, p.contractUrl ?? "", p.paymentUrl ?? ""];
   });

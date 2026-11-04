@@ -82,7 +82,7 @@ create policy "Public read access"
 --
 --   Unpaid Invoices ......... $3,450   (invoiced, not yet paid)
 --   This Month's Earnings ... $4,200   (collected this calendar month)
---   Active Projects ......... 5        (anything not yet invoiced)
+--   Active Projects ......... 4        (unpaid and not yet invoiced)
 
 insert into public.projects
   (name, client, status, deadline, hours_logged, hourly_rate,
@@ -115,7 +115,7 @@ values
 -- ---------------------------------------------------------------------------
 -- Verify
 -- ---------------------------------------------------------------------------
--- Expect: 6 rows, unpaid_invoices = 3450.00, month_earnings = 4200.00, active = 5
+-- Expect: 6 rows, unpaid_invoices = 3450.00, month_earnings = 4200.00, active = 4
 
 select
   count(*) as total_projects,
@@ -129,5 +129,5 @@ select
               and date_trunc('month', paid_at) = date_trunc('month', current_date)), 0)
       as month_earnings,
 
-  count(*) filter (where status <> 'invoice_sent') as active_projects
+  count(*) filter (where not is_paid and status not in ('invoice_sent', 'overdue')) as active_projects
 from public.projects;
