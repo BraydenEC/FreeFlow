@@ -32,14 +32,15 @@ export const GUARD_RULES: GuardRule[] = [
     id: "guard-secret",
     triggers: [],
     answer:
-      "Please don't share passwords, card numbers or keys here. I've removed it from this conversation, and FreeFlow will never ask you for one. To change your password, use \"Forgot your password?\" on the sign-in page.",
-    links: [{ label: "Reset your password", href: "/forgot-password" }],
+      "Please don't share passwords, card numbers or keys here. I've tried to remove it from this conversation, and this guide will never ask you for one. To change your password, sign out and use \"Forgot your password?\" on the sign-in page.",
   },
   {
     id: "guard-tax-advice",
     triggers: [
       // English
-      /\b(should|can|do|must) i\b.{0,30}\b(regime|regimen|resico|persona fisica|persona moral|actividad empresarial)\b/,
+      /\b(should|must) i\b.{0,30}\b(regime|regimen|resico|persona fisica|persona moral|actividad empresarial)\b/,
+      // "Can I switch to RESICO?" asks for advice; "where do I set my regime?" asks where the field is.
+      /\b(can|do) i\b(?! (set|change|select|pick|enter|update|find|put)\b).{0,30}\b(regime|regimen|resico|persona fisica|persona moral|actividad empresarial)\b/,
       /\b(switch|change|move)\b.{0,20}\bto\b.{0,20}\b(regime|regimen|resico|honorarios)\b/,
       /\b(do|will|should) i (owe|pay)\b.{0,20}\b(tax|taxes|isr|iva|sat)\b/,
       /\bhow much\b.{0,20}\b(tax|taxes|isr|iva)\b/,

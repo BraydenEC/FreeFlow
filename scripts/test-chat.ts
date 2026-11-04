@@ -87,7 +87,7 @@ assert("forecast zero matches", A("my forecast shows zero for next month").ruleI
 assert("unknown is no_match", A("the purple button on the moon page").kind === "no_match");
 assert("no_match offers ticket", A("the purple button on the moon page").offerTicket === true);
 assert("accented shouting still matches", A("PRONÓSTICO: my FORECAST shows ZERO").ruleId === "forecast-zero");
-assert("spanish-only is no_match, not off-topic", A("no funciona la página").kind === "no_match");
+assert("spanish-only is not refused as off-topic", A("no funciona la página").kind !== "guardrail");
 assert("empty is no_match", A("   ").kind === "no_match");
 assert("5000 chars does not throw", A("x ".repeat(2500)).kind === "no_match");
 assert("normalize strips accents", normalize("Pronóstico, ¡CERO!") === "pronostico cero");
@@ -153,7 +153,7 @@ for (const r of CONTENT_RULES) {
   if (PLANNED_TERMS.some((t) => t.test(r.answer))) {
     assert(`${r.id} says planned features are not built`, /not built/i.test(r.answer));
   }
-  assert(`${r.id} has keywords`, r.keywords.length + (r.phrases?.length ?? 0) > 0);
+  assert(`${r.id} has keywords`, r.keywords.length + (r.phrases?.length ?? 0) + (r.exact?.length ?? 0) > 0);
 }
 for (const s of SAMPLES) {
   const got = answer(s).ruleId ?? "no_match";
@@ -205,14 +205,89 @@ assert("relative dates: only the model reads 'next Friday'", /pattern matching/i
 assert("overdue: pinning depends on the setting", ans("overdue-alert").includes("Pin overdue to the top"));
 assert("overdue: an Overdue status must be changed too", /status/i.test(ans("overdue-alert")));
 assert("forecast: terms fall back to the Settings default", /settings/i.test(ans("forecast-zero")));
-assert("forecast: projects with no deadline are skipped", /no deadline/i.test(ans("forecast-zero")));
 assert("password reset uses the real link text", ans("password-reset").includes("Forgot your password?"));
-assert("privacy: transcripts only when it matters", /summary/i.test(ans("data-privacy")));
+assert("privacy: transcripts only when it matters", /full conversation is kept only/i.test(ans("data-privacy")));
 assert(
   "feedback must be filed as a ticket",
   !SessionRequestSchema.safeParse({ ...valid, category: "feedback", fileTicket: false }).success &&
     SessionRequestSchema.safeParse({ ...valid, category: "feedback", fileTicket: true }).success,
 );
+
+// Coverage pass: answers must match what the app lets people do
+assert("brief fields can't be edited, so don't tell people to", !/before (you )?sav/i.test(ans("brief-wrong-field")) && !/fill it in yourself/i.test(ans("brief-unsure")));
+assert("relative dates: no correcting before saving", !/before saving/i.test(ans("relative-dates")));
+assert("saving a brief does not create a project", /doesn't create a project/i.test(ans("brief-saved-where")));
+assert("reset needs signing out first: the page redirects signed-in users", /sign out/i.test(ans("password-reset")));
+assert("guard-secret also says to sign out first", /sign out/i.test(GUARD_RULES.find((g) => g.id === "guard-secret")?.answer ?? ""));
+assert("delete starts from the real Edit button", ans("project-delete").includes("Edit") && ans("project-delete").includes("Yes, delete"));
+assert("create uses the real button names", ans("project-create-edit").includes("+ New project") && ans("project-create-edit").includes("Add project"));
+assert("unpaid card counts only invoiced work", /Invoice sent/.test(ans("dashboard-numbers")));
+assert("worked example adds up", ans("tax-worked-example").includes("11,600") && ans("tax-worked-example").includes("9,533.33") && ans("tax-worked-example").includes("10,408.33"));
+assert("reset to defaults warns about currency", /currency/i.test(ans("layout-prefs")));
+assert("every tier is named", ["Solo", "Project", "Pro", "Studio"].every((n) => ans("pricing-tiers").includes(n)));
+
+assert("finding the regime field isn't tax advice", A("where do I set my tax regime", "how_to", "account").ruleId === "tax-regime");
+assert("choosing a regime still is", A("should I switch to resico", "how_to", "account").ruleId === "guard-tax-advice" && A("do I qualify for resico", "how_to", "account").ruleId === "guard-tax-advice");
+
+// Coverage pass: how the engine reaches an answer
+assert("whole-message greeting wins", A("hello", "pricing_technical", "research").ruleId === "chat-greeting");
+assert("greeting words inside a question don't hijack it", A("hi my forecast shows zero for next month").ruleId === "forecast-zero");
+assert("thanks inside a question doesn't hijack it", A("thanks, but my forecast shows zero").ruleId === "forecast-zero");
+assert("generic help loses to a specific rule", A("csv download isn't working", "broken", "dashboard").ruleId === "csv-export");
+assert("generic help offers a ticket", A("the page is blank", "broken", "dashboard").offerTicket === true);
+assert("out-of-scope match needs real evidence", A("something about next month", "how_to", "research").kind === "no_match");
+assert("guards still run first", A("hi password: abc123").ruleId === "guard-secret");
+
+assert("area overviews stay in their area", A("what is this page", "how_to", "other").kind === "no_match");
+assert("a fault beats an overview", A("the dashboard is blank", "broken", "dashboard").ruleId === "app-error");
+assert("overviews always offer the ticket", CONTENT_RULES.filter((r) => r.id.startsWith("overview-")).every((r) => r.generic && r.offerTicket));
+
+assert("a strong word is one the rule also lists", CONTENT_RULES.every((r) => (r.strong ?? []).every((k) => r.keywords.includes(k))));
+assert("one strong word answers inside the chosen section", A("churn?", "how_to", "pricing").ruleId === "pricing-simulator");
+assert("one strong word is not enough outside it", A("churn?", "how_to", "dashboard").kind === "no_match");
+assert("the marketing page doesn't claim 'my business' outside its area", A("can i use it for my business", "how_to", "other").ruleId !== "marketing-own-business");
+
+// Fact-check of the coverage pass: every line here failed against the first draft
+for (const q of ["how much have i been paid", "how much is this project worth", "can i cancel a project", "how to pay a contractor"]) {
+  assert(`pricing doesn't claim: ${q}`, A(q, "how_to", "other").ruleId !== "pricing-free");
+}
+assert("cancelling an account is account deletion", A("can i cancel my account", "how_to", "account").ruleId === "account-delete");
+assert("a rate on a project isn't pricing advice", A("how do i change my rate on a project", "how_to", "projects").ruleId === "project-create-edit" && A("my rate is wrong", "broken", "projects").ruleId === "project-create-edit");
+assert("still no advice on what to charge", A("what should i charge", "how_to", "other").ruleId === "rates-advice");
+for (const q of ["this app keeps crashing", "this app is broken", "this app is so slow"]) {
+  assert(`a fault isn't a tour: ${q}`, A(q, "broken", "other").ruleId === "app-error");
+}
+assert("moving a deadline isn't layout", A("how do i move the deadline", "how_to", "dashboard").ruleId === "project-create-edit");
+assert("this assistant is me, not a co-worker", A("what can this assistant do", "how_to", "other").ruleId === "help-capabilities");
+assert("a drive link isn't sign-in", A("can i paste a google drive link", "how_to", "projects").ruleId === "contract-links");
+assert("rate on a brief still reaches the brief rule", A("the rate is wrong", "broken", "brief").ruleId === "brief-wrong-field");
+const SIGNED_IN_BOUNCES = new Set(["/login", "/signup", "/verify-email", "/forgot-password"]);
+for (const r of allRules) for (const l of r.links ?? []) {
+  assert(`${r.id} doesn't link where a signed-in user is bounced: ${l.href}`, !SIGNED_IN_BOUNCES.has(l.href));
+}
+assert("csv tax columns are conditional", /If any project has a client type/.test(ans("export-contents")) && /16% IVA/.test(ans("export-contents")));
+assert("cards aren't net of withholding", /Unpaid Invoices and This Month's Earnings/.test(ans("withholding-explained")));
+assert("no-deadline projects can't exist", !/no deadline/i.test(ans("forecast-zero")) && /no hours logged/.test(ans("forecast-zero")));
+assert("the panel needs value, not just an unpaid project", /worth more than 0/.test(ans("widgets-missing")));
+assert("privacy says first messages are kept", /first message/.test(ans("data-privacy")) && /turn down/.test(ans("data-privacy")));
+assert("the owner can see rows: no 'only you'", !/for you alone/.test(ans("brief-privacy")) && !/only visible to your account/.test(ans("legal-pages")));
+assert("mexico section is verified, not reported", /marked Verified/.test(ans("research-mexico")));
+assert("empty account: the form is already open", !/\+ New project/.test(ans("dashboard-empty")) && !/\+ New project/.test(ans("getting-started")));
+assert("failed generation falls back quietly", /without an error/.test(ans("marketing-generate")) && !/around a minute/.test(ans("marketing-generate")));
+assert("rate limit wording is Supabase's", !/Too many emails/.test(ans("email-delay")));
+assert("the ticket screen is no preview", !/preview/.test(ans("ticket-help")) && ans("ticket-help").includes("Submit ticket"));
+const secret = GUARD_RULES.find((g) => g.id === "guard-secret")?.answer ?? "";
+assert("the guide never asks, the sign-in form does", /this guide will never ask/.test(secret) && /tried to remove/.test(secret));
+assert("tabs have different names on desktop", /Intake section/.test(ans("research-intake")) && /Benchmarks section/.test(ans("research-mexico")));
+assert("research pricing isn't all sourced", /three/.test(ans("research-page")));
+assert("clear only shows with a filter on", !/First choose Clear/.test(ans("project-missing")));
+assert("export disappears when a filter matches nothing", /matches nothing/.test(ans("csv-export")));
+assert("the visible filter label", ans("project-archive").includes("Paid and unpaid"));
+assert("arpu divides by studio members too", /freelancer or studio member/.test(ans("pricing-simulator")));
+assert("the hourly sub-line prints a dollar sign", /always shows \$/.test(ans("currency-usd-label")));
+
+assert("a wrong client on a project isn't a brief problem", A("i entered the wrong client", "broken", "projects").ruleId !== "brief-wrong-field");
+assert("a greyed-out project button isn't Generate live", A("the save changes button is greyed out", "broken", "projects").ruleId !== "marketing-generate");
 
 // Security review of Task 5: redaction can lengthen text past the column limit
 const nearLimit = "x".repeat(1990) + " password:a";

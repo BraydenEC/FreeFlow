@@ -52,8 +52,14 @@ export type Rule = {
   areas: Area[] | "any";
   /** Single normalised words; one point each. */
   keywords: string[];
+  /** Keywords distinctive enough to answer alone once the user has chosen this section. */
+  strong?: string[];
   /** Multi-word normalised phrases; weighted higher than keywords. */
   phrases?: string[];
+  /** The whole message, normalised: "hi", "thanks". Never matched inside a sentence. */
+  exact?: string[];
+  /** Only answers when no specific rule did: general troubleshooting, not a topic. */
+  generic?: boolean;
   answer: string;
   links?: Link[];
   followUp?: string;

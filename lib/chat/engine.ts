@@ -9,10 +9,18 @@
     3. match      the best content rule for this category and area
     4. no match   an honest "no answer yet", with a ticket offered
 
-  Scoring: 1 point per keyword present as a word (plural -s/-es allowed),
-  3 per phrase present. The best score must reach MIN_SCORE. Ties go to the
+  Scoring: 1 point per keyword present as a word (plural -s/-es allowed), 2 if
+  the rule marks it strong, 3 per phrase present. The best score must reach MIN_SCORE. Ties go to the
   narrower rule (fewer categories plus areas), then to the earlier one in the
   file, so moving a rule up is how to prefer it.
+
+  Matching runs in widening passes, and the first to find a rule answers:
+    a. exact      the whole message is "hi" or "thanks"
+    b. in scope   rules for the category and area the user chose
+    c. any scope  every rule, but needing OUT_OF_SCOPE_MIN, because someone who
+                  picked the wrong button still asked a real question
+    d. generic    troubleshooting and area overviews, in scope, so they never
+                  outrank a specific answer
 */
 
 import { GUARD_RULES } from "./guards";
@@ -21,6 +29,7 @@ import { CONTENT_RULES } from "./rules";
 import { AREAS, CATEGORIES, type Area, type Category, type EngineReply, type Rule } from "./types";
 
 const MIN_SCORE = 2;
+const OUT_OF_SCOPE_MIN = 4;
 
 export const NO_MATCH_ANSWER =
   "I don't have an answer for that yet. You can submit a ticket and the owner will look at it.";
@@ -45,12 +54,30 @@ function inScope<T extends string>(scope: T[] | "any", value: T): boolean {
 function score(rule: Rule, words: Set<string>, padded: string): number {
   let s = 0;
   for (const k of rule.keywords) {
-    if (words.has(k) || words.has(`${k}s`) || words.has(`${k}es`)) s += 1;
+    if (words.has(k) || words.has(`${k}s`) || words.has(`${k}es`)) s += rule.strong?.includes(k) ? 2 : 1;
   }
   for (const p of rule.phrases ?? []) {
     if (padded.includes(` ${p} `)) s += 3;
   }
   return s;
+}
+
+function bestRule(rules: Rule[], words: Set<string>, padded: string, min: number): Rule | null {
+  let best: { rule: Rule; score: number } | null = null;
+  for (const rule of rules) {
+    const s = score(rule, words, padded);
+    if (s < min) continue;
+    if (
+      !best ||
+      s > best.score ||
+      (s === best.score &&
+        width(rule.categories, CATEGORIES) + width(rule.areas, AREAS) <
+          width(best.rule.categories, CATEGORIES) + width(best.rule.areas, AREAS))
+    ) {
+      best = { rule, score: s };
+    }
+  }
+  return best?.rule ?? null;
 }
 
 export function answer(input: { category: Category; area: Area; text: string }): EngineReply {
@@ -72,29 +99,30 @@ export function answer(input: { category: Category; area: Area; text: string }):
 
   const words = new Set(norm.split(" ").filter(Boolean));
   const padded = ` ${norm} `;
-  let best: { rule: Rule; score: number } | null = null;
-  for (const rule of CONTENT_RULES) {
-    if (!inScope(rule.categories, input.category) || !inScope(rule.areas, input.area)) continue;
-    const s = score(rule, words, padded);
-    if (s < MIN_SCORE) continue;
-    if (
-      !best ||
-      s > best.score ||
-      (s === best.score &&
-        width(rule.categories, CATEGORIES) + width(rule.areas, AREAS) <
-          width(best.rule.categories, CATEGORIES) + width(best.rule.areas, AREAS))
-    ) {
-      best = { rule, score: s };
-    }
-  }
+  const specific = CONTENT_RULES.filter((r) => !r.generic);
+  const rule =
+    CONTENT_RULES.find((r) => r.exact?.includes(norm)) ??
+    bestRule(
+      specific.filter((r) => inScope(r.categories, input.category) && inScope(r.areas, input.area)),
+      words,
+      padded,
+      MIN_SCORE,
+    ) ??
+    bestRule(specific, words, padded, OUT_OF_SCOPE_MIN) ??
+    bestRule(
+      CONTENT_RULES.filter((r) => r.generic && inScope(r.categories, input.category) && inScope(r.areas, input.area)),
+      words,
+      padded,
+      MIN_SCORE,
+    );
 
-  if (best) {
+  if (rule) {
     return {
       kind: "rule",
-      ruleId: best.rule.id,
-      answer: best.rule.answer,
-      links: best.rule.links ?? [],
-      offerTicket: best.rule.offerTicket ?? false,
+      ruleId: rule.id,
+      answer: rule.answer,
+      links: rule.links ?? [],
+      offerTicket: rule.offerTicket ?? false,
     };
   }
 
