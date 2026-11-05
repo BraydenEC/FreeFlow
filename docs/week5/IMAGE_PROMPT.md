@@ -41,7 +41,7 @@ SAVED RESULTS zone (right side card or below): "Saved conversation" with
 rows: category Broken, area Forecast, outcome Answered, rating 👍, and a
 ticket row with status "open".
 
-TESTING EVIDENCE zone (small card at the bottom): "Tests: 730 passed, 0
+TESTING EVIDENCE zone (small card at the bottom): "Tests: 733 passed, 0
 failed" and "3 external user tests" with three empty checkboxes.
 
 Practical, buildable in Next.js and Tailwind. Simple startup-product
@@ -50,4 +50,4 @@ English text in every label.
 
 ---
 
-**Generated with:** _tool and date_
+**Generated with:** Google Gemini (Pro), 2026-11-04. Saved as `chat-mockup-ai.png`, unedited. Testing Evidence appears twice and the lower copy is cut off, as Gemini drew it. The built page is `chat-mockup.png`.
