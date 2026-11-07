@@ -7,7 +7,7 @@ saved to `chat_sessions`. The verdicts are Claude's judgment.
 
 **Result on 2026-11-04: 25 questions. 12 good, 2 weak, 2 wrong, 9 no answer
 (ticket offered).** The 2 wrong answers were fixed on 2026-11-06, and the 2 weak
-and 9 no-answer rows on 2026-11-07. Those rows still show what the bot said on
+and 9 no-answer rows later that day. Those rows still show what the bot said on
 2026-11-04. Each question is now a test row, so see `lib/chat/samples.ts` for what
 it reaches today.
 
@@ -55,7 +55,7 @@ Package prices with deposits. Not technical, and a bit frustrated.
 | can it remind me when someone hasnt paid | `reminders` | Good |
 | it says i have 0 unpaid but 3 people owe me money | none, ticket | **No answer.** Should reach `dashboard-numbers`: status must be Invoice sent |
 | what will i make in june | none, ticket | **No answer.** Should reach `forecast-explained` |
-| i put the wrong date on a wedding | `relative-dates` | **Wrong** on 2026-11-04. Fixed 2026-11-06, refined 2026-11-07: now `project-date-fix` |
+| i put the wrong date on a wedding | `relative-dates` | **Wrong** on 2026-11-04. Fixed and refined 2026-11-06: now `project-date-fix` |
 | am i going to get charged for this later | none, ticket | **No answer.** Should reach `pricing-future` |
 | this is too complicated | none, ticket | **No answer.** Should reach `getting-started` or a new rule |
 | can i talk to a real person | `guard-human` | Good |

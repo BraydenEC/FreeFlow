@@ -95,7 +95,7 @@ Measures: 381 sample questions and 741 chat assertions. "ya me pagaron" and "the
 date it picked is wrong" still reach their original rules. The 2 weak and 9
 no-answer persona rows are not addressed here.
 
-## Iteration 4: live walkthrough on the demo accounts (2026-11-07)
+## Iteration 4: live walkthrough on the demo accounts (2026-11-06)
 
 **How it was tested:** Claude wrote three freelancer scenarios and ran them on the
 live site, one per grader demo account: a US copywriter, a US video editor and a
@@ -138,7 +138,44 @@ question became a test.
 **Deliberately unchanged:** answers stay in English even when the question is in
 Spanish. That is logged as a ticket and left as the owner's decision.
 
-## Iteration 5 onward: training sessions with the owner
+## Iteration 5: final code review (2026-11-06)
+
+**How it was tested:** a review of everything changed since the Week 5 design
+(`5c028a5` to `4832111`) reported ten problems, and said which it had confirmed
+by running the code. Each `/chat` fix started as a failing test.
+
+**Fixed, because they made a claim in the packet untrue:**
+
+| Problem | Effect on a user | Fix |
+|---|---|---|
+| A card next to other digits wasn't redacted ("4242 4242 4242 4242 123") | The full card number reached the database, despite A10 | Finds the card inside the run of digits and removes only that. Dotted cards and a decomposed ñ are covered too |
+| "my password is broken" was treated as a pasted password | A locked-out user was told not to share passwords, and their words were lost | Complaint words added in English and Spanish. It now reaches `password-reset` |
+| Any database refusal was reported as "already has a ticket" | The page could say "Filed" when nothing was filed | Answers 409 only after re-reading the row and finding a ticket |
+| A later answer erased the transcript of a guardrail hit | The owner lost the evidence A7 says is kept | The transcript stays once any guard has fired |
+| "How do I add a WordPress project?" was refused as off-topic | Normal freelancer questions got "I can only help with FreeFlow" | Naming a tool is allowed; asking the guide to do the work still isn't |
+| "How much IVA does FreeFlow withhold" was refused as tax advice | The refusal says it can explain this, then doesn't | Reaches `withholding-explained`. "How much tax do I owe" is still refused |
+| Keep chatting stayed clickable while a ticket was being filed | The view could jump to "Filed" mid-conversation | Disabled while filing |
+
+**Checked on the live site after deploying (`368e105`):** the card with a CVV showed
+as `[removed]`, "my password is broken" reached `password-reset`, that conversation
+kept its transcript, and filing a second ticket on a filed conversation returned 409.
+
+**Found but not fixed, because they are outside `/chat`:**
+
+- A brief's rate is shown in the account's currency even if the brief used another
+  (`lib/core/schema.ts`), so "$80 USD per hour" on an MXN account reads as MXN 80.
+- Two settings timing problems in `components/prefs/PrefsProvider.tsx`: a change made
+  during a refresh can be dropped for a new user, and figures can stay in the old
+  currency after signing in without a full reload.
+
+**Deliberately unchanged:** a thumbs-down changed to a thumbs-up drops the transcript,
+because the user took the complaint back. "How do I add a WordPress project?" now gets
+the honest no-answer and a ticket rather than a how-to.
+
+**Measures:** 155 content rules, 433 sample questions, 838 chat assertions, and 1,572
+across all suites.
+
+## Iteration 6 onward: training sessions with the owner
 
 *Not run yet. Each session adds: what was asked, what the bot said, what it
 should say, the change made.*
