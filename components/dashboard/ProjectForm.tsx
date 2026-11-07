@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import { usePrefs } from "@/components/prefs/PrefsProvider";
-import { fieldShownFor, type NewProjectInput } from "@/lib/projects/schema";
+import { blankProject, fieldShownFor, type NewProjectInput } from "@/lib/projects/schema";
 import type { Project } from "@/types/project";
 
 /*
@@ -33,21 +33,7 @@ const STATUS_OPTIONS: { value: NewProjectInput["status"]; label: string }[] = [
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
 
-const blank = (): NewProjectInput => ({
-  name: "",
-  client: "",
-  status: "contracted",
-  deadline: todayIso(),
-  billing: "fixed",
-  hours_logged: "" as unknown as number,
-  hourly_rate: "" as unknown as number,
-  invoice_total: "",
-  contract_signed_on: todayIso(),
-  contract_url: "",
-  payment_url: "",
-  client_tax_type: "",
-  payment_terms_days: "",
-});
+const blank = () => blankProject(todayIso());
 
 /* An existing row, back into the shape the form edits. Billing model is
    inferred the same way the table infers it: a fixed fee is the presence of
@@ -76,27 +62,35 @@ export default function ProjectForm({
   prefill,
   createLabel = "+ New project",
   onCreated,
+  onClose,
 }: {
   defaultOpen?: boolean;
-  /** Present for an edit, absent for a create. */
+  /** Present for an edit, absent for a create. An edit always starts open. */
   project?: Project;
   /** Starting values for a create, such as a project read from a brief. */
   prefill?: NewProjectInput;
   /** The closed button's text for a create. */
   createLabel?: string;
   onCreated?: () => void;
+  /** Called when an edit finishes, so EditProject can take the form away. */
+  onClose?: () => void;
 }) {
   const editing = project !== undefined;
   const { prefs } = usePrefs();
   const router = useRouter();
   const id = useId();
-  const [open, setOpen] = useState(defaultOpen);
+  const [open, setOpen] = useState(editing || defaultOpen);
   const [form, setForm] = useState<NewProjectInput>(() =>
     project ? fromProject(project) : (prefill ?? blank()),
   );
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [error, setError] = useState<{ message: string; field: string | null } | null>(null);
   const [busy, setBusy] = useState(false);
+
+  function close() {
+    setOpen(false);
+    onClose?.();
+  }
 
   function set<K extends keyof NewProjectInput>(key: K, value: NewProjectInput[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -126,7 +120,7 @@ export default function ProjectForm({
         setForm(prefill ?? blank());
         onCreated?.();
       }
-      setOpen(false);
+      close();
       router.refresh();
     } catch {
       setError({ message: "Network error — try again.", field: null });
@@ -146,7 +140,7 @@ export default function ProjectForm({
         setError({ message: json.error ?? "Could not delete.", field: null });
         return;
       }
-      setOpen(false);
+      close();
       router.refresh();
     } catch {
       setError({ message: "Network error — try again.", field: null });
@@ -164,17 +158,16 @@ export default function ProjectForm({
     ) : null;
 
   if (!open) {
+    // An edit's button lives in EditProject, so it can stay on the row while
+    // the form opens underneath it.
+    if (editing) return null;
     return (
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={
-          editing
-            ? "border-hairline text-ink-muted hover:text-ink hover:border-ink-faint focus-visible:ring-accent rounded-md border px-2.5 py-1 text-xs whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:outline-none"
-            : "border-hairline text-ink-muted hover:text-ink hover:border-ink-faint focus-visible:ring-accent rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none"
-        }
+        className="border-hairline text-ink-muted hover:text-ink hover:border-ink-faint focus-visible:ring-accent rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none"
       >
-        {editing ? "Edit" : createLabel}
+        {createLabel}
       </button>
     );
   }
@@ -183,7 +176,7 @@ export default function ProjectForm({
     <form
       onSubmit={onSubmit}
       aria-labelledby={`${id}-title`}
-      className="border-hairline bg-surface rounded-xl border p-5 sm:p-6"
+      className="border-hairline bg-surface w-full rounded-xl border p-5 sm:p-6"
       noValidate
     >
       <div className="mb-4 flex items-center justify-between">
@@ -193,8 +186,8 @@ export default function ProjectForm({
         <button
           type="button"
           onClick={() => {
-            setOpen(false);
             setError(null);
+            close();
           }}
           className="text-ink-faint hover:text-ink text-xs"
         >

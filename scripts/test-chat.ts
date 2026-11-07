@@ -297,6 +297,28 @@ assert("active projects leaves out paid work", /unpaid/.test(ans("dashboard-numb
 // Grader demo accounts are seeded on purpose; the outage explanation must not cover them
 assert("sample projects on a demo account aren't an outage", ans("sample-data").includes("Sample:"));
 
+// Walkthrough, 2026-11-06: what the right answer has to say
+assert("a wrong date goes straight to Edit, not to adding a project", /^[^.]*Edit/.test(ans("project-date-fix")) && ans("project-date-fix").includes("Save changes") && ans("project-date-fix").includes("Deadline") && !ans("project-date-fix").includes("+ New project"));
+assert("a date fix mentions the Overdue status, which doesn't change by itself", /Overdue/.test(ans("project-date-fix")));
+assert("cfdi is only for people in Mexico", /If you're in Mexico/.test(ans("invoice-create")) && /not built/.test(ans("invoice-create")));
+assert("0 unpaid: the fix is the project's status", /Invoice sent or Overdue/.test(ans("dashboard-numbers")) && /set (that|its|the) project's status to Invoice sent/i.test(ans("dashboard-numbers")));
+assert("too complicated: Mark paid and the panels are real", ans("too-complicated").includes("Mark paid") && ans("too-complicated").includes("Settings"));
+assert("too complicated offers the ticket", CONTENT_RULES.find((r) => r.id === "too-complicated")?.offerTicket === true);
+assert("encryption: says what is known", /row-level security/i.test(ans("data-encryption")) && /owner can read/i.test(ans("data-encryption")) && /Supabase/.test(ans("data-encryption")));
+assert("encryption: claims nothing the repo can't show", !/\b(AES|TLS|SSL|256|end-to-end|at rest|in transit)\b/i.test(ans("data-encryption")) && /can't confirm/.test(ans("data-encryption")));
+assert("encryption offers the ticket", CONTENT_RULES.find((r) => r.id === "data-encryption")?.offerTicket === true);
+assert("the phone menu still doesn't take every cut-off complaint", A("the table is cut off on my phone", "broken", "dashboard").ruleId === "mobile");
+assert("not finding settings without a phone is still settings", A("i can't find settings", "how_to", "account").ruleId === "settings-location");
+assert("a wrong paid date is still a ticket, not the edit form", A("the paid date is wrong", "broken", "projects").ruleId === "payment-undo");
+assert("what's in the csv still describes the file", A("what's in the csv for my accountant", "how_to", "dashboard").ruleId === "export-contents");
+assert("owes me still reaches the tour", A("how do i track who owes me money", "how_to", "other").ruleId === "getting-started");
+assert("charged now is still pricing-free", A("am i being charged", "pricing_technical", "pricing").ruleId === "pricing-free");
+
+// Review of the walkthrough fixes: billing and status questions aren't about currency
+for (const text of ["how do i bill one client for two projects", "i have one project in progress and another in review", "some are finished and others in progress"]) {
+  assert(`no currency answer for: ${text}`, answer({ category: "how_to", area: "projects", text }).ruleId !== "currency-multiple");
+}
+
 // Security review of Task 5: redaction can lengthen text past the column limit
 const nearLimit = "x".repeat(1990) + " password:a";
 assert("first message stays within 2000 after redaction", firstMessage(replay("broken", "other", [nearLimit])).length <= 2000);

@@ -81,6 +81,27 @@ export function formatRelativeDeadline(iso: string, now: Date): string {
 }
 
 /**
+ * What the Due Date column says under the date, and in what colour.
+ *
+ * A paid project has nothing left to be late for, so it gets no wording and no
+ * colour at all, whatever its deadline. Lateness is about money that should
+ * have arrived, the same reading lib/projects/filter.ts and the overdue alert
+ * already use.
+ */
+export function deadlineNote(
+  project: Pick<Project, "deadline" | "isPaid">,
+  now: Date,
+): { text: string | null; tone: "late" | "soon" | "plain" } {
+  if (project.isPaid) return { text: null, tone: "plain" };
+
+  const days = daysUntil(project.deadline, now);
+  return {
+    text: formatRelativeDeadline(project.deadline, now),
+    tone: days < 0 ? "late" : days <= 3 ? "soon" : "plain",
+  };
+}
+
+/**
  * A project's financial value: the fixed fee when one exists, otherwise
  * hours × rate. Centralized because the summary cards and the table must
  * never disagree about what a project is worth.

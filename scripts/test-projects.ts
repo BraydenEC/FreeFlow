@@ -15,7 +15,8 @@ import { withRealDeadline } from "@/lib/core/schema";
 import { extractionToProject } from "@/lib/core/to-project";
 import { getMockProjects } from "@/lib/mock-data";
 import { deriveMetrics } from "@/lib/projects/metrics";
-import { fieldShownFor, NewProjectSchema, toRow, toUpdateRow } from "@/lib/projects/schema";
+import { deadlineNote, formatRelativeDeadline } from "@/lib/format";
+import { blankProject, fieldShownFor, NewProjectSchema, toRow, toUpdateRow } from "@/lib/projects/schema";
 import type { Project } from "@/types/project";
 
 let passed = 0;
@@ -268,6 +269,48 @@ if (edit.success) {
 
 // --- The seed data the acceptance criteria quote ----------------------------
 assert("seed data shows 4 active projects", deriveMetrics(getMockProjects(new Date("2026-11-04T12:00:00Z")), new Date("2026-11-04T12:00:00Z")).activeProjects === 4);
+
+// --- What the Due Date column says -----------------------------------------
+{
+  const NOW = new Date("2026-11-06T12:00:00Z");
+  const note = (deadline: string, isPaid: boolean) => deadlineNote({ deadline, isPaid }, NOW);
+
+  // A paid project has nothing left to be late for, whatever its deadline.
+  for (const [when, deadline] of [
+    ["long past", "2026-10-25"],
+    ["yesterday", "2026-11-05"],
+    ["today", "2026-11-06"],
+    ["tomorrow", "2026-11-07"],
+    ["in three days", "2026-11-09"],
+    ["far off", "2027-03-01"],
+  ] as const) {
+    const n = note(deadline, true);
+    assert(`paid, deadline ${when}: no wording`, n.text === null, `got "${n.text}"`);
+    assert(`paid, deadline ${when}: no late or soon colour`, n.tone === "plain", `got ${n.tone}`);
+  }
+
+  // An unpaid project keeps exactly what it said before.
+  assert("unpaid and late says so", note("2026-10-25", false).text === "12 days overdue" && note("2026-10-25", false).tone === "late");
+  assert("unpaid, one day late", note("2026-11-05", false).text === "1 day overdue" && note("2026-11-05", false).tone === "late");
+  assert("unpaid and due today is soon", note("2026-11-06", false).text === "due today" && note("2026-11-06", false).tone === "soon");
+  assert("unpaid and due tomorrow is soon", note("2026-11-07", false).text === "tomorrow" && note("2026-11-07", false).tone === "soon");
+  assert("three days out is the last soon day", note("2026-11-09", false).tone === "soon");
+  assert("four days out is plain", note("2026-11-10", false).text === "in 4 days" && note("2026-11-10", false).tone === "plain");
+  assert("the wording comes from the one formatter", note("2026-10-25", false).text === formatRelativeDeadline("2026-10-25", NOW));
+}
+
+// --- What a new project form starts with ------------------------------------
+{
+  const start = blankProject("2026-11-06");
+  assert("nobody entered a signing date, so none is filled in", start.contract_signed_on === "");
+  assert("the deadline still starts on today", start.deadline === "2026-11-06");
+  const filled = NewProjectSchema.safeParse({ ...start, name: "Logo", client: "Acme", invoice_total: "500" });
+  assert("a blank signing date is accepted", filled.success);
+  if (filled.success) {
+    assert("a blank signing date is stored as null", toRow(filled.data).contract_signed_on === null);
+  }
+  assert("each form gets its own blank", blankProject("2026-11-06") !== start);
+}
 
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed\n`);

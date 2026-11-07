@@ -63,9 +63,19 @@ export const CONTENT_RULES: Rule[] = [
     categories: ["broken", "how_to"],
     areas: ["projects", "dashboard"],
     keywords: ["add", "create", "new", "edit", "change", "update", "rate", "fee", "hourly", "fixed", "proyecto"],
-    phrases: ["new project", "add a project", "add project", "edit a project", "edit project", "edit my project", "can t edit", "change the deadline", "move the deadline", "change my rate", "my rate", "client name", "wrong amount", "wrong deadline", "wrong client", "typo", "wrong date", "put the wrong", "entered the wrong", "nuevo proyecto", "agregar proyecto", "agregar un proyecto", "crear proyecto", "crear un proyecto", "editar proyecto"],
+    phrases: ["new project", "add a project", "add project", "edit a project", "edit project", "edit my project", "can t edit", "change the deadline", "move the deadline", "change my rate", "my rate", "client name", "wrong amount", "wrong client", "typo", "put the wrong", "entered the wrong", "nuevo proyecto", "proyecto nuevo", "agrego un proyecto", "agregar proyecto", "agregar un proyecto", "crear proyecto", "crear un proyecto", "editar proyecto"],
     answer:
       "Add a project with + New project under the projects table: name, client, status, deadline, and either a fixed total or hours and an hourly rate, then choose Add project. To change it later, choose Edit on its row, change the fields and choose Save changes.",
+  },
+  // ProjectForm "Deadline", "Contract signed", "Save changes"; app/page.tsx hasOverdue; lib/forecast/model.ts
+  {
+    id: "project-date-fix",
+    categories: ["broken", "how_to"],
+    areas: ["projects", "dashboard", "other"],
+    keywords: ["date", "wrong"],
+    phrases: ["the wrong date", "wrong date", "wrong deadline", "put the wrong date", "entered the wrong date", "typed the wrong date", "typed the wrong deadline", "put the wrong deadline", "entered the wrong deadline", "change the date", "fix the date", "correct the date", "fix the deadline", "correct the deadline", "deadline is wrong"],
+    answer:
+      "Choose Edit on the project's row, change the Deadline and choose Save changes. The table, the forecast and the Overdue alert follow the new date. If its status is Overdue, change that too, because it doesn't change by itself. The Contract signed date is in the same form.",
   },
   // components/dashboard/ProjectForm.tsx onDelete → DELETE /api/projects/[id]
   {
@@ -112,7 +122,7 @@ export const CONTENT_RULES: Rule[] = [
   {
     id: "relative-dates",
     categories: ["broken", "how_to"],
-    areas: ["brief", "projects"],
+    areas: ["brief"],
     keywords: ["date", "deadline", "friday", "monday", "tomorrow", "year", "relative", "wrong", "picked"],
     phrases: ["next friday", "next week", "end of the month", "wrong date", "wrong year"],
     answer:
@@ -147,7 +157,7 @@ export const CONTENT_RULES: Rule[] = [
     areas: ["dashboard", "projects", "other"],
     keywords: ["csv", "export", "spreadsheet", "excel", "download", "sheets", "exportar", "descargar"],
     strong: ["csv", "export", "exportar", "excel"],
-    phrases: ["google sheets", "export my projects"],
+    phrases: ["google sheets", "export my projects", "export to csv", "export a csv", "export the csv"],
     answer:
       "Use Export CSV under the projects table to download every project, whatever filter is on, as a file that opens in Excel or Google Sheets. The button appears once you have a project; if a filter matches nothing, choose Clear to bring it back. Retenciones are already worked out where they apply. If it says your projects could not be loaded, try again shortly.",
   },
@@ -203,7 +213,7 @@ export const CONTENT_RULES: Rule[] = [
     areas: "any",
     keywords: ["free", "cost", "costs", "price", "pay", "charge", "charged", "subscription", "cancel", "refund", "billing", "trial", "gratis", "cuesta", "costo"],
     strong: ["gratis", "refund", "subscription", "costo"],
-    phrases: ["how much does it cost", "how much is freeflow", "is it free", "cancel my subscription", "being charged", "was charged", "got charged", "want a refund", "credit card", "pay for freeflow", "pay in", "what s included", "whats included", "included for free", "es gratis", "cuanto cuesta", "tiene costo"],
+    phrases: ["how much does it cost", "how much is freeflow", "is it free", "cancel my subscription", "being charged", "was charged", "got charged", "did i get charged", "want a refund", "credit card", "pay for freeflow", "pay in", "is freeflow free", "is this free", "is this app free", "free to use", "what s included", "whats included", "included for free", "es gratis", "cuanto cuesta", "tiene costo"],
     exact: ["how much", "how do i pay", "can i cancel", "how much is it"],
     answer:
       "FreeFlow is free while it grows: every feature, for everyone, and nothing is charged today. There's no subscription to cancel and nothing to refund. Donations are optional and don't unlock anything.",
@@ -246,6 +256,18 @@ export const CONTENT_RULES: Rule[] = [
     phrases: ["other users", "who can see", "is my data", "is this safe", "is it safe", "mis datos", "privacidad"],
     answer:
       "Your projects and settings belong to your account and are protected by row-level security, so other users can't see them. Every help conversation saves your first message, which answers you got and your ratings, so the owner can fix problems. The full conversation is kept only for tickets, thumbs-down answers, questions the guide couldn't answer and messages it had to turn down, with secrets removed.",
+  },
+  // supabase/*.sql RLS, "The owner's dashboard bypasses RLS"; no encrypt or pgcrypto anywhere in app, lib, components or supabase. Hosting-side encryption can't be read from this repo, so it isn't claimed
+  {
+    id: "data-encryption",
+    categories: "any",
+    areas: "any",
+    keywords: ["encrypted", "encrypt", "encryption", "encrypting", "encriptado", "encriptados", "encriptar", "cifrado", "cifrados"],
+    strong: ["encrypted", "encrypt", "encryption", "encrypting", "encriptado", "encriptados", "encriptar", "cifrado", "cifrados"],
+    phrases: ["encrypted", "encrypt", "encryption", "encriptado", "encriptados", "cifrado", "cifrados"],
+    answer:
+      "I can't confirm encryption details from here, and FreeFlow's own code adds none on top of its database. What I can say: your data is in a hosted Supabase database, and row-level security stops other users from seeing your rows. That covers your projects with their client names, amounts and links, your settings, anything you save, and help conversations. The owner can read tickets and saved data, so don't store anything you wouldn't want seen. For more detail, submit a ticket.",
+    offerTicket: true,
   },
   // features note: the Week 2 persona's complaint was "annoying on mobile"
   {
@@ -314,9 +336,9 @@ export const CONTENT_RULES: Rule[] = [
     categories: ["broken", "how_to"],
     areas: ["dashboard"],
     keywords: ["dashboard", "unpaid", "earnings", "earned", "cards", "total", "number", "numbers", "active", "wrong", "counting", "right"],
-    phrases: ["this month", "unpaid invoices", "active projects", "wrong number", "wrong total"],
+    phrases: ["this month", "unpaid invoices", "active projects", "wrong number", "wrong total", "0 unpaid", "zero unpaid", "unpaid shows", "owe me"],
     answer:
-      "The dashboard cards are worked out from your projects each time you open it. Unpaid Invoices adds up unpaid projects whose status is Invoice sent or Overdue, so work still in progress isn't counted. This Month's Earnings adds up projects marked paid this month, and starts again each month. Active Projects counts unpaid projects that haven't been invoiced yet. If a number looks wrong, check each project's status and whether it's been marked paid.",
+      "The dashboard cards are worked out from your projects each time you open it. Unpaid Invoices adds up unpaid projects whose status is Invoice sent or Overdue, so work still in progress isn't counted. This Month's Earnings adds up projects marked paid this month, and starts again each month. Active Projects counts unpaid projects that haven't been invoiced yet. If someone owes you and it isn't counted, set that project's status to Invoice sent with Edit on its row. For any other number, check each project's status and whether it's been marked paid.",
   },
 
   // ── Projects ──────────────────────────────────────────────────────────────
@@ -359,9 +381,9 @@ export const CONTENT_RULES: Rule[] = [
     id: "partial-payments",
     categories: "any",
     areas: ["projects", "dashboard", "other"],
-    keywords: ["partial", "deposit", "deposits", "installment", "installments", "milestone", "milestones", "anticipo"],
-    strong: ["partial", "deposit", "installment", "anticipo", "milestone"],
-    phrases: ["partial payment", "paid half", "split a project", "split the payment", "a deposit", "paid a deposit"],
+    keywords: ["partial", "deposit", "deposits", "installment", "installments", "milestone", "milestones", "anticipo", "upfront"],
+    strong: ["partial", "deposit", "installment", "anticipo", "milestone", "upfront"],
+    phrases: ["partial payment", "paid half", "split a project", "split the payment", "a deposit", "paid a deposit", "up front", "half now", "half at the end"],
     answer:
       "A project is either paid in full or not paid, so partial payments can't be recorded. The workaround is one project per payment, like \"Website: deposit\" and \"Website: final\", so each can be marked paid on its own.",
   },
@@ -383,7 +405,7 @@ export const CONTENT_RULES: Rule[] = [
     areas: ["projects", "dashboard", "other"],
     keywords: ["timer", "timesheet", "timesheets", "clock", "hours", "tracking"],
     strong: ["timer", "timesheet"],
-    phrases: ["track my time", "time tracking", "add hours", "log hours", "log my hours", "hours logged", "start a timer"],
+    phrases: ["track my time", "time tracking", "add hours", "log hours", "log my hours", "hours logged", "start a timer", "my hours", "update hours", "enter hours", "change hours"],
     answer:
       "There's no timer. On an hourly project, choose Edit on its row, update Hours logged and choose Save changes. The project's value is hours times rate. A fixed-fee project uses its total instead.",
   },
@@ -462,7 +484,7 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["invoice", "invoices", "invoicing"],
     phrases: ["create an invoice", "make an invoice", "generate an invoice", "send the invoice", "send an invoice", "invoice a client", "invoice my client", "invoice template", "email an invoice"],
     answer:
-      "FreeFlow tracks invoices but doesn't create or send them. Send yours from your usual tool, set the project's status to Invoice sent, and paste its link in the Stripe invoice or payment link field. Issuing a legal CFDI is planned but not built yet.",
+      "FreeFlow tracks invoices but doesn't create or send them. Send yours from your usual tool, set the project's status to Invoice sent, and paste its link in the Stripe invoice or payment link field. If you're in Mexico, issuing a legal CFDI is not built yet, so keep using your usual provider.",
   },
   // ProjectForm payment_url is a stored link; no Stripe or bank integration
   {
@@ -682,9 +704,11 @@ export const CONTENT_RULES: Rule[] = [
     id: "mobile-nav",
     categories: "any",
     areas: "any",
-    keywords: ["menu", "nav"],
+    // Also carries `mobile`'s evidence, so naming the menu is what tips it here.
+    // Without that the two tie, and `mobile` wins by being earlier in the file.
+    keywords: ["menu", "nav", "phone", "cut"],
     strong: ["nav"],
-    phrases: ["find help", "help on my phone", "menu is cut off", "menu on my phone", "tabs on my phone", "top bar on my phone"],
+    phrases: ["find help", "help on my phone", "menu is cut off", "menu on my phone", "tabs on my phone", "top bar on my phone", "on my phone", "cut off"],
     answer:
       "On a phone the top bar scrolls sideways, so swipe it to reach Support, Help, Pricing and Marketing. Settings is the gear at its right end.",
   },
@@ -775,6 +799,18 @@ export const CONTENT_RULES: Rule[] = [
       "Sorry about that. Try asking again in one sentence with the name of the feature, or tap 👎 and submit a ticket so the owner can see it and fix the answer.",
     offerTicket: true,
   },
+  // Generic: "too hard" with nothing more to go on. The three steps are ProjectForm, status and MarkPaidButton; panels are the widget checkboxes in LayoutDrawer
+  {
+    id: "too-complicated",
+    categories: "any",
+    areas: "any",
+    generic: true,
+    keywords: [],
+    phrases: ["too complicated", "too complex", "too confusing", "too hard", "so complicated", "so confusing", "hard to use", "overwhelming", "demasiado complicado", "muy complicado"],
+    answer:
+      "You only need three things: add a project on the dashboard, keep its status up to date, and choose Mark paid when the money arrives. The rest is optional, and you can switch off panels you don't want in Settings (top right). If one part is confusing, tell me which, or submit a ticket so the owner can make it simpler.",
+    offerTicket: true,
+  },
   // Generic: first steps for a fault no specific rule describes
   {
     id: "app-error",
@@ -807,7 +843,7 @@ export const CONTENT_RULES: Rule[] = [
     areas: ["forecast", "dashboard", "other"],
     keywords: ["forecast", "scheduled", "likely", "weighted", "weights", "income", "accurate", "estimate", "estimates", "percent"],
     strong: ["scheduled", "likely", "weighted", "percent", "accurate"],
-    phrases: ["expected income", "what does likely", "weighted by stage", "forecast calculated", "forecast work", "where is the forecast", "find the forecast", "percentages", "me van a pagar"],
+    phrases: ["expected income", "what does likely", "weighted by stage", "forecast calculated", "forecast work", "where is the forecast", "find the forecast", "percentages", "me van a pagar", "will i make", "will i earn", "going to make", "going to earn"],
     answer:
       "The forecast is the Expected income panel on the dashboard, covering the next six months. Scheduled is what's due. Likely weights that by stage: Invoiced 97%, Awaiting review 95%, In progress 90%, Overdue 85%, Contract signed 75%. Those percentages are estimates, and you can't change them.",
   },
@@ -1007,7 +1043,7 @@ export const CONTENT_RULES: Rule[] = [
     categories: "any",
     areas: "any",
     keywords: ["forever", "eventually"],
-    phrases: ["always be free", "stay free", "free forever", "free period", "start charging", "going to charge", "charge later", "will you charge", "pay later"],
+    phrases: ["always be free", "stay free", "free forever", "free period", "start charging", "going to charge", "charge later", "will you charge", "pay later", "this free forever", "it free forever", "freeflow free forever", "going to get charged", "will i get charged", "charged later", "charge me later", "will i be charged", "charged in the future"],
     answer:
       "Honestly, probably not forever. The intention is to charge eventually, and the whole model is public on the Pricing page, but nothing is charged today and no date is set. The Support page says there's no plan to put today's features behind a price.",
     links: [
@@ -1169,7 +1205,7 @@ export const CONTENT_RULES: Rule[] = [
     areas: "any",
     keywords: ["fisica", "moral"],
     strong: ["fisica", "moral"],
-    phrases: ["client type", "client is a", "persona fisica", "persona moral", "not recorded"],
+    phrases: ["client type", "client is a", "persona fisica", "persona moral", "not recorded", "es una empresa", "es empresa"],
     answer:
       "Each project has a \"Client is a…\" field: Persona física, Persona moral (company) or Not recorded. Only a persona moral withholds tax, and Not recorded counts as no withholding. Set it with Edit on the project's row. Ask an accountant if you're unsure which a client is.",
   },
@@ -1244,7 +1280,7 @@ export const CONTENT_RULES: Rule[] = [
     categories: "any",
     areas: "any",
     keywords: [],
-    phrases: ["two currencies", "multiple currencies", "different currencies", "mixed currencies", "more than one currency", "currency per project", "per project currency"],
+    phrases: ["two currencies", "multiple currencies", "different currencies", "mixed currencies", "more than one currency", "currency per project", "per project currency", "bill one client in", "bill some clients in"],
     answer:
       "Each account has one currency, because adding up mixed currencies would produce a meaningless total. The workaround is to convert those amounts yourself into your account's currency, and note the original in the project's name.",
   },
@@ -1498,7 +1534,7 @@ export const CONTENT_RULES: Rule[] = [
     categories: "any",
     areas: ["account", "other"],
     keywords: [],
-    phrases: ["password safe", "password stored", "passwords stored", "see my password", "know my password"],
+    phrases: ["password safe", "password stored", "passwords stored", "see my password", "know my password", "password encrypted", "my password encrypted"],
     answer:
       "Passwords are handled by Supabase's sign-in service, which stores them hashed rather than as readable text, so the owner can't read yours. Use one you don't use anywhere else, because two-factor authentication isn't available yet.",
   },

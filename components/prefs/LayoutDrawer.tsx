@@ -8,11 +8,11 @@ import { usePrefs } from "@/components/prefs/PrefsProvider";
 import { WIDGET_LABELS } from "@/lib/prefs/schema";
 
 /*
-  The customisation drawer.
+  The Settings drawer.
 
   Everything a user can change lives here and nowhere else, so the rest of the
-  interface stays free of settings chrome. Opens from the Settings item in the
-  sidebar — inert since Week 0 — which now leads somewhere.
+  interface stays free of settings chrome. Opens from the Settings button in
+  the top bar.
 
   Full-height sheet on every screen size, because the person who asked for
   this said the site was annoying on mobile and a drawer that only works on a
@@ -86,7 +86,7 @@ export default function LayoutDrawer({
         <div className="border-hairline flex items-center justify-between border-b px-5 py-4">
           <div>
             <h2 id="drawer-title" className="text-[15px] font-semibold">
-              Layout
+              Settings
             </h2>
             <p className="text-ink-faint text-xs">
               {user
@@ -103,7 +103,7 @@ export default function LayoutDrawer({
           </button>
         </div>
 
-        
+        <div className="flex-1 space-y-6 overflow-y-auto px-5 py-4">
           {/* The default that applies to any project not setting its own. */}
           <div>
             <label
@@ -194,7 +194,6 @@ export default function LayoutDrawer({
             </p>
           </div>
 
-          <div className="flex-1 space-y-6 overflow-y-auto px-5 py-4">
           <section>
             <h3 className="text-ink-muted text-xs font-medium tracking-wide uppercase">
               Density
