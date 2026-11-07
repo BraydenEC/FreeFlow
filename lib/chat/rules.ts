@@ -1280,7 +1280,7 @@ export const CONTENT_RULES: Rule[] = [
     categories: "any",
     areas: "any",
     keywords: [],
-    phrases: ["two currencies", "multiple currencies", "different currencies", "mixed currencies", "more than one currency", "currency per project", "per project currency", "bill one client in", "bill some clients in"],
+    phrases: ["two currencies", "multiple currencies", "different currencies", "mixed currencies", "more than one currency", "currency per project", "per project currency", "bill one client in", "bill some clients in", "clients in dollars", "clients in pesos"],
     answer:
       "Each account has one currency, because adding up mixed currencies would produce a meaningless total. The workaround is to convert those amounts yourself into your account's currency, and note the original in the project's name.",
   },

@@ -6,8 +6,10 @@ Their questions were run through the real rule engine (`lib/chat/engine.ts`) on
 saved to `chat_sessions`. The verdicts are Claude's judgment.
 
 **Result on 2026-11-04: 25 questions. 12 good, 2 weak, 2 wrong, 9 no answer
-(ticket offered).** The 2 wrong answers were fixed on 2026-11-06. The weak and
-no-answer rows are unchanged and show what the bot said at the time.
+(ticket offered).** The 2 wrong answers were fixed on 2026-11-06, and the 2 weak
+and 9 no-answer rows on 2026-11-07. Those rows still show what the bot said on
+2026-11-04. Each question is now a test row, so see `lib/chat/samples.ts` for what
+it reaches today.
 
 These are not the assignment's external user tests. Those are in
 `EXTERNAL_TESTS.md`.
@@ -53,7 +55,7 @@ Package prices with deposits. Not technical, and a bit frustrated.
 | can it remind me when someone hasnt paid | `reminders` | Good |
 | it says i have 0 unpaid but 3 people owe me money | none, ticket | **No answer.** Should reach `dashboard-numbers`: status must be Invoice sent |
 | what will i make in june | none, ticket | **No answer.** Should reach `forecast-explained` |
-| i put the wrong date on a wedding | `relative-dates` | **Wrong** on 2026-11-04. Fixed 2026-11-06: now `project-create-edit` |
+| i put the wrong date on a wedding | `relative-dates` | **Wrong** on 2026-11-04. Fixed 2026-11-06, refined 2026-11-07: now `project-date-fix` |
 | am i going to get charged for this later | none, ticket | **No answer.** Should reach `pricing-future` |
 | this is too complicated | none, ticket | **No answer.** Should reach `getting-started` or a new rule |
 | can i talk to a real person | `guard-human` | Good |
@@ -63,3 +65,4 @@ Package prices with deposits. Not technical, and a bit frustrated.
 - Plain, specific questions work best. Long sentences about a person's own situation miss most often.
 - Two answers were confidently wrong: Spanish "paid less than I invoiced", and "wrong date on a wedding". Both are now fixed.
 - `invoice-create` tells a US photographer about CFDI, which doesn't apply to them.
+- These rephrased questions passing doesn't mean new wording will: rules only recognise wording someone anticipated.

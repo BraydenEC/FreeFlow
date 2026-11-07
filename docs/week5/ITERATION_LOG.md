@@ -95,7 +95,50 @@ Measures: 381 sample questions and 741 chat assertions. "ya me pagaron" and "the
 date it picked is wrong" still reach their original rules. The 2 weak and 9
 no-answer persona rows are not addressed here.
 
-## Iteration 4 onward: training sessions with the owner
+## Iteration 4: live walkthrough on the demo accounts (2026-11-07)
+
+**How it was tested:** Claude wrote three freelancer scenarios and ran them on the
+live site, one per grader demo account: a US copywriter, a US video editor and a
+designer in Mexico City. The owner signed in to each account and Claude did the
+rest in the browser, following each answer's instructions in the real app. This
+is not an external user test. A read-only database check confirmed 12
+conversations and 4 tickets were saved, and that a fake password typed into the
+chat was not stored.
+
+**App problems found, now fixed:**
+
+| Problem | Effect on a user | Fix |
+|---|---|---|
+| Paid projects still said "12 days overdue" in red | Finished work looked late | Paid projects show the date only |
+| New project form filled Contract signed with today | A signing date nobody entered was recorded | Starts blank |
+| Edit form squeezed into the side of its table row | Hard to read, and the row grew very tall | Opens at full width under the row, or across the phone card |
+| Top three Settings sections had no padding and ran off the edge, under the heading "Layout" | Looked broken | Padding restored; the heading says Settings |
+| Footer said "free and always will be", the bot said "free while it grows" | Two different promises | Footer matches the bot and marketing pages |
+
+**Bot answers changed:**
+
+| Question | Before | Now |
+|---|---|---|
+| "i put the wrong date on a project" | Led with how to add a project | New `project-date-fix` rule: Edit, change the Deadline, Save changes |
+| "how do i send my client an invoice" | Mentioned CFDI to everyone | Only "If you're in Mexico" |
+| "is freeflow free" | No answer | `pricing-free` |
+| "mi cliente es una empresa donde lo pongo" | No answer | `tax-client-type` |
+
+The 2 weak and 9 no-answer persona questions were also fixed, adding `too-complicated`
+and `data-encryption`. The encryption answer says plainly that it can't confirm
+encryption details, rather than claiming any.
+
+**Caught in review before release:** one new phrase sent "how do i bill one client
+for two projects" to the currency answer, so the phrases were narrowed and that
+question became a test.
+
+**Measures:** 155 content rules, 426 sample questions, 807 chat assertions, and
+1,538 across all suites.
+
+**Deliberately unchanged:** answers stay in English even when the question is in
+Spanish. That is logged as a ticket and left as the owner's decision.
+
+## Iteration 5 onward: training sessions with the owner
 
 *Not run yet. Each session adds: what was asked, what the bot said, what it
 should say, the change made.*
