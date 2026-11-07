@@ -314,6 +314,11 @@ assert("what's in the csv still describes the file", A("what's in the csv for my
 assert("owes me still reaches the tour", A("how do i track who owes me money", "how_to", "other").ruleId === "getting-started");
 assert("charged now is still pricing-free", A("am i being charged", "pricing_technical", "pricing").ruleId === "pricing-free");
 
+// Review of the walkthrough fixes: billing and status questions aren't about currency
+for (const text of ["how do i bill one client for two projects", "i have one project in progress and another in review", "some are finished and others in progress"]) {
+  assert(`no currency answer for: ${text}`, answer({ category: "how_to", area: "projects", text }).ruleId !== "currency-multiple");
+}
+
 // Security review of Task 5: redaction can lengthen text past the column limit
 const nearLimit = "x".repeat(1990) + " password:a";
 assert("first message stays within 2000 after redaction", firstMessage(replay("broken", "other", [nearLimit])).length <= 2000);

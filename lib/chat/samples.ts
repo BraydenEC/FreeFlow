@@ -419,6 +419,7 @@ export const SAMPLES: Sample[] = [
   { text: "wrong date on my paid project", category: "broken", area: "projects", expect: "project-date-fix" },
   { text: "i typed the wrong deadline for this job", category: "broken", area: "dashboard", expect: "project-date-fix" },
   { text: "i need to fix the date on a job", category: "how_to", area: "other", expect: "project-date-fix" },
+  { text: "how do i change the date", category: "how_to", area: "projects", expect: "project-date-fix" },
   { text: "the date it picked is wrong", category: "broken", area: "brief", expect: "relative-dates" },
   { text: "how do i add a new project", category: "how_to", area: "projects", expect: "project-create-edit" },
   { text: "how do i add a new project", category: "how_to", area: "other", expect: "project-create-edit" },

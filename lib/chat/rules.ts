@@ -73,7 +73,7 @@ export const CONTENT_RULES: Rule[] = [
     categories: ["broken", "how_to"],
     areas: ["projects", "dashboard", "other"],
     keywords: ["date", "wrong"],
-    phrases: ["the wrong date", "wrong date", "wrong deadline", "put the wrong date", "entered the wrong date", "typed the wrong date", "typed the wrong deadline", "put the wrong deadline", "entered the wrong deadline", "fix the date", "correct the date", "fix the deadline", "correct the deadline", "deadline is wrong"],
+    phrases: ["the wrong date", "wrong date", "wrong deadline", "put the wrong date", "entered the wrong date", "typed the wrong date", "typed the wrong deadline", "put the wrong deadline", "entered the wrong deadline", "change the date", "fix the date", "correct the date", "fix the deadline", "correct the deadline", "deadline is wrong"],
     answer:
       "Choose Edit on the project's row, change the Deadline and choose Save changes. The table, the forecast and the Overdue alert follow the new date. If its status is Overdue, change that too, because it doesn't change by itself. The Contract signed date is in the same form.",
   },
@@ -1280,7 +1280,7 @@ export const CONTENT_RULES: Rule[] = [
     categories: "any",
     areas: "any",
     keywords: [],
-    phrases: ["two currencies", "multiple currencies", "different currencies", "mixed currencies", "more than one currency", "currency per project", "per project currency", "bill one client", "bill some clients", "and others in", "and another in"],
+    phrases: ["two currencies", "multiple currencies", "different currencies", "mixed currencies", "more than one currency", "currency per project", "per project currency", "bill one client in", "bill some clients in"],
     answer:
       "Each account has one currency, because adding up mixed currencies would produce a meaningless total. The workaround is to convert those amounts yourself into your account's currency, and note the original in the project's name.",
   },
