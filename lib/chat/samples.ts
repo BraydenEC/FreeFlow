@@ -458,4 +458,12 @@ export const SAMPLES: Sample[] = [
   { text: "do you encrypt my data", category: "pricing_technical", area: "account", expect: "data-encryption" },
   { text: "is my data encrypted", category: "how_to", area: "other", expect: "data-encryption" },
   { text: "is my password encrypted", category: "pricing_technical", area: "account", expect: "password-safety" },
+  // Final code review: questions a guardrail wrongly took over.
+  { text: "my password is broken", category: "broken", area: "account", expect: "password-reset" },
+  { text: "my password is still not working", category: "broken", area: "account", expect: "password-reset" },
+  { text: "mi contraseña es incorrecta", category: "broken", area: "account", expect: "password-reset" },
+  { text: "How much IVA does FreeFlow withhold", category: "pricing_technical", area: "other", expect: "withholding-explained" },
+  { text: "cuanto iva retiene freeflow", category: "pricing_technical", area: "other", expect: "withholding-explained" },
+  { text: "I get a javascript error on the dashboard", category: "broken", area: "dashboard", expect: "app-error" },
+  { text: "my client wants a python script, how do I add a project", category: "how_to", area: "projects", expect: "project-create-edit" },
 ];

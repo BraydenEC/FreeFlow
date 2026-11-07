@@ -160,6 +160,51 @@ for (const s of SAMPLES) {
   assert(`sample → ${s.expect}: "${s.text}"`, got === s.expect, `got ${got}`);
 }
 
+// ── Final code review: wrong outcomes it confirmed ────────────────────────
+// A card with other digits beside it was left whole: the neighbours made the
+// run fail the grouping or Luhn check.
+for (const s of [
+  "4242 4242 4242 4242 123",
+  "4242 4242 4242 4242 12/26",
+  "invoice 12 4242 4242 4242 4242",
+  "4242.4242.4242.4242",
+  "pay 4111-1111-1111-1111 and 5500 0055 5555 5559 please",
+]) {
+  const r = redact(s);
+  assert(`card beside other digits removed: ${s}`, r.redacted && !/\d{4}[ .-]\d{4}[ .-]\d{4}/.test(r.text), `got "${r.text}"`);
+}
+assert("only the card goes, not its neighbours", redact("invoice 12 4242 4242 4242 4242").text === "invoice 12 [removed]");
+// Complaints about a password are not a pasted password.
+for (const s of [
+  "my password is broken",
+  "my password is still not working",
+  "mi contraseña es incorrecta",
+  "mi contraseña es invalida",
+]) {
+  const r = redact(s);
+  assert(`a complaint is not a secret: ${s}`, r.text === s && !r.redacted, `got "${r.text}"`);
+}
+const nfd = "contraseña: hunter2";
+assert("decomposed ñ still redacted", !redact(nfd).text.includes("hunter2"));
+assert("decomposed text alone is not a secret", !redact("la contraseña no funciona").redacted);
+// Tools freelancers work with are not off-topic.
+for (const s of [
+  "How do I add a WordPress project?",
+  "I get a javascript error on the dashboard",
+  "my client wants a python script, how do I add a project",
+  "my photoshop retouching project is missing",
+]) {
+  assert(`not off-topic: ${s}`, A(s, "how_to", "projects").ruleId !== "guard-off-topic", `got ${A(s, "how_to", "projects").ruleId}`);
+}
+assert("a real off-topic request about code is still refused", A("write me a python script", "how_to", "other").ruleId === "guard-off-topic");
+// What FreeFlow calculates is a product question; what you owe is advice.
+for (const s of ["How much IVA does FreeFlow withhold", "how much tax does it take out", "cuanto iva retiene freeflow"]) {
+  assert(`not refused as tax advice: ${s}`, A(s, "pricing_technical", "other").ruleId !== "guard-tax-advice", `got ${A(s, "pricing_technical", "other").ruleId}`);
+}
+for (const s of ["how much tax do i owe", "how much isr should i pay", "cuanto iva debo pagar"]) {
+  assert(`still refused as tax advice: ${s}`, A(s, "pricing_technical", "other").ruleId === "guard-tax-advice", `got ${A(s, "pricing_technical", "other").ruleId}`);
+}
+
 // ── S: session logic decides outcome and what gets stored ─────────────────
 const t = replay("broken", "forecast", ["my forecast shows zero", "the purple moon button"]);
 assert("replay alternates", t.length === 4 && t[1].role === "bot");
@@ -170,9 +215,16 @@ assert(
   "a content answer beats a guard for outcome",
   outcomeFor(replay("broken", "forecast", ["my forecast shows zero", "are you a bot"]), false) === "answered",
 );
-assert("thumbs-down keeps transcript", needsTranscript("answered", [{ ruleId: "forecast-zero", up: false }]));
-assert("clean answer keeps summary only", !needsTranscript("answered", [{ ruleId: "forecast-zero", up: true }]));
-assert("guardrail keeps transcript", needsTranscript("guardrail", []));
+const cleanTurns = replay("broken", "forecast", ["my forecast shows zero"]);
+assert("thumbs-down keeps transcript", needsTranscript("answered", [{ ruleId: "forecast-zero", up: false }], cleanTurns));
+assert("clean answer keeps summary only", !needsTranscript("answered", [{ ruleId: "forecast-zero", up: true }], cleanTurns));
+const guardOnly = replay("how_to", "other", ["can I talk to a human"]);
+assert("guardrail keeps transcript", needsTranscript("guardrail", [], guardOnly));
+const guardThenAnswer = replay("broken", "forecast", ["password: abc123", "my forecast shows zero"]);
+assert(
+  "a later answer doesn't erase the transcript of a guardrail hit",
+  outcomeFor(guardThenAnswer, false) === "answered" && needsTranscript("answered", [], guardThenAnswer),
+);
 assert(
   "filed ticket is frozen",
   canWrite({ ticket_status: "open" }) === false && canWrite({ ticket_status: null }) && canWrite(null),

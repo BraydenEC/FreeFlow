@@ -22,7 +22,10 @@ export const OFF_TOPIC_TRIGGERS: RegExp[] = [
   /\b(tell me a joke|a joke|jokes)\b/,
   /\b(recipe|recipes|cooking)\b/,
   /\b(homework|my essay)\b/,
-  /\b(python|javascript|wordpress|photoshop|minecraft)\b/,
+  // Freelancers work in these tools, so naming one isn't off-topic; asking the
+  // guide to do that work is.
+  /\b(minecraft)\b/,
+  /\b(write|teach me|learn|debug)\b.{0,20}\b(python|javascript|wordpress|photoshop)\b/,
   /\b(girlfriend|boyfriend|dating)\b/,
   /\b(meaning of life)\b/,
 ];
@@ -43,13 +46,14 @@ export const GUARD_RULES: GuardRule[] = [
       /\b(can|do) i\b(?! (set|change|select|pick|enter|update|find|put)\b).{0,30}\b(regime|regimen|resico|persona fisica|persona moral|actividad empresarial)\b/,
       /\b(switch|change|move)\b.{0,20}\bto\b.{0,20}\b(regime|regimen|resico|honorarios)\b/,
       /\b(do|will|should) i (owe|pay)\b.{0,20}\b(tax|taxes|isr|iva|sat)\b/,
-      /\bhow much\b.{0,20}\b(tax|taxes|isr|iva)\b/,
+      // "How much do I owe?" is advice; "how much does FreeFlow withhold?" is a product question.
+      /\bhow much\b(?!.{0,40}\b(freeflow|the app|does it|withhold|withholds|withheld|withholding)\b).{0,20}\b(tax|taxes|isr|iva)\b/,
       /\b(file|filing)\b.{0,15}\b(tax|taxes|declaracion|return)\b/,
       /\blegal advice\b/,
       // Spanish
       /\b(que|cual) regimen\b/,
       /\b(debo|puedo|deberia|me conviene)\b.{0,25}\b(regimen|resico|honorarios|persona fisica|persona moral)\b/,
-      /\bcuanto\b.{0,15}\b(isr|iva|impuesto|impuestos)\b/,
+      /\bcuanto\b(?!.{0,40}\b(freeflow|la app|retiene|retienen|calcula)\b).{0,15}\b(isr|iva|impuesto|impuestos)\b/,
       /\bdeclaracion\b/,
     ],
     answer:

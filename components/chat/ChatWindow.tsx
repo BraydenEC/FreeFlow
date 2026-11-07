@@ -372,7 +372,8 @@ export default function ChatWindow({ userEmail }: { userEmail: string }) {
                   setNotice(null);
                   setStep("chat");
                 }}
-                className="border-hairline text-ink rounded-lg border px-3 py-2"
+                disabled={busy}
+                className="border-hairline text-ink rounded-lg border px-3 py-2 disabled:opacity-60"
               >
                 Keep chatting
               </button>

@@ -64,12 +64,15 @@ export async function POST(request: Request) {
 
   const { id, category, area, messages, ratings, fileTicket } = parsed.data;
 
-  const { data: existing, error: readError } = await supabase
-    .from("chat_sessions")
-    .select("ticket_status")
-    .eq("id", id)
-    .eq("user_id", user.id)
-    .maybeSingle();
+  const readRow = () =>
+    supabase
+      .from("chat_sessions")
+      .select("ticket_status")
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+  const { data: existing, error: readError } = await readRow();
   if (readError) {
     console.warn("[chat] Session read failed:", readError.message);
     return NextResponse.json({ error: "Could not save the conversation." }, { status: 500 });
@@ -101,21 +104,25 @@ export async function POST(request: Request) {
       rules_fired: rulesFired,
       ratings: keptRatings,
       outcome,
-      transcript: needsTranscript(outcome, keptRatings) ? turns : null,
+      transcript: needsTranscript(outcome, keptRatings, turns) ? turns : null,
       ticket_status: fileTicket ? "open" : null,
       updated_at: new Date().toISOString(),
     },
     { onConflict: "id" },
   );
 
-  // 42501: RLS refused the write. The read above said the row was writable, so
-  // a ticket was filed in between (a double-click, or a save racing the
-  // ticket). The ticket is intact; tell the browser so.
+  // 42501: RLS refused the write. If a ticket was filed since the read above (a
+  // double-click, or a save racing the ticket) it is intact, so say so. The
+  // browser shows 409 as "Filed", so anything else must not answer 409: a
+  // refusal with no ticket behind it would tell the user a ticket exists.
   if (error?.code === "42501") {
-    return NextResponse.json(
-      { error: "This conversation already has a ticket." },
-      { status: 409 },
-    );
+    const { data: after } = await readRow();
+    if (after && !canWrite(after)) {
+      return NextResponse.json(
+        { error: "This conversation already has a ticket." },
+        { status: 409 },
+      );
+    }
   }
   if (error) {
     console.warn("[chat] Session save failed:", error.message);

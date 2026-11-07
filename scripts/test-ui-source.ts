@@ -25,6 +25,21 @@ function assert(name: string, condition: boolean, detail = "") {
 
 const read = (path: string) => readFileSync(path, "utf8");
 
+// ── /chat ticket integrity ──────────────────────────────────────────────────
+const route = read("app/api/chat/session/route.ts");
+const refused = route.slice(route.indexOf('error?.code === "42501"'));
+assert(
+  "an RLS refusal only reports 409 after confirming a ticket exists",
+  refused.includes("canWrite") && refused.indexOf("canWrite") < refused.indexOf("status: 409"),
+);
+assert("the save route keeps a guardrail transcript", route.includes("needsTranscript(outcome, keptRatings, turns)"));
+const chatWindow = read("components/chat/ChatWindow.tsx");
+const keepChatting = chatWindow.slice(0, chatWindow.indexOf("Keep chatting"));
+assert(
+  "Keep chatting is disabled while a ticket is being filed",
+  keepChatting.slice(keepChatting.lastIndexOf("<button")).includes("disabled={busy}"),
+);
+
 // ── Settings drawer ─────────────────────────────────────────────────────────
 const drawer = read("components/prefs/LayoutDrawer.tsx");
 const scroller = 'overflow-y-auto px-5 py-4';

@@ -35,7 +35,11 @@ export function replay(category: Category, area: Area, userTexts: string[]): Tur
   return turns;
 }
 
-/** Most serious wins: ticket > no_match > guardrail > answered. */
+/**
+ * Most serious wins: ticket > no_match > guardrail > answered. "guardrail"
+ * means a guard answered and nothing content-related did; needsTranscript
+ * keeps the record either way.
+ */
 export function outcomeFor(turns: Turn[], ticketFiled: boolean): Outcome {
   if (ticketFiled) return "ticket";
   const kinds = turns.filter((t) => t.role === "bot").map((t) => t.kind);
@@ -44,8 +48,13 @@ export function outcomeFor(turns: Turn[], ticketFiled: boolean): Outcome {
   return "answered";
 }
 
-export function needsTranscript(outcome: Outcome, ratings: Rating[]): boolean {
-  return outcome !== "answered" || ratings.some((r) => !r.up);
+/** Each save overwrites the row, so a later answer must not erase a guardrail hit. */
+export function needsTranscript(outcome: Outcome, ratings: Rating[], turns: Turn[]): boolean {
+  return (
+    outcome !== "answered" ||
+    ratings.some((r) => !r.up) ||
+    turns.some((t) => t.role === "bot" && t.kind === "guardrail")
+  );
 }
 
 /** A conversation that already became a ticket is frozen. */
