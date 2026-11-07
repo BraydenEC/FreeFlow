@@ -169,7 +169,7 @@ export default async function Home({
               because a thing this quiet does not need a dismiss button.
             */}
             <p className="text-ink-faint text-center text-xs">
-              FreeFlow is free and always will be for what it does today.{" "}
+              FreeFlow is free while it grows.{" "}
               <Link
                 href="/support"
                 className="text-ink-muted hover:text-ink underline-offset-4 hover:underline"

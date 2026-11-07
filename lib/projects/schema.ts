@@ -134,6 +134,30 @@ export function fieldShownFor(billing: "hourly" | "fixed", field: string): boole
 export type NewProjectInput = z.input<typeof NewProjectSchema>;
 export type NewProject = z.output<typeof NewProjectSchema>;
 
+/*
+  What the new project form starts with. The deadline is required, so it opens
+  on today as something to change. A contract signing date is a fact about the
+  past, and filling one in would record a signature nobody entered, so it
+  starts blank. `today` is passed in, for the same reason `now` is elsewhere.
+*/
+export function blankProject(today: string): NewProjectInput {
+  return {
+    name: "",
+    client: "",
+    status: "contracted",
+    deadline: today,
+    billing: "fixed",
+    hours_logged: "" as unknown as number,
+    hourly_rate: "" as unknown as number,
+    invoice_total: "",
+    contract_signed_on: "",
+    contract_url: "",
+    payment_url: "",
+    client_tax_type: "",
+    payment_terms_days: "",
+  };
+}
+
 /** Empty string means "not provided" from a form; the column wants null. */
 function orNull(v: string | undefined): string | null {
   return v === undefined || v === "" ? null : v;

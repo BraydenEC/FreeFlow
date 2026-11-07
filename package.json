@@ -23,8 +23,9 @@
     "test:ratelimit": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-ratelimit.ts",
     "test:chat": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-chat.ts",
     "test:demo": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-demo.ts",
+    "test:ui-source": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-ui-source.ts",
     "demo:accounts": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/demo-accounts.ts",
-    "test": "npm run test:pricing && npm run test:filters && npm run test:prefs && npm run test:projects && npm run test:progress && npm run test:withholding && npm run test:support && npm run test:csv && npm run test:forecast && npm run test:currency && npm run test:features && npm run test:project-filter && npm run test:marketing && npm run test:ratelimit && npm run test:chat && npm run test:demo"
+    "test": "npm run test:pricing && npm run test:filters && npm run test:prefs && npm run test:projects && npm run test:progress && npm run test:withholding && npm run test:support && npm run test:csv && npm run test:forecast && npm run test:currency && npm run test:features && npm run test:project-filter && npm run test:marketing && npm run test:ratelimit && npm run test:chat && npm run test:demo && npm run test:ui-source"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.120.0",

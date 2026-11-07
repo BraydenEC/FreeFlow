@@ -1,13 +1,15 @@
 import ExportButton from "@/components/dashboard/ExportButton";
+import {
+  EditableProjectCard,
+  EditableProjectRow,
+} from "@/components/dashboard/EditProject";
 import MarkPaidButton from "@/components/dashboard/MarkPaidButton";
-import ProjectForm from "@/components/dashboard/ProjectForm";
 import ProgressBar from "@/components/ProgressBar";
 import StatusBadge from "@/components/StatusBadge";
 import {
-  daysUntil,
+  deadlineNote,
   formatCurrency,
   formatMonthDay,
-  formatRelativeDeadline,
   projectValue,
 } from "@/lib/format";
 import { projectProgress } from "@/lib/progress";
@@ -58,24 +60,24 @@ function RowLinks({ project }: { project: Project }) {
 }
 
 function DeadlineText({ project, now }: { project: Project; now: Date }) {
-  const days = daysUntil(project.deadline, now);
-  const isLate = days < 0;
-  const isSoon = days >= 0 && days <= 3;
+  const note = deadlineNote(project, now);
 
   return (
     <>
       <span className="text-ink block">{formatMonthDay(project.deadline)}</span>
-      <span
-        className={`block text-xs ${
-          isLate
-            ? "text-status-overdue"
-            : isSoon
-              ? "text-status-review"
-              : "text-ink-faint"
-        }`}
-      >
-        {formatRelativeDeadline(project.deadline, now)}
-      </span>
+      {note.text && (
+        <span
+          className={`block text-xs ${
+            note.tone === "late"
+              ? "text-status-overdue"
+              : note.tone === "soon"
+                ? "text-status-review"
+                : "text-ink-faint"
+          }`}
+        >
+          {note.text}
+        </span>
+      )}
     </>
   );
 }
@@ -84,6 +86,9 @@ function DeadlineText({ project, now }: { project: Project; now: Date }) {
    That treatment marks a label. Values — including the status — are printed
    as ordinary text, which is the whole typographic system here. */
 const TH = "px-5 py-2.5 text-[11px] font-medium tracking-[0.08em] uppercase";
+
+/* How many column headers the table has, so an edit row can span them all. */
+const COLUMN_COUNT = 6;
 
 export default function ProjectsTable({
   projects,
@@ -204,9 +209,11 @@ export default function ProjectsTable({
             {projects.map((project) => {
               const progress = projectProgress(project);
               return (
-                <tr
+                <EditableProjectRow
                   key={project.id}
-                  className="border-hairline hover:bg-raised/40 border-t transition-colors"
+                  project={project}
+                  colSpan={COLUMN_COUNT}
+                  actions={!project.isPaid && <MarkPaidButton projectId={project.id} />}
                 >
                   <th scope="row" className="px-5 py-3.5 font-normal">
                     <span className="text-ink block font-medium">
@@ -255,13 +262,7 @@ export default function ProjectsTable({
                   <td className="px-5 py-3.5 whitespace-nowrap">
                     <DeadlineText project={project} now={now} />
                   </td>
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center justify-end gap-2">
-                      {!project.isPaid && <MarkPaidButton projectId={project.id} />}
-                      <ProjectForm project={project} />
-                    </div>
-                  </td>
-                </tr>
+                </EditableProjectRow>
               );
             })}
           </tbody>
@@ -299,10 +300,10 @@ export default function ProjectsTable({
                     <DeadlineText project={project} now={now} />
                   </span>
                 </div>
-                <div className="flex justify-end gap-2">
-                  {!project.isPaid && <MarkPaidButton projectId={project.id} />}
-                  <ProjectForm project={project} />
-                </div>
+                <EditableProjectCard
+                  project={project}
+                  actions={!project.isPaid && <MarkPaidButton projectId={project.id} />}
+                />
               </li>
             );
           })}
