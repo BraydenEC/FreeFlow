@@ -404,4 +404,12 @@ export const SAMPLES: Sample[] = [
   { text: "what's the capital of france", category: "pricing_technical", area: "other", expect: "no_match" },
   { text: "my landlord wants a copy of my lease", category: "how_to", area: "account", expect: "no_match" },
   { text: "banana banana banana", category: "broken", area: "dashboard", expect: "no_match" },
+  // Persona tests, 2026-11-04: two confident wrong answers.
+  { text: "me pagaron menos de lo que facture, por que", category: "how_to", area: "dashboard", expect: "withholding-explained" },
+  { text: "me pagaron menos de lo que facture, por que", category: "broken", area: "other", expect: "withholding-explained" },
+  { text: "me depositaron menos de lo que cobre", category: "how_to", area: "projects", expect: "withholding-explained" },
+  { text: "my client paid me less than i invoiced", category: "broken", area: "dashboard", expect: "withholding-explained" },
+  { text: "i put the wrong date on a wedding", category: "broken", area: "projects", expect: "project-create-edit" },
+  { text: "i put the wrong date on a wedding", category: "how_to", area: "other", expect: "project-create-edit" },
+  { text: "i entered the wrong date on a project", category: "broken", area: "dashboard", expect: "project-create-edit" },
 ];

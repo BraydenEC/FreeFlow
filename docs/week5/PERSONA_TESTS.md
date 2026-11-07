@@ -5,7 +5,12 @@ Their questions were run through the real rule engine (`lib/chat/engine.ts`) on
 2026-11-04, so every answer below is what the bot really returns. Nothing was
 saved to `chat_sessions`. The verdicts are Claude's judgment.
 
-**Result: 25 questions. 12 good, 2 weak, 2 wrong, 9 no answer (ticket offered).**
+**Result on 2026-11-04: 25 questions. 12 good, 2 weak, 2 wrong, 9 no answer
+(ticket offered).** The 2 wrong answers were fixed on 2026-11-06. The weak and
+no-answer rows are unchanged and show what the bot said at the time.
+
+These are not the assignment's external user tests. Those are in
+`EXTERNAL_TESTS.md`.
 
 ## Persona A: graphic designer, Mexico City
 
@@ -14,7 +19,7 @@ Fixed-fee logos and branding for companies. On RESICO. Uses a phone and thinks i
 | Asked | Bot's rule | Verdict |
 |---|---|---|
 | como agrego un proyecto nuevo | none, ticket | **No answer.** Should reach `project-create-edit` |
-| me pagaron menos de lo que facture, por que | `record-payment` | **Wrong.** Should explain withholding |
+| me pagaron menos de lo que facture, por que | `record-payment` | **Wrong** on 2026-11-04. Fixed 2026-11-06: now `withholding-explained` |
 | where do i put that im in resico | `tax-regime` | Good |
 | my client is a company, where do i say that | `tax-client-type` | Good |
 | should i be on resico or regimen general | `guard-tax-advice` | Good: refused and pointed to an accountant |
@@ -48,7 +53,7 @@ Package prices with deposits. Not technical, and a bit frustrated.
 | can it remind me when someone hasnt paid | `reminders` | Good |
 | it says i have 0 unpaid but 3 people owe me money | none, ticket | **No answer.** Should reach `dashboard-numbers`: status must be Invoice sent |
 | what will i make in june | none, ticket | **No answer.** Should reach `forecast-explained` |
-| i put the wrong date on a wedding | `relative-dates` | **Wrong.** Talks about briefs; should say Edit on the row |
+| i put the wrong date on a wedding | `relative-dates` | **Wrong** on 2026-11-04. Fixed 2026-11-06: now `project-create-edit` |
 | am i going to get charged for this later | none, ticket | **No answer.** Should reach `pricing-future` |
 | this is too complicated | none, ticket | **No answer.** Should reach `getting-started` or a new rule |
 | can i talk to a real person | `guard-human` | Good |
@@ -56,5 +61,5 @@ Package prices with deposits. Not technical, and a bit frustrated.
 ## What this shows
 
 - Plain, specific questions work best. Long sentences about a person's own situation miss most often.
-- Two answers were confidently wrong: Spanish "paid less than I invoiced", and "wrong date on a wedding".
+- Two answers were confidently wrong: Spanish "paid less than I invoiced", and "wrong date on a wedding". Both are now fixed.
 - `invoice-create` tells a US photographer about CFDI, which doesn't apply to them.

@@ -81,7 +81,21 @@ from the model crashed the Core page, changing currency left server figures in
 the old one until a reload, and older docs still quoted the old Active Projects
 figure.
 
-## Iteration 3 onward: training sessions with the owner
+## Iteration 3: wrong answers from the persona tests (2026-11-06)
+
+The persona tests in `PERSONA_TESTS.md` found two confident wrong answers. Each
+fix started as failing sample rows, including reworded versions of the question.
+
+| Question | What the bot said | What it says now | Change |
+|---|---|---|---|
+| "me pagaron menos de lo que facture, por que" | Use Mark paid | Explains retenciones | "Paid less" phrases added to the withholding rule, so they outscore "me pagaron" |
+| "i put the wrong date on a wedding" | How briefs read dates | Edit on the project's row | "Wrong date" phrases added to the project rule. The brief answer now also mentions Edit |
+
+Measures: 381 sample questions and 741 chat assertions. "ya me pagaron" and "the
+date it picked is wrong" still reach their original rules. The 2 weak and 9
+no-answer persona rows are not addressed here.
+
+## Iteration 4 onward: training sessions with the owner
 
 *Not run yet. Each session adds: what was asked, what the bot said, what it
 should say, the change made.*

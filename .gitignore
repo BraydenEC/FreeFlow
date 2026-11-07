@@ -46,5 +46,8 @@ next-env.d.ts
 # Course materials (Ibero D2L) — never commit to this public repo
 /Module 4/
 
+# Grader logins written by scripts/demo-accounts.ts. This repository is public.
+/demo-accounts.local.md
+
 # Brainstorming companion mockups
 /.superpowers/

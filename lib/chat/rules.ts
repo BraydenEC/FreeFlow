@@ -63,7 +63,7 @@ export const CONTENT_RULES: Rule[] = [
     categories: ["broken", "how_to"],
     areas: ["projects", "dashboard"],
     keywords: ["add", "create", "new", "edit", "change", "update", "rate", "fee", "hourly", "fixed", "proyecto"],
-    phrases: ["new project", "add a project", "add project", "edit a project", "edit project", "edit my project", "can t edit", "change the deadline", "move the deadline", "change my rate", "my rate", "client name", "wrong amount", "wrong deadline", "wrong client", "typo", "nuevo proyecto", "agregar proyecto", "agregar un proyecto", "crear proyecto", "crear un proyecto", "editar proyecto"],
+    phrases: ["new project", "add a project", "add project", "edit a project", "edit project", "edit my project", "can t edit", "change the deadline", "move the deadline", "change my rate", "my rate", "client name", "wrong amount", "wrong deadline", "wrong client", "typo", "wrong date", "put the wrong", "entered the wrong", "nuevo proyecto", "agregar proyecto", "agregar un proyecto", "crear proyecto", "crear un proyecto", "editar proyecto"],
     answer:
       "Add a project with + New project under the projects table: name, client, status, deadline, and either a fixed total or hours and an hourly rate, then choose Add project. To change it later, choose Edit on its row, change the fields and choose Save changes.",
   },
@@ -116,7 +116,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["date", "deadline", "friday", "monday", "tomorrow", "year", "relative", "wrong", "picked"],
     phrases: ["next friday", "next week", "end of the month", "wrong date", "wrong year"],
     answer:
-      "Dates without a year are read as the next time that date comes around. Phrases like \"next Friday\" are only understood when the AI model did the extraction, so a Pattern matching badge means you should check it. To fix a wrong date, choose Create project and correct the deadline in the form, or write the date out, like Nov 14, and extract again.",
+      "Dates without a year are read as the next time that date comes around. Phrases like \"next Friday\" are only understood when the AI model did the extraction, so a Pattern matching badge means you should check it. To fix a wrong date, choose Create project and correct the deadline in the form, or write the date out, like Nov 14, and extract again. If the project already exists, choose Edit on its row and change the deadline there.",
   },
   // lib/currency.ts — 11 currencies, one per account, never converted
   {
@@ -136,7 +136,7 @@ export const CONTENT_RULES: Rule[] = [
     areas: "any",
     keywords: ["withholding", "withheld", "retenciones", "retencion", "iva", "isr", "bank", "lower", "less", "net"],
     strong: ["withholding", "retenciones", "retencion", "iva", "isr"],
-    phrases: ["lower than", "less than the invoice", "what reaches", "in my bank", "me llega menos", "me retienen", "what is iva", "what is isr", "que es iva", "que es isr"],
+    phrases: ["lower than", "less than the invoice", "what reaches", "in my bank", "me llega menos", "me retienen", "pagaron menos", "me pago menos", "depositaron menos", "menos de lo que facture", "menos de lo que cobre", "paid me less", "less than i invoiced", "less than i billed", "what is iva", "what is isr", "que es iva", "que es isr"],
     answer:
       "When a company (persona moral) in Mexico pays you, it withholds two thirds of the IVA and part of the ISR: 10% under the general regime or 1.25% under RESICO. The forecast, the After retenciones panel and the net line in the table on a computer show what actually reaches your bank, which is lower than the invoice. Unpaid Invoices and This Month's Earnings show the amount you entered, before tax, so they won't match your bank. Set the client type on the project and your regime in Settings.",
   },
@@ -651,7 +651,7 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["fake", "mock", "sample"],
     phrases: ["projects i didn t add", "not my projects", "aren t mine", "fake projects", "sample data", "demo data"],
     answer:
-      "If you see projects you never added, FreeFlow couldn't reach its database and showed sample data so the page would still load. They aren't anyone's real projects, and yours aren't lost. Reload in a minute; Export CSV refuses to run while this is happening. If it keeps happening, submit a ticket.",
+      "If you see projects you never added, FreeFlow couldn't reach its database and showed sample data so the page would still load. They aren't anyone's real projects, and yours aren't lost. Reload in a minute; Export CSV refuses to run while this is happening. If it keeps happening, submit a ticket. The exception is a grader demo account, whose projects start with \"Sample:\" on purpose.",
     offerTicket: true,
   },
   // ProjectForm todayIso, paid route, lib/format daysUntil all use UTC

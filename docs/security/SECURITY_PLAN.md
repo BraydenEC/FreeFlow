@@ -148,6 +148,9 @@ to-check, not passed:
 - **2.5 service_role key isolation** — confirm `SUPABASE_SERVICE_ROLE_KEY` is not
   set anywhere client-side and not used in any route (recon found no usage — good
   sign — but confirm it isn't lurking in Vercel env or a script).
+  One deliberate exception since 2026-11-06: `scripts/demo-accounts.ts`, run by
+  the owner on their own machine to manage grader accounts. It asks for the key
+  at run time, never stores it, and isn't part of the deployed app.
 - **2.8 SECURITY DEFINER functions** — the `confirm_user.sql` migration may
   create a function; check it isn't over-privileged.
 - **3.2 default-deny vs allowlist** in `proxy.ts` — read the matcher + logic to

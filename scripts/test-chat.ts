@@ -294,6 +294,9 @@ assert("a brief becomes a project through Create project", ans("brief-saved-wher
 assert("core no longer shows dollars regardless", !/always display in dollars/.test(ans("brief-value")));
 assert("active projects leaves out paid work", /unpaid/.test(ans("dashboard-numbers").split("Active Projects")[1] ?? "") && !/including ones already marked paid/.test(ans("dashboard-numbers")));
 
+// Grader demo accounts are seeded on purpose; the outage explanation must not cover them
+assert("sample projects on a demo account aren't an outage", ans("sample-data").includes("Sample:"));
+
 // Security review of Task 5: redaction can lengthen text past the column limit
 const nearLimit = "x".repeat(1990) + " password:a";
 assert("first message stays within 2000 after redaction", firstMessage(replay("broken", "other", [nearLimit])).length <= 2000);
