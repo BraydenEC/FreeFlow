@@ -12,21 +12,17 @@
 |---|---|
 | **Live page: /chat** | https://www.freeflow.website/chat |
 | **GitHub** | https://github.com/BraydenEC/FreeFlow |
-| **Demo video** | [[ADD: demo video link]] |
+| **Demo video** | [[⬅️ TO BE ADDED]] |
 
-## Grader Access
-
-`/chat` loads for everyone, but you need to be signed in to use it. Each grader has a separate demo account with sample projects. Sign in at https://www.freeflow.website/login, then open Help in the navigation.
+**Grader logins.** `/chat` loads for everyone, but you need to be signed in to use it. Each grader has a separate demo account with sample projects. Sign in at https://www.freeflow.website/login, then open Help in the navigation.
 
 <!-- logins:start -->
 | Email | Password |
 |---|---|
-| grader1@freeflow.website | [[ADD: rebuild with --with-logins]] |
-| grader2@freeflow.website | [[ADD: rebuild with --with-logins]] |
-| grader3@freeflow.website | [[ADD: rebuild with --with-logins]] |
+| grader1@freeflow.website | [[⬅️ TO BE ADDED]] |
+| grader2@freeflow.website | [[⬅️ TO BE ADDED]] |
+| grader3@freeflow.website | [[⬅️ TO BE ADDED]] |
 <!-- logins:end -->
-
-**Note on "public-facing".** The brief asks for a public-facing assistant. `/chat` is public in that anyone can open it and anyone can create a free account, but a signed-out visitor sees a sign-in prompt rather than the chat. I chose this on purpose, because the assistant is a help desk for people already using FreeFlow, it limits load, and it lets a ticket reach the person who filed it.
 
 ---
 
@@ -53,6 +49,8 @@ Every required feature and coding task from the Week 5 brief, and where it can b
 | Implement guardrail response | `lib/chat/guards.ts`, `lib/chat/redact.ts` | ✅ |
 | Save test summary | `POST /api/chat/session`, `lib/chat/session.ts` | ✅ |
 | Add feedback rating | `ChatWindow.tsx`, stored in `ratings` | ✅ |
+
+**Note on "public-facing".** The brief asks for a public-facing assistant. `/chat` is public in that anyone can open it and anyone can create a free account, but a signed-out visitor sees a sign-in prompt rather than the chat. I chose this on purpose, because the assistant is a help desk for people already using FreeFlow, it limits load, and it lets a ticket reach the person who filed it.
 
 ---
 
@@ -108,7 +106,7 @@ A signed-in user opens `/chat`, answers three quick questions, and either gets a
 
 ## 🧱 Product Spec: requirements and acceptance criteria
 
-| # | Requirement | Pass condition | Result |
+| # | Criterion | Pass condition | Result |
 |---|---|---|---|
 | A1 | `/chat` page | 200 signed out (sign-in prompt) and signed in (chat) | ✅ PASS |
 | A2 | Chat UI | Bubbles for user and bot; usable at 375px with no sideways scroll | ✅ PASS |
@@ -189,12 +187,16 @@ emails the person, and sets ticket_status to resolved
 
 ## 🧪 Test Plan: how will you verify it works?
 
-- **Software tests (`npm run test:chat`):** redaction, guardrails, sample questions, session logic and payload bounds.
-- **Live checks:** page, auth, a real conversation, ticket, double ticket, phone width.
-- **Training:** wrong answers become sample rows, then rule fixes, logged in the iteration log.
-- **3 external user tests:** real people, recorded with their conversation rows.
+| # | Type | Test | Result |
+|---|---|---|---|
+| **SW 1** | Software | Redaction removes cards, keys and passwords, and keeps ordinary amounts, dates, phone numbers and project ids | ✅ PASS |
+| **SW 2** | Software | Each guardrail fires on its triggers and doesn't take over real product questions | ✅ PASS |
+| **SW 3** | Software | 433 written questions each reach their expected rule; an unknown question gets an honest no-answer and a ticket offer | ✅ PASS |
+| **SW 4** | Software | Outcome and storage are computed correctly, a filed ticket is frozen, and a later answer doesn't erase a guardrail transcript | ✅ PASS |
+| **SW 5** | Software | Save payloads are bounded and can't carry `ticket_status`; every link in an answer goes to a real route | ✅ PASS |
+| **EXT 1–3** | External | Three people outside the project each complete a real conversation | ⏳ Not run yet |
 
-Results are in the Test Evidence section below.
+**838 automated assertions pass** (`npm run test:chat`); the whole project runs **1,572 across 17 suites, 0 failed**. Lint, `next build` and `tsc` all exit 0 on `368e105`. The tests import the same `lib/chat/` code the page runs. Raw output and the 14 production checks are in the Test Evidence section below.
 
 ## 🤖 Coding Agent Prompt: exact prompt to Claude Code
 
@@ -219,10 +221,10 @@ Implement docs/superpowers/plans/2026-10-29-chat-help-assistant.md task by task 
 | 🤖 Prompt Log | Minimum 5 coding prompts | ✅ **34** (below) |
 | 🧪 Test Evidence | 3 external + 3 software | ✅ Software: 838 assertions + 14 production checks. ⏳ External: not run yet |
 | 🔁 Iteration Log | What changed after testing | ✅ **5 iterations** (below) |
-| 🎥 Demo Video | 2–3 minutes | [[ADD: demo video link]] |
-| 🧠 Human Decision Note | 150–250 words | [[ADD: your rewritten note, below]] |
+| 🎥 Demo Video | 2–3 minutes | [[⬅️ TO BE ADDED]] |
+| 🧠 Human Decision Note | 150–250 words | [[⬅️ Draft, 236 words (below): rewrite it first]] |
 
-**Build gates:** Gate 1 Plan ✅ · Gate 2 Build ✅ · Gate 3 Test: software tests documented, bugs fixed, redeployed ✅; external tests ⏳ · Gate 4 Explain: [[ADD: demo and decision note]]
+**Build gates:** Gate 1 Plan ✅ · Gate 2 Build ✅ · Gate 3 Test (software tests documented, bugs fixed, redeployed) ✅, external tests [[⬅️ TO BE ADDED]] · Gate 4 Explain: decision note and demo [[⬅️ TO BE ADDED]]
 
 ## Week 5 commits
 
@@ -259,29 +261,34 @@ Implement docs/superpowers/plans/2026-10-29-chat-help-assistant.md task by task 
 
 # Test Evidence
 
-## 3 external user tests
+```
+$ npm run test:chat
 
-[[ADD: fill in these three rows after each person has tested, then delete this line]]
+  PASS  card number removed
+  PASS  dashed card removed
+  PASS  api key removed
+  PASS  password phrase removed
+  PASS  ordinary number kept: $12,500
+  PASS  ordinary number kept: 2026-11-03
+  PASS  not a secret: Invoice 1001 1002 1003 1004
+  PASS  not a secret: The password is required
+  PASS  tax advice refused
+  PASS  human request
+  PASS  other account
+  PASS  account change
+  PASS  off topic
+  PASS  no_match offers ticket
+  PASS  card beside other digits removed: 4242 4242 4242 4242 123
+  PASS  a complaint is not a secret: my password is broken
+  PASS  not off-topic: How do I add a WordPress project?
+  PASS  still refused as tax advice: how much tax do i owe
+  PASS  a later answer doesn't erase the transcript of a guardrail hit
+  PASS  filed ticket is frozen
+────────────────────────────────────────────────────────────────
+  838 passed, 0 failed
+```
 
-| Tester | Date | What they were trying to do | What they asked | Did the bot solve it? | Ticket sent? | What they said | What changed |
-|---|---|---|---|---|---|---|---|
-| 1 | | | | | | | |
-| 2 | | | | | | | |
-| 3 | | | | | | | |
-
-## Software tests
-
-| # | What it proves | Result |
-|---|---|---|
-| **SW 1** | Redaction removes cards, keys and passwords, and keeps ordinary amounts, dates, phone numbers and project ids | ✅ PASS |
-| **SW 2** | Each guardrail fires on its triggers and doesn't take over real product questions | ✅ PASS |
-| **SW 3** | 433 written questions each reach their expected rule; an unknown question gets an honest no-answer and a ticket offer | ✅ PASS |
-| **SW 4** | Outcome and storage are computed correctly, a filed ticket is frozen, and a later answer doesn't erase a guardrail transcript | ✅ PASS |
-| **SW 5** | Save payloads are bounded and can't carry `ticket_status`; every link in an answer goes to a real route | ✅ PASS |
-
-`npm run test:chat`: **838 passed, 0 failed.** `npm test`: 17 suites, **1,572 passed, 0 failed.** Lint, `next build` and `tsc` all exit 0 on `368e105`. The tests import the same `lib/chat/` code the page runs.
-
-**Production checks (2026-11-06, on `368e105`)**
+*Selected lines from the 838. Run the command for the full list.*
 
 | # | Check | How | Result |
 |---|---|---|---|
@@ -300,7 +307,17 @@ Implement docs/superpowers/plans/2026-10-29-chat-help-assistant.md task by task 
 | P13 | Guardrail transcript kept, after the fix | Same conversation as P11, followed by an answered question | ✅ `outcome: answered` with the transcript still present |
 | P14 | No sideways scroll on a phone | `/chat` in a same-origin 375px iframe, before and after intake | ✅ `scrollWidth` 375 of 375 |
 
-*An iframe checks the layout, not a real phone. Claude wrote and ran these test conversations on the `grader3` demo account, with my approval.*
+*Checked on 2026-11-06, on `368e105`. An iframe checks the layout, not a real phone. Claude wrote and ran these test conversations on the `grader3` demo account, with my approval.*
+
+## 3 external user tests
+
+[[⬅️ TO BE ADDED: fill in these rows after each person has tested]]
+
+| Tester | Date | What they were trying to do | What they asked | Did the bot solve it? | Ticket sent? | What they said | What changed |
+|---|---|---|---|---|---|---|---|
+| 1 | | | | | | | |
+| 2 | | | | | | | |
+| 3 | | | | | | | |
 
 ## Other testing, which is not external testing
 
@@ -312,7 +329,7 @@ Implement docs/superpowers/plans/2026-10-29-chat-help-assistant.md task by task 
 
 # Iteration Log: Selected Entries
 
-*Full log with every table: `docs/week5/ITERATION_LOG.md`.*
+*Five iterations recorded, with every table in `docs/week5/ITERATION_LOG.md`. In order:*
 
 ## 1. Coverage: 27 rules became 155, and the limit stayed visible
 
@@ -338,7 +355,7 @@ A review of all Week 5 changes confirmed that a card next to other digits, such 
 
 # Prompt Log
 
-*Agent: Claude Code. Quoted from the session transcripts, typos included. Also in `docs/week5/PROMPT_LOG.md`.*
+*Agent: Claude Code. Thirty-four prompts, also in `docs/week5/PROMPT_LOG.md`. Quoted verbatim from the session transcripts, typos included; a folder path and three friends' names are shortened where marked.*
 
 | # | Date | Prompt | Result |
 |---|---|---|---|
@@ -381,7 +398,9 @@ A review of all Week 5 changes confirmed that a card next to other digits, such 
 
 # Human Decision Note
 
-[[ADD: replace this draft with your own version, then delete this line]]
+[[⬅️ WRITE YOUR NOTE HERE]]
+
+*Draft, 236 words. Rewrite it in your own voice before submitting; every fact can be checked in the repository.*
 
 My biggest decision this week was not to put an AI model behind /chat. FreeFlow already uses Claude to read briefs, and a model can sound sure of itself while being wrong. A help desk that invents a setting is worse than having none. So the guide answers from 155 written rules, and when nothing fits it says so and offers a ticket. I read tickets in Supabase and either fix the problem or email the person myself. That is the human checkpoint.
 

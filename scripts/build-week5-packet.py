@@ -7,8 +7,8 @@ Builds the Week 5 submission packet from docs/week5/WEEK5_SUBMISSION_DOCUMENT.md
 
 The HTML is committed to this public repository, so it never contains passwords.
 --with-logins copies them from the git-ignored demo-accounts.local.md into the PDF
-only. Anything still written as [[like this]] is highlighted in the output and
-listed when the build finishes, so an unfinished slot can't be missed.
+and its local editable HTML only. Anything still written as [[like this]] is listed
+when the build finishes, so an unfinished slot can't be missed.
 """
 
 import argparse
@@ -28,28 +28,30 @@ LOGINS = ROOT / "demo-accounts.local.md"
 COURSE_FOLDER = Path.home() / "Documents/Documents/School Work /Negocios Inteligentes/Module 5"
 LOGINS_BLOCK = re.compile(r"<!-- logins:start -->.*?<!-- logins:end -->", re.S)
 MAX_IMAGE_BYTES = 900_000
+NARROW_COLUMNS = {"#": 9, "Date": 9, "Commit": 14, "Tester": 9}
 
+# Matches the look of the Week 1-4 PDFs as submitted (exported from Google Docs).
 CSS = """
 :root{color-scheme:light}
-body{font-family:Georgia,'Times New Roman',serif;font-size:11pt;line-height:1.5;color:#111;background:#fff;max-width:7.5in;margin:0 auto;padding:0 16px}
-h1{font-size:20pt;border-bottom:2px solid #333;padding-bottom:6px;margin-top:24pt}
-h2{font-size:15pt;margin-top:20pt;color:#1a1a1a}
-h3{font-size:12.5pt;margin-top:14pt}
-h1,h2,h3{break-after:avoid}
-table{border-collapse:collapse;width:100%;font-size:9.5pt;margin:10pt 0}
-tr,td,th,.cell{break-inside:avoid;page-break-inside:avoid}
-.cell{display:inline-block;width:100%}
-th{background:#eee;text-align:left}
-td,th{border:1px solid #999;padding:5px;overflow-wrap:break-word}
-code{font-family:'Courier New',monospace;font-size:9.5pt;background:#f2f2f2}
-pre{background:#f5f5f5;border:1px solid #ccc;padding:8px;font-size:9pt;white-space:pre-wrap;break-inside:avoid;page-break-inside:avoid}
-pre code{background:none}
-blockquote{border-left:3px solid #888;margin-left:0;padding-left:12px;color:#333;font-style:italic}
+body{font-family:'Times New Roman',Times,serif;font-size:10.5pt;line-height:1.55;color:#111;background:#fff;max-width:6.5in;margin:0 auto}
+h1{font-size:15pt;font-weight:bold;margin:20pt 0 14pt;padding-bottom:12pt;border-bottom:1px solid #bbb}
+h2{font-size:12pt;font-weight:bold;margin:18pt 0 8pt}
+h1,h2{break-after:avoid;page-break-after:avoid}
+p{margin:7pt 0}
+table{border-collapse:collapse;table-layout:fixed;width:88%;font-size:8.5pt;line-height:1.5;margin:10pt 0}
+thead{display:table-header-group}
+tr{break-inside:avoid;page-break-inside:avoid}
+th{background:#eee;text-align:left;font-weight:normal}
+td,th{border:1px solid #aaa;padding:6px 7px;overflow-wrap:break-word;vertical-align:top}
+code{font-family:inherit}
+pre{background:#f7f7f7;padding:8px;font-size:8pt;line-height:1.35;white-space:pre-wrap;break-inside:avoid;page-break-inside:avoid}
+pre code{font-family:'Courier New',monospace}
+blockquote{margin-left:12px;font-style:italic}
 hr{border:none;border-top:1px solid #bbb;margin:16pt 0}
 img{max-width:100%;height:auto}
 .shot{break-inside:avoid;page-break-inside:avoid}
-.shot img{max-height:430px;width:auto}
-mark{background:#ffe45c;color:#000;font-weight:bold;padding:0 3px;border:2px solid #c00;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.shot img{max-height:480px;width:auto}
+mark{background:none;color:inherit;font-weight:bold}
 """
 
 
@@ -90,6 +92,14 @@ def table_row(line: str) -> list[str]:
     return [cell.strip() for cell in line.strip().strip("|").split("|")]
 
 
+def columns(head: list[str]) -> str:
+    """Equal columns like the earlier PDFs, except short ones such as # and Date."""
+    fixed = [NARROW_COLUMNS[h] for h in head if h in NARROW_COLUMNS]
+    share = (100 - sum(fixed)) / max(len(head) - len(fixed), 1)
+    widths = [NARROW_COLUMNS.get(h, share) for h in head]
+    return "<colgroup>" + "".join(f'<col style="width:{w:.1f}%">' for w in widths) + "</colgroup>"
+
+
 def render(markdown: str, tmp: Path) -> str:
     out: list[str] = []
     lines = markdown.split("\n")
@@ -124,8 +134,8 @@ def render(markdown: str, tmp: Path) -> str:
                 body.append(table_row(lines[i]))
                 i += 1
             head_html = "".join(f"<th>{inline(c)}</th>" for c in head)
-            body_html = "".join("<tr>" + "".join(f'<td><div class="cell">{inline(c)}</div></td>' for c in row) + "</tr>" for row in body)
-            out.append(f"<table><thead><tr>{head_html}</tr></thead><tbody>{body_html}</tbody></table>")
+            body_html = "".join("<tr>" + "".join(f"<td>{inline(c)}</td>" for c in row) + "</tr>" for row in body)
+            out.append(f'<table border="1" cellspacing="0" cellpadding="6">{columns(head)}<thead><tr>{head_html}</tr></thead><tbody>{body_html}</tbody></table>')
         elif line.startswith(">"):
             block = []
             while i < len(lines) and lines[i].startswith(">"):
@@ -190,16 +200,19 @@ def main() -> None:
             printable = page(render(LOGINS_BLOCK.sub(lambda _: login_table(), markdown), tmp))
         print_html = tmp / "print.html"
         print_html.write_text(printable, encoding="utf8")
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        editable = args.out.with_name(f"{args.out.stem} (editable).html")
+        editable.write_text(printable, encoding="utf8")
 
         tool = tmp / "html2pdf"
         subprocess.run(["swiftc", "-O", str(ROOT / "scripts" / "html2pdf.swift"), "-o", str(tool)], check=True)
-        args.out.parent.mkdir(parents=True, exist_ok=True)
         subprocess.run([str(tool), str(print_html), str(args.out)], check=True, timeout=180)
 
         slots = re.findall(r"<mark>(.*?)</mark>", printable)
 
     print(f"HTML: {OUTPUT_HTML.relative_to(ROOT)}")
     print(f"PDF:  {args.out}")
+    print(f"Editable HTML: {editable}")
     if slots:
         print(f"\nNOT READY TO SUBMIT: {len(slots)} slot(s) still open:")
         for slot in slots:
