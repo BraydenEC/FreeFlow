@@ -9,7 +9,7 @@
 
 ---
 
-My biggest decision this week was not to put an AI model behind /chat. FreeFlow already uses Claude to read briefs, and a model can sound sure of itself while being wrong. A help desk that invents a setting is worse than having none. So the guide answers from 152 written rules, and when nothing fits it says so and offers a ticket. I read tickets in Supabase and either fix the problem or email the person myself. That is the human checkpoint.
+My biggest decision this week was not to put an AI model behind /chat. FreeFlow already uses Claude to read briefs, and a model can sound sure of itself while being wrong. A help desk that invents a setting is worse than having none. So the guide answers from 155 written rules, and when nothing fits it says so and offers a ticket. I read tickets in Supabase and either fix the problem or email the person myself. That is the human checkpoint.
 
 I rejected a live chat, because I can't staff one, and kept the chat signed-in only to limit load. I also limited what gets stored: every conversation keeps its first message, the answers given and the ratings, and the full transcript is kept only for tickets, thumbs-down ratings, unanswered questions and guardrail hits.
 
