@@ -191,6 +191,18 @@ assert("each worry is a real button", /<button[\s\S]{0,120}data-note/.test(night
 assert("chapter 1 reads reduced motion", /prefers-reduced-motion/.test(night));
 assert("sorting the night is tracked", night.includes('track("night_sorted"'));
 
+// ── Week 6 /demo chapters 2-4 ───────────────────────────────────────────────
+const sig = readOr("components/funnel/Signature.tsx");
+assert("the signature uses Caveat from next/font", /from "next\/font\/google"/.test(sig) && sig.includes("Caveat("));
+assert("the signature reads Brayden", sig.includes("Brayden"));
+assert("the signature is already signed under reduced motion", /prefers-reduced-motion/.test(sig));
+const proof = readOr("components/funnel/ChapterProof.tsx");
+assert("proof comes from CHANGES", proof.includes("CHANGES.map("));
+assert("proof hard-codes no quotes", !/[“"][A-Z][^"”]{20,}[”"]/.test(proof.replace(/className="[^"]*"/g, "")));
+assert("the story is tracked once read", readOr("components/funnel/ChapterStory.tsx").includes('track("story_complete"'));
+const walk = readOr("components/funnel/ChapterWalkthrough.tsx");
+assert("walkthrough samples are labelled Sample", walk.includes(">Sample<"));
+
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed\n`);
 if (failed > 0) process.exit(1);

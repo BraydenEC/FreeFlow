@@ -15,6 +15,7 @@ import { PRICE_PATTERN } from "@/lib/venture/changes";
 import { FEATURE_GROUPS } from "@/lib/product/features";
 import { clockFor, storyMinutes } from "@/lib/funnel/clock";
 import { moodFor } from "@/lib/funnel/mood";
+import { STORY } from "@/lib/funnel/story";
 import { MAX_LIVE, startSort, spawn, fileWorry, handleRest, canOfferRest, stressLevel } from "@/lib/funnel/sorting";
 
 let passed = 0;
@@ -120,6 +121,13 @@ const total = JOBS.writer.worries.length;
 for (let i = 0; i < total; i++) cycle = fileWorry(spawn(cycle), spawn(cycle).live.at(-1)!.id);
 for (let i = 0; i < 3; i++) cycle = spawn(cycle);
 assert("the queue refills from the job's worries when it runs out", cycle.live.length > 0);
+
+// Chapter 3: the founder's story, from his own words.
+assert("the story opens with video editing", /video editing/i.test(STORY.paragraphs[0] ?? ""));
+assert("the story states no price", !PRICE_PATTERN.test(JSON.stringify(STORY)));
+assert("the mission is about ease", STORY.mission.includes("ease"));
+assert("the P.S. gives the public contact", STORY.ps.includes("braydenemeryc@gmail.com"));
+assert("every walkthrough step has a labelled sample", WALKTHROUGH.every((s) => s.sample.trim().length > 0));
 
 // No prices anywhere in funnel content.
 const allText = JSON.stringify({

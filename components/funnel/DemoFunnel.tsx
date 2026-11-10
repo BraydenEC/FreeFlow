@@ -5,6 +5,9 @@ import { clockFor } from "@/lib/funnel/clock";
 import { moodFor } from "@/lib/funnel/mood";
 import { JobProvider } from "@/components/funnel/JobContext";
 import ChapterNight from "@/components/funnel/ChapterNight";
+import ChapterWalkthrough from "@/components/funnel/ChapterWalkthrough";
+import ChapterStory from "@/components/funnel/ChapterStory";
+import ChapterProof from "@/components/funnel/ChapterProof";
 import StickyCta from "@/components/funnel/StickyCta";
 
 /*
@@ -78,9 +81,9 @@ function Funnel() {
 
       <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6">
         <ChapterNight />
-        <section id="walkthrough" aria-label="Chapter 2: every worry has a place" className="min-h-[60vh] py-10" />
-        <section id="story" aria-label="Chapter 3: the story" className="min-h-[60vh] py-10" />
-        <section id="proof" aria-label="Chapter 4: you said, we changed" className="min-h-[40vh] py-10" />
+        <ChapterWalkthrough />
+        <ChapterStory />
+        <ChapterProof />
         <section id="game" aria-label="Chapter 5: now you try" className="min-h-[60vh] py-10" />
         <section id="morning" aria-label="Chapter 6: morning" className="min-h-[60vh] py-10" />
       </div>

@@ -13,6 +13,8 @@ export type WalkthroughStep = {
   worry: string;
   featureName: string;
   benefit: string;
+  /** A one-line sample of what it looks like in FreeFlow, shown labelled "Sample". */
+  sample: string;
   href: string;
 };
 
@@ -23,6 +25,7 @@ export const WALKTHROUGH: WalkthroughStep[] = [
     worry: "did they pay??",
     featureName: "Overdue alert",
     benefit: "Late payments pin themselves to the top. You stop finding out by remembering.",
+    sample: "Invoice #9 · Overdue 12 days · pinned to the top",
     href: "/product",
   },
   {
@@ -30,6 +33,7 @@ export const WALKTHROUGH: WalkthroughStep[] = [
     worry: "can I take December off?",
     featureName: "Six-month cash-flow forecast",
     benefit: "See what lands each month, with money that's scheduled kept apart from money that's only likely.",
+    sample: "December · scheduled and likely shown apart",
     href: "/product",
   },
   {
@@ -37,6 +41,7 @@ export const WALKTHROUGH: WalkthroughStep[] = [
     worry: "they pay… 30 days after? 60?",
     featureName: "Payment terms per project",
     benefit: "Each client's payment terms turn a deadline into the day the money actually arrives.",
+    sample: "Deadline Fri 14 · net 30 · arrives Mon 17",
     href: "/product",
   },
   {
@@ -44,6 +49,7 @@ export const WALKTHROUGH: WalkthroughStep[] = [
     worry: "wait, did I mark that paid?",
     featureName: "Record a payment",
     benefit: "Mark it paid once, and this month's earnings update themselves.",
+    sample: "Brand deck · Paid 04/11",
     href: "/product",
   },
   {
@@ -51,6 +57,7 @@ export const WALKTHROUGH: WalkthroughStep[] = [
     worry: "paid in dollars, rent in pesos",
     featureName: "Eleven currencies",
     benefit: "Amounts written the way your region writes them.",
+    sample: "Amounts in your currency, your way",
     href: "/product",
   },
   // Paperwork & tax
@@ -59,6 +66,7 @@ export const WALKTHROUGH: WalkthroughStep[] = [
     worry: "contract.pdf… where",
     featureName: "Contract and payment links",
     benefit: "The signed date, the contract and the payment link live on the project.",
+    sample: "Contract signed 02/11 · payment link saved",
     href: "/product",
   },
   {
@@ -66,6 +74,7 @@ export const WALKTHROUGH: WalkthroughStep[] = [
     worry: "IVA ???",
     featureName: "Withholding handling",
     benefit: "If a company withholds IVA and ISR in Mexico, you see what actually reaches your bank.",
+    sample: "IVA and ISR withheld · net worked out",
     href: "/product",
   },
   {
@@ -73,6 +82,7 @@ export const WALKTHROUGH: WalkthroughStep[] = [
     worry: "my accountant wants a spreadsheet",
     featureName: "Export to CSV",
     benefit: "Every project in one file, with the withholding already worked out.",
+    sample: "freeflow-projects.csv · withholding included",
     href: "/product",
   },
   // Organization
@@ -81,6 +91,7 @@ export const WALKTHROUGH: WalkthroughStep[] = [
     worry: "new client email",
     featureName: "Brief extraction",
     benefit: "Paste the message and get a project back. You check it before it's saved.",
+    sample: "“quick favor” email → Poster · Mercado · due Fri",
     href: "/product",
   },
   {
@@ -88,6 +99,7 @@ export const WALKTHROUGH: WalkthroughStep[] = [
     worry: "what's due this week?",
     featureName: "Project & deadline table",
     benefit: "Every project with its client, value, days left and status, in one table.",
+    sample: "Client · value · days left · status",
     href: "/product",
   },
   {
@@ -95,6 +107,7 @@ export const WALKTHROUGH: WalkthroughStep[] = [
     worry: "is my client list safe?",
     featureName: "Accounts and per-user data",
     benefit: "Your own private account. Nobody else can see your projects.",
+    sample: "Only you can see your projects",
     href: "/product",
   },
   {
@@ -102,6 +115,7 @@ export const WALKTHROUGH: WalkthroughStep[] = [
     worry: "too much on one screen",
     featureName: "Saved layout preferences",
     benefit: "Arrange the dashboard once and it stays that way.",
+    sample: "Forecast first · table full width",
     href: "/product",
   },
 ];
