@@ -8,6 +8,9 @@ import ChapterNight from "@/components/funnel/ChapterNight";
 import ChapterWalkthrough from "@/components/funnel/ChapterWalkthrough";
 import ChapterStory from "@/components/funnel/ChapterStory";
 import ChapterProof from "@/components/funnel/ChapterProof";
+import Game from "@/components/funnel/Game";
+import ChapterMorning from "@/components/funnel/ChapterMorning";
+import FunnelFooter from "@/components/funnel/FunnelFooter";
 import StickyCta from "@/components/funnel/StickyCta";
 
 /*
@@ -84,8 +87,9 @@ function Funnel() {
         <ChapterWalkthrough />
         <ChapterStory />
         <ChapterProof />
-        <section id="game" aria-label="Chapter 5: now you try" className="min-h-[60vh] py-10" />
-        <section id="morning" aria-label="Chapter 6: morning" className="min-h-[60vh] py-10" />
+        <Game />
+        <ChapterMorning />
+        <FunnelFooter />
       </div>
     </div>
   );

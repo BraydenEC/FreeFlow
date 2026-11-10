@@ -203,6 +203,32 @@ assert("the story is tracked once read", readOr("components/funnel/ChapterStory.
 const walk = readOr("components/funnel/ChapterWalkthrough.tsx");
 assert("walkthrough samples are labelled Sample", walk.includes(">Sample<"));
 
+// ── Week 6 /demo chapters 5-6 and footer ────────────────────────────────────
+const game = readOr("components/funnel/Game.tsx");
+assert("the game pauses when the tab is hidden", game.includes("visibilitychange"));
+assert("the game's personal best survives blocked storage", storageGuarded(game, "localStorage"));
+assert("invoices and upgrades are real buttons", game.includes("<button") && /invoices\.map[\s\S]{0,400}<button/.test(game) && /UPGRADES\.map[\s\S]{0,600}<button/.test(game));
+assert("a finished round is tracked", game.includes('track("round_played"'));
+assert("the game sends no score to the server", !/fetch\(/.test(game));
+const launchForm = readOr("components/funnel/LaunchListForm.tsx");
+assert("the launch list needs a consent checkbox", /type="checkbox"[\s\S]{0,200}required/.test(launchForm));
+assert("the consent label is exact", launchForm.includes("Email me when the lifetime version launches. Nothing else."));
+assert("the launch list posts to its route", launchForm.includes('"/api/launch-list"'));
+assert("a 503 says it couldn't save", launchForm.includes("Couldn't save right now. Please try again later."));
+assert("a repeat sign-up says already on the list", launchForm.includes("You're already on the list."));
+const footer = readOr("components/funnel/FunnelFooter.tsx");
+assert("the footer gives the contact address", footer.includes("mailto:braydenemeryc@gmail.com"));
+assert("the footer links to the impact check", footer.includes("/docs#impact"));
+assert(
+  "the footer carries the exact privacy note",
+  footer.includes(
+    "Your email is used only to tell you when the lifetime version of FreeFlow launches. It is kept by Brayden (braydenemeryc@gmail.com). To be removed, email that address. Every launch email also has a remove-me link.",
+  ),
+);
+const morning = readOr("components/funnel/ChapterMorning.tsx");
+assert("morning's primary action tracks the click", morning.includes('track("try_free_click"'));
+assert("morning states no price", !/\$\s?\d|\bMXN\b|per month/i.test(morning));
+
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed\n`);
 if (failed > 0) process.exit(1);
