@@ -13,7 +13,7 @@
 export const STORY = {
   paragraphs: [
     "I did videography and video editing. The work took most of my effort and attention, so it was hard to always remember when my deadlines were, and what to expect to earn after.",
-    "When I had to build a website for a class, I asked what would have been useful to me: something to make my life easier, and the lives of my friends and the people around me. Building projects on my own, and doing them for other people, was already difficult and stressful. A helper, like a personal assistant that takes some of that friction away, means a lot to me.",
+    "So I built what I wish I'd had: something to make my life easier, and the lives of my friends and the people around me. Building projects on my own, and doing them for other people, was already difficult and stressful. A helper, like a personal assistant that takes some of that friction away, means a lot to me.",
     "I've been through it, and I want to listen, so FreeFlow can be the best app it can be for everyone: made for you, of actual use, something that adds real value to your workflow. Maybe even a necessity.",
   ],
   mission: "FreeFlow is here to bring ease to freelancers.",
