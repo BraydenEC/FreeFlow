@@ -7,7 +7,7 @@
   which leads straight into the deadline table and the forecast. The page
   shows it unsigned until "Brayden" writes itself underneath.
 
-  DRAFT pending the owner's approval of the final wording (plan Task 11).
+  Wording approved by the owner on 2026-11-10; he expects to refine it over time.
 */
 
 export const STORY = {
