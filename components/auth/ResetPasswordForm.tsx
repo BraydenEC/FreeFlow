@@ -95,7 +95,7 @@ export default function ResetPasswordForm() {
             You are signed in with the new password.
           </p>
           <Link
-            href="/"
+            href="/dashboard"
             className="bg-accent text-app mt-6 inline-block rounded-lg px-4 py-2.5 text-sm font-semibold"
           >
             Go to dashboard

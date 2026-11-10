@@ -61,7 +61,7 @@ export default async function CorePage() {
                 add to your dashboard — without retyping a thing.
               </p>
               <Link
-                href="/"
+                href="/dashboard"
                 className="text-accent-soft mt-3 inline-block text-xs hover:underline"
               >
                 ← Back to dashboard

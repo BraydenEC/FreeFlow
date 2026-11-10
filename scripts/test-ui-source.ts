@@ -72,7 +72,8 @@ assert("the form no longer pre-fills a signing date", !/contract_signed_on: toda
 assert("every layout's deadline goes through one decision", table.includes("deadlineNote(") && !table.includes("formatRelativeDeadline"));
 
 // ── The promise under the dashboard ─────────────────────────────────────────
-const home = read("app/page.tsx");
+// The dashboard moved from / to /dashboard in Week 6.
+const home = read("app/dashboard/page.tsx");
 assert("the dashboard makes no forever promise", !/always will be/i.test(home));
 assert("it uses the words the other pages use", /free while it grows/.test(home));
 
@@ -115,6 +116,34 @@ assert("the Dock respects reduced motion", /prefers-reduced-motion/.test(dockSrc
 assert("the Dock is a labelled nav", /<nav[^>]*aria-label=/.test(dockSrc));
 assert("the Dock toggle is a real button", /<button[\s\S]{0,200}aria-expanded/.test(dockSrc));
 assert("the top bar no longer lists pages", !readOr("components/TopBar.tsx").includes("PRIMARY_NAV"));
+
+// ── Week 6 /dashboard ───────────────────────────────────────────────────────
+assert("signed-in visitors to / go to the dashboard", read("app/page.tsx").includes('redirect("/dashboard")'));
+const dashPage = readOr("app/dashboard/page.tsx");
+assert(
+  "the dashboard has Your work and FreeFlow in public tabs",
+  dashPage.includes("<Tabs") && dashPage.includes('id: "work"') && dashPage.includes('id: "public"'),
+);
+assert("the dashboard stays dynamic", dashPage.includes('export const dynamic = "force-dynamic"'));
+const proxySrc = read("proxy.ts");
+const authBounce = proxySrc.slice(proxySrc.indexOf("AUTH_ROUTES.includes(pathname)"));
+assert("signed-in users on auth pages go to /dashboard", authBounce.slice(0, 200).includes('"/dashboard"'));
+assert("the dashboard is not gated by the proxy", !/PRIVATE_PREFIXES = \[[^\]]*\/dashboard/.test(proxySrc));
+assert("email confirmation lands on /dashboard", read("app/auth/confirm/route.ts").includes('"/dashboard"'));
+for (const path of [
+  "components/auth/AuthForm.tsx",
+  "components/auth/FragmentSession.tsx",
+  "components/auth/ResetPasswordForm.tsx",
+  "components/core/BriefToProject.tsx",
+  "app/core/page.tsx",
+]) {
+  const src = read(path);
+  assert(`${path} sends people to /dashboard, not /`, src.includes('"/dashboard"') && !/(href=|push\(|replace\()[^\n]{0,40}"\/"[^\w]/.test(src));
+}
+const publicNumbers = readOr("components/venture/PublicNumbers.tsx");
+assert("the public tab exists", publicNumbers.length > 0);
+assert("the public tab never mentions email", !/email/i.test(publicNumbers));
+assert("the public tab says when numbers are unavailable", publicNumbers.includes("Live numbers are unavailable right now"));
 
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed\n`);

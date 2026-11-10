@@ -44,7 +44,7 @@ export default function OverdueAlert({
           {overdue.length} overdue · {formatCurrency(total, currency)} outstanding
         </h2>
         <Link
-          href="/"
+          href="#widget-projects"
           className="text-ink-faint hover:text-ink text-xs underline underline-offset-2"
         >
           full table ↓

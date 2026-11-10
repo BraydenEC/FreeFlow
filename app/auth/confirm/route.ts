@@ -55,5 +55,5 @@ export async function GET(request: NextRequest) {
   // A recovery link is not a sign-in, it is permission to choose a new
   // password. Dropping the user on the dashboard would leave them signed in
   // with the password they could not remember.
-  return redirectTo(type === "recovery" ? "/reset-password" : "/");
+  return redirectTo(type === "recovery" ? "/reset-password" : "/dashboard");
 }

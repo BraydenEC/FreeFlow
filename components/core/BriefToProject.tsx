@@ -27,7 +27,7 @@ export default function BriefToProject({
       {created ? (
         <p role="status" className="text-ink-muted text-xs">
           Project added.{" "}
-          <Link href="/" className="text-accent-soft hover:underline">
+          <Link href="/dashboard" className="text-accent-soft hover:underline">
             Open dashboard →
           </Link>
         </p>

@@ -14,6 +14,10 @@ import { useId } from "react";
 
   The active tab is carried in the URL so a specific section is linkable, and
   the server passes the initial value so first paint is correct.
+
+  The tab row normally shows only below md, because on wider screens the
+  sidebar (SubNav) carries the same "?tab=" links. A page whose tabs have no
+  sidebar entries (/dashboard) passes tablist="always".
 */
 
 export type Tab = { id: string; label: string; content: React.ReactNode };
@@ -22,10 +26,12 @@ export default function Tabs({
   tabs,
   initial,
   param = "tab",
+  tablist = "mobile",
 }: {
   tabs: Tab[];
   initial: string;
   param?: string;
+  tablist?: "mobile" | "always";
 }) {
   const router = useRouter();
   const search = useSearchParams();
@@ -44,7 +50,7 @@ export default function Tabs({
     <div>
       <div
         role="tablist"
-        className="border-hairline bg-surface flex flex-wrap gap-1 rounded-lg border p-1 md:hidden"
+        className={`border-hairline bg-surface flex flex-wrap gap-1 rounded-lg border p-1 ${tablist === "mobile" ? "md:hidden" : ""}`}
       >
         {tabs.map((t) => (
           <button

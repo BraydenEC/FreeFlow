@@ -91,7 +91,7 @@ export default function AuthForm({ mode }: { mode: Mode }) {
       return;
     }
 
-    router.push("/");
+    router.push("/dashboard");
     router.refresh();
   }
 

@@ -22,10 +22,12 @@ import { getSupabaseEnv } from "@/lib/supabase/env";
 */
 
 /*
-  "/" is deliberately absent. The root renders a landing page when signed out
-  and the dashboard when signed in, so the page decides rather than a
-  redirect. Gating it here would send every cold visitor to a sign-up form
-  before telling them what they were signing up for.
+  "/" and "/dashboard" are deliberately absent. The root shows the public
+  front page when signed out and sends a signed-in visitor to /dashboard.
+  /dashboard itself has a public tab ("FreeFlow in public") that a signed-out
+  visitor sees, so the page decides what to show rather than a redirect.
+  Gating either here would send every cold visitor to a sign-up form before
+  telling them what they were signing up for.
 */
 const PRIVATE_PREFIXES = ["/core"];
 // Pages a signed-in user has no business seeing. /auth/confirm is absent on
@@ -77,7 +79,7 @@ export async function proxy(request: NextRequest) {
 
   if (user && AUTH_ROUTES.includes(pathname)) {
     const url = request.nextUrl.clone();
-    url.pathname = "/";
+    url.pathname = "/dashboard";
     url.search = "";
     return NextResponse.redirect(url);
   }

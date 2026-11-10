@@ -55,7 +55,7 @@ export default function FragmentSession() {
       // Strip the fragment either way, so a refresh cannot replay it.
       window.history.replaceState(null, "", window.location.pathname);
       if (data.session) {
-        router.replace(isRecovery ? "/reset-password" : "/");
+        router.replace(isRecovery ? "/reset-password" : "/dashboard");
         router.refresh();
       } else {
         setFailed(true);
