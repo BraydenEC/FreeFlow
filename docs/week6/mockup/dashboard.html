@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>/dashboard mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!--
+  Week 6 Gate 1 mockup of /dashboard, made by Claude as static HTML and rendered to PNG
+  with scripts/snap.swift. Built from dashboard-options.html option C (both tabs).
+  "Your work" uses sample data in today's dashboard layout and labels. The public tab shows
+  placeholders ("—") only: no invented counts.
+-->
+<style>
+  :root{--app:#000;--raised:#111;--line:#262626;--ink:#fff;--muted:#a3a3a3;--faint:#525252;
+    --blue:#60a5fa;--yellow:#fcd34d;--mint:#34d399;--red:#f87171;--accent:#60a5fa;
+    --sans:"Geist",ui-sans-serif,system-ui,-apple-system,sans-serif;--mono:"Geist Mono",ui-monospace,monospace}
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--app);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+  .mocktag{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.04em;padding:10px 32px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between}
+  .wrap{max-width:1180px;margin:0 auto;padding:30px 32px 50px}
+  .anno{font-family:var(--mono);font-size:10.5px;color:#8b8b8b;border:1px dashed #3f3f3f;border-radius:6px;padding:3px 7px;display:inline-block;background:#000}
+  .anno b{color:#d4d4d4;font-weight:500}
+  .annos{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .flabel{display:flex;align-items:baseline;gap:12px;margin:0 0 12px}
+  .flabel .n{font-family:var(--mono);font-size:11px;color:var(--accent)}
+  .flabel .t{font-size:15px;font-weight:600}
+  .flabel .d{font-size:13px;color:var(--muted)}
+  .sample{font-size:10px;color:var(--faint);letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);border-radius:99px;padding:2px 8px}
+
+  .browser{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#000}
+  .chrome{height:34px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:7px;padding:0 14px;background:#0a0a0a}
+  .chrome i{width:10px;height:10px;border-radius:50%;background:#262626}
+  .chrome .url{margin-left:14px;font-family:var(--mono);font-size:11px;color:var(--faint);border:1px solid var(--line);border-radius:6px;padding:3px 10px}
+  .screen{position:relative;padding:22px 28px 26px}
+  .head{display:flex;justify-content:space-between;align-items:center}
+  .ptitle{font-size:20px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+  .corner{display:flex;gap:8px;align-items:center}
+  .acct{font-size:12.5px;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+  .tabs{display:flex;gap:8px;margin-top:16px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+  .tab{font-size:13.5px;border:1px solid var(--line);color:var(--muted);border-radius:99px;padding:6px 14px}
+  .tab.on{border-color:#fff;color:#fff}
+  .tab .pub{font-size:10px;color:var(--faint);margin-left:6px}
+
+  .overdue{margin-top:18px;border:1px solid rgba(251,113,133,.3);background:rgba(251,113,133,.05);border-radius:12px}
+  .overdue .oh{display:flex;justify-content:space-between;padding:11px 18px;border-bottom:1px solid rgba(251,113,133,.2)}
+  .overdue .oh b{font-size:15px;color:#fecdd3;font-weight:600}
+  .overdue .oh span{font-size:12px;color:var(--faint);text-decoration:underline}
+  .overdue .oi{display:flex;justify-content:space-between;padding:9px 18px;font-size:13.5px}
+  .overdue .oi span:last-child{color:var(--red)}
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+  .card{border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .card .k{font-size:11px;color:var(--faint);letter-spacing:.1em;text-transform:uppercase}
+  .card .v{font-size:28px;font-weight:600;margin-top:6px;font-variant-numeric:tabular-nums}
+  .card .s{font-size:12px;color:var(--muted);margin-top:2px}
+  .grid2{display:grid;grid-template-columns:1.25fr 1fr;gap:14px;margin-top:14px}
+  .box{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .box .bh{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line)}
+  .box .bh h3{margin:0;font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase}
+  .box .bh span{font-size:12px;color:var(--faint)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;color:var(--faint);font-weight:500;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;padding:9px 14px;border-bottom:1px solid var(--line);background:rgba(17,17,17,.6)}
+  td{padding:10px 14px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+  tr:last-child td{border-bottom:0}
+  td.r,th.r{text-align:right}
+  .pill{font-size:11px;border:1px solid currentColor;border-radius:99px;padding:2px 8px;white-space:nowrap}
+  .prog{height:5px;background:var(--line);border-radius:99px;overflow:hidden;width:110px}
+  .prog i{display:block;height:100%;background:#fff}
+  .client{display:block;font-size:11.5px;color:var(--muted)}
+  .fhead{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line)}
+  .fhead>div{padding:12px 18px}
+  .fhead>div+div{border-left:1px solid var(--line)}
+  .fhead .k{font-size:11px;color:var(--faint)}
+  .fhead .v{font-size:19px;font-weight:600;margin-top:3px;font-variant-numeric:tabular-nums}
+  .months{padding:12px 18px}
+  .m{display:grid;grid-template-columns:36px 1fr 64px;gap:10px;align-items:center;font-size:12px;color:var(--muted);margin:7px 0}
+  .m .bars{position:relative;height:12px}
+  .m .bars i{position:absolute;left:0;top:0;height:12px;border-radius:3px;background:var(--line)}
+  .m .bars b{position:absolute;left:0;top:3px;height:6px;border-radius:2px;background:#fff}
+  .m span:last-child{text-align:right;color:#fff;font-variant-numeric:tabular-nums}
+  .legend{display:flex;gap:14px;font-size:11px;color:var(--faint);padding:0 18px 12px}
+  .legend i{display:inline-block;width:10px;height:6px;border-radius:2px;margin-right:5px;vertical-align:middle}
+  .wh{display:grid;grid-template-columns:repeat(3,1fr)}
+  .wh>div{padding:12px 18px}
+  .wh .k{font-size:11px;color:var(--faint)}
+  .wh .v{font-size:17px;font-weight:600;margin-top:3px;font-variant-numeric:tabular-nums}
+
+  /* public tab */
+  .pubintro{display:flex;justify-content:space-between;gap:24px;align-items:flex-end;margin-top:22px}
+  .pubintro h2{margin:0;font-size:30px;letter-spacing:-.03em}
+  .pubintro p{margin:8px 0 0;color:var(--muted);font-size:14.5px;max-width:620px;line-height:1.55}
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}
+  .metric{border:1px solid var(--line);border-radius:12px;padding:16px 18px;min-height:132px;display:flex;flex-direction:column}
+  .metric .k{font-size:13.5px;color:#e5e5e5}
+  .metric .v{font-size:34px;font-weight:600;margin-top:8px;color:var(--faint);font-variant-numeric:tabular-nums}
+  .metric .how{font-size:11.5px;color:var(--faint);margin-top:auto;line-height:1.45}
+  .metric.link .v{font-size:15px;color:var(--accent);font-weight:500;margin-top:12px}
+  .never{display:flex;gap:16px;margin-top:16px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+  .never b{color:#fff;font-weight:500}
+  .never span::before{content:"· ";color:var(--faint)}
+  .signedout{margin-top:16px;border:1px dashed var(--line);border-radius:12px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;font-size:13.5px;color:var(--muted)}
+  .btn{background:#fff;color:#000;font-weight:600;font-size:13px;border-radius:8px;padding:8px 14px}
+  .gap{height:34px}
+</style></head>
+<body>
+<div class="mocktag"><span>MOCKUP MADE BY CLAUDE (HTML RENDERED TO PNG), NOT AN IMAGE GENERATOR · /dashboard · 1280 px</span><span>Tab 1: sample data · Tab 2: placeholders, no real or invented counts</span></div>
+<div class="wrap">
+
+  <!-- ============ Tab 1: Your work ============ -->
+  <div class="flabel"><span class="n">01</span><span class="t">"Your work" tab</span><span class="d">signed in · today's dashboard, moved from / to /dashboard unchanged</span></div>
+  <div class="browser">
+    <div class="chrome"><i></i><i></i><i></i><span class="url">freeflow.website/dashboard</span></div>
+    <div class="screen">
+      <div class="head"><span class="ptitle">Dashboard</span><div class="corner"><span class="sample">Sample data</span><span class="acct">Settings</span></div></div>
+      <div class="tabs"><span class="tab on">Your work</span><span class="tab">FreeFlow in public<span class="pub">open to everyone</span></span></div>
+
+      <div class="overdue">
+        <div class="oh"><b>1 overdue · $1,100 outstanding</b><span>full table ↓</span></div>
+        <div class="oi"><span>Invoice #9 · Brand identity · Studio Lux</span><span>12 days late</span></div>
+      </div>
+
+      <div class="cards">
+        <div class="card"><div class="k">Unpaid Invoices</div><div class="v">$4,200</div><div class="s">across 4 projects</div></div>
+        <div class="card"><div class="k">This Month's Earnings</div><div class="v">$1,850</div><div class="s">paid since 1 Nov</div></div>
+        <div class="card"><div class="k">Active Projects</div><div class="v">5</div><div class="s">2 due this week</div></div>
+      </div>
+
+      <div class="grid2">
+        <div class="box">
+          <div class="bh"><h3>Projects</h3><span>5 active</span></div>
+          <table>
+            <tr><th>Project</th><th>Status</th><th class="r">Value</th><th>Progress</th><th>Due Date</th></tr>
+            <tr><td>Brand identity<span class="client">Studio Lux</span></td><td><span class="pill" style="color:var(--red)">Overdue</span></td><td class="r">$1,100</td><td><div class="prog"><i style="width:100%"></i></div></td><td>29 Oct</td></tr>
+            <tr><td>Logo v7<span class="client">Café Norte</span></td><td><span class="pill" style="color:var(--yellow)">Awaiting review</span></td><td class="r">$900</td><td><div class="prog"><i style="width:80%"></i></div></td><td>12 Nov</td></tr>
+            <tr><td>Brand deck<span class="client">Studio Lux</span></td><td><span class="pill" style="color:var(--blue)">In progress</span></td><td class="r">$1,400</td><td><div class="prog"><i style="width:55%"></i></div></td><td>13 Nov</td></tr>
+            <tr><td>Poster<span class="client">Mercado</span></td><td><span class="pill" style="color:var(--mint)">Invoice sent</span></td><td class="r">$800</td><td><div class="prog"><i style="width:100%"></i></div></td><td>24 Nov</td></tr>
+            <tr><td>Menu redesign<span class="client">Taquería Sol</span></td><td><span class="pill" style="color:var(--muted)">Contract signed</span></td><td class="r">$1,250</td><td><div class="prog"><i style="width:10%"></i></div></td><td>8 Dec</td></tr>
+          </table>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="box">
+            <div class="bh"><h3>Expected income</h3><span>next 6 months</span></div>
+            <div class="fhead"><div><div class="k">Scheduled</div><div class="v">$5,450</div></div><div><div class="k">Likely</div><div class="v">$4,310</div></div></div>
+            <div class="months">
+              <div class="m"><span>Nov</span><span class="bars"><i style="width:62%"></i><b style="width:55%"></b></span><span>$1,900</span></div>
+              <div class="m"><span>Dec</span><span class="bars"><i style="width:100%"></i><b style="width:72%"></b></span><span>$2,300</span></div>
+              <div class="m"><span>Jan</span><span class="bars"><i style="width:54%"></i><b style="width:24%"></b></span><span>$1,250</span></div>
+              <div class="m"><span>Feb</span><span class="bars"><i style="width:0%"></i><b style="width:0%"></b></span><span style="color:var(--faint)">$0</span></div>
+            </div>
+            <div class="legend"><span><i style="background:#262626"></i>Scheduled</span><span><i style="background:#fff"></i>Likely</span></div>
+          </div>
+          <div class="box">
+            <div class="bh"><h3>After retenciones</h3><span>2 unpaid invoices</span></div>
+            <div class="wh"><div><div class="k">Invoiced</div><div class="v">$2,200</div></div><div><div class="k">Withheld</div><div class="v" style="color:var(--muted)">$262</div></div><div><div class="k">You receive</div><div class="v">$1,938</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="signedout"><span><b style="color:#fff">Signed out?</b> This tab shows: "Your projects live here. Sign in to see them."</span><span class="btn">Sign in</span></div>
+    </div>
+  </div>
+  <div class="annos"><span class="anno"><b>SAVED RESULTS</b> · your own Supabase project rows, private to your account</span><span class="anno">labels match today's dashboard: overdue alert, summary cards, project table, forecast, withholding, saved layout</span></div>
+
+  <div class="gap"></div>
+
+  <!-- ============ Tab 2: FreeFlow in public ============ -->
+  <div class="flabel"><span class="n">02</span><span class="t">"FreeFlow in public" tab</span><span class="d">visible signed in or out · counts only</span></div>
+  <div class="browser">
+    <div class="chrome"><i></i><i></i><i></i><span class="url">freeflow.website/dashboard?tab=public</span></div>
+    <div class="screen">
+      <div class="head"><span class="ptitle">Dashboard</span><div class="corner"><span class="acct">Sign in</span></div></div>
+      <div class="tabs"><span class="tab">Your work</span><span class="tab on">FreeFlow in public<span class="pub">open to everyone</span></span></div>
+
+      <div class="pubintro">
+        <div>
+          <h2>Early days. Here's every number.</h2>
+          <p>FreeFlow is new, so these numbers are small, and they're shown exactly as they are. Never padded, never rounded up. Counts only: no names, no emails, no messages.</p>
+        </div>
+        <span class="sample">— = placeholder in this mockup</span>
+      </div>
+
+      <div class="metrics">
+        <div class="metric"><div class="k">People using FreeFlow</div><div class="v">—</div><div class="how">Accounts, not counting the owner's, the graders' or test accounts (a written exclusion list).</div></div>
+        <div class="metric"><div class="k">People on the launch list</div><div class="v">—</div><div class="how">Who asked to hear when the lifetime version launches.</div></div>
+        <div class="metric"><div class="k">Things you asked for, shipped</div><div class="v">—</div><div class="how">The "You said → we changed" entries. The same single list /demo shows.</div></div>
+        <div class="metric"><div class="k">Bugs testers found / fixed</div><div class="v">— / —</div><div class="how">Week 6 external testers only, from the real test sessions.</div></div>
+        <div class="metric"><div class="k">Game rounds played</div><div class="v">—</div><div class="how">Rounds of the /demo game. Scores never leave your browser.</div></div>
+        <div class="metric"><div class="k">"Try free" clicks from /demo</div><div class="v">—</div><div class="how">Taps on "Try FreeFlow free" anywhere in the story.</div></div>
+        <div class="metric link"><div class="k">V2 votes</div><div class="v">See votes per idea on the roadmap →</div><div class="how">Upvotes on each planned feature, in /docs. One vote per idea per browser.</div></div>
+      </div>
+      <div class="never"><b>How this tab works</b><span>no personal data</span><span>no padding</span><span>no rows, only totals</span><span>if the database is unreachable, this says so instead of showing zeros</span></div>
+    </div>
+  </div>
+  <div class="annos"><span class="anno"><b>SAVED RESULTS</b> · live totals from a counts-only database function</span><span class="anno">values left as "—" on purpose: the real page fills them from Supabase; this mockup invents none</span></div>
+</div>
+</body></html>

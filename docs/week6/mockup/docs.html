@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>/docs mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!--
+  Week 6 Gate 1 mockup of /docs, made by Claude as static HTML and rendered to PNG with
+  scripts/snap.swift. Built from agent-map-v2.html (the journey stepper, "perfect") and
+  docs-options.html option A (the week-by-week timeline). Card text comes from the
+  validated prototype and the weekly packets; numbers shown are real (155 rules from
+  lib/chat/rules.ts; the Week 5 iteration log's before/after table).
+-->
+<style>
+  :root{--app:#000;--raised:#111;--line:#262626;--ink:#fff;--muted:#a3a3a3;--faint:#525252;--accent:#60a5fa;
+    --sans:"Geist",ui-sans-serif,system-ui,-apple-system,sans-serif;--mono:"Geist Mono",ui-monospace,monospace}
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--app);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+  .mocktag{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.04em;padding:10px 32px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between}
+  .wrap{max-width:980px;margin:0 auto;padding:34px 32px 50px}
+  .anno{font-family:var(--mono);font-size:10.5px;color:#8b8b8b;border:1px dashed #3f3f3f;border-radius:6px;padding:3px 7px;display:inline-block;background:#000}
+  .anno b{color:#d4d4d4;font-weight:500}
+  .annos{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .eyebrow{font-size:11px;color:var(--faint);letter-spacing:.12em;text-transform:uppercase}
+  h1{font-size:40px;letter-spacing:-.035em;margin:8px 0 0}
+  .lede{color:var(--muted);font-size:16px;margin:10px 0 0;max-width:640px;line-height:1.55}
+  .toc{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+  .toc span{font-size:12.5px;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:5px 12px}
+  .toc span.on{color:#fff;border-color:#fff}
+
+  .sec{margin-top:44px}
+  .sec h2{font-size:24px;letter-spacing:-.02em;margin:6px 0 4px}
+  .sec .sub{color:var(--muted);font-size:14px;margin:0}
+
+  /* journey */
+  .track{position:relative;display:flex;justify-content:space-between;align-items:flex-start;padding:0 4px;margin-top:30px}
+  .track::before{content:"";position:absolute;left:18px;right:18px;top:13px;height:2px;background:var(--line)}
+  .fill{position:absolute;left:18px;top:13px;height:2px;background:var(--accent)}
+  .step{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--muted);width:28px}
+  .dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--line);background:#000;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+  .step.done .dot{border-color:var(--accent);color:var(--accent)}
+  .step.on .dot{background:var(--accent);border-color:var(--accent);color:#000;transform:scale(1.15)}
+  .step span{font-size:11.5px;white-space:nowrap}
+  .step.on span{color:#fff}
+  .ends{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);margin-top:6px;letter-spacing:.08em;text-transform:uppercase}
+  .card{margin-top:26px;border:1px solid var(--line);border-radius:16px;padding:22px}
+  .card .wk{font-size:11px;color:var(--faint);letter-spacing:.08em;text-transform:uppercase}
+  .card h3{margin:6px 0 16px;font-size:24px;letter-spacing:-.02em}
+  .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .cols h4{margin:0 0 4px;font-size:11px;color:var(--faint);letter-spacing:.06em;text-transform:uppercase;font-weight:500}
+  .cols p{margin:0;font-size:14px;line-height:1.55;color:#e5e5e5}
+  .who{margin-top:16px;font-size:12.5px;color:var(--muted)}
+  .nav{display:flex;justify-content:space-between;margin-top:14px}
+  .nav span{border:1px solid var(--line);color:#fff;border-radius:8px;padding:8px 14px;font-size:13px}
+
+  /* timeline */
+  .tl{margin-top:22px;border-left:1px solid var(--line);margin-left:6px;padding-left:24px}
+  .wkc{position:relative;padding:12px 0 14px;border-bottom:1px solid #141414}
+  .wkc::before{content:"";position:absolute;left:-28.5px;top:18px;width:8px;height:8px;border-radius:50%;background:#525252}
+  .wkc .row{display:flex;justify-content:space-between;align-items:baseline;gap:16px}
+  .wkc b{font-size:15px}
+  .wkc .w{font-family:var(--mono);font-size:11px;color:var(--faint);margin-right:10px}
+  .wkc .what{color:var(--muted);font-size:13.5px;margin-top:3px}
+  .wkc .dec{font-size:13px;color:#d4d4d4;margin-top:3px}
+  .wkc .dec i{font-style:normal;color:var(--faint)}
+  .wkc .open{font-size:12px;color:var(--faint);white-space:nowrap}
+  .wkc.exp{border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:10px 0}
+  .wkc.exp::before{background:var(--accent);left:-29.5px;top:22px}
+  .chips{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+  .chip{font-size:12px;border:1px solid var(--line);border-radius:99px;padding:3px 10px;color:var(--muted)}
+  .chip.on{border-color:#fff;color:#fff}
+  .detail{margin-top:12px;display:grid;grid-template-columns:1.2fr 1fr;gap:12px}
+  .pane{border:1px solid var(--line);border-radius:10px;padding:12px;font-size:12.5px}
+  .pane .k{font-size:10.5px;color:var(--faint);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+  .mono{font-family:var(--mono);font-size:11.5px;color:#d4d4d4;line-height:1.6;background:#0a0a0a;border-radius:6px;padding:10px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;color:var(--faint);font-weight:500;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;padding:5px 6px;border-bottom:1px solid var(--line)}
+  td{padding:6px;border-bottom:1px solid #1a1a1a;font-variant-numeric:tabular-nums}
+  tr:last-child td{border-bottom:0}
+  .wkc.now::before{background:#000;border:2px solid var(--accent);width:6px;height:6px}
+
+  .below{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
+  .bx{border:1px solid var(--line);border-radius:12px;padding:14px;font-size:12.5px;color:var(--muted);line-height:1.5}
+  .bx b{display:block;color:#fff;font-size:13.5px;margin-bottom:4px;font-weight:600}
+  .vote{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #1a1a1a;padding-top:8px;margin-top:8px;color:#e5e5e5}
+  .vote span:last-child{border:1px solid var(--line);border-radius:7px;padding:2px 8px;font-size:11.5px;color:var(--muted)}
+</style></head>
+<body>
+<div class="mocktag"><span>MOCKUP MADE BY CLAUDE (HTML RENDERED TO PNG), NOT AN IMAGE GENERATOR · /docs · 1280 px</span><span>Static frame · one step and one week shown open</span></div>
+<div class="wrap">
+  <div class="eyebrow">Docs</div>
+  <h1>How FreeFlow was built</h1>
+  <p class="lede">From one dashboard to one venture, week by week: what each part was for, what got built, what testing changed, and the exact prompts used.</p>
+  <div class="toc"><span class="on">The journey</span><span>Week by week</span><span>Prompt library</span><span>Testing</span><span>Impact check</span><span>V2 roadmap</span></div>
+
+  <!-- 1. The journey (agent map) -->
+  <div class="sec">
+    <div class="eyebrow">1 · The journey · agent map</div>
+    <h2>Start to now, in seven steps</h2>
+    <p class="sub">Use Back and Next, or click a step. Each card names what powers it.</p>
+    <div class="track">
+      <div class="fill" style="width:calc((100% - 36px) * 5 / 6)"></div>
+      <div class="step done"><div class="dot">0</div><span>Dashboard</span></div>
+      <div class="step done"><div class="dot">1</div><span>Paste a brief</span></div>
+      <div class="step done"><div class="dot">2</div><span>Research</span></div>
+      <div class="step done"><div class="dot">3</div><span>Pricing</span></div>
+      <div class="step done"><div class="dot">4</div><span>Marketing</span></div>
+      <div class="step on"><div class="dot">5</div><span>Help desk</span></div>
+      <div class="step"><div class="dot">6</div><span>One venture</span></div>
+    </div>
+    <div class="ends"><span>Start</span><span>Now</span></div>
+    <div class="card">
+      <div class="wk">Week 5 · step 6 of 7</div>
+      <h3>Help desk</h3>
+      <div class="cols">
+        <div><h4>What it was for</h4><p>Answer questions instantly, and turn what it can't answer into a ticket the owner reads.</p></div>
+        <div><h4>What was built</h4><p>/chat with 155 written rules. No AI, so it can't make things up.</p></div>
+        <div><h4>What changed</h4><p>Wrong answers found in testing became test cases, then rule fixes.</p></div>
+      </div>
+      <div class="who">Rules, no AI · You file the ticket</div>
+    </div>
+    <div class="nav"><span>← Back</span><span>Next →</span></div>
+    <div class="annos"><span class="anno"><b>AGENT MAP</b> · one quiet line per step says what powers it: "Agent: Claude, with a fallback · You approve", "Rules, no AI", "Code, no AI"</span></div>
+  </div>
+
+  <!-- 2. Timeline -->
+  <div class="sec">
+    <div class="eyebrow">2 · Week by week</div>
+    <h2>The build log</h2>
+    <p class="sub">One card per week: what was built and the decision that mattered. Open a week for its prompts, iterations, tests and decision.</p>
+    <div class="tl">
+      <div class="wkc"><div class="row"><div><span class="w">WEEK 0</span><b>Dashboard</b></div><span class="open">open ▸</span></div><div class="what">Money cards, project table, overdue alert.</div><div class="dec"><i>Decision · </i>the overdue alert moved to the top, so a late invoice can't hide.</div></div>
+      <div class="wkc"><div class="row"><div><span class="w">WEEK 1</span><b>Paste a brief</b></div><span class="open">open ▸</span></div><div class="what">Paste a client email, get a project. You check it before it saves.</div><div class="dec"><i>Decision · </i>works without AI too, and says so with a badge.</div></div>
+      <div class="wkc"><div class="row"><div><span class="w">WEEK 2</span><b>Research</b></div><span class="open">open ▸</span></div><div class="what">Competitors and verified prices, with a confidence label on every claim.</div><div class="dec"><i>Decision · </i>an interview showed signed contracts matter, so every project got a contract record.</div></div>
+      <div class="wkc"><div class="row"><div><span class="w">WEEK 3</span><b>Pricing</b></div><span class="open">open ▸</span></div><div class="what">Feature map, three tiers, revenue simulator.</div><div class="dec"><i>Decision · </i>added "nothing is charged today". It read like a bill.</div></div>
+      <div class="wkc"><div class="row"><div><span class="w">WEEK 4</span><b>Marketing</b></div><span class="open">open ▸</span></div><div class="what">Persona, posts, scripts, a 14-day calendar, a brand system.</div><div class="dec"><i>Decision · </i>a colour mistake was caught, and the brand got written down.</div></div>
+
+      <div class="wkc exp">
+        <div class="row"><div><span class="w">WEEK 5</span><b>Help desk</b></div><span class="open" style="color:#fff">close ▾</span></div>
+        <div class="what">A rules-only help chat for signed-in users. Anything it can't solve becomes a ticket.</div>
+        <div class="dec"><i>Decision · </i>no AI at runtime. Every answer names the written rule that produced it.</div>
+        <div class="chips"><span class="chip">Prompts</span><span class="chip on">Iterations</span><span class="chip">Tests</span><span class="chip">Decision</span></div>
+        <div class="detail">
+          <div class="pane">
+            <div class="k">Iteration 1 · coverage pass</div>
+            <table>
+              <tr><th>Measure</th><th>Before</th><th>After</th></tr>
+              <tr><td>Content rules</td><td>27</td><td>152</td></tr>
+              <tr><td>Sample questions</td><td>60</td><td>374</td></tr>
+              <tr><td>Chat test assertions</td><td>197</td><td>733</td></tr>
+            </table>
+            <div style="color:var(--faint);margin-top:8px">from docs/week5/ITERATION_LOG.md</div>
+          </div>
+          <div class="pane">
+            <div class="k">Coding prompt (excerpt)</div>
+            <div class="mono">Implement docs/superpowers/plans/2026-10-29-chat-help-assistant.md task by task … Test first for every task, keep npm test green, add no dependencies, use no AI at runtime, and build only the agreed scope above.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wkc now"><div class="row"><div><span class="w">WEEK 6</span><b>One venture</b></div><span class="open">in progress</span></div><div class="what">The /demo story and game, the Dock, open numbers, this page.</div><div class="dec"><i>Decision · </i>filled in after testing.</div></div>
+    </div>
+    <div class="annos"><span class="anno"><b>TESTING EVIDENCE</b> · each week's tests and iterations sit inside its card</span><span class="anno">written for a reader from docs/week*/, not pasted · no friend or tester names</span></div>
+  </div>
+
+  <!-- 3–6. Further down -->
+  <div class="sec">
+    <div class="eyebrow">3–6 · Further down the page</div>
+    <div class="below">
+      <div class="bx"><b>Prompt library</b>Every coding prompt, exact text, filterable by week.<div class="chips"><span class="chip on">All</span><span class="chip">W5</span><span class="chip">W6</span></div></div>
+      <div class="bx"><b>Testing summary</b>Week 6 external testers and the full-site regression results. Filled in only after the sessions happen.</div>
+      <div class="bx"><b>Impact check</b>Does it help, where could it hurt, and "if we get it wrong, we'll make it right".</div>
+      <div class="bx"><b>V2 roadmap</b>Next, later, someday. Vote for what you want.<div class="vote"><span>A simpler forecast</span><span>▲ vote</span></div></div>
+    </div>
+  </div>
+</div>
+</body></html>

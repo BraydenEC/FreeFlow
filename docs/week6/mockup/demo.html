@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>/demo mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<!--
+  Week 6 Gate 1 mockup of /demo, made by Claude as static HTML and rendered to PNG with
+  scripts/snap.swift. Built from the validated prototypes in .superpowers/brainstorm
+  (hero-v2, game-spike, story-hover option C). Static: it shows one frozen moment of each
+  chapter. Sample data only. No price, no testimonial, no count, no unbuilt feature.
+-->
+<style>
+  :root{--app:#000;--raised:#111;--line:#262626;--ink:#fff;--muted:#a3a3a3;--faint:#525252;
+    --blue:#60a5fa;--yellow:#fcd34d;--mint:#34d399;--red:#f87171;--accent:#60a5fa;
+    --sans:"Geist",ui-sans-serif,system-ui,-apple-system,sans-serif;--mono:"Geist Mono",ui-monospace,monospace}
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--app);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 32px}
+  .mocktag{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.04em;padding:10px 32px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between}
+  .anno{font-family:var(--mono);font-size:10.5px;color:#8b8b8b;border:1px dashed #3f3f3f;border-radius:6px;padding:3px 7px;display:inline-block;letter-spacing:.02em;background:#000}
+  .anno b{color:#d4d4d4;font-weight:500}
+  .eyebrow{font-size:11px;color:var(--faint);letter-spacing:.12em;text-transform:uppercase}
+  .clock{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#000;border:0;font-weight:600;font-size:15px;padding:12px 18px;border-radius:10px;font-family:inherit}
+  .btn.ghost{background:transparent;color:#fff;border:1px solid var(--line)}
+  .btn.white{background:#fff}
+  .chap{display:flex;align-items:baseline;gap:14px;margin-bottom:18px}
+  .chap .time{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:74px}
+  .chap .name{font-size:11px;color:var(--faint);letter-spacing:.12em;text-transform:uppercase}
+  .rule{height:1px;background:linear-gradient(90deg,transparent,var(--line) 20%,var(--line) 80%,transparent);margin:0}
+  .sample{font-size:10px;color:var(--faint);letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);border-radius:99px;padding:2px 8px}
+
+  /* top bar: wordmark left, account corner + sticky CTA right */
+  .topbar{display:flex;justify-content:space-between;align-items:center;padding:18px 0}
+  .wordmark{font-weight:700;letter-spacing:.02em;font-size:15px}
+  .corner{display:flex;align-items:center;gap:10px}
+  .signin{font-size:13px;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:7px 12px}
+
+  /* ---------- Chapter 1: night ---------- */
+  .night{position:relative;padding-bottom:56px;
+    background:radial-gradient(ellipse 75% 70% at 50% 45%,transparent 45%,rgba(248,113,113,.20) 100%)}
+  .hero{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-top:20px}
+  h1{font-size:54px;line-height:1.04;letter-spacing:-.035em;margin:8px 0 0;font-weight:700;max-width:760px}
+  .job{color:var(--accent);border-bottom:3px solid var(--accent)}
+  .lede{color:var(--muted);font-size:16px;margin:16px 0 0}
+  .picker .q{font-size:13px;color:var(--muted);margin-bottom:10px}
+  .swatches{display:flex;gap:10px;align-items:center}
+  .sw{width:40px;height:40px;border-radius:50%;border:2px solid transparent;display:flex;align-items:center;justify-content:center;background:#111}
+  .sw.on{border-color:#fff;transform:scale(1.12)}
+  .sw i{width:22px;height:22px;border-radius:50%;display:block}
+  .swnames{display:flex;gap:10px;margin-top:8px}
+  .swnames span{width:40px;text-align:center;font-size:9.5px;color:var(--faint);letter-spacing:.02em}
+  .swnames span.on{color:#fff}
+  .ripple{position:absolute;right:120px;top:40px;width:900px;height:900px;border-radius:50%;transform:translate(50%,-50%);
+    background:radial-gradient(circle,rgba(96,165,250,0) 52%,rgba(96,165,250,.10) 58%,rgba(96,165,250,0) 64%);pointer-events:none}
+
+  .scene{display:grid;grid-template-columns:1.35fr 1fr;gap:16px;margin-top:30px;position:relative}
+  .panel{position:relative;height:430px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:rgba(0,0,0,.6)}
+  .panel .label{position:absolute;left:16px;top:14px;font-size:11px;color:var(--faint);letter-spacing:.1em;text-transform:uppercase}
+  .count{position:absolute;right:16px;top:12px;font-size:13px;color:var(--red);font-variant-numeric:tabular-nums;font-weight:500}
+  .note{position:absolute;padding:9px 12px;border-radius:9px;border:1px solid var(--line);background:#0b0b0b;color:#d4d4d4;font-size:13.5px;white-space:nowrap;box-shadow:0 8px 26px rgba(0,0,0,.7)}
+  .note small{display:block;font-size:10.5px;color:var(--faint);margin-top:2px}
+  .note.red{border-color:var(--red);color:#fca5a5}.note.yel{border-color:var(--yellow);color:#fde68a}
+  .note.drag{z-index:5;border-color:var(--red);color:#fca5a5;transform:rotate(-3deg) scale(1.07);box-shadow:0 16px 40px rgba(0,0,0,.9),0 0 0 1px rgba(248,113,113,.4)}
+  .note.shake{box-shadow:-2px 0 0 rgba(248,113,113,.35),2px 0 0 rgba(248,113,113,.35),0 8px 26px rgba(0,0,0,.7)}
+  .cursor{position:absolute;z-index:6;width:20px;height:20px}
+  .ff{position:relative;height:430px;border:1px solid var(--accent);border-radius:16px;padding:46px 18px 16px;
+    box-shadow:0 0 0 4px rgba(96,165,250,.18);background:#000}
+  .ff .label{position:absolute;left:18px;top:14px;font-size:11px;color:var(--faint);letter-spacing:.1em;text-transform:uppercase}
+  .ffrow{display:flex;justify-content:space-between;gap:10px;padding:11px 4px;border-bottom:1px solid var(--line);font-size:14px}
+  .ffrow span:last-child{color:var(--accent);white-space:nowrap}
+  .ffrow .ck{color:var(--accent);margin-right:8px}
+  .landing{margin-top:14px;border:1px dashed var(--accent);border-radius:10px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:12.5px;opacity:.85}
+  .ff .empty{color:var(--faint);font-size:12.5px;line-height:1.6;margin-top:18px}
+  .under{display:flex;align-items:center;gap:14px;margin-top:16px}
+  .hint{font-size:14px;color:var(--muted)}
+  .annos{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+
+  /* ---------- Chapter 2: midnight walkthrough ---------- */
+  .mid{padding:64px 0 60px}
+  .h2{font-size:38px;letter-spacing:-.03em;margin:0;font-weight:700;line-height:1.1}
+  .h2sub{color:var(--muted);font-size:16px;margin:10px 0 0;max-width:640px}
+  .walk{display:grid;grid-template-columns:300px 1fr;gap:28px;margin-top:32px}
+  .steps .area{font-size:11px;color:var(--faint);letter-spacing:.1em;text-transform:uppercase;margin:16px 0 6px}
+  .steps .area:first-child{margin-top:0}
+  .st{display:flex;gap:10px;align-items:center;padding:6px 8px;border-radius:8px;font-size:13.5px;color:var(--muted)}
+  .st i{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--faint);width:20px}
+  .st.on{background:var(--raised);color:#fff;border:1px solid var(--line)}
+  .st.on i{color:var(--accent)}
+  .st.done{color:#d4d4d4}
+  .st.done i{color:var(--accent)}
+  .stepcard{border:1px solid var(--line);border-radius:16px;padding:24px}
+  .resolve{display:flex;align-items:center;gap:14px;font-size:15px}
+  .resolve .worry{color:#fca5a5;text-decoration:line-through;text-decoration-color:rgba(248,113,113,.6);border:1px solid rgba(248,113,113,.4);border-radius:8px;padding:6px 10px;font-size:13.5px}
+  .resolve .arrow{color:var(--faint)}
+  .stepcard h3{font-size:26px;margin:18px 0 6px;letter-spacing:-.02em}
+  .stepcard .benefit{color:#d4d4d4;font-size:15px;margin:0;line-height:1.55}
+  .view{margin-top:20px;border:1px solid var(--line);border-radius:12px;padding:14px;background:#050505}
+  .view .vhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:12px;color:var(--muted)}
+  .alert{border:1px solid var(--red);color:var(--red);border-radius:8px;padding:9px 12px;font-size:13px;display:flex;justify-content:space-between}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+  th{text-align:left;color:var(--faint);font-weight:500;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;padding:7px 8px;border-bottom:1px solid var(--line)}
+  td{padding:9px 8px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+  tr:last-child td{border-bottom:0}
+  .pill{font-size:11px;border:1px solid currentColor;border-radius:99px;padding:2px 8px;white-space:nowrap}
+  .agent{margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .mini{border:1px solid var(--line);border-radius:12px;padding:14px;font-size:13px}
+  .mini .k{font-size:10.5px;color:var(--faint);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+  .mini .paste{color:var(--muted);font-style:italic;line-height:1.5}
+  .kv{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #1a1a1a}
+  .kv:last-of-type{border-bottom:0}
+  .kv span:first-child{color:var(--muted)}
+  .who{font-size:11.5px;color:var(--muted);margin-top:10px}
+  .next{display:flex;justify-content:space-between;align-items:center;margin-top:18px;font-size:13px;color:var(--muted)}
+  .dots{display:flex;gap:5px}.dots i{width:6px;height:6px;border-radius:50%;background:var(--line)}.dots i.on{background:var(--accent);width:18px;border-radius:3px}
+
+  /* ---------- Chapter 3: story ---------- */
+  .quiet{padding:80px 0 76px;background:#000}
+  .story{max-width:640px;margin:0 auto}
+  .story p{font-size:18px;line-height:1.75;color:#d4d4d4;margin:0 0 18px}
+  .story p.mission{color:#fff;font-weight:500}
+  .sig{font-family:"Caveat","Bradley Hand","Snell Roundhand",cursive;font-size:64px;color:#fff;line-height:1;margin-top:18px}
+  .sigline{width:200px;height:1px;background:var(--line);margin-top:4px}
+  .ps{font-size:14px;color:var(--muted);margin-top:14px}
+  .ps a{color:#fff}
+
+  /* ---------- Chapter 4: proof ---------- */
+  .proof{padding:20px 0 70px}
+  .said{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:24px}
+  .entry{border:1px solid var(--line);border-radius:14px;padding:16px;font-size:14px;display:flex;flex-direction:column;gap:10px}
+  .entry .from{font-size:11px;color:var(--faint);letter-spacing:.08em;text-transform:uppercase}
+  .entry .s{color:#d4d4d4;line-height:1.5}
+  .entry .c{color:#fff;line-height:1.5;padding-top:10px;border-top:1px solid var(--line)}
+  .entry .c b{color:var(--accent);font-weight:500}
+  .entry .src{font-family:var(--mono);font-size:10px;color:var(--faint);margin-top:auto}
+  .entry.ph{border-style:dashed;color:var(--faint);justify-content:center;text-align:center;font-size:13px}
+
+  /* ---------- Chapter 5: game ---------- */
+  .gamech{padding:70px 0}
+  .game{border:1px solid var(--line);border-radius:18px;padding:22px;margin-top:26px}
+  .ghead{display:flex;justify-content:space-between;align-items:baseline}
+  .ghead h3{margin:0;font-size:24px;letter-spacing:-.02em}
+  .ghead p{margin:4px 0 0;color:var(--muted);font-size:13.5px}
+  .hud{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+  .stat{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .stat .k{font-size:11px;color:var(--muted)}
+  .stat .v{font-size:24px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:2px}
+  .ggrid{display:grid;grid-template-columns:1.1fr 1fr;gap:14px;margin-top:14px}
+  .gp{border:1px solid var(--line);border-radius:12px;padding:16px}
+  .gp h4{margin:0 0 12px;font-size:13px;color:var(--muted);font-weight:500}
+  .work{width:100%;border:1px solid #525252;background:var(--raised);color:#fff;border-radius:12px;padding:22px 12px;font-size:17px;font-weight:600;text-align:center}
+  .bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:12px}
+  .bar i{display:block;height:100%;width:62%;background:var(--accent)}
+  .proj{font-size:12px;color:var(--muted);margin-top:6px;display:flex;justify-content:space-between}
+  .ups{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  .up{border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px}
+  .up b{font-size:14px}
+  .up .cost{float:right;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .up p{margin:4px 0 0;font-size:12px;color:var(--muted)}
+  .up .real{font-size:10px;color:var(--faint);margin-top:6px;letter-spacing:.06em;text-transform:uppercase}
+  .up.owned{border-color:var(--mint)}.up.owned .cost{color:var(--mint)}
+  .up.ready{border-color:#737373}
+  .up.locked{opacity:.42}
+  .invs{display:flex;flex-wrap:wrap;gap:8px}
+  .inv{border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:14px;font-variant-numeric:tabular-nums;background:var(--raised)}
+  .inv small{display:block;font-size:10.5px;color:var(--faint);margin-top:2px}
+  .inv.yellow{border-color:var(--yellow);color:var(--yellow);box-shadow:0 0 0 4px rgba(252,211,77,.16)}
+  .inv.red{border-color:var(--red);color:var(--red)}
+  .float{color:var(--mint);font-weight:600;font-size:14px;margin-left:6px}
+  .endcard{border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:14px;background:#0a0a0a;text-align:center}
+  .endcard .k{font-size:10.5px;color:var(--faint);letter-spacing:.1em;text-transform:uppercase}
+  .endcard .big{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;margin:4px 0}
+  .endcard p{margin:4px 0;color:var(--muted);font-size:13px}
+
+  /* ---------- Chapter 6: morning ---------- */
+  .morning{padding:90px 0 80px;background:
+    radial-gradient(ellipse 55% 52% at 50% 50%,rgba(252,211,77,.15),rgba(252,211,77,.05) 50%,transparent 70%)}
+  .morning .center{text-align:center;max-width:860px;margin:0 auto}
+  .morning h2{font-size:48px;letter-spacing:-.035em;margin:10px 0 0;line-height:1.05}
+  .morning .sub{color:#d4d4d4;font-size:17px;margin:14px 0 0}
+  .ctas{display:flex;justify-content:center;gap:12px;margin-top:28px}
+  .launch{max-width:520px;margin:28px auto 0;border:1px solid var(--line);border-radius:14px;padding:16px;text-align:left;background:rgba(0,0,0,.6)}
+  .launch .t{font-size:14px;font-weight:500}
+  .launch .row{display:flex;gap:8px;margin-top:10px}
+  .launch .input{flex:1;border:1px solid var(--line);border-radius:8px;background:var(--raised);padding:10px 12px;color:var(--faint);font-size:14px}
+  .launch .consent{display:flex;gap:8px;align-items:flex-start;margin-top:10px;font-size:12px;color:var(--muted);line-height:1.5}
+  .box{width:14px;height:14px;border:1px solid #525252;border-radius:3px;flex:0 0 auto;margin-top:2px}
+
+  footer{border-top:1px solid var(--line);padding:24px 0 30px;font-size:13px;color:var(--muted)}
+  .fgrid{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:24px}
+  footer b{color:#fff;font-weight:500;display:block;margin-bottom:6px;font-size:13px}
+  footer a{color:#fff}
+  .dockrest{display:flex;flex-direction:column;align-items:center;gap:8px;padding:26px 0 30px}
+  .dockrest .hint2{font-size:11px;color:var(--faint)}
+  .dockbtn{width:54px;height:54px;border-radius:18px;border:1px solid var(--line);background:rgba(20,20,20,.8);display:flex;align-items:center;justify-content:center;box-shadow:0 12px 40px rgba(0,0,0,.7)}
+  .dockbtn span{width:40px;height:40px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center}
+</style></head>
+<body>
+<div class="mocktag"><span>MOCKUP MADE BY CLAUDE (HTML RENDERED TO PNG), NOT AN IMAGE GENERATOR · /demo · 1280 px</span><span>Static frames of an animated page · sample data · story wording is a draft</span></div>
+
+<!-- ================= Chapter 1 ================= -->
+<section class="night">
+  <div class="ripple"></div>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="wordmark">FreeFlow</div>
+      <div class="corner">
+        <span class="anno">sticky · stays reachable all the way down</span>
+        <span class="btn" style="font-size:14px;padding:9px 14px">Try FreeFlow free</span>
+        <span class="signin">Sign in</span>
+      </div>
+    </div>
+
+    <div class="hero">
+      <div>
+        <div class="chap" style="margin:0"><span class="time">Tuesday, 11:47 pm</span><span class="name">Chapter 1 · it's all in my head</span></div>
+        <h1>I'm a freelance <span class="job">designer</span>,<br>and it's all in my head.</h1>
+        <p class="lede">You find out you were not paid by remembering.</p>
+      </div>
+      <div class="picker">
+        <div class="q">What do you do?</div>
+        <div class="swatches">
+          <span class="sw on"><i style="background:#60a5fa"></i></span>
+          <span class="sw"><i style="background:#34d399"></i></span>
+          <span class="sw"><i style="background:#a78bfa"></i></span>
+          <span class="sw"><i style="background:#fcd34d"></i></span>
+          <span class="sw"><i style="background:#f472b6"></i></span>
+        </div>
+        <div class="swnames"><span class="on">designer</span><span>photo&shy;grapher</span><span>video editor</span><span>writer</span><span>developer</span></div>
+      </div>
+    </div>
+
+    <div class="scene">
+      <div class="panel" id="mind">
+        <div class="label">On your mind</div><div class="count">7 things</div>
+        <div class="note red" style="left:28px;top:62px;transform:rotate(-4deg)">Logo v7 FINAL final<small>Client: any update?</small></div>
+        <div class="note yel" style="left:300px;top:52px;transform:rotate(3deg)">did the deposit land?</div>
+        <div class="note" style="left:410px;top:150px;transform:rotate(-2deg)">brand deck due fri</div>
+        <div class="note red shake" style="left:60px;top:210px;transform:rotate(5deg)">IVA ???<small>they keep 2/3?</small></div>
+        <div class="note yel" style="left:200px;top:318px;transform:rotate(-5deg)">new client email<small>"quick favor"</small></div>
+        <div class="note" style="left:30px;top:370px;transform:rotate(2deg)">what do I earn in Jan?</div>
+        <div class="note drag" style="left:420px;top:262px">invoice #9 overdue<small>12 days</small></div>
+        <svg class="cursor" style="left:530px;top:292px" viewBox="0 0 20 20"><path d="M3 2l13 7-6 1.5L7 17z" fill="#fff" stroke="#000" stroke-width="1"/></svg>
+        <svg style="position:absolute;left:250px;top:180px;width:420px;height:140px;z-index:1" viewBox="0 0 420 140"><path d="M10 120 C 120 40, 260 30, 410 90" fill="none" stroke="#525252" stroke-width="1.4" stroke-dasharray="5 6"/></svg>
+      </div>
+      <div class="ff">
+        <div class="label">FreeFlow</div>
+        <div class="ffrow"><span><span class="ck">✓</span>Deposit · 50%</span><span>Paid 04/11</span></div>
+        <div class="ffrow"><span><span class="ck">✓</span>Contract · Studio Lux</span><span>Signed 02/11</span></div>
+        <div class="landing">drop here → Invoice #9 · Overdue · alert on</div>
+        <div class="empty">Drag a worry here. Or just tap it.</div>
+      </div>
+    </div>
+    <div class="under">
+      <span class="hint">They keep coming. Sort a few.</span>
+    </div>
+    <div class="annos">
+      <span class="anno"><b>USER INPUT</b> · pick your work: the accent re-colours the page in a wave from the click</span>
+      <span class="anno">red edges and the counter rise as worries pile up · notes shake near the cursor</span>
+      <span class="anno">after 3 sorted: "You can't keep up by hand. Nobody can." → <b>Let FreeFlow handle the rest</b></span>
+      <span class="anno"><b>SAVED RESULTS</b> · each worry lands as a calm checked row</span>
+    </div>
+  </div>
+</section>
+
+<div class="wrap"><div class="rule"></div></div>
+
+<!-- ================= Chapter 2 ================= -->
+<section class="mid">
+  <div class="wrap">
+    <div class="chap"><span class="time">12:00 am</span><span class="name">Chapter 2 · every worry has a place</span></div>
+    <h2 class="h2">Every worry has a place.</h2>
+    <p class="h2sub">Scroll, and each one resolves into the real feature that answers it. Only things FreeFlow does today.</p>
+
+    <div class="walk">
+      <div class="steps">
+        <div class="area">Money</div>
+        <div class="st on"><i>01</i>Overdue alert</div>
+        <div class="st"><i>02</i>Six-month forecast</div>
+        <div class="st"><i>03</i>Payment terms</div>
+        <div class="st"><i>04</i>Record a payment</div>
+        <div class="st"><i>05</i>Eleven currencies</div>
+        <div class="area">Paperwork &amp; tax</div>
+        <div class="st"><i>06</i>Contract date and links</div>
+        <div class="st"><i>07</i>Mexican withholding</div>
+        <div class="st"><i>08</i>CSV export with retenciones</div>
+        <div class="st"><i>09</i>Help desk</div>
+        <div class="area">Organization</div>
+        <div class="st"><i>10</i>Paste a brief</div>
+        <div class="st"><i>11</i>Projects and deadlines</div>
+        <div class="st"><i>12</i>Your own private account</div>
+        <div class="st"><i>13</i>A layout that remembers you</div>
+      </div>
+
+      <div>
+        <div class="stepcard">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="resolve"><span class="worry">did they pay??</span><span class="arrow">→</span><span style="color:var(--accent);font-weight:500">Step 01 · Money</span></div>
+            <span class="sample">Sample data</span>
+          </div>
+          <h3>Overdue alert</h3>
+          <p class="benefit">A late invoice pins itself to the top of your dashboard. Nothing is late because you forgot to check.</p>
+          <div class="view">
+            <div class="vhead"><span>Your dashboard</span><span>Tue 10 Nov</span></div>
+            <div class="alert"><span>● Invoice #9 · Studio Lux · 12 days overdue</span><span>pinned to the top</span></div>
+            <table>
+              <tr><th>Project</th><th>Client</th><th>Due</th><th>Status</th></tr>
+              <tr><td>Logo v7</td><td style="color:var(--muted)">Café Norte</td><td>Thu</td><td><span class="pill" style="color:var(--yellow)">Awaiting review</span></td></tr>
+              <tr><td>Brand deck</td><td style="color:var(--muted)">Studio Lux</td><td>Fri</td><td><span class="pill" style="color:var(--blue)">In progress</span></td></tr>
+              <tr><td>Poster</td><td style="color:var(--muted)">Mercado</td><td>24 Nov</td><td><span class="pill" style="color:var(--mint)">Invoice sent</span></td></tr>
+            </table>
+          </div>
+          <div class="next"><span>Next: "can I take December off?" → six-month forecast</span><span class="dots"><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+        </div>
+
+        <div class="agent">
+          <div class="mini">
+            <div class="k">Step 10 · "new client email"</div>
+            <div class="paste">"Hi! Could you design a poster for the market on the 24th? Two sizes, print and Instagram. Contract to follow…"</div>
+            <div class="who">You paste the email. That is the input.</div>
+          </div>
+          <div class="mini" style="border-color:color-mix(in srgb,var(--accent) 45%,var(--line))">
+            <div class="k" style="display:flex;justify-content:space-between"><span>Paste a brief · the project it drafts</span><span class="sample">Sample</span></div>
+            <div class="kv"><span>Project</span><span>Poster · Mercado</span></div>
+            <div class="kv"><span>Deadline</span><span>24 Nov</span></div>
+            <div class="kv"><span>Deliverables</span><span>Print + Instagram</span></div>
+            <div class="kv"><span>Not sure about</span><span style="color:var(--yellow)">rate (not in the email)</span></div>
+            <div class="who">Agent: Claude, with a fallback · You check it before it saves</div>
+          </div>
+        </div>
+        <div class="annos"><span class="anno"><b>AGENT OUTPUT</b> · the one AI step, labelled, and the user approves it</span><span class="anno">each step: worry → feature → one-line benefit → sample view (labelled)</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Chapter 3 ================= -->
+<section class="quiet">
+  <div class="wrap">
+    <div class="story">
+      <div class="chap"><span class="time">1:00 am</span><span class="name">Chapter 3 · quiet</span></div>
+      <p>I did videography and video editing. The work took most of my effort and attention, so it was hard to always remember when my deadlines were, and what to expect to earn after.</p>
+      <p>When I had to build a website for a class, I asked what would have been useful to me: something to make my life easier, and the lives of my friends and the people around me. Building projects on my own, and doing them for other people, was already difficult and stressful. A helper, like a personal assistant that takes some of that friction away, means a lot to me.</p>
+      <p>I've been through it, and I want to listen, so FreeFlow can be the best app it can be for everyone: made for you, of actual use, something that adds real value to your workflow. Maybe even a necessity.</p>
+      <p class="mission">FreeFlow is here to bring ease to freelancers. I'll keep listening, and I'll keep improving it.</p>
+      <div class="sig">Brayden</div>
+      <div class="sigline"></div>
+      <div class="ps">P.S. Tell me what's missing: <a>braydenemeryc@gmail.com</a></div>
+      <div class="annos" style="margin-top:22px"><span class="anno">ends unsigned · "Brayden" writes itself in handwriting on scroll, hover or tap · no photo</span><span class="anno">draft, edited from FOUNDER_STORY_SOURCE.md · owner approves final wording</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Chapter 4 ================= -->
+<section class="proof">
+  <div class="wrap">
+    <div class="chap"><span class="time">1:30 am</span><span class="name">Chapter 4 · you said, we changed</span></div>
+    <h2 class="h2">You said. We changed it.</h2>
+    <p class="h2sub">Real changes, each traced to where it was said. No names, no made-up quotes.</p>
+    <div class="said">
+      <div class="entry"><div class="from">A freelancer friend</div><div class="s">Advised: start free, build a base, then charge once. A monthly bill doesn't fit how they work.</div><div class="c"><b>Changed:</b> FreeFlow is free now. The plan for launch is a one-time purchase for full access.</div><div class="src">source: docs/week2/VALIDATION_CONVERSATION.md · docs/week6/SOURCE_NOTES.md</div></div>
+      <div class="entry"><div class="from">Week 2 interview</div><div class="s">Never gets stood up, because a contract is always signed first.</div><div class="c"><b>Changed:</b> every project now keeps its contract date and links.</div><div class="src">source: docs/week2/VALIDATION_CONVERSATION.md · commit f04bfa3</div></div>
+      <div class="entry"><div class="from">Another freelancer friend</div><div class="s">Would use it if it keeps getting real updates and fixes.</div><div class="c"><b>Changed:</b> steady updates, built with your feedback: this log, and a public roadmap you can vote on.</div><div class="src">source: docs/week6/SOURCE_NOTES.md</div></div>
+      <div class="entry ph">Placeholder<br>Tester requests appear here after the Week 6 test sessions. Nothing is filled in until it really happens.</div>
+    </div>
+    <div class="annos"><span class="anno">paraphrased, unnamed · every entry cites its source file in code · the same list feeds /dashboard's "things you asked for, shipped"</span></div>
+  </div>
+</section>
+
+<div class="wrap"><div class="rule"></div></div>
+
+<!-- ================= Chapter 5 ================= -->
+<section class="gamech">
+  <div class="wrap">
+    <div class="chap"><span class="time">3:12 am</span><span class="name">Chapter 5 · now you try</span></div>
+    <h2 class="h2">Now you try. Sixty seconds.</h2>
+    <p class="h2sub">Do the work, collect the invoices before they go overdue, and spend what you collect on the features you just met.</p>
+    <div class="game">
+      <div class="ghead"><div><h3>Freelance Rush</h3><p>Working name · timer started on your first click · nothing is sent to a server</p></div><span class="sample">Round in progress</span></div>
+      <div class="hud">
+        <div class="stat"><div class="k">Time</div><div class="v">34.2</div></div>
+        <div class="stat"><div class="k">Collected (score)</div><div class="v">$2,140</div></div>
+        <div class="stat"><div class="k">To spend</div><div class="v">$1,240</div></div>
+        <div class="stat"><div class="k">Lost to overdue</div><div class="v" style="color:var(--red)">$85</div></div>
+      </div>
+      <div class="ggrid">
+        <div class="gp">
+          <h4>The work</h4>
+          <div class="work">Do the work ✦</div>
+          <div class="bar"><i></i></div>
+          <div class="proj"><span>Brand deck · Studio Lux</span><span>62%</span></div>
+          <div class="ups">
+            <div class="up owned"><span class="cost">owned</span><b>Paste a brief</b><p>Each click does twice the work.</p><div class="real">This is real in FreeFlow →</div></div>
+            <div class="up ready"><span class="cost">spend 800</span><b>Overdue alert</b><p>Invoices pulse before they turn red, and lose value slower.</p><div class="real">This is real in FreeFlow →</div></div>
+            <div class="up ready"><span class="cost">spend 1,100</span><b>Contract tracking</b><p>Overdue invoices keep most of their value.</p><div class="real">This is real in FreeFlow →</div></div>
+            <div class="up locked"><span class="cost">spend 1,600</span><b>Payment terms</b><p>Invoices collect themselves on schedule.</p><div class="real">This is real in FreeFlow →</div></div>
+          </div>
+        </div>
+        <div class="gp">
+          <h4>Invoices waiting · click to get paid</h4>
+          <div class="invs">
+            <div class="inv">$420<small>5s until late</small></div>
+            <div class="inv">$515<small>6s until late</small></div>
+            <div class="inv yellow">$380<small>2s until late</small></div>
+            <div class="inv red">$290<small>overdue</small></div>
+            <div class="inv" style="opacity:.5">$610<span class="float">+$610</span><small>collected</small></div>
+          </div>
+          <div class="endcard">
+            <div class="k">When time's up</div>
+            <div class="big">You collected $X.</div>
+            <p style="color:#fff">FreeFlow does the chasing for you.</p>
+            <p>Your best, kept in this browser only.</p>
+            <div style="display:flex;gap:8px;justify-content:center;margin-top:10px"><span class="btn" style="font-size:13px;padding:9px 13px">Try FreeFlow free</span><span class="btn ghost" style="font-size:13px;padding:9px 13px">Get launch news</span><span class="btn ghost" style="font-size:13px;padding:9px 13px">Play again</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="annos"><span class="anno"><b>USER INPUT</b> · click, tap or keyboard · pauses when the tab is hidden</span><span class="anno">"spend" = in-game money, not a price · no leaderboard, no prize · only "a round was played" is counted</span></div>
+  </div>
+</section>
+
+<!-- ================= Chapter 6 ================= -->
+<section class="morning">
+  <div class="wrap">
+    <div class="center">
+      <div class="chap" style="justify-content:center"><span class="time" style="min-width:0">8:00 am</span><span class="name">Chapter 6 · morning</span></div>
+      <h2>Good morning. It's all in one place.</h2>
+      <p class="sub">Your projects, deadlines and invoices, and what lands each month. Free.</p>
+      <div class="ctas"><span class="btn white" style="font-size:16px;padding:14px 22px">Use FreeFlow free now</span></div>
+      <div class="launch">
+        <div class="t">Get notified when the lifetime version launches</div>
+        <div class="row"><span class="input">you@email.com</span><span class="btn ghost" style="font-size:14px;padding:10px 14px">Notify me</span></div>
+        <div class="consent"><span class="box"></span><span>Email me launch news only. Brayden keeps this list at braydenemeryc@gmail.com. Email him to be removed; every launch email has a remove-me link too.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="fgrid">
+      <div><b>Contact and feedback</b><a>braydenemeryc@gmail.com</a><div style="margin-top:4px">Tell me what's broken or missing.</div></div>
+      <div><b>If we get it wrong</b>We'll make it right. <a>How, in /docs →</a></div>
+      <div><b>Your email, if you join the launch list</b>Held by Brayden at the address on the left. Used for launch news only. Email to be removed at any time.</div>
+    </div>
+    <div class="dockrest">
+      <span class="hint2">Menu</span>
+      <div class="dockbtn"><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5v14"/></svg></span></div>
+      <span class="anno">the Dock at rest, bottom centre on every page (see dock mockup)</span>
+    </div>
+  </div>
+</footer>
+</body></html>

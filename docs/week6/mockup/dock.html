@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dock mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!--
+  Week 6 Gate 1 mockup of the Dock (site navigation), made by Claude as static HTML and
+  rendered to PNG with scripts/snap.swift. Built from the validated dock-spike.html.
+  Static frames: at rest, expanded with magnification, and at phone width.
+-->
+<style>
+  :root{--app:#000;--raised:#111;--line:#262626;--ink:#fff;--muted:#a3a3a3;--faint:#525252;--accent:#60a5fa;
+    --sans:"Geist",ui-sans-serif,system-ui,-apple-system,sans-serif;--mono:"Geist Mono",ui-monospace,monospace}
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--app);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+  .mocktag{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.04em;padding:10px 32px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between}
+  .wrap{max-width:1180px;margin:0 auto;padding:34px 32px 50px}
+  h1{font-size:34px;letter-spacing:-.03em;margin:0}
+  .sub{color:var(--muted);font-size:15px;margin:8px 0 0;max-width:760px;line-height:1.55}
+  .anno{font-family:var(--mono);font-size:10.5px;color:#8b8b8b;border:1px dashed #3f3f3f;border-radius:6px;padding:3px 7px;display:inline-block;background:#000}
+  .anno b{color:#d4d4d4;font-weight:500}
+  .flabel{display:flex;align-items:baseline;gap:12px;margin:34px 0 12px}
+  .flabel .n{font-family:var(--mono);font-size:11px;color:var(--accent)}
+  .flabel .t{font-size:15px;font-weight:600}
+  .flabel .d{font-size:13px;color:var(--muted)}
+
+  /* browser frame */
+  .browser{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#000}
+  .chrome{height:34px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:7px;padding:0 14px;background:#0a0a0a}
+  .chrome i{width:10px;height:10px;border-radius:50%;background:#262626}
+  .chrome .url{margin-left:14px;font-family:var(--mono);font-size:11px;color:var(--faint);border:1px solid var(--line);border-radius:6px;padding:3px 10px}
+  .screen{position:relative;height:430px;padding:20px 28px}
+  .corner{position:absolute;right:22px;top:16px;display:flex;gap:8px;align-items:center}
+  .acct{font-size:12.5px;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+  .avatar{width:28px;height:28px;border-radius:50%;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted)}
+  .ghost{border:1px solid var(--line);border-radius:10px}
+  .ptitle{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
+  .cards div{height:72px}
+  .tbl{height:150px;margin-top:10px}
+
+  /* dock */
+  .dockarea{position:absolute;left:0;right:0;bottom:18px;display:flex;flex-direction:column;align-items:center}
+  .hint{font-size:11px;color:var(--faint);margin-bottom:8px}
+  .dock{display:flex;align-items:flex-end;gap:6px;padding:8px 10px;border:1px solid var(--line);border-radius:22px;
+    background:rgba(18,18,18,.9);box-shadow:0 14px 44px rgba(0,0,0,.8)}
+  .dock.rest{padding:6px;gap:0}
+  .item{position:relative;display:flex;flex-direction:column;align-items:center}
+  .ico{width:var(--s,48px);height:var(--s,48px);border-radius:calc(var(--s,48px) * .27);border:1px solid var(--line);background:#111;display:flex;align-items:center;justify-content:center}
+  .ico svg{width:46%;height:46%;stroke:#e5e5e5;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .item.home .ico{background:#fff}.item.home .ico svg{stroke:#000}
+  .item.cur .ico{border-color:var(--accent)}
+  .item.cur::after{content:"";position:absolute;bottom:-6px;width:4px;height:4px;border-radius:50%;background:var(--accent)}
+  .item.hov .ico{border-color:#737373}
+  .tip{position:absolute;bottom:calc(100% + 10px);background:#fff;color:#000;font-size:12px;font-weight:600;padding:4px 9px;border-radius:7px;white-space:nowrap}
+  .sep{width:1px;align-self:stretch;margin:6px 4px;background:var(--line)}
+  .groups{display:flex;justify-content:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:6px}
+  .phone{width:375px;margin:0 auto;border:1px solid var(--line);border-radius:34px;overflow:hidden;background:#000;position:relative;height:640px}
+  .phone .bar{height:40px;display:flex;justify-content:space-between;align-items:center;padding:0 22px;font-size:12px;color:var(--muted)}
+  .phone .pscreen{padding:6px 16px;position:relative;height:600px}
+  .phone .pc{height:60px;margin-top:10px}
+  .sheet{position:absolute;left:12px;right:12px;bottom:18px;border:1px solid var(--line);border-radius:22px;background:rgba(18,18,18,.96);padding:14px 12px 12px;box-shadow:0 -10px 40px rgba(0,0,0,.8)}
+  .sheet .g{font-size:10px;color:var(--faint);letter-spacing:.1em;text-transform:uppercase;margin:8px 4px 6px}
+  .sheet .g:first-child{margin-top:0}
+  .sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .si{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:10.5px;color:#d4d4d4;text-align:center}
+  .si .ico{--s:44px}
+  .si.cur .ico{border-color:var(--accent)}
+  .si.cur span{color:var(--accent)}
+  .scrim{position:absolute;inset:0;background:rgba(0,0,0,.55)}
+  .center{display:flex;justify-content:center;margin-top:12px}
+  .keys{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:34px}
+  .key{border:1px solid var(--line);border-radius:12px;padding:14px;font-size:13px;color:var(--muted);line-height:1.5}
+  .key b{display:block;color:#fff;font-weight:600;margin-bottom:4px;font-size:13.5px}
+</style></head>
+<body>
+<div class="mocktag"><span>MOCKUP MADE BY CLAUDE (HTML RENDERED TO PNG), NOT AN IMAGE GENERATOR · THE DOCK · 1280 px</span><span>Static frames of an animated control</span></div>
+<div class="wrap">
+  <h1>The Dock replaces the crowded top bar</h1>
+  <p class="sub">One small button rests at the bottom centre of every page. Hover it, or tap it on a phone, and it opens into every page, grouped. Icons grow as the pointer passes, a label shows above the one you point at, and a dot marks where you are. Sign in and account stay in the top-right corner, outside the Dock.</p>
+
+  <!-- Frame 1: at rest -->
+  <div class="flabel"><span class="n">01</span><span class="t">At rest</span><span class="d">on /dashboard · the page has room to breathe</span></div>
+  <div class="browser">
+    <div class="chrome"><i></i><i></i><i></i><span class="url">freeflow.website/dashboard</span></div>
+    <div class="screen">
+      <div class="ptitle">Dashboard</div>
+      <div class="corner"><span class="acct">Settings</span><span class="avatar">B</span></div>
+      <div class="cards"><div class="ghost"></div><div class="ghost"></div><div class="ghost"></div><div class="ghost"></div></div>
+      <div class="ghost tbl"></div>
+      <div class="dockarea">
+        <div class="hint">Menu</div>
+        <div class="dock rest"><span class="item home"><span class="ico" style="--s:44px"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></svg></span></span></div>
+      </div>
+    </div>
+  </div>
+  <div class="groups"><span class="anno">account corner, top right, outside the Dock</span><span class="anno">page content greyed: only the navigation is being shown</span></div>
+
+  <!-- Frame 2: expanded -->
+  <div class="flabel"><span class="n">02</span><span class="t">Expanded, pointer over "Pricing"</span><span class="d">on /demo · four groups split by thin dividers</span></div>
+  <div class="browser">
+    <div class="chrome"><i></i><i></i><i></i><span class="url">freeflow.website/demo</span></div>
+    <div class="screen" style="height:330px">
+      <div class="corner"><span class="acct">Sign in</span></div>
+      <div class="dockarea" style="bottom:34px">
+        <nav class="dock" aria-label="Main">
+          <span class="item home"><span class="ico"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></svg></span></span>
+          <span class="sep"></span>
+          <span class="item cur"><span class="ico"><svg viewBox="0 0 24 24"><path d="M6 4l13 8-13 8z"/></svg></span></span>
+          <span class="sep"></span>
+          <span class="item"><span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></span></span>
+          <span class="item"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/><path d="M17 15l3 3-3 3"/></svg></span></span>
+          <span class="item"><span class="ico"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg></span></span>
+          <span class="sep"></span>
+          <span class="item"><span class="ico" style="--s:54px"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg></span></span>
+          <span class="item"><span class="ico" style="--s:66px"><svg viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg></span></span>
+          <span class="item hov"><span class="tip">Pricing</span><span class="ico" style="--s:78px"><svg viewBox="0 0 24 24"><path d="M12 3v18M17 7.5c0-1.9-2.2-3-5-3s-5 1.1-5 3 2 2.6 5 3.5 5 1.6 5 3.5-2.2 3-5 3-5-1.1-5-3"/></svg></span></span>
+          <span class="item"><span class="ico" style="--s:66px"><svg viewBox="0 0 24 24"><path d="M4 10v4l11 5V5z"/><path d="M15 9a3 3 0 0 1 0 6"/></svg></span></span>
+          <span class="sep"></span>
+          <span class="item"><span class="ico" style="--s:52px"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg></span></span>
+          <span class="item"><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></span></span>
+        </nav>
+      </div>
+      <svg style="position:absolute;left:684px;top:250px;width:20px;height:20px" viewBox="0 0 20 20"><path d="M3 2l13 7-6 1.5L7 17z" fill="#fff" stroke="#000" stroke-width="1"/></svg>
+    </div>
+  </div>
+  <div class="groups">
+    <span class="anno"><b>Demo</b></span>
+    <span class="anno"><b>Your work</b> · Dashboard · Paste a brief (/core) · Help desk (/chat)</span>
+    <span class="anno"><b>The business</b> · Research · Product · Pricing · Marketing</span>
+    <span class="anno"><b>About</b> · Docs · Support</span>
+  </div>
+  <div class="groups"><span class="anno">dot under Demo = current page</span><span class="anno">collapses a moment after the pointer leaves, or on a tap outside, or on Escape</span></div>
+
+  <!-- Frame 3: phone -->
+  <div class="flabel"><span class="n">03</span><span class="t">Phone, 375 px</span><span class="d">no magnification on touch · tap opens a sheet that fits with no sideways scroll</span></div>
+  <div class="row2">
+    <div>
+      <div class="phone">
+        <div class="bar"><span>9:41</span><span>freeflow.website</span></div>
+        <div class="pscreen">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span class="ptitle" style="margin:0">Docs</span><span class="acct" style="font-size:11px">Sign in</span></div>
+          <div class="ghost pc"></div><div class="ghost pc"></div><div class="ghost pc" style="height:120px"></div><div class="ghost pc"></div>
+          <div class="dockarea" style="bottom:56px"><div class="hint">Menu</div><div class="dock rest"><span class="item home"><span class="ico" style="--s:44px"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></svg></span></span></div></div>
+        </div>
+      </div>
+      <div class="center"><span class="anno">at rest · 44 px tap target</span></div>
+    </div>
+    <div>
+      <div class="phone">
+        <div class="bar"><span>9:41</span><span>freeflow.website</span></div>
+        <div class="pscreen">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span class="ptitle" style="margin:0">Docs</span><span class="acct" style="font-size:11px">Sign in</span></div>
+          <div class="ghost pc"></div><div class="ghost pc"></div><div class="ghost pc" style="height:120px"></div><div class="ghost pc"></div>
+          <div class="scrim"></div>
+          <nav class="sheet" aria-label="Main" style="bottom:50px">
+            <div class="g">Start here</div>
+            <div class="sgrid">
+              <div class="si"><span class="ico"><svg viewBox="0 0 24 24"><path d="M6 4l13 8-13 8z"/></svg></span><span>Demo</span></div>
+            </div>
+            <div class="g">Your work</div>
+            <div class="sgrid">
+              <div class="si"><span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></span><span>Dashboard</span></div>
+              <div class="si"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/><path d="M17 15l3 3-3 3"/></svg></span><span>Paste a brief</span></div>
+              <div class="si"><span class="ico"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg></span><span>Help desk</span></div>
+            </div>
+            <div class="g">The business</div>
+            <div class="sgrid">
+              <div class="si"><span class="ico"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg></span><span>Research</span></div>
+              <div class="si"><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg></span><span>Product</span></div>
+              <div class="si"><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3v18M17 7.5c0-1.9-2.2-3-5-3s-5 1.1-5 3 2 2.6 5 3.5 5 1.6 5 3.5-2.2 3-5 3-5-1.1-5-3"/></svg></span><span>Pricing</span></div>
+              <div class="si"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 10v4l11 5V5z"/><path d="M15 9a3 3 0 0 1 0 6"/></svg></span><span>Marketing</span></div>
+            </div>
+            <div class="g">About</div>
+            <div class="sgrid">
+              <div class="si cur"><span class="ico"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg></span><span>Docs</span></div>
+              <div class="si"><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></span><span>Support</span></div>
+            </div>
+          </nav>
+        </div>
+      </div>
+      <div class="center"><span class="anno">tapped open · same groups, labels always shown · current page in accent</span></div>
+    </div>
+  </div>
+
+  <div class="keys">
+    <div class="key"><b>Keyboard</b>Tab reaches the button; Enter or Space opens it; Tab moves through the pages; Escape closes it.</div>
+    <div class="key"><b>Screen readers</b>A real <code>nav</code> landmark named "Main", every icon has a text label, and the button says whether the menu is open.</div>
+    <div class="key"><b>Reduced motion</b>No magnification and no slide; the Dock simply appears open.</div>
+    <div class="key"><b>Every page</b>Rendered once in the root layout, so every page gets the same Dock and keeps clear space at the bottom for it.</div>
+  </div>
+</div>
+</body></html>
