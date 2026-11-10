@@ -76,6 +76,24 @@ one defect the monochrome pass caught. Non-filled accent uses (`text-accent-soft
 
 These four are the entire colour budget. Nothing else in the product is coloured.
 
+### Job accents (added Week 6, `/demo` only)
+
+The `/demo` funnel opens with "I'm a freelance…" and a picker for the
+visitor's kind of work. The choice re-colours the funnel's accent. These
+tokens are used nowhere else; inside the product, the four status colours
+above are still the only colour.
+
+| Token | Hex | Job |
+|---|---|---|
+| `--color-job-designer` | `#60a5fa` (blue) | Designer (default) |
+| `--color-job-photographer` | `#34d399` (mint) | Photographer |
+| `--color-job-video-editor` | `#a78bfa` (violet) | Video editor |
+| `--color-job-writer` | `#fcd34d` (yellow) | Writer |
+| `--color-job-developer` | `#f472b6` (pink) | Developer |
+
+No job uses red: on this site red means overdue. Each is light enough to
+pass contrast as text on the black canvas.
+
 ---
 
 ## Typography

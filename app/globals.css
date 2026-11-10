@@ -37,6 +37,15 @@
   --color-status-sent: #34d399; /* mint   — Invoice Sent */
   --color-status-overdue: #f87171; /* red    — Overdue */
 
+  /* Job accents — /demo only. The picker re-colours the funnel to the
+     visitor's kind of work. Reuses the status hues so the palette stays
+     the same four colours plus one violet; none is red, which means overdue. */
+  --color-job-designer: #60a5fa;
+  --color-job-photographer: #34d399;
+  --color-job-video-editor: #a78bfa;
+  --color-job-writer: #fcd34d;
+  --color-job-developer: #f472b6;
+
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
