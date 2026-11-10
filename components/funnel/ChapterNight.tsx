@@ -126,6 +126,9 @@ function Night({ job }: { job: JobId }) {
   };
 
   const onDown = (e: React.PointerEvent<HTMLButtonElement>, id: string) => {
+    // A drop that filed its worry removes the button before its click fires,
+    // so a stale suppression is cleared on every new press.
+    suppressClick.current = false;
     drag.current = { id, x: e.clientX, y: e.clientY, moved: false };
     e.currentTarget.setPointerCapture(e.pointerId);
   };
@@ -203,17 +206,19 @@ function Night({ job }: { job: JobId }) {
                   onPointerUp={onUp}
                   onPointerCancel={onUp}
                   onClick={(e) => {
-                    if (suppressClick.current) {
+                    // e.detail is 0 for Enter or Space, which is never the tail of a drag.
+                    if (suppressClick.current && e.detail !== 0) {
                       suppressClick.current = false;
                       return;
                     }
                     file(w.id, e.currentTarget);
                   }}
                   aria-label={`File “${w.chaos}” into FreeFlow`}
-                  className={`focus-visible:ring-ink absolute z-[1] cursor-grab touch-none rounded-lg border bg-[#0b0b0b] px-3 py-2 text-left text-[13px] whitespace-nowrap shadow-[0_6px_24px_rgba(0,0,0,0.6)] select-none focus-visible:ring-2 focus-visible:outline-none data-[drag]:z-20 data-[drag]:cursor-grabbing data-[drag]:animate-none! motion-safe:animate-[drift_var(--d)_ease-in-out_infinite_alternate] motion-safe:data-[nervous]:animate-[shake_0.18s_linear_infinite] ${tone}`}
+                  className={`focus-visible:ring-ink absolute z-[1] cursor-grab touch-none rounded-lg border bg-[#0b0b0b] px-3 py-2 text-left text-[13px] max-w-44 shadow-[0_6px_24px_rgba(0,0,0,0.6)] select-none focus-visible:ring-2 focus-visible:outline-none data-[drag]:z-20 data-[drag]:cursor-grabbing data-[drag]:animate-none! motion-safe:animate-[drift_var(--d)_ease-in-out_infinite_alternate] motion-safe:data-[nervous]:animate-[shake_0.18s_linear_infinite] ${tone}`}
                   style={
                     {
-                      left: `${4 + ((n * 37) % 62)}%`,
+                      // Clamped so a note (at most 11 rem wide) never runs off a phone-width panel.
+                      left: `min(${4 + ((n * 37) % 62)}%, calc(100% - 11.5rem))`,
                       top: `${14 + ((n * 53) % 68)}%`,
                       "--d": `${3 + (n % 4)}s`,
                       "--dx": `${(n % 2 ? 1 : -1) * (6 + (n % 5))}px`,

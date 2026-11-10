@@ -65,6 +65,8 @@ export default function Game() {
   const [visible, setVisible] = useState(true);
   const [best, setBest] = useState(0);
   const last = useRef<number | null>(null);
+  // One round_played per round, even if the job is changed after it ends.
+  const countedRound = useRef(false);
 
   // Pause while the tab is hidden.
   useEffect(() => {
@@ -93,11 +95,12 @@ export default function Game() {
 
   // A round just ended: record it once and keep the personal best.
   useEffect(() => {
-    if (!s.over) return;
+    if (!s.over || countedRound.current) return;
+    countedRound.current = true;
     track("round_played", job);
     const previous = readBest();
     if (s.collected > previous) saveBest(s.collected);
-    setBest(Math.max(previous, s.collected)); // eslint-disable-line react-hooks/set-state-in-effect
+    setBest(Math.max(previous, s.collected));
   }, [s.over, s.collected, job]);
 
   const projects = JOBS[job].gameProjects;
@@ -146,7 +149,10 @@ export default function Game() {
               </Link>
               <button
                 type="button"
-                onClick={() => setS(newGame())}
+                onClick={() => {
+                  countedRound.current = false;
+                  setS(newGame());
+                }}
                 className="border-hairline focus-visible:ring-ink rounded-lg border px-4 py-2.5 text-sm focus-visible:ring-2 focus-visible:outline-none"
               >
                 Play again

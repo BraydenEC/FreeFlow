@@ -273,6 +273,16 @@ assert(
 );
 assert("launch-list emails are checked in the database", /email ~ /.test(ventureSql) && /email = lower\(email\)/.test(ventureSql));
 
+// Re-graded from the final review's minors by their effect on visitors.
+const nightLatest = read("components/funnel/ChapterNight.tsx");
+assert(
+  "a new press always clears a stale drag's click suppression (M1)",
+  nightLatest.slice(nightLatest.indexOf("const onDown"), nightLatest.indexOf("const onMove")).includes("suppressClick.current = false"),
+);
+assert("worries are clamped inside the panel on phones (M11)", nightLatest.includes("calc(100% - 11.5rem)"));
+const gameLatest = read("components/funnel/Game.tsx");
+assert("a round is counted once, even if the job changes after it (M2)", gameLatest.includes("countedRound"));
+
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed\n`);
 if (failed > 0) process.exit(1);
