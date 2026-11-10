@@ -100,6 +100,22 @@ for (const path of [
   assert(`${path}: never reads rows back`, !src.includes(".select("));
 }
 
+// ── Week 6 Dock ─────────────────────────────────────────────────────────────
+const readOr = (path: string) => {
+  try {
+    return read(path);
+  } catch {
+    return "";
+  }
+};
+const dockSrc = readOr("components/nav/Dock.tsx");
+assert("the Dock exposes its open state", dockSrc.includes("aria-expanded"));
+assert("the Dock closes on Escape", dockSrc.includes('"Escape"'));
+assert("the Dock respects reduced motion", /prefers-reduced-motion/.test(dockSrc));
+assert("the Dock is a labelled nav", /<nav[^>]*aria-label=/.test(dockSrc));
+assert("the Dock toggle is a real button", /<button[\s\S]{0,200}aria-expanded/.test(dockSrc));
+assert("the top bar no longer lists pages", !readOr("components/TopBar.tsx").includes("PRIMARY_NAV"));
+
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed\n`);
 if (failed > 0) process.exit(1);

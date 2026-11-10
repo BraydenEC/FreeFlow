@@ -4,6 +4,7 @@ import "./globals.css";
 import { PrefsProvider } from "@/components/prefs/PrefsProvider";
 import { SessionProvider } from "@/components/auth/SessionProvider";
 import TopBar from "@/components/TopBar";
+import Dock from "@/components/nav/Dock";
 import { getUserPrefs } from "@/lib/prefs/server";
 import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
 
@@ -39,11 +40,12 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="bg-app text-ink min-h-full">
+      <body className="bg-app text-ink min-h-full pb-28">
         <SessionProvider user={user}>
           <PrefsProvider initial={prefs} scope={user?.id ?? null}>
             <TopBar />
             {children}
+            <Dock />
           </PrefsProvider>
         </SessionProvider>
       </body>

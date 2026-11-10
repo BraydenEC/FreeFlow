@@ -606,16 +606,16 @@ export const CONTENT_RULES: Rule[] = [
     answer:
       "FreeFlow tracks your projects and the money they bring in. Start by setting your currency and default payment terms in Settings (top right). Then add your first project in the New project form on the dashboard, and keep its status up to date. The dashboard shows what's unpaid, what you earned this month, what's overdue, and six months of expected income. Choose Mark paid when money arrives.",
   },
-  // lib/nav.tsx PRIMARY_NAV
+  // lib/nav/dock.ts DOCK_GROUPS
   {
     id: "app-sections",
     categories: ["how_to", "pricing_technical"],
     areas: "any",
-    keywords: ["menu", "navigation", "tabs"],
-    strong: ["menu", "navigation", "tabs"],
-    phrases: ["what is core", "what does core do", "core page", "main menu", "top bar"],
+    keywords: ["menu", "navigation", "tabs", "dock"],
+    strong: ["menu", "navigation", "tabs", "dock"],
+    phrases: ["what is core", "what does core do", "core page", "main menu", "top bar", "where are the pages", "where is the menu"],
     answer:
-      "Dashboard is your projects and money. Core turns a client's message into a structured record. Research is the market evidence behind FreeFlow. Product lists what's built and planned. Support is for optional donations. Help is this guide. Pricing shows the intended future model. Marketing is FreeFlow's own campaign.",
+      "Every page is in the Dock, the round button at the bottom of the screen: hover it or tap it to open. Demo is a short tour of FreeFlow. Dashboard is your projects and money. Paste a brief turns a client's message into a project. Help desk is this guide. Research is the market evidence behind FreeFlow. Product lists what's built and planned. Pricing shows a possible long-term model. Marketing is FreeFlow's own campaign. Docs is how FreeFlow was built and what comes next. Support is for optional donations. Settings and your account stay at the top right.",
   },
   // app/product/page.tsx; lib/product/features.ts
   {

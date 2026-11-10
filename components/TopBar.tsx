@@ -6,18 +6,17 @@ import { useState } from "react";
 import SignOutButton from "@/components/auth/SignOutButton";
 import { useSession } from "@/components/auth/SessionProvider";
 import LayoutDrawer from "@/components/prefs/LayoutDrawer";
-import { PRIMARY_NAV } from "@/lib/nav";
 
 /*
-  The application bar: brand, the sections of the product, and the account.
+  The application bar: the brand mark, Settings and the account.
 
-  This is the primary navigation now. It used to be a left rail; a horizontal
-  bar puts every section one click away at any width and gives the page its
-  full width back, which is most of what "annoying on mobile" meant. The
-  sidebar underneath is for sections of the current page, not of the product.
+  Since Week 6 the pages live in the Dock at the bottom of the screen
+  (components/nav/Dock.tsx), so this bar lists none of them. What stays is
+  what acts on the application rather than navigating it: Settings and the
+  account, top right. The brand mark still leads home.
 
-  Settings sits at the right end with the account, separated by a rule,
-  because it acts on the application rather than navigating it.
+  Not sticky any more: with no page links it has nothing to offer once you
+  scroll, and the Dock is always within reach.
 
   Renders nothing on the auth pages. A bar advertising Settings and an account
   menu to someone who has neither is noise, and the sign-up page is
@@ -39,13 +38,9 @@ export default function TopBar() {
 
   if (AUTH_ROUTES.includes(pathname)) return null;
 
-  const link = (active: boolean) =>
-    `flex shrink-0 items-center gap-2 rounded-md px-2.5 py-1.5 text-sm transition-colors focus-visible:ring-accent focus-visible:ring-2 focus-visible:outline-none ${
-      active ? "bg-raised text-ink font-medium" : "text-ink-muted hover:text-ink"
-    }`;
 
   return (
-    <header className="border-hairline bg-surface sticky top-0 z-30 border-b">
+    <header className="border-hairline bg-surface relative z-30 border-b">
       <div className="flex h-14 items-center gap-1 px-3 sm:px-4">
         {/* Brand mark. A filled square with a notch — a shape rather than a
             letter, so it reads as a logo at 28px instead of as text. */}
@@ -61,33 +56,7 @@ export default function TopBar() {
           </span>
         </Link>
 
-        <nav
-          aria-label="Main"
-          className="-mx-1 flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto px-1"
-        >
-          {PRIMARY_NAV.map((item) =>
-            item.href ? (
-              <Link
-                key={item.label}
-                href={item.href}
-                aria-current={pathname === item.href ? "page" : undefined}
-                className={link(pathname === item.href)}
-              >
-                {item.icon}
-                <span>{item.label}</span>
-              </Link>
-            ) : (
-              <span
-                key={item.label}
-                aria-disabled="true"
-                className="text-ink-faint/60 flex shrink-0 cursor-not-allowed items-center gap-2 px-2.5 py-1.5 text-sm"
-              >
-                {item.icon}
-                <span>{item.label}</span>
-              </span>
-            ),
-          )}
-        </nav>
+        <div className="flex-1" />
 
         <div className="border-hairline ml-2 flex shrink-0 items-center gap-1 border-l pl-2">
           <button
