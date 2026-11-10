@@ -2,7 +2,7 @@
 
 ## 1. Full-site regression, before deploy #1 (2026-11-10)
 
-Run on branch `week6` after the final review's fixes (commit `0c6a3f2` and later):
+Run on branch `week6` after the final review's fixes (commit `91cb087`):
 
 | Command | Result |
 |---|---|
