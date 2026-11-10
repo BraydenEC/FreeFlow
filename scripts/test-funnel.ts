@@ -109,7 +109,7 @@ const firstId = ss.live[0].id;
 const afterFile = fileWorry(ss, firstId);
 assert("filing moves exactly one worry", afterFile.live.length === ss.live.length - 1 && afterFile.filed.length === 1 && afterFile.filed[0].id === firstId);
 assert("filing an unknown worry changes nothing", fileWorry(ss, "nope") === ss);
-let three = fileWorry(fileWorry(afterFile, afterFile.live[0].id), afterFile.live[1].id);
+const three = fileWorry(fileWorry(afterFile, afterFile.live[0].id), afterFile.live[1].id);
 assert("rest is not offered before three", !canOfferRest(fileWorry(afterFile, afterFile.live[0].id)));
 assert("rest is offered at three", canOfferRest(three));
 const rested = handleRest(three);
