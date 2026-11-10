@@ -86,6 +86,9 @@ export default async function PricingPage({
               <p className="text-[15px] font-semibold">
                 None of this is being charged today.
               </p>
+              <p className="text-ink mt-2 text-sm leading-relaxed">
+                These tiers are a possible long-term model. The plan for launch is a one-time purchase for full access.
+              </p>
               <p className="text-ink-muted mt-2 text-sm leading-relaxed">
                 FreeFlow is free while it is early — every feature, for
                 everyone. What follows is the model it intends to move to, with

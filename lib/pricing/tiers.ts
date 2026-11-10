@@ -57,7 +57,7 @@ export const TIERS: Tier[] = [
       "One system instead of two. Projects, hours, and a CFDI that is legally an invoice — maintained as the rules change.",
     includes: [
       "Unlimited projects",
-      "CFDI 4.0 issuance via an authorized PAC",
+      "CFDI 4.0 issuance via an authorized PAC (planned)",
       "Materialidad evidence linked to each invoice",
       "Everything in Solo",
     ],
@@ -95,7 +95,7 @@ export const TIERS: Tier[] = [
       "For one-time projects. Fewer invoices, each one legally correct — and kept correct as the SAT rules move.",
     includes: [
       "Unlimited projects",
-      "CFDI 4.0 issuance via an authorized PAC",
+      "CFDI 4.0 issuance via an authorized PAC (planned)",
       "Contract and payment link on every project",
       "No time tracking — it is not what you bill on",
     ],

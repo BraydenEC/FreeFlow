@@ -229,6 +229,22 @@ const morning = readOr("components/funnel/ChapterMorning.tsx");
 assert("morning's primary action tracks the click", morning.includes('track("try_free_click"'));
 assert("morning states no price", !/\$\s?\d|\bMXN\b|per month/i.test(morning));
 
+// ── Week 6 /pricing framing ─────────────────────────────────────────────────
+assert(
+  "/pricing says the tiers are long-term and launch is one-time",
+  read("app/pricing/page.tsx").includes(
+    "These tiers are a possible long-term model. The plan for launch is a one-time purchase for full access.",
+  ),
+);
+const cfdiIssuance = [...read("lib/pricing/tiers.ts").matchAll(/"([^"]*CFDI[^"]*issuance[^"]*)"/g)]
+  .map((m) => m[1])
+  .filter((t) => !t.startsWith("No "));
+assert(
+  "every tier line offering CFDI issuance is marked planned",
+  cfdiIssuance.length > 0 && cfdiIssuance.every((t) => t.endsWith("(planned)")),
+  cfdiIssuance.join(" | "),
+);
+
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed\n`);
 if (failed > 0) process.exit(1);
