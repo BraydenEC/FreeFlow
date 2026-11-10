@@ -13,6 +13,8 @@ import { WALKTHROUGH } from "@/lib/funnel/walkthrough";
 import { COPY } from "@/lib/funnel/copy";
 import { PRICE_PATTERN } from "@/lib/venture/changes";
 import { FEATURE_GROUPS } from "@/lib/product/features";
+import { clockFor, storyMinutes } from "@/lib/funnel/clock";
+import { moodFor } from "@/lib/funnel/mood";
 
 let passed = 0;
 let failed = 0;
@@ -72,6 +74,27 @@ assert(
   "retired landing headlines are kept for reuse",
   COPY.RETIRED_LANDING_HEADLINES.includes("You find out you were not paid by remembering"),
 );
+
+// The story clock: one night, 11:47 pm to 8:00 am, driven by scroll.
+assert("clock starts at 11:47 pm", clockFor(0) === "11:47 pm");
+assert("clock ends at 8:00 am", clockFor(1) === "8:00 am");
+assert("clock clamps below the start", clockFor(-1) === "11:47 pm");
+assert("clock clamps past the end", clockFor(2) === "8:00 am");
+assert("clock passes midnight", clockFor(0.03) === "12:02 am", clockFor(0.03));
+assert(
+  "story time only moves forward",
+  [0, 0.25, 0.5, 1].map(storyMinutes).every((m, i, a) => i === 0 || m > a[i - 1]),
+);
+
+// Mood: tense during the night, calm after, morning light at the end.
+assert("stress is highest in chapter 1", moodFor(0.1).stress > moodFor(0.5).stress);
+assert("stress has gone by mid-story", moodFor(0.5).stress === 0);
+assert("no morning light mid-story", moodFor(0.5).morning === 0);
+assert("full morning at the end", moodFor(1).morning === 1);
+assert("mood values stay between 0 and 1", [-1, 0, 0.3, 0.9, 2].every((p) => {
+  const m = moodFor(p);
+  return m.stress >= 0 && m.stress <= 1 && m.morning >= 0 && m.morning <= 1;
+}));
 
 // No prices anywhere in funnel content.
 const allText = JSON.stringify({

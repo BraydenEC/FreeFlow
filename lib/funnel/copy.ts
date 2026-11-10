@@ -2,7 +2,7 @@
   The /demo funnel's headline strings, in one place.
 
   RETIRED_LANDING_HEADLINES are the pain-point headlines from the signed-out
-  landing page that /demo replaces (components/landing/LandingPage.tsx), kept
+  landing page that /demo replaced (components/landing/LandingPage.tsx, removed in Week 6), kept
   so chapter 1 can reuse the strongest of them.
 */
 

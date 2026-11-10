@@ -120,3 +120,15 @@ body {
     transform: translateY(6px);
   }
 }
+
+/* /demo job picker: a wave of the new job's colour from the click point. */
+@keyframes job-wave {
+  from {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0.22;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+}

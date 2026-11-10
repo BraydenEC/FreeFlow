@@ -19,6 +19,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.freeflow.website"),
   title: "FreeFlow — Freelance Project & Invoice Tracker",
   description:
     "Track projects, cash flow, and deadlines in one place. Built for independent contractors, freelance developers, designers, and consultants.",

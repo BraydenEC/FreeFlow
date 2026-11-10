@@ -8,7 +8,7 @@
   coming back unnoticed.
 */
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 let passed = 0;
 let failed = 0;
@@ -170,6 +170,20 @@ assert("roadmap storage access is wrapped in try", storageGuarded(roadmapSrc, "l
 assert("roadmap votes are real buttons", roadmapSrc.includes("<button"));
 const stepper = readOr("components/venture/JourneyStepper.tsx");
 assert("the journey moves with arrow keys", stepper.includes('"ArrowRight"') && stepper.includes('"ArrowLeft"'));
+
+// ── Week 6 /demo shell ──────────────────────────────────────────────────────
+const demoPage = readOr("app/demo/page.tsx");
+assert("/demo declares itself canonical", /alternates:\s*\{\s*canonical:\s*"\/demo"/.test(demoPage));
+const rootPage = read("app/page.tsx");
+assert("signed-out / renders the same funnel", rootPage.includes("<DemoFunnel"));
+assert("the old landing page is gone", !existsSync("components/landing/LandingPage.tsx") && !rootPage.includes("LandingPage"));
+const trackSrc = readOr("lib/funnel/track.ts");
+assert("tracking survives blocked session storage", storageGuarded(trackSrc, "sessionStorage"));
+assert("tracking never throws", trackSrc.includes(".catch("));
+const jobCtx = readOr("components/funnel/JobContext.tsx");
+assert("the colour wave is skipped under reduced motion", /prefers-reduced-motion/.test(jobCtx));
+assert("job swatches are real buttons", readOr("components/funnel/DemoFunnel.tsx").includes("<button"));
+assert("the sticky CTA tracks try-free clicks", readOr("components/funnel/StickyCta.tsx").includes('track("try_free_click"'));
 
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed\n`);
