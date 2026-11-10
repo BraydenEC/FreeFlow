@@ -7,9 +7,9 @@ filled in only after that person has done the test.
 
 | Tester | Date | What they were trying to do | What they asked | Did the bot solve it? | Ticket sent? | What they said | What changed because of it |
 |---|---|---|---|---|---|---|---|
-| Anton | | | | | | | |
-| William | | | | | | | |
-| Adam | | | | | | | |
+| Tester 1 | | | | | | | |
+| Tester 2 | | | | | | | |
+| Tester 3 | | | | | | | |
 
 ## Message to send
 
