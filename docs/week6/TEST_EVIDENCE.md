@@ -40,9 +40,19 @@ by their effect on visitors and fixed; the rest are logged for later.
 | Try-free click via `/api/funnel` | `{"saved":true}` |
 | Counts rise | `/dashboard` "Try free" clicks 0 → 1; `/docs` "A simpler forecast" 0 → 1 vote |
 
-## 5. Still to check
+## 5. Live checks signed in (owner's own account, 2026-11-10)
 
-- Signed in, with a grader account: `/` goes to `/dashboard`, "Your work" unchanged, both tabs.
-- Every page at 375 px in a real browser, with screenshots in `docs/week6/screenshots/`.
+| Check | Result |
+|---|---|
+| `/` signed in | redirects to `/dashboard` |
+| `/login` signed in | redirects to `/dashboard` |
+| `/dashboard` | "Your work" selected by default; all six widgets render from Supabase (`data-source="supabase"`); sidebar Overview / Projects / Core / Research; "FreeFlow in public" tab present |
+| `/demo` signed in | loads (not gated) |
+| Every page at 375 px (`/demo`, `/dashboard` both tabs, `/docs`, `/core`, `/research`, `/product`, `/pricing`, `/marketing`, `/support`, `/chat`) | document width 375, no element wider than the screen outside a scroll area; the Dock present on each |
+
+No screenshots were kept from the owner's account: it holds real client data.
+
+## 6. Still to check
+
 - One real launch-list sign-up from the page (by the owner, with his own address).
-- The Dock on each page.
+- Submission screenshots, taken on a grader account rather than the owner's.
