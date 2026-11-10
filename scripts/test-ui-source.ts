@@ -76,6 +76,30 @@ const home = read("app/page.tsx");
 assert("the dashboard makes no forever promise", !/always will be/i.test(home));
 assert("it uses the words the other pages use", /free while it grows/.test(home));
 
+// ── Week 6 anonymous write routes ───────────────────────────────────────────
+for (const path of [
+  "app/api/funnel/route.ts",
+  "app/api/launch-list/route.ts",
+  "app/api/roadmap/vote/route.ts",
+]) {
+  let src = "";
+  try {
+    src = read(path);
+  } catch {
+    assert(`${path} exists`, false);
+    continue;
+  }
+  const limitAt = src.indexOf("rateLimit(");
+  assert(`${path}: rate limit comes before reading the body`, limitAt >= 0 && limitAt < src.indexOf("request.json()"));
+  const noClient = src.slice(src.indexOf("if (!supabase)"));
+  assert(
+    `${path}: no database answers 503`,
+    src.includes("if (!supabase)") && noClient.indexOf("status: 503") >= 0 && noClient.indexOf("status: 503") < 300,
+  );
+  assert(`${path}: a duplicate (23505) is a success`, src.includes('"23505"'));
+  assert(`${path}: never reads rows back`, !src.includes(".select("));
+}
+
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed\n`);
 if (failed > 0) process.exit(1);

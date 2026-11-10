@@ -15,6 +15,7 @@ import { JOURNEY } from "@/lib/venture/journey";
 import { TIMELINE } from "@/lib/venture/timeline";
 import { PROMPTS } from "@/lib/venture/prompts";
 import { BUGS, TESTER_REQUESTS } from "@/lib/venture/testing";
+import { FunnelEventSchema, LaunchListSchema, VoteSchema } from "@/lib/venture/schemas";
 
 let passed = 0;
 let failed = 0;
@@ -100,6 +101,45 @@ assert(
 // Testing summary starts empty: nothing is claimed before testers exist.
 assert("no bugs recorded before Week 6 testing", BUGS.length === 0);
 assert("no tester requests recorded before Week 6 testing", TESTER_REQUESTS.length === 0);
+
+// Write-route schemas: what an anonymous visitor may send.
+const VISIT = "7d0c6f5e-0b4a-4e8f-9a51-3c2b1d0e9f87";
+const okEmail = LaunchListSchema.safeParse({ email: "  A@B.co ", consent: true, source: "morning" });
+assert("launch list trims and lower-cases the email", okEmail.success && okEmail.data.email === "a@b.co");
+assert(
+  "launch list requires consent",
+  !LaunchListSchema.safeParse({ email: "a@b.co", consent: false, source: "morning" }).success,
+);
+assert(
+  "launch list rejects a 300-character email",
+  !LaunchListSchema.safeParse({ email: "a".repeat(290) + "@b.co.mx.xx", consent: true, source: "morning" }).success,
+);
+assert(
+  "launch list rejects a non-email",
+  !LaunchListSchema.safeParse({ email: "not-an-email", consent: true, source: "morning" }).success,
+);
+assert(
+  "launch list rejects an unknown source",
+  !LaunchListSchema.safeParse({ email: "a@b.co", consent: true, source: "popup" }).success,
+);
+assert("vote accepts a roadmap item", VoteSchema.safeParse({ itemId: "cfdi", voterKey: VISIT }).success);
+assert(
+  "vote rejects an item not on the roadmap",
+  !VoteSchema.safeParse({ itemId: "free-money", voterKey: VISIT }).success,
+);
+assert("vote rejects a voter key that isn't a uuid", !VoteSchema.safeParse({ itemId: "cfdi", voterKey: "me" }).success);
+assert(
+  "funnel accepts a known event with a job",
+  FunnelEventSchema.safeParse({ event: "try_free_click", job: "video-editor", visitId: VISIT }).success,
+);
+assert(
+  "funnel rejects an unknown event",
+  !FunnelEventSchema.safeParse({ event: "purchase", visitId: VISIT }).success,
+);
+assert(
+  "funnel rejects an unknown job",
+  !FunnelEventSchema.safeParse({ event: "round_played", job: "astronaut", visitId: VISIT }).success,
+);
 
 // Guardrails across all venture content.
 const allText = JSON.stringify({ CHANGES, ROADMAP, JOURNEY, TIMELINE, PROMPTS });
