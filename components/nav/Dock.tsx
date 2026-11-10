@@ -98,6 +98,11 @@ export default function Dock() {
   const toggleRef = useRef<HTMLButtonElement>(null);
   const iconRefs = useRef<HTMLSpanElement[]>([]);
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Hover-opening widens the centred bar, which moves the toggle out from under
+  // the mouse. Until `armed`, page icons ignore the pointer, so a click aimed
+  // at the toggle can't land on a page and navigate away.
+  const [armed, setArmed] = useState(true);
+  const armTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navId = useId();
 
   // Reduced motion: no magnification and no transitions.
@@ -140,11 +145,16 @@ export default function Dock() {
 
   useEffect(() => () => {
     if (leaveTimer.current) clearTimeout(leaveTimer.current);
+    if (armTimer.current) clearTimeout(armTimer.current);
   }, []);
 
   const onPointerEnter = (e: React.PointerEvent) => {
     if (e.pointerType !== "mouse") return;
     if (leaveTimer.current) clearTimeout(leaveTimer.current);
+    if (open) return;
+    setArmed(false);
+    if (armTimer.current) clearTimeout(armTimer.current);
+    armTimer.current = setTimeout(() => setArmed(true), 450);
     setOpenOn(pathname);
   };
 
@@ -185,7 +195,13 @@ export default function Dock() {
           aria-expanded={open}
           aria-controls={navId}
           aria-label={open ? "Close pages" : "Open pages"}
-          onClick={() => (open ? close() : setOpenOn(pathname))}
+          onClick={() => {
+            // A click that arrives just after hover opened the Dock was aimed
+            // at opening it: keep it open.
+            if (open && !armed) setArmed(true);
+            else if (open) close();
+            else setOpenOn(pathname);
+          }}
           className="focus-visible:ring-accent group relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white focus-visible:ring-2 focus-visible:outline-none"
         >
           <Glyph dark>
@@ -200,7 +216,7 @@ export default function Dock() {
           id={navId}
           aria-label="Pages"
           hidden={!open}
-          className="-mt-20 -mb-2 flex min-w-0 items-end gap-1.5 overflow-x-auto pt-20 pb-2"
+          className={`-mt-20 -mb-2 flex min-w-0 items-end gap-1.5 overflow-x-auto pt-20 pb-2 ${armed ? "" : "pointer-events-none"}`}
         >
           {DOCK_GROUPS.map((group) => (
             <div key={group.id} role="group" aria-label={group.label} className="flex items-end gap-1.5">

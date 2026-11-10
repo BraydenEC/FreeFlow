@@ -245,6 +245,34 @@ assert(
   cfdiIssuance.join(" | "),
 );
 
+// ── Week 6 final review fixes ───────────────────────────────────────────────
+// I1: hover-opening the Dock moves the toggle; page icons must not take a
+// click until the visitor has had a moment to see the Dock open.
+const dockNow = read("components/nav/Dock.tsx");
+assert("a hover-opened Dock ignores clicks for a moment", dockNow.includes("armed") && /pointer-events-none/.test(dockNow));
+// I2: a dragged worry must never be "nervous", or the shake overrides the drag.
+const nightNow = read("components/funnel/ChapterNight.tsx");
+assert("dragging clears the nervous shake", /delete [a-zA-Z.]*dataset\.nervous/.test(nightNow.slice(nightNow.indexOf("const onMove"))));
+assert("nervous marking skips the dragged note", nightNow.slice(nightNow.indexOf("const onMindMove"), nightNow.indexOf("const onDown")).includes("dataset.drag"));
+// I3: only the worry buttons block touch scrolling, not the whole panel.
+const mindPanel = nightNow.slice(nightNow.indexOf("ref={mindRef}"), nightNow.indexOf("ref={mindRef}") + 400);
+assert("the On your mind panel lets the page scroll on touch", !mindPanel.includes("touch-none"));
+// I4: help-desk answers match the Week 6 site.
+const rulesNow = read("lib/chat/rules.ts");
+assert("the help desk no longer sends phone users to the top bar", !/top bar scrolls/.test(rulesNow));
+assert("the help desk knows about the launch list", !/no newsletters/i.test(rulesNow) && /launch list/i.test(rulesNow));
+assert(
+  "the help desk lists the public pages",
+  /id: "account-required"[\s\S]{0,900}Demo[\s\S]{0,300}Docs/.test(rulesNow),
+);
+// M4: the database refuses what the routes would refuse.
+const ventureSql = read("supabase/week6_venture.sql");
+assert(
+  "votes are limited to roadmap items in the database",
+  ["simpler-forecast", "one-time-launch", "tester-requests", "more-countries", "more-languages", "more-currencies", "cfdi", "leaderboard", "proof-of-work", "studio-accounts"].every((id) => ventureSql.includes(`'${id}'`)),
+);
+assert("launch-list emails are checked in the database", /email ~ /.test(ventureSql) && /email = lower\(email\)/.test(ventureSql));
+
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed\n`);
 if (failed > 0) process.exit(1);

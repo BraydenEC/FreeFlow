@@ -710,7 +710,7 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["nav"],
     phrases: ["find help", "help on my phone", "menu is cut off", "menu on my phone", "tabs on my phone", "top bar on my phone", "on my phone", "cut off"],
     answer:
-      "On a phone the top bar scrolls sideways, so swipe it to reach Support, Help, Pricing and Marketing. Settings is the gear at its right end.",
+      "On a phone, every page is in the Dock: tap the round button at the bottom of the screen, then swipe the row sideways to reach Docs and Support. Settings is the gear at the top right.",
   },
   // No integrations in package.json or app/api; features map has none
   {
@@ -1634,7 +1634,7 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["unsubscribe", "newsletter"],
     phrases: ["stop getting emails", "stop emails", "marketing emails", "stop sending"],
     answer:
-      "FreeFlow only sends account emails you ask for, like confirming your address or resetting your password. There are no newsletters or reminders to unsubscribe from.",
+      "FreeFlow only sends account emails you ask for, like confirming your address or resetting your password. The one exception is the launch list: if you joined it on the demo page, you get one email when the lifetime version launches, and nothing else. To be removed, email braydenemeryc@gmail.com; every launch email also has a remove-me link.",
   },
 
   // proxy.ts PRIVATE_PREFIXES; app/page.tsx landing page; app/chat/page.tsx
@@ -1645,7 +1645,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["signup"],
     phrases: ["without an account", "need an account", "without signing up", "without signing in"],
     answer:
-      "The dashboard, Core and this guide need an account, which is free. Research, Pricing, Product, Marketing and Support can be read without one, though saving anything on them needs you to sign in.",
+      "Your projects on the dashboard, Paste a brief and this guide need an account, which is free. Demo, Docs, the dashboard's public numbers tab, Research, Pricing, Product, Marketing and Support can be read without one, though saving anything on them needs you to sign in.",
   },
   // Public repository on GitHub
   {

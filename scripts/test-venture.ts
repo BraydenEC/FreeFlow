@@ -8,7 +8,7 @@
   journey and roadmap keep the order the spec fixed, and no price slips in.
 */
 
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { CHANGES, PRICE_PATTERN } from "@/lib/venture/changes";
 import { ROADMAP, ROADMAP_IDS } from "@/lib/venture/roadmap";
 import { JOURNEY } from "@/lib/venture/journey";
@@ -140,6 +140,11 @@ assert(
   "funnel rejects an unknown job",
   !FunnelEventSchema.safeParse({ event: "round_played", job: "astronaut", visitId: VISIT }).success,
 );
+
+// The database's own list of vote-able items must match ROADMAP_IDS.
+const sql = readFileSync("supabase/week6_venture.sql", "utf8");
+const sqlItems = sql.match(/item_id in \(([^)]*)\)/)?.[1].match(/'([^']+)'/g)?.map((x) => x.slice(1, -1)) ?? [];
+assert("SQL vote check lists exactly the roadmap ids", sqlItems.join() === ROADMAP_IDS.join(), sqlItems.join());
 
 // Guardrails across all venture content.
 const allText = JSON.stringify({ CHANGES, ROADMAP, JOURNEY, TIMELINE, PROMPTS });

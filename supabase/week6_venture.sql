@@ -41,7 +41,12 @@ create index if not exists funnel_events_event_idx on public.funnel_events (even
 -- is sent to them. consent_version records which checkbox wording they saw.
 create table if not exists public.launch_list (
   id               bigint generated always as identity primary key,
-  email            text not null check (char_length(email) <= 254),
+  -- Checked here as well as in the route: the public key can reach this table
+  -- directly, so the database refuses anything the route would refuse.
+  email            text not null
+                   check (char_length(email) <= 254)
+                   check (email = lower(email))
+                   check (email ~ '^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$'),
   consent          boolean not null check (consent),
   consent_version  text not null check (char_length(consent_version) <= 32),
   source           text check (source is null or source in ('morning', 'game_end', 'footer')),
@@ -53,8 +58,13 @@ create table if not exists public.launch_list (
 create unique index if not exists launch_list_email_key on public.launch_list (lower(email));
 
 -- One upvote per roadmap item per browser key. Not a security boundary.
+-- item_id is limited to the roadmap's ids (lib/venture/roadmap.ts; a test
+-- keeps the two lists equal), so nobody can pad venture_counts() with junk.
 create table if not exists public.roadmap_votes (
-  item_id     text not null check (char_length(item_id) <= 64),
+  item_id     text not null check (item_id in (
+                'simpler-forecast', 'one-time-launch', 'tester-requests',
+                'more-countries', 'more-languages', 'more-currencies', 'cfdi', 'leaderboard',
+                'proof-of-work', 'studio-accounts')),
   voter_key   uuid not null,
   created_at  timestamptz not null default now(),
   primary key (item_id, voter_key)

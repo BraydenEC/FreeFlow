@@ -116,6 +116,8 @@ function Night({ job }: { job: JobId }) {
   const onMindMove = (e: React.PointerEvent) => {
     if (calmMotion || e.pointerType !== "mouse" || !mindRef.current) return;
     for (const note of mindRef.current.querySelectorAll<HTMLElement>("[data-note]")) {
+      // A note being dragged is never nervous: the shake would fight the drag.
+      if (note.dataset.drag !== undefined) continue;
       const r = note.getBoundingClientRect();
       const near = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2)) < NEAR_PX;
       if (near) note.dataset.nervous = "";
@@ -135,6 +137,7 @@ function Night({ job }: { job: JobId }) {
     if (!d.moved && Math.hypot(dx, dy) > 5) {
       d.moved = true;
       e.currentTarget.dataset.drag = "";
+      delete e.currentTarget.dataset.nervous;
     }
     if (d.moved) e.currentTarget.style.translate = `${dx}px ${dy}px`;
   };
@@ -169,7 +172,7 @@ function Night({ job }: { job: JobId }) {
         <div
           ref={mindRef}
           onPointerMove={onMindMove}
-          className="border-hairline relative h-[380px] touch-none overflow-hidden rounded-2xl border sm:h-[420px]"
+          className="border-hairline relative h-[380px] overflow-hidden rounded-2xl border sm:h-[420px]"
           style={{ boxShadow: `inset 0 0 ${Math.round(60 * stress)}px rgba(248,113,113,${(0.35 * stress).toFixed(2)})` }}
         >
           <p className="text-ink-faint absolute top-3 left-3.5 z-10 text-[11px] tracking-[0.08em] uppercase">On your mind</p>
@@ -207,7 +210,7 @@ function Night({ job }: { job: JobId }) {
                     file(w.id, e.currentTarget);
                   }}
                   aria-label={`File “${w.chaos}” into FreeFlow`}
-                  className={`focus-visible:ring-ink absolute z-[1] cursor-grab touch-none rounded-lg border bg-[#0b0b0b] px-3 py-2 text-left text-[13px] whitespace-nowrap shadow-[0_6px_24px_rgba(0,0,0,0.6)] select-none focus-visible:ring-2 focus-visible:outline-none data-[drag]:z-20 data-[drag]:cursor-grabbing data-[drag]:animate-none motion-safe:animate-[drift_var(--d)_ease-in-out_infinite_alternate] motion-safe:data-[nervous]:animate-[shake_0.18s_linear_infinite] ${tone}`}
+                  className={`focus-visible:ring-ink absolute z-[1] cursor-grab touch-none rounded-lg border bg-[#0b0b0b] px-3 py-2 text-left text-[13px] whitespace-nowrap shadow-[0_6px_24px_rgba(0,0,0,0.6)] select-none focus-visible:ring-2 focus-visible:outline-none data-[drag]:z-20 data-[drag]:cursor-grabbing data-[drag]:animate-none! motion-safe:animate-[drift_var(--d)_ease-in-out_infinite_alternate] motion-safe:data-[nervous]:animate-[shake_0.18s_linear_infinite] ${tone}`}
                   style={
                     {
                       left: `${4 + ((n * 37) % 62)}%`,
