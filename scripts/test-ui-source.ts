@@ -145,6 +145,32 @@ assert("the public tab exists", publicNumbers.length > 0);
 assert("the public tab never mentions email", !/email/i.test(publicNumbers));
 assert("the public tab says when numbers are unavailable", publicNumbers.includes("Live numbers are unavailable right now"));
 
+// ── Week 6 /docs ────────────────────────────────────────────────────────────
+const docsPage = readOr("app/docs/page.tsx");
+const order = ["<JourneyStepper", "<WeekTimeline", "<PromptLibrary", "<TestingSummary", "<ImpactCheck", "<Roadmap"];
+const positions = order.map((tag) => docsPage.indexOf(tag));
+assert(
+  "/docs renders journey, timeline, prompts, testing, impact, roadmap in that order",
+  positions.every((p) => p >= 0) && positions.every((p, i) => i === 0 || p > positions[i - 1]),
+  positions.join(","),
+);
+assert("/docs has the impact and roadmap anchors", docsPage.includes('id="impact"') && docsPage.includes('id="roadmap"'));
+const impact = readOr("components/venture/ImpactCheck.tsx");
+assert("the impact check gives the public contact", impact.includes("braydenemeryc@gmail.com"));
+assert("the impact check's top tier is free lifetime access", impact.includes("free lifetime access"));
+assert("the impact check promises no refunds or cash", !/refund/i.test(impact));
+const roadmapSrc = readOr("components/venture/Roadmap.tsx");
+// Every line that touches browser storage sits within three lines of a try.
+const storageGuarded = (src: string, store: string) => {
+  const lines = src.split("\n");
+  const uses = lines.map((l, i) => (l.includes(store) ? i : -1)).filter((i) => i >= 0);
+  return uses.length > 0 && uses.every((i) => lines.slice(Math.max(0, i - 3), i + 1).some((l) => l.includes("try {")));
+};
+assert("roadmap storage access is wrapped in try", storageGuarded(roadmapSrc, "localStorage"));
+assert("roadmap votes are real buttons", roadmapSrc.includes("<button"));
+const stepper = readOr("components/venture/JourneyStepper.tsx");
+assert("the journey moves with arrow keys", stepper.includes('"ArrowRight"') && stepper.includes('"ArrowLeft"'));
+
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed\n`);
 if (failed > 0) process.exit(1);

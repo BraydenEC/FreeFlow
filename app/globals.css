@@ -113,3 +113,10 @@ body {
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
+/* A card arriving: a short rise and fade. Used only under motion-safe:. */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
