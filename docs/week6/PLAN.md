@@ -8,7 +8,7 @@ macro-prompt output format. Design source:
 **Required live page:** `/demo` · **Grade caps:** no live deployment means max 5/10; no
 Build Discipline Packet means max 6/10; written work with no code means max 5/10.
 
-> **Decisions taken up front (2026-11-09, with Brayden), copied from the spec:**
+> **Decisions taken up front (2026-11-09, with Brayden), copied from the spec.** The pricing bullet was amended on 2026-11-10 to match the pricing chat the owner supplied (`SOURCE_NOTES.md`, entry 1). "The spec" below means `docs/superpowers/specs/2026-11-09-week6-integrated-venture-design.md`.
 >
 > - `/demo` is **FreeFlow's one landing page and marketing funnel**, built on AIDA (from class) and on the owner's funnel brief. It is not a feature tour bolted onto the app.
 > - There is **one** landing page. The existing signed-out landing page at `/` (`components/landing/LandingPage.tsx`) is retired; its best pain-point headlines are reused. Signed-out visitors to `/` see the same funnel as `/demo`.
@@ -16,7 +16,7 @@ Build Discipline Packet means max 6/10; written work with no code means max 5/10
 > - The page must be **interactive, flowing, emotive, creative, "not ordinary"; showy but minimal.** References the owner loves: landonorris.com (hover reveals), playfolly.com (a colour choice re-colours the whole site), osmo.supply and thenode.gg (motion that flows).
 > - The page tells **one continuous story** that builds to a finale, rather than a stack of separate sections.
 > - A **freelance-themed clicker-style mini game** (original, timed) is the finale. **No leaderboard and no prize yet**: those wait until scores can be protected from cheating.
-> - **Pricing story:** FreeFlow is free now. The owner's own conviction is a **one-time purchase for full (lifetime) access**, because it is a tool. That came from a friend and user (the **Week 2 interviewee**, `docs/week2/VALIDATION_CONVERSATION.md`: he sells one-time installations and said a subscription does not fit him) who advised starting free, building a user base, then charging once instead of a recurring bill. The monthly tiers on `/pricing` are only a *possible* long-term model. **Never state a price on any new page.**
+> - **Pricing story:** FreeFlow is free now. The owner's own conviction is a **one-time purchase for full (lifetime) access**, because it is a tool. It follows a friend and user (the **Week 2 interviewee**, `docs/week2/VALIDATION_CONVERSATION.md`; the pricing chat is in `docs/week6/SOURCE_NOTES.md`): as a buyer he would rather buy software outright, and a subscription is his least favourite model. He advised keeping FreeFlow free as long as possible and charging only once growth outruns the free cloud tier. He also assumed a general-market tool would end up on a subscription, so the one-time plan is the owner's decision, built on the friend's buyer preference and the owner's own dislike of subscriptions, not the friend's recommendation. The monthly tiers on `/pricing` are only a *possible* long-term model. **Never state a price on any new page.**
 > - **`/pricing` keeps its content** (it answers an earlier module's brief), with two fixes the owner approved so the site does not contradict itself:
 >   1. A one-line framing banner, e.g. "These tiers are a possible long-term model. The plan for launch is a one-time purchase for full access."
 >   2. CFDI issuance, which is not built, must not read as included in a tier. Mark it "planned" wherever `lib/pricing/tiers.ts` lists it as a tier feature (around lines 60 and 98). Leave the analysis and segment prose as written.
@@ -25,8 +25,8 @@ Build Discipline Packet means max 6/10; written work with no code means max 5/10
 > - **Navigation:** replace the crowded top bar with a **Mac-style Dock**.
 > - `/dashboard`: the freelancer's own records **plus** a public **"FreeFlow in public"** tab (counts only).
 > - `/docs`: a **journey stepper** (one line, start → now) at the top, then a **week-by-week timeline**, then the prompt library.
-> - **Impact check** includes an owner accountability promise with a **"make it right" ladder** (below).
-> - **V2 roadmap** as specified below, with **visitor upvoting**.
+> - **Impact check** includes an owner accountability promise with a **"make it right" ladder** (see the spec's "Practical impact check" section).
+> - **V2 roadmap** as specified in the spec's "V2 roadmap" section, with **visitor upvoting**.
 > - The owner will recruit the **5 external testers** themselves.
 > - Area naming: "Money", "Paperwork & tax" (not "legal": FreeFlow does not give legal advice or issue legal invoices yet), "Organization".
 
@@ -94,7 +94,7 @@ Every criterion below is testable: by an automated suite (**auto**), by reading 
 
 | # | Requirement | Acceptance criterion |
 |---|---|---|
-| X1 | No price | No new page or component contains a currency amount or "per month" for FreeFlow itself (**source** search; game money is in-game only) |
+| X1 | No price | No new page or component contains a currency amount or "per month" for FreeFlow itself (**source** search). Exceptions: in-game money in the game, and figures inside a view clearly labelled as sample data |
 | X2 | No invented proof | Every "You said → we changed" entry has a `source` field naming a real repo file that exists (**auto**); no testimonial, rating, logo or invented count anywhere (**source**) |
 | X3 | Friends unnamed | Entries from friends read "a freelancer friend"; no friend or tester name in `lib/`, `components/` or `app/` (**source**) |
 | X4 | Reduced motion | Under `prefers-reduced-motion` every animation has a calm static version and nothing depends on motion to be understood (**live**, **source**) |
@@ -154,12 +154,12 @@ Every criterion below is testable: by an automated suite (**auto**), by reading 
 
 | # | Requirement | Acceptance criterion |
 |---|---|---|
-| F0 | Shell | A clock advances as you scroll; the mood moves from tense (red-tinged edges) through calm to morning light; "Try FreeFlow free" stays reachable throughout (sticky) (**live**) |
+| F0 | Shell | A clock advances as you scroll: it comes from scroll progress, 11:47 pm at the top to 8:00 am at the end, so the per-chapter times in the mockup are illustrative; the mood moves from tense (red-tinged edges) through calm to morning light; "Try FreeFlow free" stays reachable throughout (sticky) (**live**) |
 | F0b | Job picker | Designer, photographer, video editor, writer, developer; default designer; the choice re-colours the accent in a wave from the click point, swaps worries, project names and game projects, and persists for the visit; text contrast stays accessible (**auto** on job data, **live**) |
 | F1 | Chapter 1, 11:47 pm (Attention) | "I'm a freelance [job], and it's all in my head." Worries for that job pop in, the counter and red edges rise; a worry dragged into the FreeFlow panel, or tapped, lands as a calm checked row; after three, "You can't keep up by hand. Nobody can." and "Let FreeFlow handle the rest" appear; pressing it files the rest and the headline becomes "…and now it's all in one place." (**auto** on the sorting logic, **live**) |
 | F2 | Chapter 2, midnight (Interest, guided walkthrough) | Each worry resolves into a numbered step naming a built feature, with a one-line benefit and a sample view labelled as sample, grouped Money / Paperwork & tax / Organization; every step maps to a feature marked built in `lib/product/features.ts` (**auto**) |
 | F3 | Chapter 3, 1 am (story) | First-person story edited from `docs/week6/FOUNDER_STORY_SOURCE.md` and approved by the owner; ends unsigned; "Brayden" writes itself in handwriting on scroll into view, hover or tap, followed by a short P.S.; no photo (**source**, **live**) |
-| F4 | Chapter 4 (Desire, proof) | "You said → we changed" entries from one static list; each cites its source file; the first is the pricing advice (`docs/week2/VALIDATION_CONVERSATION.md`, `docs/week6/SOURCE_NOTES.md`); friends unnamed; labelled placeholders until tester entries exist (**auto**) |
+| F4 | Chapter 4 (Desire, proof) | "You said → we changed" entries from one static list; each cites its source file; the first is the pricing advice, paraphrased and never quoted (`docs/week6/SOURCE_NOTES.md`, entry 1); friends unnamed; labelled placeholders until tester entries exist (**auto**) |
 | F5 | Chapter 5 (Climax) | The game (see G1–G8) |
 | F6 | Chapter 6, 8:00 am (Action) | Primary "Use FreeFlow free now" → sign-up, recorded as `try_free_click`; secondary launch-list form (see L1–L5); no price (**live**, **source**) |
 | F7 | Footer | Contact and feedback `mailto:` to the public address, "If we get it wrong" → the impact section in `/docs`, and the launch-list privacy note (**live**) |

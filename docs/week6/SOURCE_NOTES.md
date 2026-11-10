@@ -10,24 +10,50 @@ paraphrase.
 
 ---
 
-## 1. Pricing advice: start free, build a base, charge once
+## 1. Pricing advice: free as long as possible, and buying outright beats subscribing
 
-- **Date recorded:** 2026-11-09 (owner's account, confirmed with him on 2026-11-09)
+- **Source:** an iMessage chat between the owner and the friend. The chat's own date is not
+  visible in the screenshots. The owner supplied the screenshots on 2026-11-10; they are not
+  committed, and the owner's own messages are not quoted here.
 - **Who:** a freelancer friend. The same person as the Week 2 interviewee in
-  `docs/week2/VALIDATION_CONVERSATION.md`. The owner confirmed on 2026-11-09 that it is the
-  same person.
-- **What he advised:** start FreeFlow free, build a user base, then charge once (a one-time
-  purchase for full, lifetime access) rather than a recurring subscription.
-- **Why it fits him:** the Week 2 transcript records that he sells one-time installations,
-  priced per job, not on a retainer ("I sell 1 time install … so not a retainer model and
-  it's always priced per job too"). A recurring bill does not match how he works.
-- **What the transcript does and does not hold:** the transcript holds his business context
-  and the quote above. The pricing advice itself was given to the owner separately and is
-  recorded here from the owner's account.
-- **What it changed:** the launch plan is a one-time purchase for full access. `/pricing`'s
-  monthly tiers are framed as only a possible long-term model. No new page states a price.
-- **Used by:** the first "You said → we changed" entry (`/demo` chapter 4 and the
-  "things you asked for, shipped" count), the "Can it last?" paragraph in `/docs`.
+  `docs/week2/VALIDATION_CONVERSATION.md` (owner confirmed 2026-11-09). Unnamed.
+- **His pricing lines, exact text** (numbers are their order in the chat; skipped lines are
+  his questions about who FreeFlow is for, and one about ads):
+
+  > (1) "Pay a one time but it really depends on the service"
+  >
+  > (3) "If it's software I'd rather buy it outright instead of subscribing to it"
+  >
+  > (4) "I think either way subscription is my least favorite"
+  >
+  > (8) "So if it's a general market you'll end up having to do subscription model I'd assume"
+  >
+  > (9) "Try to offer a free tier if it's possible (should be I'd imagine only cost is cloud fare )"
+  >
+  > (10) "And like if there's every so many users that database need more than minimum cloud fare tier than start charging mfs"
+  >
+  > (11) "But I'd say keep it free as long as possible"
+  >
+  > (12) "Yeee facebook Strat"
+
+- **Honest reading:**
+  - As a buyer, he prefers buying software outright; a subscription is his least favourite
+    model (3, 4).
+  - He advised offering a free tier, keeping FreeFlow free as long as possible, and charging
+    only once user growth outruns what the free cloud/database tier covers (9–11): grow
+    first, charge later, which he called the "facebook strat" (12).
+  - He assumed a general-market tool would end up on a subscription (8). He did **not**
+    recommend a one-time launch.
+- **Context from Week 2:** the interview transcript records that he sells one-time
+  installations, priced per job, not on a retainer.
+- **What it changed:** FreeFlow stays free now. The launch plan is a one-time purchase for
+  full access. That plan follows his stated preference as a buyer (3, 4) and the owner's own
+  dislike of subscriptions; it is the owner's decision, not the friend's recommendation.
+  `/pricing`'s monthly tiers are framed as only a possible long-term model. No new page
+  states a price.
+- **Used by:** the first "You said → we changed" entry (`/demo` chapter 4, paraphrased,
+  never quoted, and the "things you asked for, shipped" count), the "Can it last?"
+  paragraph in `/docs`.
 
 ## 2. Steady updates, built with feedback
 
