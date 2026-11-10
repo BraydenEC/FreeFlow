@@ -8,7 +8,8 @@
   and `status`). Statuses only describe things FreeFlow actually does today,
   and no status carries a money amount, so nothing here reads as a price.
 
-  The video editor set comes from the founder's own trade.
+  Nine worries each, so "your mind" can fill to its nine-worry cap without
+  repeating one. The video editor set comes from the founder's own trade.
 */
 
 export type JobId = "designer" | "photographer" | "video-editor" | "writer" | "developer";
@@ -46,6 +47,7 @@ export const JOBS: Record<JobId, Job> = {
       { id: "new-client", chaos: "new client email", sub: "‘quick favor’", tone: "yellow", filedAs: "Poster · Mercado", status: "Brief added" },
       { id: "invoice-9", chaos: "invoice #9 overdue", sub: "12 days", tone: "red", filedAs: "Invoice #9", status: "Overdue · alert on" },
       { id: "january", chaos: "what do I earn in Jan?", tone: "plain", filedAs: "January forecast", status: "In the forecast" },
+      { id: "revisions", chaos: "round 4 of revisions", sub: "‘tiny tweak’", tone: "yellow", filedAs: "Logo · Café Norte", status: "Awaiting review" },
     ],
     gameProjects: ["Logo", "Brand deck", "Poster", "Menu design", "Packaging", "Website mockup"],
   },
@@ -61,6 +63,7 @@ export const JOBS: Record<JobId, Job> = {
       { id: "video-addon", chaos: "‘can you also do video’", tone: "yellow", filedAs: "Video add-on", status: "Brief added" },
       { id: "deposit-dec", chaos: "deposit for Dec shoot", tone: "plain", filedAs: "Deposit · Dec", status: "Due in 7 days" },
       { id: "rent", chaos: "rent vs. next month", tone: "red", filedAs: "December forecast", status: "In the forecast" },
+      { id: "gallery", chaos: "client gallery due", sub: "how many days?", tone: "plain", filedAs: "Gallery · Ana & Luis", status: "Due Wed · 4 days" },
     ],
     gameProjects: ["Wedding", "Product shoot", "Headshots", "Event coverage", "Real estate", "Portrait session"],
   },
@@ -92,6 +95,7 @@ export const JOBS: Record<JobId, Job> = {
       { id: "edits", chaos: "edits round 3", sub: "‘small changes’", tone: "yellow", filedAs: "Edits · round 3", status: "Due Mon" },
       { id: "ghosted", chaos: "client ghosted", sub: "30 days", tone: "red", filedAs: "Invoice #10", status: "Overdue · alert on" },
       { id: "december", chaos: "can I take Dec off?", tone: "plain", filedAs: "December forecast", status: "In the forecast" },
+      { id: "pitch", chaos: "pitch email from Tue", sub: "they said yes?", tone: "yellow", filedAs: "Feature · Revista Sur", status: "Brief added" },
     ],
     gameProjects: ["Article pack", "Newsletter", "Website copy", "Case study", "Press release", "Ghostwritten post"],
   },
@@ -107,6 +111,7 @@ export const JOBS: Record<JobId, Job> = {
       { id: "net-60", chaos: "net-60 client", sub: "still waiting", tone: "red", filedAs: "Invoice · Logística", status: "Pays 03/12" },
       { id: "dollars", chaos: "paid in dollars, rent in pesos", tone: "plain", filedAs: "Currency", status: "Set once" },
       { id: "runway", chaos: "Q1 runway?", tone: "plain", filedAs: "Q1 forecast", status: "In the forecast" },
+      { id: "launch-moved", chaos: "launch moved to fri??", tone: "red", filedAs: "Landing page · Mesa", status: "Fri · 3 days" },
     ],
     gameProjects: ["Bugfix", "Landing page", "API integration", "Milestone 2", "Store setup", "Dashboard"],
   },

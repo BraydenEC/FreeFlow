@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { JOBS, JOB_ORDER } from "@/lib/funnel/jobs";
 import { clockFor } from "@/lib/funnel/clock";
 import { moodFor } from "@/lib/funnel/mood";
-import { JobProvider, useJob } from "@/components/funnel/JobContext";
+import { JobProvider } from "@/components/funnel/JobContext";
+import ChapterNight from "@/components/funnel/ChapterNight";
 import StickyCta from "@/components/funnel/StickyCta";
 
 /*
@@ -20,33 +20,6 @@ import StickyCta from "@/components/funnel/StickyCta";
   CSS variables and the clock's text on each animation frame, so scrolling
   never re-renders the chapters. Works with no database and no AI key.
 */
-
-function JobPicker() {
-  const { job, setJob } = useJob();
-  return (
-    <div>
-      <p className="text-ink-muted mb-2 text-sm">What do you do?</p>
-      <div role="group" aria-label="Your kind of work" className="flex items-center gap-2.5">
-        {JOB_ORDER.map((j) => (
-          <button
-            key={j}
-            type="button"
-            aria-pressed={job === j}
-            aria-label={JOBS[j].label}
-            title={JOBS[j].label}
-            onClick={(e) => setJob(j, e.detail === 0 ? undefined : { x: e.clientX, y: e.clientY })}
-            className={`focus-visible:ring-ink flex size-10 items-center justify-center rounded-full border-2 focus-visible:ring-2 focus-visible:outline-none motion-safe:transition-transform motion-safe:hover:scale-110 ${
-              job === j ? "scale-110 border-white" : "border-transparent"
-            }`}
-          >
-            <span aria-hidden className="size-[22px] rounded-full" style={{ background: `var(${JOBS[j].accentVar})` }} />
-          </button>
-        ))}
-        <span className="text-ink-muted ml-1 min-w-24 text-xs capitalize">{JOBS[job].label}</span>
-      </div>
-    </div>
-  );
-}
 
 function Funnel() {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -104,10 +77,7 @@ function Funnel() {
       </div>
 
       <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6">
-        <div className="flex flex-wrap items-end justify-between gap-4 pt-8">
-          <JobPicker />
-        </div>
-        <section id="night" aria-label="Chapter 1: the night" className="min-h-[70vh] py-10" />
+        <ChapterNight />
         <section id="walkthrough" aria-label="Chapter 2: every worry has a place" className="min-h-[60vh] py-10" />
         <section id="story" aria-label="Chapter 3: the story" className="min-h-[60vh] py-10" />
         <section id="proof" aria-label="Chapter 4: you said, we changed" className="min-h-[40vh] py-10" />

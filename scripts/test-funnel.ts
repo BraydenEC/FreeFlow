@@ -15,6 +15,7 @@ import { PRICE_PATTERN } from "@/lib/venture/changes";
 import { FEATURE_GROUPS } from "@/lib/product/features";
 import { clockFor, storyMinutes } from "@/lib/funnel/clock";
 import { moodFor } from "@/lib/funnel/mood";
+import { MAX_LIVE, startSort, spawn, fileWorry, handleRest, canOfferRest, stressLevel } from "@/lib/funnel/sorting";
 
 let passed = 0;
 let failed = 0;
@@ -95,6 +96,30 @@ assert("mood values stay between 0 and 1", [-1, 0, 0.3, 0.9, 2].every((p) => {
   const m = moodFor(p);
   return m.stress >= 0 && m.stress <= 1 && m.morning >= 0 && m.morning <= 1;
 }));
+
+// Chapter 1: sorting the night's worries.
+let ss = startSort("designer");
+assert("a sort starts with nothing on your mind", ss.live.length === 0 && ss.filed.length === 0 && !ss.calm);
+for (let i = 0; i < 20; i++) ss = spawn(ss);
+assert("spawning caps at nine worries", ss.live.length === MAX_LIVE && MAX_LIVE === 9);
+assert("live worries are unique", new Set(ss.live.map((w) => w.id)).size === ss.live.length);
+assert("stress is full at nine", stressLevel(ss) === 1);
+const firstId = ss.live[0].id;
+const afterFile = fileWorry(ss, firstId);
+assert("filing moves exactly one worry", afterFile.live.length === ss.live.length - 1 && afterFile.filed.length === 1 && afterFile.filed[0].id === firstId);
+assert("filing an unknown worry changes nothing", fileWorry(ss, "nope") === ss);
+let three = fileWorry(fileWorry(afterFile, afterFile.live[0].id), afterFile.live[1].id);
+assert("rest is not offered before three", !canOfferRest(fileWorry(afterFile, afterFile.live[0].id)));
+assert("rest is offered at three", canOfferRest(three));
+const rested = handleRest(three);
+assert("rest files everything and calms the night", rested.live.length === 0 && rested.calm && stressLevel(rested) === 0);
+assert("rest is not offered once calm", !canOfferRest(rested));
+assert("spawn after calm is a no-op", spawn(rested) === rested);
+let cycle = startSort("writer");
+const total = JOBS.writer.worries.length;
+for (let i = 0; i < total; i++) cycle = fileWorry(spawn(cycle), spawn(cycle).live.at(-1)!.id);
+for (let i = 0; i < 3; i++) cycle = spawn(cycle);
+assert("the queue refills from the job's worries when it runs out", cycle.live.length > 0);
 
 // No prices anywhere in funnel content.
 const allText = JSON.stringify({

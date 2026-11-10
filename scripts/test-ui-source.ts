@@ -182,8 +182,14 @@ assert("tracking survives blocked session storage", storageGuarded(trackSrc, "se
 assert("tracking never throws", trackSrc.includes(".catch("));
 const jobCtx = readOr("components/funnel/JobContext.tsx");
 assert("the colour wave is skipped under reduced motion", /prefers-reduced-motion/.test(jobCtx));
-assert("job swatches are real buttons", readOr("components/funnel/DemoFunnel.tsx").includes("<button"));
+assert("job swatches are real buttons", readOr("components/funnel/JobPicker.tsx").includes("<button"));
 assert("the sticky CTA tracks try-free clicks", readOr("components/funnel/StickyCta.tsx").includes('track("try_free_click"'));
+
+// ── Week 6 /demo chapter 1 ──────────────────────────────────────────────────
+const night = readOr("components/funnel/ChapterNight.tsx");
+assert("each worry is a real button", /<button[\s\S]{0,120}data-note/.test(night) && night.includes("file(w.id"));
+assert("chapter 1 reads reduced motion", /prefers-reduced-motion/.test(night));
+assert("sorting the night is tracked", night.includes('track("night_sorted"'));
 
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed\n`);
