@@ -182,14 +182,26 @@ assert("tracking survives blocked session storage", storageGuarded(trackSrc, "se
 assert("tracking never throws", trackSrc.includes(".catch("));
 const jobCtx = readOr("components/funnel/JobContext.tsx");
 assert("the colour wave is skipped under reduced motion", /prefers-reduced-motion/.test(jobCtx));
-assert("job swatches are real buttons", readOr("components/funnel/JobPicker.tsx").includes("<button"));
+assert("the visit's choice survives blocked session storage", storageGuarded(jobCtx, "sessionStorage"));
+assert("the old swatch row is gone", !existsSync("components/funnel/JobPicker.tsx"));
+const jobWord = readOr("components/funnel/JobWord.tsx");
+assert("the job word is a real button that says if it's open", jobWord.includes("<button") && jobWord.includes("aria-expanded"));
+assert("the picker closes on Escape", jobWord.includes('"Escape"'));
+assert("every swatch is a named button", /CHOICE_ORDER\.map[\s\S]{0,400}<button[\s\S]{0,300}aria-label/.test(jobWord));
 assert("the sticky CTA tracks try-free clicks", readOr("components/funnel/StickyCta.tsx").includes('track("try_free_click"'));
 
 // ── Week 6 /demo chapter 1 ──────────────────────────────────────────────────
-const night = readOr("components/funnel/ChapterNight.tsx");
-assert("each worry is a real button", /<button[\s\S]{0,120}data-note/.test(night) && night.includes("file(w.id"));
-assert("chapter 1 reads reduced motion", /prefers-reduced-motion/.test(night));
-assert("sorting the night is tracked", night.includes('track("night_sorted"'));
+assert("the old chapter 1 is gone", !existsSync("components/funnel/ChapterNight.tsx"));
+const hero = readOr("components/funnel/HeroField.tsx");
+assert("the hero reads reduced motion", /prefers-reduced-motion/.test(hero));
+assert("sorting the night is tracked", hero.includes('track("night_sorted"'));
+assert("the field canvas is decorative and lets touches through", /<canvas[^>]*aria-hidden[^>]*pointer-events-none|<canvas[^>]*pointer-events-none[^>]*aria-hidden/.test(hero));
+assert("keyboard users can sort it", hero.includes("Sort it for me"));
+assert("screen readers get the worries as a list", hero.includes("sr-only") && hero.includes("<ul"));
+assert("the field stops drawing in a hidden tab", hero.includes("visibilitychange"));
+assert("the job word never leaves its comma", /whitespace-nowrap[\s\S]{0,200}<JobWord/.test(hero));
+const contours = readOr("components/funnel/Contours.tsx");
+assert("the contour lines hold still under reduced motion", /prefers-reduced-motion/.test(contours));
 
 // ── Week 6 /demo chapters 2-4 ───────────────────────────────────────────────
 const sig = readOr("components/funnel/Signature.tsx");
@@ -250,13 +262,7 @@ assert(
 // click until the visitor has had a moment to see the Dock open.
 const dockNow = read("components/nav/Dock.tsx");
 assert("a hover-opened Dock ignores clicks for a moment", dockNow.includes("armed") && /pointer-events-none/.test(dockNow));
-// I2: a dragged worry must never be "nervous", or the shake overrides the drag.
-const nightNow = read("components/funnel/ChapterNight.tsx");
-assert("dragging clears the nervous shake", /delete [a-zA-Z.]*dataset\.nervous/.test(nightNow.slice(nightNow.indexOf("const onMove"))));
-assert("nervous marking skips the dragged note", nightNow.slice(nightNow.indexOf("const onMindMove"), nightNow.indexOf("const onDown")).includes("dataset.drag"));
-// I3: only the worry buttons block touch scrolling, not the whole panel.
-const mindPanel = nightNow.slice(nightNow.indexOf("ref={mindRef}"), nightNow.indexOf("ref={mindRef}") + 400);
-assert("the On your mind panel lets the page scroll on touch", !mindPanel.includes("touch-none"));
+// I2, I3 (dragged worries in the old chapter 1) retired with ChapterNight in the front-page redesign.
 // I4: help-desk answers match the Week 6 site.
 const rulesNow = read("lib/chat/rules.ts");
 assert("the help desk no longer sends phone users to the top bar", !/top bar scrolls/.test(rulesNow));
@@ -274,12 +280,7 @@ assert(
 assert("launch-list emails are checked in the database", /email ~ /.test(ventureSql) && /email = lower\(email\)/.test(ventureSql));
 
 // Re-graded from the final review's minors by their effect on visitors.
-const nightLatest = read("components/funnel/ChapterNight.tsx");
-assert(
-  "a new press always clears a stale drag's click suppression (M1)",
-  nightLatest.slice(nightLatest.indexOf("const onDown"), nightLatest.indexOf("const onMove")).includes("suppressClick.current = false"),
-);
-assert("worries are clamped inside the panel on phones (M11)", nightLatest.includes("calc(100% - 11.5rem)"));
+// M1, M11 (old chapter 1) retired with ChapterNight in the front-page redesign.
 const gameLatest = read("components/funnel/Game.tsx");
 assert("a round is counted once, even if the job changes after it (M2)", gameLatest.includes("countedRound"));
 

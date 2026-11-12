@@ -162,3 +162,15 @@ body {
     opacity: 0;
   }
 }
+
+/* /demo: the job word slides in after a pick (motion-safe only). */
+@keyframes job-word-in {
+  from {
+    transform: translateY(60%);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
