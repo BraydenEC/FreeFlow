@@ -16,6 +16,8 @@ import { FEATURE_GROUPS } from "@/lib/product/features";
 import { clockFor, storyMinutes } from "@/lib/funnel/clock";
 import { moodFor } from "@/lib/funnel/mood";
 import { STORY } from "@/lib/funnel/story";
+import { CHOICE_ORDER, DEFAULT_CHOICE, isChoice, jobForChoice, contentJob, choiceWord, choicePrefix, choiceName, choiceAccentVar, worriesFor, type Choice } from "@/lib/funnel/choice";
+import { NEUTRAL_WORRIES } from "@/lib/funnel/jobs";
 import { MAX_LIVE, startSort, spawn, fileWorry, handleRest, canOfferRest, stressLevel } from "@/lib/funnel/sorting";
 
 let passed = 0;
@@ -68,10 +70,30 @@ assert(
 assert("walkthrough covers all three areas", new Set(WALKTHROUGH.map((s) => s.area)).size === 3);
 
 // Copy.
+assert("the end band says Start free", COPY.startFree === "Start free" && COPY.startFreeTail === "now →");
+
+// Choices: a neutral start, the five jobs, and Brayden's own.
+const ALL_CHOICES: Choice[] = ["freelancer", ...CHOICE_ORDER];
+assert("the page starts neutral", DEFAULT_CHOICE === "freelancer");
+assert("neutral reads I'm a freelancer", choicePrefix("freelancer") + choiceWord("freelancer") === "I'm a freelancer");
+assert("a job reads I'm a freelance <job>", choicePrefix("designer") + choiceWord("designer") === "I'm a freelance designer");
+assert("Brayden's own shows video editor", choiceWord("brayden") === "video editor" && choiceName("brayden") === "Brayden's own");
+assert("six swatches, Brayden's own last", CHOICE_ORDER.length === 6 && CHOICE_ORDER.at(-1) === "brayden" && !CHOICE_ORDER.includes("freelancer" as never));
+assert("neutral sends no job", jobForChoice("freelancer") === null);
+assert("Brayden's own counts as video editor", jobForChoice("brayden") === "video-editor");
+assert("a job sends itself", jobForChoice("writer") === "writer");
+assert("neutral content falls back to the default job", contentJob("freelancer") === DEFAULT_JOB && contentJob("brayden") === "video-editor");
+assert("neutral has nine unique worries", worriesFor("freelancer").length === 9 && new Set(worriesFor("freelancer").map((w) => w.id)).size === 9);
+assert("Brayden's own uses the video editor's worries", worriesFor("brayden") === JOBS["video-editor"].worries);
+assert("isChoice rejects strangers", !isChoice("nope") && !isChoice(null) && isChoice("brayden") && isChoice("freelancer"));
+const cssText = readFileSync("app/globals.css", "utf8");
 assert(
-  "night headline names the job's label",
-  COPY.nightHeadline("video-editor") === "I'm a freelance video editor, and it's all in my head.",
+  "every choice's accent is defined in globals.css",
+  ALL_CHOICES.every((c) => cssText.includes(choiceAccentVar(c) + ":")),
+  ALL_CHOICES.filter((c) => !cssText.includes(choiceAccentVar(c) + ":")).join(", "),
 );
+assert("the neutral accent is warm grey", /--color-job-neutral:\s*#c9c6bf/.test(cssText));
+assert("Brayden's own is grey", /--color-job-brayden:\s*#a3a3a3/.test(cssText));
 assert(
   "retired landing headlines are kept for reuse",
   COPY.RETIRED_LANDING_HEADLINES.includes("You find out you were not paid by remembering"),
@@ -133,7 +155,8 @@ assert("every walkthrough step has a labelled sample", WALKTHROUGH.every((s) => 
 const allText = JSON.stringify({
   JOBS,
   WALKTHROUGH,
-  COPY: { ...COPY, nightHeadline: JOB_ORDER.map((j) => COPY.nightHeadline(j)) },
+  NEUTRAL_WORRIES,
+  COPY,
 });
 assert("no prices in funnel content", !PRICE_PATTERN.test(allText), allText.match(PRICE_PATTERN)?.[0]);
 

@@ -45,6 +45,8 @@
   --color-job-video-editor: #a78bfa;
   --color-job-writer: #fcd34d;
   --color-job-developer: #f472b6;
+  --color-job-neutral: #c9c6bf;
+  --color-job-brayden: #a3a3a3;
 
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;

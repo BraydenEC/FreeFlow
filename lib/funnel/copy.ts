@@ -6,15 +6,11 @@
   so chapter 1 can reuse the strongest of them.
 */
 
-import { JOBS, type JobId } from "@/lib/funnel/jobs";
-
 export const COPY = {
-  nightHeadline: (job: JobId) => `I'm a freelance ${JOBS[job].label}, and it's all in my head.`,
-  calmHeadline: "…and now it's all in one place.",
-  cantKeepUp: "You can't keep up by hand. Nobody can.",
-  restButton: "Let FreeFlow handle the rest",
   tryFree: "Try FreeFlow free",
-  useFree: "Use FreeFlow free now",
+  startFree: "Start free",
+  startFreeTail: "now →",
+  freeWhileItGrows: "Free while it grows.",
   launchListCta: "Get notified when the lifetime version launches",
   RETIRED_LANDING_HEADLINES: [
     "You cannot tell whether March is going to be fine",

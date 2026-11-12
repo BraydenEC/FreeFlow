@@ -116,3 +116,26 @@ export const JOBS: Record<JobId, Job> = {
     gameProjects: ["Bugfix", "Landing page", "API integration", "Milestone 2", "Store setup", "Dashboard"],
   },
 };
+
+/*
+  The neutral start's worries ("I'm a freelancer", before a job is picked):
+  a general mix from across the jobs, by reference, so each keeps its own
+  status. Ids are unique within the mix.
+*/
+const pick = (job: JobId, id: string): Worry => {
+  const w = JOBS[job].worries.find((x) => x.id === id);
+  if (!w) throw new Error(`No worry ${id} for ${job}`);
+  return w;
+};
+
+export const NEUTRAL_WORRIES: Worry[] = [
+  pick("designer", "deposit"),
+  pick("designer", "iva"),
+  pick("designer", "invoice-9"),
+  pick("designer", "contract"),
+  pick("designer", "new-client"),
+  pick("video-editor", "december"),
+  pick("video-editor", "export-98"),
+  pick("designer", "revisions"),
+  pick("writer", "articles"),
+];
