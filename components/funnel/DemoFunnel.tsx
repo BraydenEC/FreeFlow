@@ -1,30 +1,37 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Lenis from "lenis";
 import { clockFor } from "@/lib/funnel/clock";
 import { moodFor } from "@/lib/funnel/mood";
 import { JobProvider } from "@/components/funnel/JobContext";
-import ChapterNight from "@/components/funnel/ChapterNight";
+import { serif } from "@/components/funnel/fonts";
+import Contours from "@/components/funnel/Contours";
+import HeroField from "@/components/funnel/HeroField";
+import FlowsPin from "@/components/funnel/FlowsPin";
 import ChapterWalkthrough from "@/components/funnel/ChapterWalkthrough";
 import ChapterStory from "@/components/funnel/ChapterStory";
 import ChapterProof from "@/components/funnel/ChapterProof";
 import Game from "@/components/funnel/Game";
-import ChapterMorning from "@/components/funnel/ChapterMorning";
+import EndBand from "@/components/funnel/EndBand";
 import FunnelFooter from "@/components/funnel/FunnelFooter";
 import StickyCta from "@/components/funnel/StickyCta";
 
 /*
-  /demo: FreeFlow's one landing page and marketing funnel, told as one night
-  from 11:47 pm to 8:00 am. Also what a signed-out visitor sees at /.
+  /demo: FreeFlow's one landing page, told as one night from 11:47 pm to
+  8:00 am. Also what a signed-out visitor sees at /.
 
-  AIDA, in chapters: the night's worries (attention), every worry finding its
-  place (interest), the founder's story and the proof that people were
-  listened to (desire), a game, then morning and the call to act.
+  The night's worries drift and sort (HeroField), "NOW IT ALL flows.", how
+  each worry finds its place (walkthrough), the founder's story, proof that
+  people were listened to, the game, then morning: START FREE.
 
-  Scrolling drives the story clock and the page's mood: red-edged tension
-  during the night, calm, then morning light. Those are written straight to
-  CSS variables and the clock's text on each animation frame, so scrolling
-  never re-renders the chapters. Works with no database and no AI key.
+  Behind it all, contour lines calm as you scroll; the story clock and the
+  morning light follow the scroll too, written straight to the DOM so
+  scrolling never re-renders the chapters. Smooth scrolling (Lenis, driving
+  GSAP's ScrollTrigger) is skipped under prefers-reduced-motion and torn
+  down when the page is left. Works with no database and no AI key.
 */
 
 function Funnel() {
@@ -40,9 +47,7 @@ function Funnel() {
       const rect = root.getBoundingClientRect();
       const span = Math.max(1, rect.height - window.innerHeight);
       const progress = Math.min(1, Math.max(0, -rect.top / span));
-      const { stress, morning } = moodFor(progress);
-      root.style.setProperty("--stress", stress.toFixed(3));
-      root.style.setProperty("--morning", morning.toFixed(3));
+      root.style.setProperty("--morning", moodFor(progress).morning.toFixed(3));
       if (clockRef.current) clockRef.current.textContent = clockFor(progress);
     };
     const onScroll = () => {
@@ -58,37 +63,56 @@ function Funnel() {
     };
   }, []);
 
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    gsap.registerPlugin(ScrollTrigger);
+    const lenis = new Lenis({ lerp: 0.085 });
+    lenis.on("scroll", ScrollTrigger.update);
+    const tick = (time: number) => lenis.raf(time * 1000);
+    gsap.ticker.add(tick);
+    gsap.ticker.lagSmoothing(0);
+    return () => {
+      gsap.ticker.remove(tick);
+      gsap.ticker.lagSmoothing(500, 33);
+      lenis.destroy();
+    };
+  }, []);
+
   return (
-    <div ref={rootRef} className="relative" style={{ "--stress": 1, "--morning": 0 } as React.CSSProperties}>
-      {/* Night: red at the edges, fading as the worries are sorted. */}
-      <div
-        aria-hidden
-        className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(248,113,113,0.32)_100%)]"
-        style={{ opacity: "var(--stress)" }}
-      />
+    <div
+      ref={rootRef}
+      className={`${serif.variable} relative overflow-x-clip bg-[#0a0a0a] text-[#f2f0ea]`}
+      style={{ "--morning": 0 } as React.CSSProperties}
+    >
+      <Contours rootRef={rootRef} />
       {/* Morning: warm light rising from the bottom. */}
       <div
         aria-hidden
-        className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_bottom,rgba(252,211,77,0.22),transparent_65%)]"
+        className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_50%_120%,rgba(252,211,77,0.28),transparent_60%)]"
         style={{ opacity: "var(--morning)" }}
       />
 
-      <div className="border-hairline sticky top-0 z-20 border-b bg-black/80 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-2.5 sm:px-6">
-          <p className="text-ink-muted numeric text-sm">
-            Tuesday, <span ref={clockRef}>{clockFor(0)}</span>
+      <div className="sticky top-0 z-20 bg-gradient-to-b from-[#0a0a0acc] to-transparent">
+        <div className="flex items-center justify-between gap-3 px-[4vw] py-3.5">
+          <p className="text-ink-muted numeric text-xs font-semibold tracking-[0.1em] uppercase">
+            Tuesday · <span ref={clockRef}>{clockFor(0)}</span>
           </p>
           <StickyCta />
         </div>
       </div>
 
+      <HeroField />
+      <FlowsPin />
       <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6">
-        <ChapterNight />
         <ChapterWalkthrough />
-        <ChapterStory />
+      </div>
+      <ChapterStory />
+      <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6">
         <ChapterProof />
         <Game />
-        <ChapterMorning />
+      </div>
+      <EndBand />
+      <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6">
         <FunnelFooter />
       </div>
     </div>

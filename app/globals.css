@@ -174,3 +174,15 @@ body {
     opacity: 1;
   }
 }
+
+/* Lenis smooth scroll on /demo (its recommended base styles). */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}

@@ -37,7 +37,12 @@ export default function HeroField() {
   const controlsRef = useRef<HTMLDivElement>(null);
   const sortRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
-  const state = useRef({ order: 0, forced: 0, sortedTracked: false, apply: (o: number) => void o });
+  const state = useRef<{ order: number; forced: number; sortedTracked: boolean; apply: (o: number) => void }>({
+    order: 0,
+    forced: 0,
+    sortedTracked: false,
+    apply: () => {},
+  });
   const trackJobRef = useRef(trackJob);
 
   useEffect(() => {
@@ -232,7 +237,7 @@ export default function HeroField() {
         ref={heroRef}
         id="night"
         aria-labelledby="night-title"
-        className={`relative flex flex-col px-[5vw] ${calm ? "min-h-[100svh] pt-[12vh] pb-16" : "h-[100svh] pt-[12vh]"}`}
+        className={`relative z-[2] flex flex-col px-[5vw] ${calm ? "min-h-[100svh] pt-[12vh] pb-16" : "h-[100svh] pt-[12vh]"}`}
       >
         <p className="text-ink-muted text-[11px] font-semibold tracking-[0.12em] uppercase">FreeFlow · one night</p>
         <h1

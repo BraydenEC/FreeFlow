@@ -192,6 +192,12 @@ assert("the sticky CTA tracks try-free clicks", readOr("components/funnel/Sticky
 
 // ── Week 6 /demo chapter 1 ──────────────────────────────────────────────────
 assert("the old chapter 1 is gone", !existsSync("components/funnel/ChapterNight.tsx"));
+const funnel = readOr("components/funnel/DemoFunnel.tsx");
+assert("the funnel opens with the new hero", funnel.includes("<HeroField") && funnel.includes("<FlowsPin") && funnel.includes("<EndBand") && !funnel.includes("ChapterNight"));
+assert("smooth scroll is skipped under reduced motion", /prefers-reduced-motion[\s\S]{0,300}new Lenis/.test(funnel));
+assert("smooth scroll is torn down on leaving", funnel.includes(".destroy()"));
+assert("the red edge glow is retired", !funnel.includes("248,113,113"));
+assert("the funnel never scrolls sideways", funnel.includes("overflow-x-clip"));
 const hero = readOr("components/funnel/HeroField.tsx");
 assert("the hero reads reduced motion", /prefers-reduced-motion/.test(hero));
 assert("sorting the night is tracked", hero.includes('track("night_sorted"'));
