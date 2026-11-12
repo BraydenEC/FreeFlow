@@ -18,7 +18,7 @@ import { moodFor } from "@/lib/funnel/mood";
 import { STORY } from "@/lib/funnel/story";
 import { CHOICE_ORDER, DEFAULT_CHOICE, isChoice, jobForChoice, contentJob, choiceWord, choicePrefix, choiceName, choiceAccentVar, worriesFor, type Choice } from "@/lib/funnel/choice";
 import { NEUTRAL_WORRIES } from "@/lib/funnel/jobs";
-import { MAX_LIVE, startSort, spawn, fileWorry, handleRest, canOfferRest, stressLevel } from "@/lib/funnel/sorting";
+import { FIELD_CARDS, sortedColumns, rowHeight, sortedTarget, counterFor, fieldBand } from "@/lib/funnel/field";
 
 let passed = 0;
 let failed = 0;
@@ -120,29 +120,25 @@ assert("mood values stay between 0 and 1", [-1, 0, 0.3, 0.9, 2].every((p) => {
   return m.stress >= 0 && m.stress <= 1 && m.morning >= 0 && m.morning <= 1;
 }));
 
-// Chapter 1: sorting the night's worries.
-let ss = startSort("designer");
-assert("a sort starts with nothing on your mind", ss.live.length === 0 && ss.filed.length === 0 && !ss.calm);
-for (let i = 0; i < 20; i++) ss = spawn(ss);
-assert("spawning caps at nine worries", ss.live.length === MAX_LIVE && MAX_LIVE === 9);
-assert("live worries are unique", new Set(ss.live.map((w) => w.id)).size === ss.live.length);
-assert("stress is full at nine", stressLevel(ss) === 1);
-const firstId = ss.live[0].id;
-const afterFile = fileWorry(ss, firstId);
-assert("filing moves exactly one worry", afterFile.live.length === ss.live.length - 1 && afterFile.filed.length === 1 && afterFile.filed[0].id === firstId);
-assert("filing an unknown worry changes nothing", fileWorry(ss, "nope") === ss);
-const three = fileWorry(fileWorry(afterFile, afterFile.live[0].id), afterFile.live[1].id);
-assert("rest is not offered before three", !canOfferRest(fileWorry(afterFile, afterFile.live[0].id)));
-assert("rest is offered at three", canOfferRest(three));
-const rested = handleRest(three);
-assert("rest files everything and calms the night", rested.live.length === 0 && rested.calm && stressLevel(rested) === 0);
-assert("rest is not offered once calm", !canOfferRest(rested));
-assert("spawn after calm is a no-op", spawn(rested) === rested);
-let cycle = startSort("writer");
-const total = JOBS.writer.worries.length;
-for (let i = 0; i < total; i++) cycle = fileWorry(spawn(cycle), spawn(cycle).live.at(-1)!.id);
-for (let i = 0; i < 3; i++) cycle = spawn(cycle);
-assert("the queue refills from the job's worries when it runs out", cycle.live.length > 0);
+// The hero's worry field: 18 notes, sorted into 9 rows by scroll.
+assert("the field holds 18 notes", FIELD_CARDS === 18);
+assert("one column on a phone", sortedColumns(375) === 1);
+assert("two columns on a tablet", sortedColumns(1024) === 2);
+assert("three columns on a wide screen", sortedColumns(1440) === 3 && sortedColumns(3000) === 3);
+assert("a phone row has room for the status line", rowHeight(1) === 42 && rowHeight(3) === 34);
+assert(
+  "all nine rows fit on a phone screen",
+  Array.from({ length: 9 }, (_, k) => sortedTarget(k, 375)).every((t) => t.y + 16 <= 667 - 60 && t.x >= 20),
+);
+const wide = Array.from({ length: 9 }, (_, k) => sortedTarget(k, 1440));
+assert("rows don't overlap on a wide screen", new Set(wide.map((t) => `${t.x},${t.y}`)).size === 9);
+assert("the counter starts at 18", counterFor(0) === 18);
+assert("the counter halves halfway", counterFor(0.5) === 9);
+assert("the counter lands on 0 at the end of the sort", counterFor(0.98) === 0 && counterFor(1) === 0);
+assert("the counter clamps", counterFor(2) === 0 && counterFor(-1) === 18 && counterFor(Number.NaN) === 18);
+const fb = fieldBand(300, 800);
+assert("notes drift only below the headline", fb[0] === 340 && fb[1] === 750, fb.join(","));
+assert("the band keeps some height on short screens", (([t, b]) => b - t >= 120)(fieldBand(600, 640)));
 
 // Chapter 3: the founder's story, from his own words.
 assert("the story opens with video editing", /video editing/i.test(STORY.paragraphs[0] ?? ""));
