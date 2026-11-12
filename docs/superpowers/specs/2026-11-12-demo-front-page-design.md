@@ -1,6 +1,6 @@
 # /demo front page redesign: design
 
-Date: 2026-11-12. Status: draft for the owner's approval.
+Date: 2026-11-12. Status: approved by the owner 2026-11-12 ("push now and we can iterate"); story keeps the full approved text.
 Source of decisions: `docs/superpowers/specs/2026-11-12-demo-redesign-notes.md` and the approved
 prototype `.superpowers/brainstorm/14321-1794510973/content/neutral-start.html` (git-ignored, local).
 
