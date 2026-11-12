@@ -133,6 +133,12 @@ does today. "Try FreeFlow free" becomes uppercase text in a thin square border, 
 - **The launch-list form moves** from the morning chapter to directly under the end band.
 - **"night_sorted" is tracked** the first time the field is fully sorted, by scroll or by the
   keyboard button.
+- **While neutral, the unchanged game uses the designer's projects** (today's default), so it
+  never goes blank.
+- **The pick is remembered for the visit** (session storage, as today); a fresh visit starts
+  neutral.
+- **The colour wave on a pick stays** (already skipped under reduced motion), plus the job word
+  sliding in.
 - **Old chapter 1 code is removed:** `ChapterNight`, `JobPicker`, `Signature` and
   `lib/funnel/sorting.ts`, along with the tests that only checked them. The new hero gets its own
   tests.
