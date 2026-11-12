@@ -52,7 +52,23 @@ by their effect on visitors and fixed; the rest are logged for later.
 
 No screenshots were kept from the owner's account: it holds real client data.
 
-## 6. Still to check
+## 6. New /demo front page, local checks (2026-11-12, `npm run dev`, Chrome)
+
+| Check | Result |
+|---|---|
+| `npm test` / lint / build / `tsc --noEmit` | 21 suites, 1796 passed, 0 failed / 0 / 0 / 0 |
+| /demo first screen | neutral "I'M A *freelancer*", worries drift under the headline, no console errors |
+| Job word | opens "What do you do?" with six swatches; video editor re-colours the page and swaps the worries |
+| Sort by scroll | 9 ✓ rows with each worry's status; "on your mind" ends at 0 |
+| NOW IT ALL flows. | pins; "flows." fills with the accent colour |
+| Story, band | slash line draws under the story, "— Brayden", P.S.; START FREE band, launch list under it |
+| 375 px (/demo in a 375 px frame) | document width 373 = viewport, no sideways scroll; 9 rows fit with status lines |
+| Keyboard | Enter opens the picker, Escape closes it and returns focus; "Sort it for me" shows on focus and sorts to 0 |
+| Signed-out `/` | renders the same page |
+| Game | still plays with the picked job's projects |
+| Reduced motion | covered by source checks only (not emulated in the browser) |
+
+## 7. Still to check
 
 - One real launch-list sign-up from the page (by the owner, with his own address).
 - Submission screenshots, taken on a grader account rather than the owner's.

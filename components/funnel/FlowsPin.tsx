@@ -11,8 +11,10 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
   prefers-reduced-motion it is simply shown finished.
 */
 
+// Ink on the left, grey on the right: sliding the background from 100% to
+// 0% moves the edge across the word from left to right.
 const INK =
-  "linear-gradient(90deg, #2a2a2a 0%, #2a2a2a 40%, var(--job) 50%, var(--job) 100%)";
+  "linear-gradient(90deg, var(--job) 0%, var(--job) 50%, #2a2a2a 60%, #2a2a2a 100%)";
 
 export default function FlowsPin() {
   const sectionRef = useRef<HTMLElement>(null);

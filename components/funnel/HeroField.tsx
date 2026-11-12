@@ -153,6 +153,11 @@ export default function HeroField() {
           p.vy *= 0.93;
           p.x += p.vx;
           p.y += p.vy;
+          if (order > 0.9) {
+            // Nearly sorted: settle into the row instead of drifting in.
+            p.x += (t.x - p.x) * 0.12;
+            p.y += (t.y - p.y) * 0.12;
+          }
           if (order < 0.5) {
             if (p.x < -140) p.x = w + 60;
             if (p.x > w + 160) p.x = -120;

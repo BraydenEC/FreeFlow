@@ -218,6 +218,10 @@ assert("the story's line is decorative", /<svg[^>]*aria-hidden/.test(storySrc));
 const flows = readOr("components/funnel/FlowsPin.tsx");
 assert("flows. is already filled under reduced motion", /prefers-reduced-motion/.test(flows));
 assert("the flows screen pins", flows.includes("sticky"));
+// The ink must be on the left of the gradient, so sliding it from 100% to 0% fills flows. left to right.
+assert("flows. fills with colour, it doesn't drain", /linear-gradient\(90deg,\s*var\(--job\) 0%/.test(flows));
+const heroSrcNow = readOr("components/funnel/HeroField.tsx");
+assert("sorted rows snap into line", /order > 0\.9[\s\S]{0,160}\* 0\.12/.test(heroSrcNow));
 const proof = readOr("components/funnel/ChapterProof.tsx");
 assert("proof comes from CHANGES", proof.includes("CHANGES.map("));
 assert("proof hard-codes no quotes", !/[“"][A-Z][^"”]{20,}[”"]/.test(proof.replace(/className="[^"]*"/g, "")));
