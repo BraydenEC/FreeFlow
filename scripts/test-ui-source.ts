@@ -204,10 +204,14 @@ const contours = readOr("components/funnel/Contours.tsx");
 assert("the contour lines hold still under reduced motion", /prefers-reduced-motion/.test(contours));
 
 // ── Week 6 /demo chapters 2-4 ───────────────────────────────────────────────
-const sig = readOr("components/funnel/Signature.tsx");
-assert("the signature uses Caveat from next/font", /from "next\/font\/google"/.test(sig) && sig.includes("Caveat("));
-assert("the signature reads Brayden", sig.includes("Brayden"));
-assert("the signature is already signed under reduced motion", /prefers-reduced-motion/.test(sig));
+assert("the handwritten signature is retired", !existsSync("components/funnel/Signature.tsx"));
+const storySrc = readOr("components/funnel/ChapterStory.tsx");
+assert("the story is signed — Brayden", storySrc.includes("— Brayden"));
+assert("the story's line is already drawn under reduced motion", /prefers-reduced-motion/.test(storySrc));
+assert("the story's line is decorative", /<svg[^>]*aria-hidden/.test(storySrc));
+const flows = readOr("components/funnel/FlowsPin.tsx");
+assert("flows. is already filled under reduced motion", /prefers-reduced-motion/.test(flows));
+assert("the flows screen pins", flows.includes("sticky"));
 const proof = readOr("components/funnel/ChapterProof.tsx");
 assert("proof comes from CHANGES", proof.includes("CHANGES.map("));
 assert("proof hard-codes no quotes", !/[“"][A-Z][^"”]{20,}[”"]/.test(proof.replace(/className="[^"]*"/g, "")));
@@ -237,9 +241,15 @@ assert(
     "Your email is used only to tell you when the lifetime version of FreeFlow launches. It is kept by Brayden (braydenemeryc@gmail.com). To be removed, email that address. Every launch email also has a remove-me link.",
   ),
 );
-const morning = readOr("components/funnel/ChapterMorning.tsx");
-assert("morning's primary action tracks the click", morning.includes('track("try_free_click"'));
-assert("morning states no price", !/\$\s?\d|\bMXN\b|per month/i.test(morning));
+assert("the old morning chapter is gone", !existsSync("components/funnel/ChapterMorning.tsx"));
+const band = readOr("components/funnel/EndBand.tsx");
+assert("the end band tracks the click", band.includes('track("try_free_click"'));
+assert("the end band goes to sign-up", band.includes('href="/signup"'));
+assert("the end band states no price", !/\$\s?\d|\bMXN\b|per month/i.test(band));
+assert("the launch list sits under the band", band.includes("<LaunchListForm"));
+assert("the end band has no rounded button", !/rounded/.test(band));
+assert("the top link is square", !/rounded/.test(readOr("components/funnel/StickyCta.tsx")));
+assert("events never send a neutral pick as a job", ["StickyCta", "EndBand", "ChapterStory", "Game"].every((f) => readOr(`components/funnel/${f}.tsx`).includes("trackJob")));
 
 // ── Week 6 /pricing framing ─────────────────────────────────────────────────
 assert(

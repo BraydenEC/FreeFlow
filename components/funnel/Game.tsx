@@ -60,7 +60,7 @@ function saveBest(n: number) {
 }
 
 export default function Game() {
-  const { job } = useJob();
+  const { job, trackJob } = useJob();
   const [s, setS] = useState<GameState>(newGame);
   const [visible, setVisible] = useState(true);
   const [best, setBest] = useState(0);
@@ -97,11 +97,11 @@ export default function Game() {
   useEffect(() => {
     if (!s.over || countedRound.current) return;
     countedRound.current = true;
-    track("round_played", job);
+    track("round_played", trackJob);
     const previous = readBest();
     if (s.collected > previous) saveBest(s.collected);
     setBest(Math.max(previous, s.collected));
-  }, [s.over, s.collected, job]);
+  }, [s.over, s.collected, trackJob]);
 
   const projects = JOBS[job].gameProjects;
   const project = projects[s.projectIndex % projects.length];
@@ -142,7 +142,7 @@ export default function Game() {
             <div className="flex flex-wrap items-start gap-3">
               <Link
                 href="/signup"
-                onClick={() => track("try_free_click", job)}
+                onClick={() => track("try_free_click", trackJob)}
                 className="focus-visible:ring-ink rounded-lg bg-[var(--job)] px-4 py-2.5 text-[15px] font-bold text-black focus-visible:ring-2 focus-visible:outline-none"
               >
                 {COPY.tryFree}
