@@ -304,6 +304,12 @@ assert("launch-list emails are checked in the database", /email ~ /.test(venture
 const gameLatest = read("components/funnel/Game.tsx");
 assert("a round is counted once, even if the job changes after it (M2)", gameLatest.includes("countedRound"));
 
+// /demo front page: final review fixes.
+assert("the colour wave isn't hidden behind the page (I1)", !/ref=\{rootRef\}\s*className=\{`[^`]*bg-\[/.test(funnel) && /className="[^"]*bg-\[#0a0a0a\][^"]*"/.test(readOr("components/funnel/JobContext.tsx")));
+assert("a finger drag moves the notes sideways instead of being taken by the browser (I2)", (hero.match(/touch-pan-y touch-pinch-zoom/g) ?? []).length >= 2);
+assert("the picker panel stays on screen on a phone (I3)", readOr("components/funnel/JobWord.tsx").includes("innerWidth"));
+assert("Sort it for me scrolls the rows clear of the headline (M2, re-graded)", /sortForMe[\s\S]{0,800}scrollTo/.test(hero));
+
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed\n`);
 if (failed > 0) process.exit(1);

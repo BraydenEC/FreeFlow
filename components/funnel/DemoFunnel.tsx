@@ -81,7 +81,7 @@ function Funnel() {
   return (
     <div
       ref={rootRef}
-      className={`${serif.variable} relative overflow-x-clip bg-[#0a0a0a] text-[#f2f0ea]`}
+      className={`${serif.variable} relative overflow-x-clip text-[#f2f0ea]`}
       style={{ "--morning": 0 } as React.CSSProperties}
     >
       <Contours rootRef={rootRef} />

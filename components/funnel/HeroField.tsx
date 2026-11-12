@@ -224,6 +224,12 @@ export default function HeroField() {
 
   const sortForMe = () => {
     const s = state.current;
+    // Bring the visitor to where the rows live, clear of the headline.
+    const sortEl = sortRef.current;
+    if (sortEl) {
+      const end = sortEl.getBoundingClientRect().bottom + window.scrollY - window.innerHeight;
+      window.scrollTo({ top: Math.max(0, end), behavior: "smooth" });
+    }
     const tween = { v: s.forced };
     gsap.to(tween, {
       v: 1,
@@ -242,7 +248,7 @@ export default function HeroField() {
         ref={heroRef}
         id="night"
         aria-labelledby="night-title"
-        className={`relative z-[2] flex flex-col px-[5vw] ${calm ? "min-h-[100svh] pt-[12vh] pb-16" : "h-[100svh] pt-[12vh]"}`}
+        className={`relative z-[2] flex touch-pan-y touch-pinch-zoom flex-col px-[5vw] ${calm ? "min-h-[100svh] pt-[12vh] pb-16" : "h-[100svh] pt-[12vh]"}`}
       >
         <p className="text-ink-muted text-[11px] font-semibold tracking-[0.12em] uppercase">FreeFlow · one night</p>
         <h1
@@ -292,7 +298,7 @@ export default function HeroField() {
       </section>
       {!calm && (
         <>
-          <div ref={sortRef} aria-hidden className="h-[130vh]" />
+          <div ref={sortRef} aria-hidden className="h-[130vh] touch-pan-y touch-pinch-zoom" />
           <canvas ref={canvasRef} aria-hidden className="pointer-events-none fixed inset-0 z-[1] h-screen w-screen" />
           <div
             ref={meterRef}

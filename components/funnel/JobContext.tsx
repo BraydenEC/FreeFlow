@@ -79,7 +79,7 @@ export function JobProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <JobCtx.Provider value={value}>
-      <div style={{ "--job": `var(${choiceAccentVar(choice)})` } as React.CSSProperties} className="relative">
+      <div style={{ "--job": `var(${choiceAccentVar(choice)})` } as React.CSSProperties} className="relative bg-[#0a0a0a]">
         {wave && (
           <span
             key={wave.key}

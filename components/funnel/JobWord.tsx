@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CHOICE_ORDER, choiceAccentVar, choiceName, choiceWord } from "@/lib/funnel/choice";
 import { useJob } from "@/components/funnel/JobContext";
 
@@ -18,6 +18,16 @@ export default function JobWord() {
   const [entered, setEntered] = useState(0);
   const wordRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLSpanElement>(null);
+  const [shift, setShift] = useState(0);
+
+  // On a narrow screen the panel would run off the right edge: slide it back on.
+  useLayoutEffect(() => {
+    const panel = panelRef.current;
+    if (!open || !panel) return;
+    const rect = panel.getBoundingClientRect();
+    const over = rect.right - shift - (window.innerWidth - 16);
+    setShift(Math.max(0, Math.min(over, rect.left - shift - 16)));
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!open) return;
@@ -70,6 +80,7 @@ export default function JobWord() {
         role="group"
         aria-label="What do you do?"
         hidden={!open}
+        style={{ transform: shift ? `translateX(-${shift}px)` : undefined }}
         className="absolute top-[calc(100%+14px)] left-0 z-30 flex flex-col gap-2.5 border border-[#2a2a2a] bg-[#0d0d0df2] px-4 pt-3.5 pb-6 text-xs font-medium tracking-normal whitespace-nowrap normal-case backdrop-blur-md [&[hidden]]:hidden"
       >
         <span className="text-ink-muted text-[10px] font-semibold tracking-[0.14em] uppercase">What do you do?</span>
