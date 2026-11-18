@@ -133,8 +133,12 @@ export default function Game() {
     const canvas = canvasRef.current;
     const frame = frameRef.current;
     if (!canvas || !frame) return;
-    const css = Math.min(frame.clientWidth, MAX_CSS);
+    // Square, as wide as the column allows, but never taller than the window
+    // can show alongside the message strip.
+    const room = frame.parentElement?.clientWidth ?? frame.clientWidth;
+    const css = Math.floor(Math.min(room, MAX_CSS, Math.max(300, window.innerHeight - 190)));
     const dpr = Math.min(2, window.devicePixelRatio || 1);
+    frame.style.width = `${css}px`;
     canvas.style.width = `${css}px`;
     canvas.style.height = `${css}px`;
     canvas.width = Math.round(css * dpr);
@@ -288,7 +292,7 @@ export default function Game() {
           )}
         </div>
 
-        <div ref={frameRef} className="relative mx-auto w-full max-w-[720px]">
+        <div ref={frameRef} className="relative mx-auto max-w-full">
           <canvas
             ref={canvasRef}
             tabIndex={0}
