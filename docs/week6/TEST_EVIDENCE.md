@@ -75,11 +75,12 @@ Replaces the 60-second clicker in chapter 5 (spec `docs/superpowers/specs/2026-1
 | Check | Result |
 |---|---|
 | `rm -rf .next && npm test` / lint / build / `tsc --noEmit` | 21 suites, 1830 passed, 0 failed / 0 / 0 / 0 |
+| After the final review's fixes | 21 suites, 1833 passed, 0 failed / lint 0 / `tsc` 0 |
 | Start | Space on the focused game, or the Start button, starts a run; the page doesn't scroll |
 | Run to the end | end screen: score and best, "from memory" line, where the week ended, closing line, Try FreeFlow free, Play again, style switch, launch list below |
 | round_played | one `/api/funnel` POST when a run ended (503 locally: no database, fire-and-forget as designed) |
 | Speed | 8 ms between frames while the page is active (full speed). In the automated window Chrome paused frames for up to 4.6 s while the tool waited; each step is capped at 50 ms, so the game pauses rather than skips |
-| 375 px (/demo in a 375 px frame) | document width 371, no element wider than the screen; the game is a 337 px square; all four style buttons fit |
+| 375 px (/demo in a 375 px frame) | document width 375, no sideways scroll; the game is a 317 px square and it, its frame and its overlays sit at 29–346 px inside the card (16–359). The first measurement (337 px) hung past the card; fixed after the final review (I1). All four style buttons fit |
 | Window height | the square is capped at window height − 190 px, so it fits a laptop screen with the message strip |
 | Style memory | Bill spikes chosen, page reloaded: Bill spikes still selected; spikes draw during a run |
 | Job colour | writer picked: the canvas reads `--job` = #fcd34d; the freelancer's hoodie and scarf turn yellow |

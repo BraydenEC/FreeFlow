@@ -83,6 +83,7 @@ const MESSAGE_STYLE: Record<Message["kind"], { border: string; label: string }> 
 export default function Game() {
   const { job, trackJob, choice } = useJob();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const roomRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const game = useRef<GameState | null>(null);
   const size = useRef<{ css: number; dpr: number }>({ css: WORLD.w, dpr: 1 });
@@ -132,10 +133,12 @@ export default function Game() {
   const resize = useCallback(() => {
     const canvas = canvasRef.current;
     const frame = frameRef.current;
-    if (!canvas || !frame) return;
+    const roomEl = roomRef.current;
+    if (!canvas || !frame || !roomEl) return;
     // Square, as wide as the column allows, but never taller than the window
     // can show alongside the message strip.
-    const room = frame.parentElement?.clientWidth ?? frame.clientWidth;
+    // The full-width wrapper inside the card's padding is the room we have.
+    const room = roomEl.clientWidth;
     const css = Math.floor(Math.min(room, MAX_CSS, Math.max(300, window.innerHeight - 190)));
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     frame.style.width = `${css}px`;
@@ -160,11 +163,14 @@ export default function Game() {
     setBest(readBest());
     resize();
     window.addEventListener("resize", resize);
+    const ro = new ResizeObserver(() => resize());
+    if (roomRef.current) ro.observe(roomRef.current);
     const onVis = () => setVisible(document.visibilityState === "visible");
     document.addEventListener("visibilitychange", onVis);
     return () => {
       mq.removeEventListener("change", onMotion);
       window.removeEventListener("resize", resize);
+      ro.disconnect();
       document.removeEventListener("visibilitychange", onVis);
     };
   }, [resize]);
@@ -292,12 +298,14 @@ export default function Game() {
           )}
         </div>
 
-        <div ref={frameRef} className="relative mx-auto max-w-full">
+        <div ref={roomRef} className="w-full">
+        <div ref={frameRef} className="relative mx-auto">
           <canvas
             ref={canvasRef}
             tabIndex={0}
             aria-label="Answer gates game. Press space or tap to climb."
             onPointerDown={(e) => {
+              if (screen !== "playing") return;
               e.preventDefault();
               press();
             }}
@@ -317,7 +325,7 @@ export default function Game() {
               </span>
               <span aria-label={`${hud.hearts} hearts left`}>
                 <span aria-hidden>{"♥".repeat(hud.hearts)}</span>
-                <span aria-hidden className="text-[var(--color-status-overdue)]">
+                <span aria-hidden className="text-ink-faint">
                   {"♡".repeat(TUNING.hearts - hud.hearts)}
                 </span>
               </span>
@@ -330,7 +338,8 @@ export default function Game() {
           {screen === "start" && (
             <div
               className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-xl bg-black/80 p-4 text-center"
-              onPointerDown={(e) => {
+              onClick={(e) => {
+                // A click, not a pointerdown: a finger scrolling past doesn't start a run.
                 if (!(e.target as HTMLElement).closest("button")) start();
               }}
             >
@@ -383,7 +392,9 @@ export default function Game() {
           )}
         </div>
 
-        <p aria-live="polite" className={`mt-2 min-h-5 text-center text-sm font-semibold ${hud.feedback?.kind === "wrong" || hud.feedback?.kind === "hit" ? "text-[var(--color-status-overdue)]" : "text-ink-muted"}`}>
+        </div>
+
+        <p aria-live="polite" className={`mt-2 min-h-5 text-center text-sm font-semibold ${hud.feedback?.kind === "right" ? "text-[var(--job)]" : "text-ink-muted"}`}>
           {screen === "playing" ? hud.feedback?.text : ""}
         </p>
 

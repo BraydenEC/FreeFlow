@@ -244,6 +244,10 @@ assert("the style switch offers all four styles", game.includes("STYLE_IDS.map("
 assert("the closing line doesn't claim FreeFlow learns changes itself", game.includes("FreeFlow keeps every deadline and amount in one place, so you don't have to."));
 assert("Start free is tracked", game.includes('track("try_free_click"'));
 assert("the launch list stays at the end of the game", game.includes('<LaunchListForm source="game_end"'));
+// Final review fixes.
+assert("the game square is measured inside the card's padding, and follows container resizes (I1)", !game.includes("parentElement") && game.includes("new ResizeObserver("));
+assert("a finger scrolling past the start screen doesn't start a run (I2)", (game.match(/onPointerDown=/g) ?? []).length === 1 && /onPointerDown=\{\(e\) => \{\s*if \(screen !== "playing"\) return;/.test(game));
+assert("the game page uses no red: red means overdue, on the canvas only (I3)", !/status-overdue|#ef4444|text-red/.test(game));
 const launchForm = readOr("components/funnel/LaunchListForm.tsx");
 assert("the launch list needs a consent checkbox", /type="checkbox"[\s\S]{0,200}required/.test(launchForm));
 assert("the consent label is exact", launchForm.includes("Email me when the lifetime version launches. Nothing else."));
