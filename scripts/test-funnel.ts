@@ -18,7 +18,7 @@ import { moodFor } from "@/lib/funnel/mood";
 import { STORY } from "@/lib/funnel/story";
 import { CHOICE_ORDER, DEFAULT_CHOICE, isChoice, jobForChoice, contentJob, choiceWord, choicePrefix, choiceName, choiceAccentVar, worriesFor, type Choice } from "@/lib/funnel/choice";
 import { NEUTRAL_WORRIES } from "@/lib/funnel/jobs";
-import { FIELD_CARDS, sortedColumns, rowHeight, sortedTarget, counterFor, fieldBand } from "@/lib/funnel/field";
+import { FIELD_CARDS, sortedColumns, rowHeight, sortedTarget, counterFor, fieldBand, worryProgress, morph } from "@/lib/funnel/field";
 
 let passed = 0;
 let failed = 0;
@@ -139,6 +139,34 @@ assert("the counter clamps", counterFor(2) === 0 && counterFor(-1) === 18 && cou
 const fb = fieldBand(300, 800);
 assert("notes drift only below the headline", fb[0] === 340 && fb[1] === 750, fb.join(","));
 assert("the band keeps some height on short screens", (([t, b]) => b - t >= 120)(fieldBand(600, 640)));
+
+// Scrolling turns each messy note into a checked row, smoothly and in order.
+const ks = Array.from({ length: 9 }, (_, k) => k);
+assert("nothing is sorted before scrolling", ks.every((k) => worryProgress(0, k) === 0));
+assert("every worry is sorted by the time the counter reaches 0", ks.every((k) => worryProgress(0.98, k) === 1 && worryProgress(1, k) === 1));
+assert("worries check off one after another", worryProgress(0.5, 0) === 1 && worryProgress(0.45, 8) === 0 && worryProgress(0.7, 3) > worryProgress(0.7, 6));
+const steps = Array.from({ length: 1001 }, (_, i) => i / 1000);
+assert(
+  "each worry's sorting moves with the scroll, never jumps and never goes backwards",
+  ks.every((k) => steps.every((o, i) => i === 0 || (worryProgress(o, k) >= worryProgress(steps[i - 1], k) && worryProgress(o, k) - worryProgress(steps[i - 1], k) < 0.02))),
+);
+const m0 = morph(0);
+const m1 = morph(1);
+assert("a note starts as a messy card with no check", m0.card === 1 && m0.check === 0 && m0.status === 0 && m0.copy === 1 && m0.tilt === 1);
+assert("a sorted worry is a clean checked row with its status", m1.card === 0 && m1.check === 1 && m1.status === 1 && m1.copy === 0 && m1.tilt === 0);
+assert(
+  "the card fades before the check appears, and the status comes last",
+  morph(0.6).card < 1 && morph(0.5).check === 0 && morph(0.85).check > 0 && morph(0.75).status === 0,
+);
+assert(
+  "the note changes gradually, with no single-frame swap",
+  steps.every((p, i) => {
+    if (i === 0) return true;
+    const a = morph(steps[i - 1]);
+    const b = morph(p);
+    return (["card", "check", "status", "copy", "tilt", "shift"] as const).every((key) => Math.abs(b[key] - a[key]) < 0.02);
+  }),
+);
 
 // Chapter 3: the founder's story, from his own words.
 assert("the story opens with video editing", /video editing/i.test(STORY.paragraphs[0] ?? ""));

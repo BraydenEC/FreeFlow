@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { choicePrefix, worriesFor } from "@/lib/funnel/choice";
-import { FIELD_CARDS, counterFor, fieldBand, rowHeight, sortedColumns, sortedTarget } from "@/lib/funnel/field";
+import { worryProgress, morph, FIELD_CARDS, counterFor, fieldBand, rowHeight, sortedColumns, sortedTarget } from "@/lib/funnel/field";
 import { track } from "@/lib/funnel/track";
 import type { Worry } from "@/lib/funnel/jobs";
 import { useJob } from "@/components/funnel/JobContext";
@@ -120,6 +120,7 @@ export default function HeroField() {
 
     const font = getComputedStyle(document.body).fontFamily;
     let frame = 0;
+    let shown = 0;
     const draw = () => {
       frame = 0;
       const sortBottom = sortEl.getBoundingClientRect().bottom;
@@ -128,79 +129,96 @@ export default function HeroField() {
       const scrolled = (heroRef.current?.getBoundingClientRect().top ?? 0) < -40;
       if (meterRef.current) meterRef.current.style.opacity = String(!scrolled && s.order < 0.02 ? 0 : 1 - fade);
       if (fade < 1) {
-        const order = s.order;
-        const sorted = order > 0.9;
+        // Ease the shown progress toward the scroll, so a wheel's steps glide.
+        shown += (s.order - shown) * 0.2;
+        if (Math.abs(s.order - shown) < 0.0005) shown = s.order;
+        const order = shown;
         const cols = sortedColumns(w);
         const acc = getComputedStyle(canvas).getPropertyValue("--job").trim() || "#c9c6bf";
         const [top, bottom] = band();
         cx.clearRect(0, 0, w, h);
         for (const p of cards) {
+          const pk = worryProgress(order, p.k);
+          const look = morph(pk);
+          // The note drifts freely; where it is drawn moves toward its row with the scroll.
           const dx = p.x - m.x;
           const dy = p.y - m.y;
           const d = Math.hypot(dx, dy) || 1;
-          if (d < 150 && order < 0.9) {
-            const f = 1 - d / 150;
+          if (d < 150 && pk < 0.5) {
+            const f = (1 - d / 150) * (1 - pk * 2);
             p.vx += (m.x - m.px) * 0.045 * f + (dx / d) * 0.7 * f;
             p.vy += (m.y - m.py) * 0.045 * f + (dy / d) * 0.7 * f;
           }
           p.a += 0.02;
-          p.vx += Math.cos(p.a) * 0.035 * (1 - order);
-          p.vy += Math.sin(p.a * 1.3) * 0.035 * (1 - order);
-          const t = sortedTarget(p.k, w);
-          p.vx += (t.x - p.x) * 0.006 * order;
-          p.vy += (t.y - p.y) * 0.006 * order;
+          p.vx += Math.cos(p.a) * 0.035;
+          p.vy += Math.sin(p.a * 1.3) * 0.035;
           p.vx *= 0.93;
           p.vy *= 0.93;
           p.x += p.vx;
           p.y += p.vy;
-          if (order > 0.9) {
-            // Nearly sorted: settle into the row instead of drifting in.
-            p.x += (t.x - p.x) * 0.12;
-            p.y += (t.y - p.y) * 0.12;
-          }
-          if (order < 0.5) {
+          if (pk === 0) {
             if (p.x < -140) p.x = w + 60;
             if (p.x > w + 160) p.x = -120;
-            if (p.y < top - 20) p.vy += 0.6;
-            if (p.y > bottom + 20) p.vy -= 0.6;
+          } else {
+            p.x = Math.min(w + 40, Math.max(-60, p.x));
           }
+          if (p.y < top - 20) p.vy += 0.6;
+          if (p.y > bottom + 20) p.vy -= 0.6;
+
+          const t = sortedTarget(p.k, w);
+          const x = p.x + (t.x - p.x) * pk;
+          const y = p.y + (t.y - p.y) * pk;
+          const alpha = p.first ? 1 : look.copy;
+          if (alpha <= 0.01) continue;
           const red = p.w.tone === "red";
-          if (!sorted) {
-            cx.save();
-            cx.globalAlpha = p.first ? 1 : Math.max(0, 1 - order * 1.3);
-            cx.translate(p.x, p.y);
-            cx.rotate((1 - order) * Math.sin(p.a) * 0.09);
-            cx.font = `600 15px ${font}`;
-            const tw = cx.measureText(p.w.chaos).width;
+          const textX = 18 * look.shift;
+
+          cx.save();
+          cx.globalAlpha = alpha;
+          cx.translate(x, y);
+          cx.rotate(look.tilt * Math.sin(p.a) * 0.09);
+          cx.font = `${look.card > 0.5 ? 600 : 500} ${14 + look.card}px ${font}`;
+          const tw = cx.measureText(p.w.chaos).width;
+          if (look.card > 0.01) {
+            cx.globalAlpha = alpha * look.card;
             cx.fillStyle = "rgba(11,11,11,.85)";
             cx.strokeStyle = red ? "rgba(248,113,113,.7)" : "#2c2c2c";
             cx.lineWidth = 1;
             cx.beginPath();
-            cx.roundRect(-10, -19, tw + 20, 28, 8);
+            cx.roundRect(-10 + textX, -19, tw + 20, 28, 8);
             cx.fill();
             cx.stroke();
-            cx.fillStyle = red ? "#fca5a5" : "#cfcdc7";
-            cx.fillText(p.w.chaos, 0, 0);
-            cx.restore();
-            const sp = Math.hypot(p.vx, p.vy);
-            if (sp > 2.4) {
-              cx.strokeStyle = "rgba(248,113,113,.28)";
-              cx.beginPath();
-              cx.moveTo(p.x - p.vx * 9, p.y - p.vy * 9);
-              cx.lineTo(p.x, p.y);
-              cx.stroke();
-            }
-          } else if (p.first) {
-            cx.font = `500 14px ${font}`;
+          }
+          if (p.first && look.check > 0.01) {
+            cx.globalAlpha = look.check;
             cx.fillStyle = acc;
-            cx.fillText("✓", p.x, p.y);
-            cx.fillStyle = "#e9e7e1";
-            cx.fillText(p.w.chaos, p.x + 18, p.y);
-            const tw = cx.measureText(p.w.chaos).width;
+            cx.font = `500 14px ${font}`;
+            cx.fillText("✓", 0, 0);
+            cx.font = `${look.card > 0.5 ? 600 : 500} ${14 + look.card}px ${font}`;
+          }
+          cx.globalAlpha = alpha;
+          // Grey (or red) note text warms to the row's off-white as it sorts.
+          const from = red ? [252, 165, 165] : [207, 205, 199];
+          const mix = (i: number) => Math.round(from[i] + (233 - from[i] + (i === 2 ? -8 : i === 1 ? -2 : 0)) * (1 - look.card));
+          cx.fillStyle = `rgb(${mix(0)},${mix(1)},${mix(2)})`;
+          cx.fillText(p.w.chaos, textX, 0);
+          if (p.first && look.status > 0.01) {
+            cx.globalAlpha = look.status;
             cx.fillStyle = acc;
             cx.font = `500 12px ${font}`;
-            if (cols === 1) cx.fillText(p.w.status, p.x + 18, p.y + rowHeight(1) - 26);
-            else cx.fillText(p.w.status, p.x + 18 + tw + 10, p.y);
+            if (cols === 1) cx.fillText(p.w.status, 18, rowHeight(1) - 26);
+            else cx.fillText(p.w.status, 18 + tw + 10, 0);
+          }
+          cx.restore();
+          if (pk < 0.3) {
+            const sp = Math.hypot(p.vx, p.vy);
+            if (sp > 2.4) {
+              cx.strokeStyle = `rgba(248,113,113,${0.28 * (1 - pk / 0.3)})`;
+              cx.beginPath();
+              cx.moveTo(x - p.vx * 9, y - p.vy * 9);
+              cx.lineTo(x, y);
+              cx.stroke();
+            }
           }
         }
       }

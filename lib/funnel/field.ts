@@ -43,3 +43,53 @@ export function fieldBand(controlsBottom: number, viewportH: number): [number, n
   const top = Math.max(controlsBottom + 40, viewportH * 0.42);
   return [top, Math.max(top + 120, viewportH - 50)];
 }
+
+/*
+  Sorting, worry by worry. Each worry gets its own stretch of the scroll,
+  staggered down the list, so the notes check off one after another while
+  the counter falls: worry 0 is done halfway down the sort space, worry 8
+  just as the counter reaches 0. Within its stretch the progress is eased,
+  and it follows the scroll exactly in both directions.
+*/
+export const SORT_STAGGER = 0.06;
+export const SORT_SPAN = 0.5;
+
+/** 0-1 smooth ramp of x between a and b. */
+function ramp(x: number, a: number, b: number): number {
+  const t = clamp01((x - a) / (b - a));
+  return t * t * (3 - 2 * t);
+}
+
+/** How far worry k (0-8) has sorted at overall sort progress `order`. */
+export function worryProgress(order: number, k: number): number {
+  const start = k * SORT_STAGGER;
+  return ramp(clamp01(order), start, start + SORT_SPAN);
+}
+
+export type Morph = {
+  /** The messy note's card (background, border). */
+  card: number;
+  /** The ✓. */
+  check: number;
+  /** What FreeFlow did with it. */
+  status: number;
+  /** The worry's second copy, which merges into the row and fades. */
+  copy: number;
+  /** The note's tilt. */
+  tilt: number;
+  /** How far the text has moved right to make room for the ✓. */
+  shift: number;
+};
+
+/** A note's look at worry progress p: card first fades, then the ✓, then the status. */
+export function morph(p: number): Morph {
+  const q = clamp01(p);
+  return {
+    card: 1 - ramp(q, 0.4, 0.8),
+    check: ramp(q, 0.55, 0.9),
+    status: ramp(q, 0.78, 1),
+    copy: 1 - ramp(q, 0.45, 0.9),
+    tilt: 1 - ramp(q, 0, 0.8),
+    shift: ramp(q, 0.5, 0.9),
+  };
+}

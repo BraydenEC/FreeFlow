@@ -199,6 +199,7 @@ assert("smooth scroll is torn down on leaving", funnel.includes(".destroy()"));
 assert("the red edge glow is retired", !funnel.includes("248,113,113"));
 assert("the funnel never scrolls sideways", funnel.includes("overflow-x-clip"));
 const hero = readOr("components/funnel/HeroField.tsx");
+assert("scroll turns each note into its checked row gradually: no snap at 90%", hero.includes("worryProgress(") && hero.includes("morph(") && !/order > 0\.9|order < 0\.9/.test(hero));
 assert("the hero reads reduced motion", /prefers-reduced-motion/.test(hero));
 assert("sorting the night is tracked", hero.includes('track("night_sorted"'));
 assert("the field canvas is decorative and lets touches through", /<canvas[^>]*aria-hidden[^>]*pointer-events-none|<canvas[^>]*pointer-events-none[^>]*aria-hidden/.test(hero));
@@ -221,7 +222,7 @@ assert("the flows screen pins", flows.includes("sticky"));
 // The ink must be on the left of the gradient, so sliding it from 100% to 0% fills flows. left to right.
 assert("flows. fills with colour, it doesn't drain", /linear-gradient\(90deg,\s*var\(--job\) 0%/.test(flows));
 const heroSrcNow = readOr("components/funnel/HeroField.tsx");
-assert("sorted rows snap into line", /order > 0\.9[\s\S]{0,160}\* 0\.12/.test(heroSrcNow));
+assert("sorted rows land exactly in line (drawn at the row once a worry is sorted)", /const x = p\.x \+ \(t\.x - p\.x\) \* pk;/.test(heroSrcNow) && /const y = p\.y \+ \(t\.y - p\.y\) \* pk;/.test(heroSrcNow));
 const proof = readOr("components/funnel/ChapterProof.tsx");
 assert("proof comes from CHANGES", proof.includes("CHANGES.map("));
 assert("proof hard-codes no quotes", !/[“"][A-Z][^"”]{20,}[”"]/.test(proof.replace(/className="[^"]*"/g, "")));

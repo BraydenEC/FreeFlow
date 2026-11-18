@@ -99,6 +99,16 @@ Replaces the 60-second clicker in chapter 5 (spec `docs/superpowers/specs/2026-1
 | End of a run | end screen shown, keyboard focus on Play again, message strip back to its placeholder |
 | Console | no errors |
 
+### Hero sort follows the scroll (2026-11-18)
+
+The messy notes used to be pulled toward their rows by a spring that lagged the scroll, then all flipped to ✓ rows in one frame at 90%. Now each worry has its own stretch of the scroll (staggered down the list) and its note turns into the checked row gradually: card and tilt fade, text slides right, ✓ fades in, then the status; the second copy glides into the same row and fades. Position is set by the scroll, so scrolling back up un-sorts it the same way.
+
+| Check | Result |
+|---|---|
+| `rm -rf .next && npm test` / lint / build / `tsc --noEmit` | 21 suites, 1849 passed, 0 failed / 0 / 0 / 0 |
+| Scrolling down (Chrome, 1442 px) | counter 15 → 8 → 6 → 1 → 0; notes check off one after another and land in three columns of rows |
+| Scrolling back up | rows loosen back into notes in reverse, counter rises (0 → 5 → 7) |
+
 ## 8. Still to check
 
 - One real launch-list sign-up from the page (by the owner, with his own address).
