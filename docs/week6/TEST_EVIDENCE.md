@@ -88,6 +88,17 @@ Replaces the 60-second clicker in chapter 5 (spec `docs/superpowers/specs/2026-1
 | Console | no errors from the app (only from the test scripts injected during the check) |
 | Reduced motion | covered by source checks only (not emulated in the browser) |
 
+### Deploy (2026-11-18)
+
+`main` fast-forwarded `c4227ad..284a9d3` and pushed; the new chapter 5 was live on https://www.freeflow.website/demo about 24 seconds later.
+
+| Live check (signed out, Chrome) | Result |
+|---|---|
+| /demo#game | "Now you try." with Answer gates; the game square sits inside its card (canvas 541–1259 in card 524–1276) |
+| Start by keyboard | Space on the focused game starts a run; the page doesn't scroll; the canvas is an application for screen readers |
+| End of a run | end screen shown, keyboard focus on Play again, message strip back to its placeholder |
+| Console | no errors |
+
 ## 8. Still to check
 
 - One real launch-list sign-up from the page (by the owner, with his own address).
