@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game prototypes 3</title>
+<style>
+  :root {
+    --bg: #000; --surface: #0d0d0d; --raised: #161616; --hair: #262626;
+    --ink: #f5f5f5; --muted: #a3a3a3; --faint: #6b6b6b;
+    --accent: #60a5fa; --late: #fbbf24; --overdue: #ef4444; --money: #34d399;
+    --serif: ui-serif, "Iowan Old Style", Georgia, serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.45 ui-sans-serif, -apple-system, "Segoe UI", sans-serif; overflow-x: clip; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 20px 16px 60px; }
+  h1 { font-family: var(--serif); font-weight: 400; font-size: 30px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .sub { color: var(--muted); margin: 0 0 18px; max-width: 680px; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+  .tab { background: var(--surface); border: 1px solid var(--hair); border-radius: 999px; padding: 8px 14px; color: var(--muted); }
+  .tab[aria-selected="true"] { color: var(--ink); border-color: var(--ink); }
+  .tab b { color: var(--faint); font-weight: 500; margin-right: 6px; }
+  .panel { display: none; }
+  .panel.on { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 20px; align-items: start; }
+  @media (max-width: 760px) { .panel.on { grid-template-columns: 1fr; } }
+  .stage { background: var(--surface); border: 1px solid var(--hair); border-radius: 16px; padding: 14px; user-select: none; -webkit-user-select: none; }
+  .notes { color: var(--muted); font-size: 13.5px; }
+  .notes h3 { color: var(--ink); font-size: 14px; margin: 0 0 6px; }
+  .notes ul { padding-left: 18px; margin: 6px 0 14px; }
+  .notes li { margin-bottom: 4px; }
+  .pick { width: 100%; background: transparent; border: 1px solid var(--hair); border-radius: 10px; padding: 10px; margin-top: 4px; }
+  .pick.done { border-color: var(--accent); color: var(--accent); }
+  .btn { background: var(--ink); color: #000; border: 0; border-radius: 999px; padding: 11px 22px; font-weight: 600; }
+  .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--hair); }
+  .kicker { color: var(--faint); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .big { font-family: var(--serif); font-size: 32px; line-height: 1.1; margin: 0; font-weight: 400; }
+  .muted { color: var(--muted); } .faint { color: var(--faint); }
+  .money { color: var(--money); } .red { color: var(--overdue); } .acc { color: var(--accent); }
+  .cta { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 6px; }
+
+  .cv-wrap { position: relative; }
+  canvas.game { display: block; width: 100%; height: 480px; border-radius: 12px; background: #050505; touch-action: none; cursor: pointer; outline: none; }
+  .hud { position: absolute; left: 14px; right: 14px; top: 10px; display: flex; justify-content: space-between; gap: 10px; pointer-events: none; font-variant-numeric: tabular-nums; font-weight: 600; text-shadow: 0 1px 6px #000; font-size: 14px; }
+  .hud .hearts { color: var(--overdue); letter-spacing: 2px; }
+  .banner { position: relative; width: 100%; min-height: 56px; margin-bottom: 8px; text-align: center; pointer-events: none;
+    background: #0b0b0bee; border: 1px solid var(--hair); border-radius: 12px; padding: 9px 12px; font-size: 14.5px; line-height: 1.35; transition: opacity .25s; }
+  .banner .k { display: block; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); margin-bottom: 2px; }
+  .banner.q { border-color: var(--accent); }
+  .banner.q .k { color: var(--accent); }
+  .banner.ch { border-color: var(--late); }
+  .banner.ch .k { color: var(--late); }
+  .banner.hide { opacity: 0; }
+  .flash { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); font-weight: 700; font-size: 14px; pointer-events: none; text-shadow: 0 1px 6px #000; white-space: nowrap; }
+  .overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 12px; background: #000d; border-radius: 12px; padding: 20px; }
+  .overlay[hidden] { display: none; }
+  .best { font-size: 12px; color: var(--faint); }
+  .opts { display: grid; grid-template-columns: 1fr; gap: 8px; width: 100%; max-width: 320px; }
+  .opt { background: var(--raised); border: 1px solid var(--hair); border-radius: 10px; padding: 12px 10px; }
+  .opt.right { border-color: var(--money); color: var(--money); }
+  .opt.wrong { border-color: var(--overdue); color: var(--overdue); }
+  .qbar { height: 4px; width: 100%; max-width: 320px; background: var(--hair); border-radius: 4px; overflow: hidden; }
+  .qbar i { display: block; height: 100%; width: 100%; background: var(--accent); }
+
+  /* FreeFlow panel (prototype 3, second run) */
+  .ffpanel { border: 1px solid var(--accent); border-radius: 12px; padding: 8px 10px; margin-bottom: 10px; font-size: 12.5px; }
+  .ffpanel[hidden] { display: none; }
+  .ffpanel .h { display: flex; justify-content: space-between; color: var(--accent); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 4px; }
+  .ffpanel .rows { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 2px 14px; }
+  .ffpanel .row { display: flex; gap: 8px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; }
+  .ffpanel .row b { width: 30px; color: var(--ink); }
+  .ffpanel .row .tag { color: var(--late); font-size: 11px; }
+  .ffpanel .empty { color: var(--faint); }
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 420px; }
+  .compare > div { border: 1px solid var(--hair); border-radius: 12px; padding: 12px; }
+  .compare > div.ff { border-color: var(--accent); }
+  .compare .n { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Memory + flying: three ways to combine them</h1>
+  <p class="sub">Each one keeps the one-button flying from Fly the week and adds the "can you keep it all in your head?" of Remember. Throwaway sketches: tap, click or press space to climb. You have three hearts in each.</p>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" data-tab="g"><b>1</b>Answer gates</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="w"><b>2</b>Fly, then recall</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="h"><b>3</b>Your head vs FreeFlow</button>
+  </div>
+
+  <section class="panel on" id="panel-g">
+    <div class="stage">
+      <div class="cv-wrap" id="g-wrap"></div>
+    </div>
+    <aside class="notes">
+      <h3>1 · Answer gates</h3>
+      <p>New jobs pop up while you fly. Every few stacks a gate with three openings asks about one of them, and you answer by flying through the right opening.</p>
+      <ul>
+        <li>Clients move deadlines mid-flight (amber messages). The gates ask about the new date.</li>
+        <li>A wrong opening or a stack costs a heart.</li>
+        <li>Score = days flown + 3 per right answer. Easy to compare, so it suits a leaderboard later.</li>
+      </ul>
+      <p class="faint">Feeling: flying and remembering at the same time is genuinely hectic, which is the point.</p>
+      <button class="pick" data-pick="gates">I like this one</button>
+    </aside>
+  </section>
+
+  <section class="panel" id="panel-w">
+    <div class="stage">
+      <div class="cv-wrap" id="w-wrap"></div>
+    </div>
+    <aside class="notes">
+      <h3>2 · Fly, then recall</h3>
+      <p>Fly a week (five stacks) while jobs and changes pop up. Then the game pauses for a two-question memory check before the next week.</p>
+      <ul>
+        <li>Calmer than gates: flying and remembering take turns.</li>
+        <li>Each right answer earns FreeFlow reminders, so the next week's stacks are wider.</li>
+        <li>Shows the product's value as a reward for paying attention.</li>
+      </ul>
+      <p class="faint">Feeling: a rhythm of tension and breather.</p>
+      <button class="pick" data-pick="weeks">I like this one</button>
+    </aside>
+  </section>
+
+  <section class="panel" id="panel-h">
+    <div class="stage">
+      <div class="ffpanel" id="h-ff" hidden><div class="h"><span>FreeFlow · what you're owed, by due date</span><span>live</span></div><div class="rows" id="h-rows"></div></div>
+      <div class="cv-wrap" id="h-wrap"></div>
+    </div>
+    <aside class="notes">
+      <h3>3 · Your head vs FreeFlow</h3>
+      <p>The answer-gate game, played twice on exactly the same course. First from memory. Then again with FreeFlow's list above the game, updating as clients change things.</p>
+      <ul>
+        <li>The retry is the product demo: same week, but now you can look it up.</li>
+        <li>The ending puts the two runs side by side.</li>
+        <li>Takes two short runs instead of one.</li>
+      </ul>
+      <p class="faint">Feeling: "oh, that's what it's like to have it written down."</p>
+      <button class="pick" data-pick="head-vs-ff">I like this one</button>
+    </aside>
+  </section>
+</div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const usd = (n) => "$" + Math.round(n).toLocaleString("en-US");
+  const send = (type, data) => { try { window.brainstorm && window.brainstorm.send({ type, ...data }); } catch (e) {} };
+  const store = {
+    get(k) { try { return Number(localStorage.getItem(k)) || 0; } catch (e) { return 0; } },
+    set(k, v) { try { localStorage.setItem(k, String(v)); } catch (e) {} },
+  };
+  function mulberry32(a) {
+    return function () { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+  function shuffle(arr, rng) { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+  const DAY_FULL = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  const AMTS = [300, 450, 650, 800, 950, 1200];
+  const POOL = [
+    ["logo", "Café Lumbre"], ["wedding edit", "Ana & Luis"], ["product shoot", "Kiko Shoes"], ["web copy", "Norte Studio"],
+    ["promo reel", "Río Films"], ["menu design", "Casa Verde"], ["brand photos", "Luna Yoga"], ["podcast edit", "Voz Media"],
+    ["posters", "Teatro Sur"], ["app icons", "Bloom"],
+  ];
+
+  /* ---------- tabs, picks, keys ---------- */
+  let current = null;
+  let activeKey = null;
+  document.addEventListener("keydown", (e) => {
+    if (!activeKey) return;
+    if (e.code === "Space" || e.key === "ArrowUp") {
+      if (e.target && e.target.tagName === "BUTTON") return;
+      e.preventDefault(); activeKey();
+    }
+  });
+  document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach((x) => x.setAttribute("aria-selected", String(x === t)));
+    document.querySelectorAll(".panel").forEach((p) => p.classList.toggle("on", p.id === "panel-" + t.dataset.tab));
+    open(t.dataset.tab);
+  }));
+  document.querySelectorAll(".pick").forEach((b) => b.addEventListener("click", () => {
+    b.classList.toggle("done");
+    b.textContent = b.classList.contains("done") ? "✓ Liked" : "I like this one";
+    send("choice", { value: b.dataset.pick, liked: b.classList.contains("done") });
+  }));
+
+  function buildWrap(wrap) {
+    wrap.innerHTML = `<div class="banner hide"></div><div style="position:relative"><canvas class="game" tabindex="0" aria-label="Flying memory game. Space or tap to climb."></canvas>
+      <div class="hud"><span class="day">Week 1 · Mon</span><span class="hearts">♥♥♥</span><span><span class="acc right">✓ 0</span> · <span class="money cash">$0</span></span></div>
+      <div class="flash"></div><div class="overlay"></div></div>`;
+    return {
+      cv: $("canvas", wrap), day: $(".day", wrap), hearts: $(".hearts", wrap), right: $(".right", wrap), cash: $(".cash", wrap),
+      banner: $(".banner", wrap), flash: $(".flash", wrap), ov: $(".overlay", wrap),
+    };
+  }
+
+  function drawPlane(ctx, x, y, angle, alpha) {
+    ctx.save(); ctx.globalAlpha = alpha; ctx.translate(x, y); ctx.rotate(angle);
+    ctx.beginPath(); ctx.moveTo(18, 0); ctx.lineTo(-14, -11); ctx.lineTo(-7, 0); ctx.lineTo(-14, 11); ctx.closePath();
+    ctx.fillStyle = "#f5f5f5"; ctx.fill();
+    ctx.beginPath(); ctx.moveTo(18, 0); ctx.lineTo(-7, 0); ctx.strokeStyle = "#9ca3af"; ctx.lineWidth = 1.2; ctx.stroke();
+    ctx.restore();
+  }
+  function drawWall(ctx, x, y, w, h, color, label, labelAtBottom) {
+    if (h <= 0) return;
+    ctx.fillStyle = "#141414"; ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+    ctx.strokeStyle = "#262626"; ctx.lineWidth = 1;
+    for (let yy = y + 9; yy < y + h - 2; yy += 9) { ctx.beginPath(); ctx.moveTo(x + 4, yy); ctx.lineTo(x + w - 4, yy); ctx.stroke(); }
+    if (label && h > 24) {
+      const ly = labelAtBottom ? y + h - 20 : y + 4;
+      ctx.fillStyle = "#0a0a0a"; ctx.fillRect(x + 5, ly, w - 10, 16);
+      ctx.fillStyle = color === "#ef4444" ? "#ef4444" : "#a3a3a3"; ctx.font = "600 9px ui-sans-serif, sans-serif"; ctx.textAlign = "center";
+      ctx.fillText(label, x + w / 2, ly + 11);
+    }
+  }
+
+  /* =========================================================
+     The shared engine
+     mode "gates": questions are gates you fly through
+     mode "weeks": every 5 stacks, the game pauses for a quiz
+     ========================================================= */
+  function createFly(ui, { mode, seed, onKnown, onEnd }) {
+    const cv = ui.cv;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const W = cv.clientWidth || 600, H = cv.clientHeight || 480;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    const ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const rng = mulberry32(seed);
+    const PW = 62, G = 1450, FLAP = -410;
+    const P = { x: W * 0.26, y: H / 2, vy: 0 };
+    const S = {
+      t: 0, speed: 150, cols: [], coins: [], spawnIn: 0.4, idx: 0, days: 0, hearts: 3, inv: 0, right: 0, asked: 0, cash: 0,
+      known: [], usedPool: 0, alive: true, deadAt: 0, paused: false, holdUntil: 0, reminders: 0, pendingQuiz: false, flashT: 0, raf: 0, last: 0,
+      bannerUntil: 0, qActive: null,
+    };
+    window.__mem = { P, S }; // prototype test hook
+
+    const GATE_PATTERN = ["normal", "intro", "normal", "intro", "normal", "gate", "intro", "normal", "change", "normal", "gate", "normal", "intro", "normal", "gate"];
+    const stepKind = (i) => {
+      if (mode === "gates") return i < GATE_PATTERN.length ? GATE_PATTERN[i] : GATE_PATTERN[6 + ((i - 6) % (GATE_PATTERN.length - 6))];
+      const w = Math.floor(i / 5), k = i % 5;
+      const pat = w === 0 ? ["normal", "intro", "normal", "intro", "normal"] : w % 2 ? ["intro", "normal", "change", "normal", "normal"] : ["normal", "intro", "normal", "change", "normal"];
+      return pat[k];
+    };
+
+    function banner(kind, k, text, secs) {
+      ui.banner.className = "banner" + (kind === "q" ? " q" : kind === "ch" ? " ch" : "");
+      ui.banner.innerHTML = `<span class="k">${k}</span>${text}`;
+      S.bannerUntil = secs === Infinity ? Infinity : S.t + secs;
+    }
+    function flash(text, color) { ui.flash.textContent = text; ui.flash.style.color = color; S.flashT = 1.3; }
+    function hud() {
+      ui.day.textContent = `Week ${Math.floor(S.days / 5) + 1} · ${DAYS[S.days % 5]}`;
+      ui.hearts.textContent = "♥".repeat(S.hearts) + "♡".repeat(3 - S.hearts);
+      ui.right.textContent = "✓ " + S.right;
+      ui.cash.textContent = usd(S.cash);
+    }
+    function newJob() {
+      const [job, client] = POOL[S.usedPool % POOL.length]; S.usedPool++;
+      const taken = S.known.map((j) => j.amt);
+      const amts = AMTS.filter((a) => !taken.includes(a));
+      const j = { job, client, due: Math.floor(rng() * 5), amt: (amts.length ? amts : AMTS)[Math.floor(rng() * (amts.length || AMTS.length))], moved: false, askedAt: -1 };
+      S.known.push(j); onKnown && onKnown(S.known);
+      banner("i", "New job", `<b>${cap(j.job)}</b> for ${j.client} · <b>${usd(j.amt)}</b> · due <b>${DAYS[j.due]}</b>`, 3.6);
+    }
+    function changeJob() {
+      const cands = S.known.filter((j) => !j.moved);
+      if (!cands.length) return;
+      const j = cands[Math.floor(rng() * cands.length)];
+      let nd = Math.floor(rng() * 5); if (nd === j.due) nd = (nd + 2) % 5;
+      j.due = nd; j.moved = true; j.changedAt = S.idx; onKnown && onKnown(S.known);
+      banner("ch", "Message from " + j.client, `"Can we move the ${j.job} to <b>${DAY_FULL[nd]}</b>? Thanks!!"`, 3.6);
+    }
+    function makeQuestion() {
+      if (!S.known.length) return null;
+      const changed = S.known.filter((j) => j.moved && j.askedAt < j.changedAt);
+      const pool = changed.length ? changed : S.known.slice().sort((a, b) => a.askedAt - b.askedAt);
+      const j = pool[0]; j.askedAt = S.idx;
+      const askDue = j.moved || rng() < 0.6;
+      let correct, others;
+      if (askDue) { correct = DAYS[j.due]; others = shuffle(DAYS.filter((d) => d !== correct), rng).slice(0, 2); }
+      else { correct = usd(j.amt); others = shuffle(AMTS.filter((a) => a !== j.amt), rng).slice(0, 2).map(usd); }
+      const q = askDue ? `When is the ${j.job} for ${j.client} due?` : `How much is ${j.client} paying for the ${j.job}?`;
+      return { q, correct, opts: shuffle([correct, ...others], rng) };
+    }
+    const cap = (s) => s[0].toUpperCase() + s.slice(1);
+
+    function spawn() {
+      let kind = stepKind(S.idx);
+      if (kind === "gate" && !S.known.length) kind = "normal";
+      const col = { x: W + 10, kind, passed: false };
+      if (kind === "gate") {
+        const q = makeQuestion();
+        const gh = 108, wall = (H - 3 * gh) / 4;
+        col.q = q; col.gaps = q.opts.map((o, i) => ({ top: wall * (i + 1) + gh * i, h: gh, label: o }));
+        banner("q", "Fly through the answer", q.q, Infinity);
+        S.qActive = col;
+      } else {
+        const base = Math.max(132, 168 - S.idx * 1.2) + (S.reminders > 0 ? 64 : 0);
+        if (S.reminders > 0) S.reminders--;
+        const c = 70 + base / 2 + rng() * (H - 140 - base);
+        col.gaps = [{ top: c - base / 2, h: base }];
+        col.overdue = rng() < 0.3;
+        if (kind === "intro") newJob();
+        if (kind === "change") changeJob();
+        if (rng() < 0.55) S.coins.push({ x: col.x + PW / 2, y: c + (rng() - 0.5) * base * 0.4, v: (2 + Math.floor(rng() * 6)) * 50 });
+      }
+      S.cols.push(col); S.idx++;
+    }
+
+    function hit(reason) {
+      if (S.inv > 0) return;
+      S.hearts--; S.inv = 1.2; flash(reason, "#ef4444");
+      if (S.hearts <= 0) { S.alive = false; S.deadAt = performance.now(); P.vy = -220; }
+    }
+
+    function quiz() {
+      S.paused = true;
+      const qs = [makeQuestion(), makeQuestion()].filter(Boolean);
+      let k = 0, got = 0;
+      const ask = () => {
+        if (k >= qs.length) {
+          S.reminders += got * 2;
+          ui.ov.hidden = true;
+          if (got) flash(`${got} right · FreeFlow reminders on: wider stacks next week`, "#60a5fa");
+          else flash("No reminders this week", "#a3a3a3");
+          S.paused = false; S.holdUntil = S.t + 1.2; P.y = H / 2; P.vy = 0; S.last = performance.now();
+          return;
+        }
+        const q = qs[k];
+        ui.ov.hidden = false;
+        ui.ov.innerHTML = `<span class="kicker">End of week ${Math.floor(S.days / 5)} · quick check ${k + 1} of ${qs.length}</span>
+          <p class="big" style="font-size:24px;max-width:420px">${q.q}</p><div class="qbar"><i></i></div>
+          <div class="opts">${q.opts.map((o) => `<button class="opt" data-o="${o}">${o}</button>`).join("")}</div>`;
+        const t0 = performance.now(); let done = false;
+        const bar = $(".qbar i", ui.ov);
+        const answer = (o) => {
+          if (done) return; done = true; clearInterval(timer);
+          if (o === q.correct) { got++; S.right++; }
+          ui.ov.querySelectorAll(".opt").forEach((b) => { if (b.dataset.o === q.correct) b.classList.add("right"); else if (b.dataset.o === o) b.classList.add("wrong"); });
+          hud(); setTimeout(() => { k++; ask(); }, 700);
+        };
+        ui.ov.querySelectorAll(".opt").forEach((b) => (b.onclick = () => answer(b.dataset.o)));
+        const timer = setInterval(() => { const left = 6 - (performance.now() - t0) / 1000; bar.style.width = Math.max(0, left / 6) * 100 + "%"; if (left <= 0) answer(null); }, 100);
+      };
+      ask();
+    }
+
+    function flap() { if (S.alive && !S.paused) P.vy = FLAP; }
+
+    function frame(now) {
+      const dt = Math.min(0.033, (now - S.last) / 1000); S.last = now;
+      if (!S.paused) {
+        S.t += dt;
+        const holding = S.t < S.holdUntil;
+        if (S.alive) {
+          if (holding) { P.vy = 0; P.y += (H / 2 - P.y) * Math.min(1, dt * 8); }
+          else { P.vy += G * dt; P.y += P.vy * dt; }
+          if (P.y < 12) { P.y = 12; P.vy = 0; }
+          if (P.y > H - 10) { hit("Hit the floor"); P.vy = FLAP; P.y = H - 10; }
+          S.speed = Math.min(205, 150 + S.t * 1.4);
+          if (!holding) {
+            S.spawnIn -= dt;
+            if (S.spawnIn <= 0) { spawn(); S.spawnIn = (S.cols.at(-1).kind === "gate" || stepKind(S.idx) === "gate" ? 360 : 285) / S.speed + 0.2; }
+          }
+        } else { P.vy += G * dt; P.y = Math.min(H + 40, P.y + P.vy * dt); }
+        const dx = (S.alive && !holding ? S.speed : 0) * dt;
+        S.cols.forEach((c) => (c.x -= dx)); S.coins.forEach((c) => (c.x -= dx));
+        S.cols = S.cols.filter((c) => c.x > -PW - 10); S.coins = S.coins.filter((c) => c.x > -20 && !c.got);
+        if (S.inv > 0) S.inv -= dt;
+
+        if (S.alive) {
+          for (const c of S.cols) {
+            const inX = P.x + 12 > c.x && P.x - 12 < c.x + PW;
+            const gapIdx = c.gaps.findIndex((g) => P.y - 6 > g.top && P.y + 6 < g.top + g.h);
+            if (inX && gapIdx < 0) hit(c.kind === "gate" ? "Missed the openings" : c.overdue ? "Hit an overdue stack" : "Hit an invoice stack");
+            if (!c.passed && c.x + PW < P.x - 12) {
+              c.passed = true; S.days++;
+              if (c.kind === "gate") {
+                const chosenIdx = c.gaps.findIndex((g) => P.y > g.top && P.y < g.top + g.h);
+                const chosen = chosenIdx >= 0 ? c.gaps[chosenIdx].label : null;
+                S.asked++;
+                if (chosen === c.q.correct) { S.right++; flash("Right: " + c.q.correct, "#34d399"); }
+                else { if (chosen) { S.inv = 0; hit("Wrong. It was " + c.q.correct); } }
+                S.qActive = null; S.bannerUntil = S.t;
+              }
+              if (mode === "weeks" && S.days % 5 === 0) S.pendingQuiz = true;
+            }
+          }
+          for (const coin of S.coins) if (Math.hypot(coin.x - P.x, coin.y - P.y) < 22) { coin.got = true; S.cash += coin.v; }
+        }
+      }
+
+      // draw
+      ctx.clearRect(0, 0, W, H);
+      ctx.strokeStyle = "#ffffff08"; ctx.lineWidth = 1;
+      for (let k = 0; k < 6; k++) {
+        ctx.beginPath();
+        for (let x = 0; x <= W; x += 20) { const y = 60 + k * 75 + Math.sin((x + S.t * 30 * (k % 2 ? 1 : -1)) / 90 + k) * 12; x ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+        ctx.stroke();
+      }
+      for (const c of S.cols) {
+        const color = c.kind === "gate" ? "#60a5fa" : c.overdue ? "#ef4444" : "#3a3a3a";
+        const label = c.kind === "gate" ? null : c.overdue ? "OVERDUE" : "INVOICE";
+        let y = 0;
+        c.gaps.forEach((g, i) => { drawWall(ctx, c.x, y, PW, g.top - y, color, i === 0 ? label : null, true); y = g.top + g.h; });
+        drawWall(ctx, c.x, y, PW, H - y, color, label, false);
+        if (c.kind === "gate") {
+          c.gaps.forEach((g) => {
+            const cy = g.top + g.h / 2;
+            ctx.font = "700 14px ui-sans-serif, sans-serif"; const tw = ctx.measureText(g.label).width + 18;
+            ctx.fillStyle = "#0b1220"; ctx.strokeStyle = "#60a5fa"; ctx.lineWidth = 1.5;
+            const bx = c.x + PW / 2 - tw / 2;
+            ctx.beginPath(); ctx.roundRect ? ctx.roundRect(bx, cy - 13, tw, 26, 13) : ctx.rect(bx, cy - 13, tw, 26); ctx.fill(); ctx.stroke();
+            ctx.fillStyle = "#f5f5f5"; ctx.textAlign = "center"; ctx.fillText(g.label, c.x + PW / 2, cy + 5);
+          });
+        }
+      }
+      for (const coin of S.coins) {
+        ctx.beginPath(); ctx.arc(coin.x, coin.y, 10, 0, Math.PI * 2); ctx.fillStyle = "#34d399"; ctx.fill();
+        ctx.fillStyle = "#000"; ctx.font = "700 12px ui-sans-serif, sans-serif"; ctx.textAlign = "center"; ctx.fillText("$", coin.x, coin.y + 4);
+      }
+      const blink = S.inv > 0 ? (Math.floor(S.inv * 10) % 2 ? 0.35 : 1) : 1;
+      drawPlane(ctx, P.x, P.y, Math.max(-0.5, Math.min(1.1, P.vy / 600)), blink);
+
+      ui.banner.classList.toggle("hide", S.t > S.bannerUntil);
+      if (S.flashT > 0) { S.flashT -= dt; ui.flash.style.opacity = Math.min(1, S.flashT * 2); } else ui.flash.style.opacity = 0;
+      hud();
+
+      if (S.pendingQuiz && S.alive && !S.paused) { S.pendingQuiz = false; quiz(); }
+      if (!S.alive && now - S.deadAt > 800) {
+        activeKey = null; ui.banner.classList.add("hide");
+        const score = S.days + 3 * S.right;
+        return onEnd({ days: S.days, right: S.right, asked: S.asked, cash: S.cash, score });
+      }
+      S.raf = requestAnimationFrame(frame);
+    }
+
+    return {
+      start() {
+        ui.ov.hidden = true; cv.focus({ preventScroll: true });
+        activeKey = flap; cv.onpointerdown = (e) => { e.preventDefault(); flap(); };
+        flap(); hud();
+        S.raf = requestAnimationFrame((n) => { S.last = n; frame(n); });
+      },
+      stop() { cancelAnimationFrame(S.raf); activeKey = null; },
+    };
+  }
+
+  function whereText(days) {
+    if (days === 0) return "Monday morning";
+    return `${DAY_FULL[days % 5]} of week ${Math.floor(days / 5) + 1}`;
+  }
+  function endCta(line) {
+    return `<p class="muted" style="max-width:400px">${line}</p>
+      <div class="cta"><button class="btn" data-act="free">Start free</button><button class="btn ghost" data-act="again">Play again</button></div>`;
+  }
+
+  /* =========================================================
+     Tabs
+     ========================================================= */
+  let game = null;
+  function stopAll() { if (game) game.stop(); game = null; activeKey = null; }
+
+  function intro(ui, title, text, bestKey, go) {
+    const best = store.get(bestKey);
+    ui.ov.hidden = false;
+    ui.ov.innerHTML = `<span class="kicker">Fly and remember</span><p class="big">${title}</p>
+      <p class="muted" style="max-width:380px">${text}</p><button class="btn" data-act="go">Start</button>
+      ${best ? `<span class="best">Your best score: ${best}</span>` : ""}`;
+    $('[data-act="go"]', ui.ov).onclick = go;
+    activeKey = go;
+  }
+
+  function openGates() {
+    const ui = buildWrap($("#g-wrap"));
+    const play = () => {
+      stopAll();
+      game = createFly(ui, {
+        mode: "gates", seed: (Math.random() * 1e9) | 0,
+        onEnd(r) {
+          const best = Math.max(store.get("ff-gates-best"), r.score); store.set("ff-gates-best", best);
+          send("play", { game: "gates", ...r });
+          ui.ov.hidden = false;
+          ui.ov.innerHTML = `<span class="kicker">Score ${r.score} · best ${best}</span>
+            <p class="big">${r.right} of ${r.asked} from memory</p>
+            <p class="muted">Flew to ${whereText(r.days)} · <span class="money">${usd(r.cash)}</span> collected</p>
+            ${endCta("Flying is the fun part. Remembering is the hard part. FreeFlow remembers every deadline, amount and change for you.")}`;
+          $('[data-act="again"]', ui.ov).onclick = play;
+          $('[data-act="free"]', ui.ov).onclick = () => send("cta", { game: "gates" });
+          activeKey = play;
+        },
+      });
+      game.start();
+    };
+    intro(ui, "Answer gates.", "New jobs pop up as you fly. Gates ask about them: fly through the right answer. Tap, click or space to climb.", "ff-gates-best", play);
+  }
+
+  function openWeeks() {
+    const ui = buildWrap($("#w-wrap"));
+    const play = () => {
+      stopAll();
+      game = createFly(ui, {
+        mode: "weeks", seed: (Math.random() * 1e9) | 0,
+        onEnd(r) {
+          const best = Math.max(store.get("ff-weeks-best"), r.score); store.set("ff-weeks-best", best);
+          send("play", { game: "weeks", ...r });
+          ui.ov.hidden = false;
+          ui.ov.innerHTML = `<span class="kicker">Score ${r.score} · best ${best}</span>
+            <p class="big">Buried on ${whereText(r.days)}</p>
+            <p class="muted">${r.right} right in the weekly checks · <span class="money">${usd(r.cash)}</span> collected</p>
+            ${endCta("Every right answer earned you reminders. In FreeFlow you don't have to earn them: it reminds you about every invoice.")}`;
+          $('[data-act="again"]', ui.ov).onclick = play;
+          $('[data-act="free"]', ui.ov).onclick = () => send("cta", { game: "weeks" });
+          activeKey = play;
+        },
+      });
+      game.start();
+    };
+    intro(ui, "Fly, then recall.", "Fly a week while jobs come in. At the end of each week, two quick questions. Right answers make next week easier.", "ff-weeks-best", play);
+  }
+
+  function openHead() {
+    const ui = buildWrap($("#h-wrap"));
+    const panel = $("#h-ff"), rows = $("#h-rows");
+    panel.hidden = true;
+    let seed = 0, first = null;
+    const renderPanel = (known) => {
+      const sorted = known.slice().sort((a, b) => a.due - b.due);
+      rows.innerHTML = sorted.length ? sorted.map((j) => `<div class="row"><b>${DAYS[j.due]}</b><span>${j.job} · ${j.client}</span><span class="money">${usd(j.amt)}</span>${j.moved ? `<span class="tag">moved</span>` : ""}</div>`).join("")
+        : `<span class="empty">Jobs appear here as they come in.</span>`;
+    };
+    const runOne = () => {
+      stopAll(); panel.hidden = true; seed = (Math.random() * 1e9) | 0;
+      game = createFly(ui, {
+        mode: "gates", seed,
+        onEnd(r) {
+          first = r;
+          send("play", { game: "head-run1", ...r });
+          ui.ov.hidden = false;
+          ui.ov.innerHTML = `<span class="kicker">Run 1 · from memory</span>
+            <p class="big">${r.right} of ${r.asked} right</p>
+            <p class="muted">Flew to ${whereText(r.days)}. Now fly the exact same week, with FreeFlow keeping track for you.</p>
+            <div class="cta"><button class="btn" data-act="two">Fly it again with FreeFlow</button></div>`;
+          $('[data-act="two"]', ui.ov).onclick = runTwo;
+          activeKey = runTwo;
+        },
+      });
+      game.start();
+    };
+    const runTwo = () => {
+      stopAll(); panel.hidden = false; renderPanel([]);
+      game = createFly(ui, {
+        mode: "gates", seed, onKnown: renderPanel,
+        onEnd(r) {
+          send("play", { game: "head-run2", ...r, first });
+          ui.ov.hidden = false;
+          ui.ov.innerHTML = `<span class="kicker">Same week, two ways</span>
+            <div class="compare">
+              <div><span class="kicker">Your head</span><div class="n">${first.right}/${first.asked}</div><span class="faint">right · ${first.days} days</span></div>
+              <div class="ff"><span class="kicker acc">With FreeFlow</span><div class="n">${r.right}/${r.asked}</div><span class="faint">right · ${r.days} days</span></div>
+            </div>
+            ${endCta("That list above the game is what FreeFlow keeps for your real work: every job, amount and deadline, updated when clients change things.")}`;
+          $('[data-act="again"]', ui.ov).onclick = runOne;
+          $('[data-act="free"]', ui.ov).onclick = () => send("cta", { game: "head-vs-ff" });
+          activeKey = runOne;
+        },
+      });
+      game.start();
+    };
+    intro(ui, "Your head vs FreeFlow.", "Fly once from memory. Then fly the same week again with FreeFlow's list on screen, and compare.", "ff-head-best", runOne);
+  }
+
+  function open(tab) {
+    stopAll();
+    ({ g: openGates, w: openWeeks, h: openHead })[tab]();
+  }
+  open("g");
+})();
+</script>
+</body>
+</html>
