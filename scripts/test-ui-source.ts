@@ -199,6 +199,8 @@ assert("smooth scroll is torn down on leaving", funnel.includes(".destroy()"));
 assert("the red edge glow is retired", !funnel.includes("248,113,113"));
 assert("the funnel never scrolls sideways", funnel.includes("overflow-x-clip"));
 const hero = readOr("components/funnel/HeroField.tsx");
+assert("the Support page answers 404 while donations are off", /if \(!DONATIONS_ENABLED\) notFound\(\);/.test(readOr("app/support/page.tsx")));
+assert("the dashboard and pricing only link to Support while donations are on", ["app/dashboard/page.tsx", "app/pricing/page.tsx"].every((f) => /DONATIONS_ENABLED &&[\s\S]{0,400}href="\/support"/.test(readOr(f))));
 assert("the impact check doesn't claim testers before they have tested", !readOr("components/venture/ImpactCheck.tsx").includes("Five outside testers use it this week"));
 assert("scroll turns each note into its checked row gradually: no snap at 90%", hero.includes("worryProgress(") && hero.includes("morph(") && !/order > 0\.9|order < 0\.9/.test(hero));
 assert("the hero reads reduced motion", /prefers-reduced-motion/.test(hero));

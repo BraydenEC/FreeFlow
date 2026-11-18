@@ -13,6 +13,7 @@ import { redact } from "@/lib/chat/redact";
 import { answer, normalize } from "@/lib/chat/engine";
 import { GUARD_RULES } from "@/lib/chat/guards";
 import { CONTENT_RULES } from "@/lib/chat/rules";
+import { DONATIONS_ENABLED } from "@/lib/support";
 import { SAMPLES } from "@/lib/chat/samples";
 import { SessionRequestSchema } from "@/lib/chat/schema";
 import { canSendMore, canWrite, firstMessage, shouldOfferTicket, needsTranscript, outcomeFor, replay } from "@/lib/chat/session";
@@ -385,6 +386,13 @@ assert("no-match offers the ticket", shouldOfferTicket({ ...solved, kind: "no_ma
 assert("input open below the cap", canSendMore(MAX_MESSAGES - 1));
 assert("input closed at the cap", !canSendMore(MAX_MESSAGES));
 assert("schema accepts exactly the cap", SessionRequestSchema.safeParse({ ...valid, messages: Array(MAX_MESSAGES).fill("hi") }).success);
+
+// Donations are off for now: the help desk mustn't send anyone to them.
+if (!DONATIONS_ENABLED) {
+  assert("no answer links to the Support page while donations are off", CONTENT_RULES.every((r) => !(r.links ?? []).some((l) => l.href === "/support")));
+  assert("no answer offers donations while they're off", CONTENT_RULES.every((r) => !/Donations are optional|Support page|donation button/i.test(r.answer)));
+  assert("asking how to donate gets a straight answer", /doesn't take donations right now/.test(CONTENT_RULES.find((r) => r.id === "donations")!.answer));
+}
 
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed`);

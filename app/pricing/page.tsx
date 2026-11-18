@@ -12,6 +12,7 @@ import TierCards from "@/components/pricing/TierCards";
 import { getSavedScenarios } from "@/lib/pricing/saved";
 import { computePricing } from "@/lib/pricing/model";
 import { SCENARIOS } from "@/lib/pricing/scenarios";
+import { DONATIONS_ENABLED } from "@/lib/support";
 
 /*
   /pricing — tiers, segments, simulator, assumptions, saved scenarios.
@@ -96,6 +97,7 @@ export default async function PricingPage({
                 and every assumption labelled. It is published now so that
                 nobody has to guess later.
               </p>
+              {DONATIONS_ENABLED && (
               <p className="text-ink-muted mt-2 text-sm leading-relaxed">
                 If it is useful to you in the meantime, there is an{" "}
                 <Link
@@ -107,6 +109,7 @@ export default async function PricingPage({
                 that covers hosting and keeps the SAT rules current. It buys
                 nothing and unlocks nothing.
               </p>
+              )}
             </aside>
 
             <section

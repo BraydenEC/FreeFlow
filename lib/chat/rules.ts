@@ -13,6 +13,7 @@
 */
 
 import type { Rule } from "./types";
+import { DONATIONS_ENABLED } from "@/lib/support";
 
 export const CONTENT_RULES: Rule[] = [
   // lib/forecast/model.ts — deadline + terms (30-day default), paid skipped, past-due is "late"
@@ -215,12 +216,15 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["gratis", "refund", "subscription", "costo"],
     phrases: ["how much does it cost", "how much is freeflow", "is it free", "cancel my subscription", "being charged", "was charged", "got charged", "did i get charged", "want a refund", "credit card", "pay for freeflow", "pay in", "is freeflow free", "is this free", "is this app free", "free to use", "what s included", "whats included", "included for free", "es gratis", "cuanto cuesta", "tiene costo"],
     exact: ["how much", "how do i pay", "can i cancel", "how much is it"],
-    answer:
-      "FreeFlow is free while it grows: every feature, for everyone, and nothing is charged today. There's no subscription to cancel and nothing to refund. Donations are optional and don't unlock anything.",
-    links: [
-      { label: "Pricing", href: "/pricing" },
-      { label: "Support FreeFlow", href: "/support" },
-    ],
+    answer: DONATIONS_ENABLED
+      ? "FreeFlow is free while it grows: every feature, for everyone, and nothing is charged today. There's no subscription to cancel and nothing to refund. Donations are optional and don't unlock anything."
+      : "FreeFlow is free while it grows: every feature, for everyone, and nothing is charged today. There's no subscription to cancel and nothing to refund.",
+    links: DONATIONS_ENABLED
+      ? [
+          { label: "Pricing", href: "/pricing" },
+          { label: "Support FreeFlow", href: "/support" },
+        ]
+      : [{ label: "Pricing", href: "/pricing" }],
   },
   // lib/pricing/tiers.ts — Solo, Project, Pro, Studio; "The page describes a model, not a bill"
   {
@@ -242,9 +246,10 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["donate", "donating", "donation", "donations", "tip", "coffee", "contribute", "donar", "donacion"],
     strong: ["donate", "donation", "donating", "donar", "donacion"],
     phrases: ["support freeflow", "support the project", "i donate", "buy you a coffee", "make a donation", "puedo donar", "como dono"],
-    answer:
-      "Donations are optional and go to real running costs like hosting and the domain. They don't unlock any features. The Support page has the details; if it says donations aren't set up yet, there's no payment link to use right now.",
-    links: [{ label: "Support FreeFlow", href: "/support" }],
+    answer: DONATIONS_ENABLED
+      ? "Donations are optional and go to real running costs like hosting and the domain. They don't unlock any features. The Support page has the details; if it says donations aren't set up yet, there's no payment link to use right now."
+      : "FreeFlow doesn't take donations right now. It's free while it grows, and nothing is charged today. The kindest thing you can do is use it and tell us what's broken.",
+    links: DONATIONS_ENABLED ? [{ label: "Support FreeFlow", href: "/support" }] : [{ label: "Pricing", href: "/pricing" }],
   },
   // features "Accounts and per-user data" — RLS on every table; chat_sessions notice
   {
@@ -1044,12 +1049,15 @@ export const CONTENT_RULES: Rule[] = [
     areas: "any",
     keywords: ["forever", "eventually"],
     phrases: ["always be free", "stay free", "free forever", "free period", "start charging", "going to charge", "charge later", "will you charge", "pay later", "this free forever", "it free forever", "freeflow free forever", "going to get charged", "will i get charged", "charged later", "charge me later", "will i be charged", "charged in the future"],
-    answer:
-      "Honestly, probably not forever. The intention is to charge eventually, and the whole model is public on the Pricing page, but nothing is charged today and no date is set. The Support page says there's no plan to put today's features behind a price.",
-    links: [
-      { label: "Pricing", href: "/pricing" },
-      { label: "Support FreeFlow", href: "/support" },
-    ],
+    answer: DONATIONS_ENABLED
+      ? "Honestly, probably not forever. The intention is to charge eventually, and the whole model is public on the Pricing page, but nothing is charged today and no date is set. The Support page says there's no plan to put today's features behind a price."
+      : "Honestly, probably not forever. The intention is to charge eventually, and the whole model is public on the Pricing page, but nothing is charged today and no date is set.",
+    links: DONATIONS_ENABLED
+      ? [
+          { label: "Pricing", href: "/pricing" },
+          { label: "Support FreeFlow", href: "/support" },
+        ]
+      : [{ label: "Pricing", href: "/pricing" }],
   },
   // app/pricing/page.tsx "every feature, for everyone"; no billing code
   {
@@ -1125,8 +1133,9 @@ export const CONTENT_RULES: Rule[] = [
     areas: "any",
     keywords: ["donated", "stripe"],
     phrases: ["my donation", "donation receipt", "charged twice", "donation failed", "refund of my donation", "my card", "card details"],
-    answer:
-      "Donations are handled by Stripe. FreeFlow never sees your card, and the app doesn't record who donated. For a problem or a refund, submit a ticket with the date and amount.",
+    answer: DONATIONS_ENABLED
+      ? "Donations are handled by Stripe. FreeFlow never sees your card, and the app doesn't record who donated. For a problem or a refund, submit a ticket with the date and amount."
+      : "FreeFlow doesn't take payments or donations right now, so it never asks for or stores a card. If you were charged in FreeFlow's name, submit a ticket with the date and amount.",
     offerTicket: true,
   },
 

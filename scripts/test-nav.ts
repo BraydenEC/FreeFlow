@@ -9,6 +9,7 @@
 */
 
 import { DOCK_GROUPS } from "@/lib/nav/dock";
+import { DONATIONS_ENABLED } from "@/lib/support";
 import { iconSize } from "@/lib/nav/magnify";
 
 let passed = 0;
@@ -34,7 +35,7 @@ const hrefs = DOCK_GROUPS.flatMap((g) => g.items.map((i) => i.href));
 assert(
   "the Dock lists every page in the spec's order",
   hrefs.join() ===
-    "/demo,/dashboard,/core,/chat,/research,/product,/pricing,/marketing,/docs,/support",
+    "/demo,/dashboard,/core,/chat,/research,/product,/pricing,/marketing,/docs" + (DONATIONS_ENABLED ? ",/support" : ""),
   hrefs.join(),
 );
 assert(
@@ -45,6 +46,8 @@ assert(
   "every item has a label",
   DOCK_GROUPS.every((g) => g.items.every((i) => i.label.trim().length > 0)),
 );
+
+assert("donations are off for now, so the Dock has no Support page", DONATIONS_ENABLED === false && !hrefs.includes("/support"));
 
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed`);

@@ -201,7 +201,7 @@ Every criterion below is testable: by an automated suite (**auto**), by reading 
 | F6 | Chapter 6, 8:00 am (Action) | Primary "Use FreeFlow free now" → sign-up, recorded as `try_free_click`; secondary launch-list form (see L1–L5); no price (**live**, **source**) |
 | F7 | Footer | Contact and feedback `mailto:` to the public address, "If we get it wrong" → the impact section in `/docs`, and the launch-list privacy note (**live**) |
 
-> **Changed after Gate 1.** After the owner's review, the front page (Nov 12) and the game (Nov 18) were redesigned, each from playable mockups the owner chose, with its own design and plan written before code: `docs/superpowers/specs/2026-11-12-demo-front-page-design.md` and `docs/superpowers/specs/2026-11-18-demo-game-answer-gates-design.md`. Live now: the visitor's worries drift under the headline and turn into checked rows as you scroll (replacing F1's chapter 1), START FREE ends the page (replacing F6's morning), and the game is **Answer gates**, a one-button flying game where jobs pop up and gates ask about them (replacing G1–G8's clicker). Still true from G7: no leaderboard, no prize, no score sent to a server.
+> **Changed after Gate 1.** After the owner's review, the front page (Nov 12) and the game (Nov 18) were redesigned, each from playable mockups the owner chose, with its own design and plan written before code: `docs/superpowers/specs/2026-11-12-demo-front-page-design.md` and `docs/superpowers/specs/2026-11-18-demo-game-answer-gates-design.md`. Live now: the visitor's worries drift under the headline and turn into checked rows as you scroll (replacing F1's chapter 1), START FREE ends the page (replacing F6's morning), and the game is **Answer gates**, a one-button flying game where jobs pop up and gates ask about them (replacing G1–G8's clicker). Still true from G7: no leaderboard, no prize, no score sent to a server. The donations page (`/support`, D3 and R6) is switched off for now: it answers 404 and the Dock no longer lists it; the code is kept for later.
 
 ### The game
 
@@ -524,7 +524,7 @@ Latest run: Nov 18, after the redesigned front page, Answer gates and the scroll
 |---|---|
 | `npm test` | 21 suites, 1,852 passed, 0 failed |
 | `npm run lint`, `npm run build`, `npx tsc --noEmit` | all exit 0 |
-| Every page live, signed out | 12 pages HTTP 200; `/core` redirects to sign-up |
+| Every page live, signed out | 12 pages HTTP 200; `/core` redirects to sign-up. Since then the donations page `/support` was switched off on purpose (not part of the assignment): it now answers 404 and is gone from the Dock |
 | Every page at 375 px, signed out | 12 pages: document width 375, nothing wider than the screen, the Dock on each |
 | `/demo` live | the hero sorts with the scroll; Answer gates starts by Space without scrolling the page, ends with focus on Play again; no console errors |
 | Signed in (Nov 10) | `/` and `/login` go to `/dashboard`; "Your work" shows the records from Supabase; the public tab is beside it; no sideways scrolling on any of 11 pages |

@@ -1,3 +1,4 @@
+import { DONATIONS_ENABLED } from "@/lib/support";
 /*
   The Dock's pages, grouped as the Week 6 spec fixes them:
 
@@ -58,7 +59,8 @@ export const DOCK_GROUPS: DockGroup[] = [
     label: "About",
     items: [
       { label: "Docs", href: "/docs", icon: "docs" },
-      { label: "Support", href: "/support", icon: "support" },
+      // Hidden while donations are off (lib/support.ts).
+      ...(DONATIONS_ENABLED ? [{ label: "Support", href: "/support", icon: "support" as const }] : []),
     ],
   },
 ];

@@ -23,6 +23,7 @@ import { filterFromParams, filterProjects, isFilterActive } from "@/lib/projects
 import { getDashboardData } from "@/lib/projects";
 import { getUserPrefs } from "@/lib/prefs/server";
 import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
+import { DONATIONS_ENABLED } from "@/lib/support";
 
 /*
   The dashboard.
@@ -207,6 +208,7 @@ export default async function Dashboard({
                         misread the room. It is also deliberately not dismissible,
                         because a thing this quiet does not need a dismiss button.
                       */}
+                      {DONATIONS_ENABLED && (
                       <p className="text-ink-faint text-center text-xs">
                         FreeFlow is free while it grows.{" "}
                         <Link
@@ -217,6 +219,7 @@ export default async function Dashboard({
                         </Link>{" "}
                         if it is earning its place.
                       </p>
+                      )}
                       </>
                     ),
                   },

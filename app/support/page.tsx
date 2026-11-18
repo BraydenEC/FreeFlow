@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import SubNav from "@/components/SubNav";
 import DonateButton from "@/components/support/DonateButton";
 import {
+  DONATIONS_ENABLED,
   isDonationConfigured,
   SUGGESTED_AMOUNTS,
   WHAT_IT_DOES_NOT_BUY,
@@ -24,6 +26,8 @@ const usd = new Intl.NumberFormat("en-US", {
 });
 
 export default function SupportPage() {
+  // Off for now (lib/support.ts); the page below is kept for when it returns.
+  if (!DONATIONS_ENABLED) notFound();
   const configured = isDonationConfigured();
 
   return (
