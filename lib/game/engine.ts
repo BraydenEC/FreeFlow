@@ -238,8 +238,9 @@ function draft(s: GameState): Draft {
 }
 
 function finish(d: Draft): GameState {
-  const { random: _random, ...s } = d;
-  return s;
+  const s: Partial<Draft> = { ...d };
+  delete s.random;
+  return s as GameState;
 }
 
 function say(d: Draft, kind: Feedback["kind"], text: string) {

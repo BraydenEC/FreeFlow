@@ -1,8 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { BALANCE, buy, collect, invoiceStage, newGame, tick, work, type GameState, type UpgradeId } from "@/lib/game/engine";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  DAYS,
+  STYLE_IDS,
+  TUNING,
+  WORLD,
+  flap,
+  newGame,
+  score,
+  step,
+  whereText,
+  type GameState,
+  type Message,
+  type StyleId,
+} from "@/lib/game/engine";
+import { readBest, readStyle, saveBest, saveStyle } from "@/lib/game/prefs";
+import { STYLE_DRAWERS, STYLE_LABELS } from "@/components/funnel/game/styles";
+import { drawCharacter, drawCoin, drawContours, drawGateFrame, drawGateLabel } from "@/components/funnel/game/draw";
 import { JOBS } from "@/lib/funnel/jobs";
 import { COPY } from "@/lib/funnel/copy";
 import { track } from "@/lib/funnel/track";
@@ -10,102 +26,238 @@ import { useJob } from "@/components/funnel/JobContext";
 import LaunchListForm from "@/components/funnel/LaunchListForm";
 
 /*
-  /demo chapter 5: now you try. A 60-second freelance clicker.
+  /demo chapter 5: now you try. Answer gates, a one-button flying game.
 
-  Do the work, collect invoices before they go overdue, and spend what you
-  collect on upgrades, each one a real FreeFlow feature. The rules are pure
-  (lib/game/engine.ts); this component only renders and drives the clock with
-  requestAnimationFrame. The round pauses while the tab is hidden, and each
-  tick is clamped, so coming back after minutes never ends it.
+  You fly a little freelancer through your week. New jobs pop up as you go,
+  clients move deadlines, and gates ask about them: you answer by flying
+  through the right opening. It makes the founder story felt: keeping it all
+  in your head is genuinely hard.
 
-  The score stays in this browser: a personal best in browser storage
-  (wrapped, so blocked storage only loses the best), no leaderboard and
-  nothing sent to the server. Amounts are in-game money, not prices.
+  The rules are pure and seeded (lib/game/engine.ts). This component only
+  drives the clock, reads input and draws: the world is a fixed 480 × 480,
+  scaled to fit, so a phone and a desktop play the same game. The clock stops
+  while the tab is hidden, and each step is clamped, so coming back after
+  minutes never skips ahead.
+
+  The score stays in this browser: a personal best and the chosen obstacle
+  style (lib/game/prefs.ts), no leaderboard and nothing sent to the server.
+  Amounts are in-game money, not prices. Styles are cosmetic only.
 */
 
-const UPGRADES: { id: UpgradeId; name: string; desc: string; real: string }[] = [
-  { id: "brief", name: "Paste a brief", desc: "Each click does twice the work.", real: "Paste a client email, get a project" },
-  { id: "alert", name: "Overdue alert", desc: "Overdue invoices lose value half as fast.", real: "Overdue alert" },
-  {
-    id: "contract",
-    name: "Contract tracking",
-    desc: "Signed clients pay: overdue invoices keep at least 70% of their value.",
-    real: "Contract and payment links",
-  },
-  { id: "terms", name: "Payment terms", desc: "Clients pay on schedule: invoices collect themselves at 5 s.", real: "Payment terms per project" },
-];
+const CLOSING =
+  "Flying is the fun part. Remembering is the hard part. FreeFlow keeps every deadline and amount in one place, so you don't have to.";
+const MAX_CSS = 720;
+const IDLE = newGame({ seed: 1, projects: [] });
 
-const money = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
+type Screen = "start" | "playing" | "end";
+type Hud = {
+  phase: GameState["phase"];
+  days: number;
+  hearts: number;
+  right: number;
+  asked: number;
+  collected: number;
+  score: number;
+  message: Message | null;
+  feedback: { kind: string; text: string } | null;
+};
 
-const STAGE_STYLE = {
-  fresh: "border-hairline text-white",
-  yellow: "border-[var(--color-status-review)] text-[#fde68a]",
-  overdue: "border-[var(--color-status-overdue)] text-[#fca5a5]",
-} as const;
+const hudOf = (s: GameState): Hud => ({
+  phase: s.phase,
+  days: s.days,
+  hearts: s.hearts,
+  right: s.right,
+  asked: s.asked,
+  collected: s.collected,
+  score: score(s),
+  message: s.message,
+  feedback: s.feedback ? { kind: s.feedback.kind, text: s.feedback.text } : null,
+});
 
-function readBest(): number {
-  try {
-    return Number(window.localStorage.getItem("ff_game_best")) || 0;
-  } catch {
-    return 0;
-  }
-}
-
-function saveBest(n: number) {
-  try {
-    window.localStorage.setItem("ff_game_best", String(n));
-  } catch {
-    // Blocked storage: the best just isn't remembered.
-  }
-}
+const MESSAGE_STYLE: Record<Message["kind"], { border: string; label: string }> = {
+  job: { border: "rgba(245,245,245,0.6)", label: "text-ink" },
+  change: { border: "#6b6b6b", label: "text-ink-muted" },
+  question: { border: "var(--job)", label: "text-[var(--job)]" },
+};
 
 export default function Game() {
-  const { job, trackJob } = useJob();
-  const [s, setS] = useState<GameState>(newGame);
-  const [visible, setVisible] = useState(true);
-  const [best, setBest] = useState(0);
-  const last = useRef<number | null>(null);
-  // One round_played per round, even if the job is changed after it ends.
+  const { job, trackJob, choice } = useJob();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const game = useRef<GameState | null>(null);
+  const size = useRef<{ css: number; dpr: number }>({ css: WORLD.w, dpr: 1 });
+  const accent = useRef("#c9c6bf");
+  const reduced = useRef(false);
+  const styleRef = useRef<StyleId>("invoices");
+  const lastHud = useRef("");
+  // One round_played per run, even if the job is changed after it ends.
   const countedRound = useRef(false);
 
-  // Pause while the tab is hidden.
-  useEffect(() => {
-    const onVis = () => setVisible(document.visibilityState === "visible");
-    document.addEventListener("visibilitychange", onVis);
-    return () => document.removeEventListener("visibilitychange", onVis);
+  const [screen, setScreen] = useState<Screen>("start");
+  const [hud, setHud] = useState<Hud>(() => hudOf(IDLE));
+  const [style, setStyle] = useState<StyleId>("invoices");
+  const [best, setBest] = useState(0);
+  const [visible, setVisible] = useState(true);
+
+  const draw = useCallback(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+    const { css, dpr } = size.current;
+    const k = (css / WORLD.w) * dpr;
+    ctx.setTransform(k, 0, 0, k, 0, 0);
+    ctx.fillStyle = "#050505";
+    ctx.fillRect(0, 0, WORLD.w, WORLD.h);
+    const s = game.current ?? IDLE;
+    const color = accent.current;
+    const wall = STYLE_DRAWERS[styleRef.current];
+    drawContours(ctx, WORLD.w, WORLD.h, s.tMs, reduced.current);
+    for (const c of s.cols) {
+      if (c.kind === "gate") drawGateFrame(ctx, c.x, TUNING.colW, WORLD.h, color);
+      let y = 0;
+      c.gaps.forEach((g, i) => {
+        wall(ctx, c.x, y, TUNING.colW, g.top - y, i === 0 ? "bottom" : "both", c.overdue);
+        y = g.top + g.h;
+      });
+      wall(ctx, c.x, y, TUNING.colW, WORLD.h - y, "top", c.overdue);
+      if (c.kind === "gate") {
+        for (const g of c.gaps) if (g.label) drawGateLabel(ctx, c.x + TUNING.colW / 2, g.top + g.h / 2, g.label, color);
+      }
+    }
+    for (const coin of s.coins) drawCoin(ctx, coin.x, coin.y);
+    const blinking = s.invulnMs > 0 && (reduced.current || Math.floor(s.invulnMs / 100) % 2 === 0);
+    drawCharacter(ctx, TUNING.playerX, s.y, s.vy, color, s.tMs, { still: reduced.current, dim: blinking });
   }, []);
 
-  const running = s.started && !s.over && visible;
+  const resize = useCallback(() => {
+    const canvas = canvasRef.current;
+    const frame = frameRef.current;
+    if (!canvas || !frame) return;
+    const css = Math.min(frame.clientWidth, MAX_CSS);
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.style.width = `${css}px`;
+    canvas.style.height = `${css}px`;
+    canvas.width = Math.round(css * dpr);
+    canvas.height = Math.round(css * dpr);
+    size.current = { css, dpr };
+    draw();
+  }, [draw]);
 
+  // Once on mount: what this browser remembers, and the motion preference.
   useEffect(() => {
-    if (!running) {
-      last.current = null;
-      return;
-    }
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    reduced.current = mq.matches;
+    const onMotion = () => {
+      reduced.current = mq.matches;
+    };
+    mq.addEventListener("change", onMotion);
+    styleRef.current = readStyle();
+    setStyle(styleRef.current);
+    setBest(readBest());
+    resize();
+    window.addEventListener("resize", resize);
+    const onVis = () => setVisible(document.visibilityState === "visible");
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      mq.removeEventListener("change", onMotion);
+      window.removeEventListener("resize", resize);
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }, [resize]);
+
+  // The character wears the page's current colour, even mid-run.
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    accent.current = getComputedStyle(canvas).getPropertyValue("--job").trim() || "#c9c6bf";
+    draw();
+  }, [choice, draw]);
+
+  // The clock: one step per frame while playing and visible.
+  useEffect(() => {
+    if (screen !== "playing" || !visible) return;
     let raf = 0;
+    let last: number | null = null;
     const loop = (now: number) => {
-      const dt = last.current === null ? 0 : now - last.current;
-      last.current = now;
-      if (dt > 0) setS((prev) => tick(prev, dt));
+      const dt = last === null ? 0 : now - last;
+      last = now;
+      if (game.current && dt > 0) game.current = step(game.current, dt);
+      draw();
+      if (game.current) {
+        const next = hudOf(game.current);
+        const key = JSON.stringify(next);
+        if (key !== lastHud.current) {
+          lastHud.current = key;
+          setHud(next);
+        }
+        if (game.current.phase === "over") return;
+      }
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, [running]);
+  }, [screen, visible, draw]);
 
-  // A round just ended: record it once and keep the personal best.
+  // A run just ended: count it once and keep the personal best.
   useEffect(() => {
-    if (!s.over || countedRound.current) return;
+    if (hud.phase !== "over" || countedRound.current) return;
     countedRound.current = true;
     track("round_played", trackJob);
+    const total = hud.score;
     const previous = readBest();
-    if (s.collected > previous) saveBest(s.collected);
-    setBest(Math.max(previous, s.collected));
-  }, [s.over, s.collected, trackJob]);
+    if (total > previous) saveBest(total);
+    setBest(Math.max(previous, total));
+  }, [hud.phase, hud.score, trackJob]);
 
-  const projects = JOBS[job].gameProjects;
-  const project = projects[s.projectIndex % projects.length];
-  const seconds = Math.ceil(s.remainingMs / 1000);
+  // …then show the end screen after a beat.
+  useEffect(() => {
+    if (hud.phase !== "over") return;
+    const t = window.setTimeout(() => setScreen("end"), 600);
+    return () => window.clearTimeout(t);
+  }, [hud.phase]);
+
+  function start() {
+    // Projects are fixed for the run: changing the job mid-run only recolours.
+    game.current = flap(newGame({ seed: Date.now() | 0, projects: JOBS[job].gameProjects, ramp: !reduced.current }));
+    countedRound.current = false;
+    lastHud.current = "";
+    setHud(hudOf(game.current));
+    setScreen("playing");
+    canvasRef.current?.focus({ preventScroll: true });
+  }
+
+  function press() {
+    if (screen === "playing" && game.current) game.current = flap(game.current);
+    else if (screen === "start") start();
+  }
+
+  function pickStyle(id: StyleId) {
+    styleRef.current = id;
+    setStyle(id);
+    saveStyle(id);
+    draw();
+  }
+
+  const msg = hud.message;
+
+  const styleSwitch = (
+    <div className="flex flex-wrap items-center justify-center gap-2" role="group" aria-label="Obstacle style">
+      <span className="text-ink-faint text-[11px] tracking-[0.08em] uppercase">Obstacles</span>
+      {STYLE_IDS.map((id) => (
+        <button
+          key={id}
+          type="button"
+          aria-pressed={style === id}
+          onClick={() => pickStyle(id)}
+          className={`focus-visible:ring-ink rounded-full border px-3 py-1 text-xs focus-visible:ring-2 focus-visible:outline-none ${
+            style === id ? "border-[var(--job)] text-ink" : "border-hairline text-ink-muted hover:text-ink"
+          }`}
+        >
+          {STYLE_LABELS[id]}
+        </button>
+      ))}
+    </div>
+  );
 
   return (
     <section id="game" aria-labelledby="game-title" className="py-16">
@@ -114,124 +266,131 @@ export default function Game() {
         Now you try.
       </h2>
       <p className="text-ink-muted mt-2 max-w-2xl">
-        60 seconds. Do the work, then collect the invoices before they go overdue. Spend what you collect on upgrades.
-        The timer starts on your first click.
+        Fly your week. New jobs pop up as you go, and gates ask about them: answer by flying through the right
+        opening. Tap, click or press space to climb.
       </p>
 
-      <div className="border-hairline mt-6 rounded-2xl border p-4 sm:p-5">
-        <dl className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-          {[
-            ["Time left", `${seconds}s`],
-            ["Collected", money(s.collected)],
-            ["Cash to spend", money(s.cash)],
-            ["Lost to late payers", money(s.lost)],
-          ].map(([k, v]) => (
-            <div key={k} className="border-hairline rounded-lg border px-3 py-2">
-              <dt className="text-ink-muted text-[11px]">{k}</dt>
-              <dd className="numeric text-lg font-semibold">{v}</dd>
-            </div>
-          ))}
-        </dl>
+      <div className="border-hairline mx-auto mt-6 max-w-[752px] rounded-2xl border p-3 sm:p-4">
+        <div
+          aria-live="polite"
+          className="mb-3 flex min-h-[64px] flex-col justify-center rounded-xl border px-3 py-2 text-center text-[14.5px] leading-snug"
+          style={{ borderColor: msg ? MESSAGE_STYLE[msg.kind].border : "var(--color-hairline, #262626)" }}
+        >
+          {msg ? (
+            <>
+              <span className={`text-[10.5px] tracking-[0.12em] uppercase ${MESSAGE_STYLE[msg.kind].label}`}>{msg.label}</span>
+              <span>{msg.text}</span>
+            </>
+          ) : (
+            <span className="text-ink-faint text-sm">
+              {screen === "playing" ? " " : "New jobs, changes and questions show up here."}
+            </span>
+          )}
+        </div>
 
-        {s.over ? (
-          <div className="mt-6 flex flex-col gap-4" aria-live="polite">
-            <p className="text-xl font-semibold">
-              You collected {money(s.collected)}. FreeFlow does the chasing for you.
-            </p>
-            <p className="text-ink-muted text-sm">Your best: {money(best)}</p>
-            <div className="flex flex-wrap items-start gap-3">
-              <Link
-                href="/signup"
-                onClick={() => track("try_free_click", trackJob)}
-                className="focus-visible:ring-ink rounded-lg bg-[var(--job)] px-4 py-2.5 text-[15px] font-bold text-black focus-visible:ring-2 focus-visible:outline-none"
-              >
-                {COPY.tryFree}
-              </Link>
-              <button
-                type="button"
-                onClick={() => {
-                  countedRound.current = false;
-                  setS(newGame());
-                }}
-                className="border-hairline focus-visible:ring-ink rounded-lg border px-4 py-2.5 text-sm focus-visible:ring-2 focus-visible:outline-none"
-              >
-                Play again
-              </button>
-            </div>
-            <LaunchListForm source="game_end" />
-          </div>
-        ) : (
-          <div className="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1fr]">
-            <div>
-              <button
-                type="button"
-                onClick={() => setS((prev) => work(prev, Math.random))}
-                className="border-hairline focus-visible:ring-ink relative w-full overflow-hidden rounded-xl border bg-[#111] px-4 py-5 text-left focus-visible:ring-2 focus-visible:outline-none active:scale-[0.99]"
-              >
-                <span
-                  aria-hidden
-                  className="absolute inset-y-0 left-0 bg-[var(--job)] opacity-20 motion-safe:transition-[width]"
-                  style={{ width: `${s.progress}%` }}
-                />
-                <span className="relative block text-sm font-semibold">Do the work: {project}</span>
-                <span className="text-ink-muted relative block text-xs">
-                  {s.progress}% done · each finished project becomes an invoice
+        <div ref={frameRef} className="relative mx-auto w-full max-w-[720px]">
+          <canvas
+            ref={canvasRef}
+            tabIndex={0}
+            aria-label="Answer gates game. Press space or tap to climb."
+            onPointerDown={(e) => {
+              e.preventDefault();
+              press();
+            }}
+            onKeyDown={(e) => {
+              if (e.code === "Space" || e.key === " " || e.key === "ArrowUp") {
+                e.preventDefault();
+                if (!e.repeat) press();
+              }
+            }}
+            className="focus-visible:ring-ink mx-auto block touch-none rounded-xl bg-[#050505] focus-visible:ring-2 focus-visible:outline-none"
+          />
+
+          {screen === "playing" && (
+            <div className="numeric pointer-events-none absolute inset-x-3 top-2 flex justify-between text-sm font-semibold [text-shadow:0_1px_6px_#000]">
+              <span>
+                Week {Math.floor(hud.days / 5) + 1} · {DAYS[hud.days % 5]}
+              </span>
+              <span aria-label={`${hud.hearts} hearts left`}>
+                <span aria-hidden>{"♥".repeat(hud.hearts)}</span>
+                <span aria-hidden className="text-[var(--color-status-overdue)]">
+                  {"♡".repeat(TUNING.hearts - hud.hearts)}
                 </span>
-              </button>
-
-              <p className="text-ink-faint mt-4 mb-2 text-[11px] tracking-[0.08em] uppercase">Invoices · tap to collect</p>
-              <ul className="flex min-h-12 flex-wrap gap-2" aria-live="polite">
-                {s.invoices.length === 0 && <li className="text-ink-faint text-sm">None yet.</li>}
-                {s.invoices.map((inv) => {
-                  const stage = invoiceStage(inv);
-                  return (
-                    <li key={inv.id}>
-                      <button
-                        type="button"
-                        onClick={() => setS((prev) => collect(prev, inv.id))}
-                        aria-label={`Collect ${stage} invoice for ${money(inv.value)}`}
-                        className={`focus-visible:ring-ink numeric rounded-lg border bg-black px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none ${STAGE_STYLE[stage]} ${stage === "overdue" ? "motion-safe:animate-pulse" : ""}`}
-                      >
-                        {money(inv.value)}
-                        {stage === "overdue" && <span className="ml-1 text-[10px]">overdue</span>}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
+              </span>
+              <span>
+                <span className="text-[var(--job)]">✓ {hud.right}</span> · ${hud.collected.toLocaleString("en-US")}
+              </span>
             </div>
+          )}
 
-            <ul className="flex flex-col gap-2">
-              {UPGRADES.map((u) => {
-                const owned = s.owned[u.id];
-                const cost = BALANCE.costs[u.id];
-                return (
-                  <li key={u.id} className={`border-hairline rounded-xl border p-3 ${owned ? "border-[var(--color-status-sent)]/50" : ""}`}>
-                    <button
-                      type="button"
-                      onClick={() => setS((prev) => buy(prev, u.id))}
-                      disabled={owned || s.cash < cost}
-                      className="focus-visible:ring-ink flex w-full items-start justify-between gap-3 rounded text-left disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:outline-none"
-                    >
-                      <span>
-                        <span className="block text-sm font-semibold">{u.name}</span>
-                        <span className="text-ink-muted block text-xs">{u.desc}</span>
-                      </span>
-                      <span className={`numeric shrink-0 text-xs ${owned ? "text-[var(--color-status-sent)]" : "text-ink-muted"}`}>
-                        {owned ? "owned" : money(cost)}
-                      </span>
-                    </button>
-                    <Link href="/product" className="text-ink-faint hover:text-ink mt-1.5 inline-block text-[10px] tracking-[0.06em] uppercase">
-                      This is real in FreeFlow · {u.real}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        )}
-        {s.started && !s.over && !visible && <p className="text-ink-muted mt-3 text-xs">Paused while you were away.</p>}
+          {screen === "start" && (
+            <div
+              className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-xl bg-black/80 p-4 text-center"
+              onPointerDown={(e) => {
+                if (!(e.target as HTMLElement).closest("button")) start();
+              }}
+            >
+              <p className="text-ink-faint text-[11px] tracking-[0.08em] uppercase">Fly and remember</p>
+              <p className="text-2xl font-semibold tracking-tight sm:text-3xl">Answer gates.</p>
+              <p className="text-ink-muted max-w-sm text-sm">
+                Jobs pop up while you fly. Remember them: the gates ask. Three hearts.
+              </p>
+              <button
+                type="button"
+                onClick={start}
+                className="focus-visible:ring-ink rounded-lg bg-[var(--job)] px-5 py-2.5 text-[15px] font-bold text-black focus-visible:ring-2 focus-visible:outline-none"
+              >
+                Start
+              </button>
+              {styleSwitch}
+              {best > 0 && <p className="text-ink-faint text-xs">Your best score: {best}</p>}
+            </div>
+          )}
+
+          {screen === "end" && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2.5 overflow-y-auto rounded-xl bg-black/85 p-4 text-center">
+              <p className="text-ink-faint text-[11px] tracking-[0.08em] uppercase">
+                Score {hud.score} · best {best}
+              </p>
+              <p className="text-2xl font-semibold tracking-tight sm:text-3xl">
+                {hud.asked === 0 ? "Buried before the first question" : `${hud.right} of ${hud.asked} from memory`}
+              </p>
+              <p className="text-ink-muted text-sm">
+                Flew to {whereText(hud.days)} · ${hud.collected.toLocaleString("en-US")} collected
+              </p>
+              <p className="text-ink-muted max-w-md text-sm">{CLOSING}</p>
+              <div className="mt-1 flex flex-wrap justify-center gap-3">
+                <Link
+                  href="/signup"
+                  onClick={() => track("try_free_click", trackJob)}
+                  className="focus-visible:ring-ink rounded-lg bg-[var(--job)] px-4 py-2.5 text-[15px] font-bold text-black focus-visible:ring-2 focus-visible:outline-none"
+                >
+                  {COPY.tryFree}
+                </Link>
+                <button
+                  type="button"
+                  onClick={start}
+                  className="border-hairline focus-visible:ring-ink rounded-lg border px-4 py-2.5 text-sm focus-visible:ring-2 focus-visible:outline-none"
+                >
+                  Play again
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <p aria-live="polite" className={`mt-2 min-h-5 text-center text-sm font-semibold ${hud.feedback?.kind === "wrong" || hud.feedback?.kind === "hit" ? "text-[var(--color-status-overdue)]" : "text-ink-muted"}`}>
+          {screen === "playing" ? hud.feedback?.text : ""}
+        </p>
+
+        {screen === "end" && <div className="mt-2">{styleSwitch}</div>}
       </div>
+
+      {screen === "end" && (
+        <div className="mx-auto mt-6 max-w-[752px]">
+          <LaunchListForm source="game_end" />
+        </div>
+      )}
     </section>
   );
 }

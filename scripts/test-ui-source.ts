@@ -231,11 +231,19 @@ assert("walkthrough samples are labelled Sample", walk.includes(">Sample<"));
 
 // ── Week 6 /demo chapters 5-6 and footer ────────────────────────────────────
 const game = readOr("components/funnel/Game.tsx");
+const gamePrefs = readOr("lib/game/prefs.ts");
 assert("the game pauses when the tab is hidden", game.includes("visibilitychange"));
-assert("the game's personal best survives blocked storage", storageGuarded(game, "localStorage"));
-assert("invoices and upgrades are real buttons", game.includes("<button") && /invoices\.map[\s\S]{0,400}<button/.test(game) && /UPGRADES\.map[\s\S]{0,600}<button/.test(game));
-assert("a finished round is tracked", game.includes('track("round_played"'));
+assert("best score and style survive blocked storage", storageGuarded(gamePrefs, "localStorage") && !game.includes("localStorage"));
+assert("a finished run is tracked once", game.includes('track("round_played"') && game.includes("countedRound"));
 assert("the game sends no score to the server", !/fetch\(/.test(game));
+assert("the game draws on a labelled canvas", /<canvas[\s\S]{0,300}aria-label=/.test(game));
+assert("new jobs and questions are announced to screen readers", /aria-live="polite"/.test(game));
+assert("keys act on the focused canvas only, and Space doesn't scroll", /onKeyDown=\{/.test(game) && game.includes("preventDefault") && !/document\.addEventListener\("keydown"/.test(game));
+assert("reduced motion stops the ramp and decoration", game.includes("prefers-reduced-motion") && /ramp:\s*!/.test(game));
+assert("the style switch offers all four styles", game.includes("STYLE_IDS.map("));
+assert("the closing line doesn't claim FreeFlow learns changes itself", game.includes("FreeFlow keeps every deadline and amount in one place, so you don't have to."));
+assert("Start free is tracked", game.includes('track("try_free_click"'));
+assert("the launch list stays at the end of the game", game.includes('<LaunchListForm source="game_end"'));
 const launchForm = readOr("components/funnel/LaunchListForm.tsx");
 assert("the launch list needs a consent checkbox", /type="checkbox"[\s\S]{0,200}required/.test(launchForm));
 assert("the consent label is exact", launchForm.includes("Email me when the lifetime version launches. Nothing else."));
@@ -301,8 +309,6 @@ assert("launch-list emails are checked in the database", /email ~ /.test(venture
 
 // Re-graded from the final review's minors by their effect on visitors.
 // M1, M11 (old chapter 1) retired with ChapterNight in the front-page redesign.
-const gameLatest = read("components/funnel/Game.tsx");
-assert("a round is counted once, even if the job changes after it (M2)", gameLatest.includes("countedRound"));
 
 // /demo front page: final review fixes.
 assert("the colour wave isn't hidden behind the page (I1)", !/ref=\{rootRef\}\s*className=\{`[^`]*bg-\[/.test(funnel) && /className="[^"]*bg-\[#0a0a0a\][^"]*"/.test(readOr("components/funnel/JobContext.tsx")));
