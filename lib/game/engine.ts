@@ -93,7 +93,9 @@ export const FEEDBACK_MS = 1800;
 /*
   What each spawned column brings. Two new jobs before the first gate, then a
   repeating mix of new jobs, a deadline change and gates, never a new job
-  right before a gate (it would be replaced by the question too soon).
+  right before a gate. A gate that comes due while a job or change message is
+  still showing waits until the message has had its full time (see `step`),
+  so a question never cuts one short.
 */
 export const GATE_PATTERN = [
   "normal", "intro", "normal", "intro", "normal", "gate",
@@ -307,13 +309,24 @@ function showChange(d: Draft) {
 }
 
 /** Shows the next waiting event once the strip is free (never over a question). */
+/** The next column is a gate and its time has come. */
+function gateDue(d: Draft): boolean {
+  return d.spawnInMs <= 0 && stepKind(d.index) === "gate" && d.jobs.length > 0;
+}
+
+/** A job or change message still has time left on the strip. */
+function messageShowing(d: Draft): boolean {
+  return d.message !== null && d.message.kind !== "question" && d.messageUntilMs !== null && d.tMs < d.messageUntilMs;
+}
+
 function updateMessages(d: Draft) {
   if (d.feedback && d.tMs >= d.feedback.untilMs) d.feedback = null;
   if (d.message && d.messageUntilMs !== null && d.tMs >= d.messageUntilMs) {
     d.message = null;
     d.messageUntilMs = null;
   }
-  if (d.message || !d.pending.length) return;
+  // A gate that is due goes first; waiting events show after its question.
+  if (d.message || !d.pending.length || gateDue(d)) return;
   const next = d.pending.shift()!;
   if (next === "intro") showJob(d);
   else showChange(d);
@@ -364,6 +377,9 @@ function passGate(d: Draft, c: Column) {
     d.invulnMs = 0;
     hit(d);
     say(d, "wrong", `Wrong. It was ${q.correct}`);
+  } else {
+    // Through a wall (the hit, if any, was already counted): still tell them.
+    say(d, "wrong", `Missed. It was ${q.correct}`);
   }
   if (d.message?.kind === "question" && d.message.text === q.text) {
     d.message = null;
@@ -431,7 +447,8 @@ export function step(s: GameState, dtMs: number): GameState {
   }
 
   d.spawnInMs -= dt;
-  if (d.spawnInMs <= 0) spawn(d);
+  // A due gate waits for the message on the strip to finish.
+  if (d.spawnInMs <= 0 && !(gateDue(d) && messageShowing(d))) spawn(d);
 
   const dx = d.speed * sec;
   for (const c of d.cols) c.x -= dx;

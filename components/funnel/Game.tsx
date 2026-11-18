@@ -60,6 +60,8 @@ type Hud = {
   score: number;
   message: Message | null;
   feedback: { kind: string; text: string } | null;
+  /** The labels of the asked gate's openings, top to bottom. */
+  options: string[] | null;
 };
 
 const hudOf = (s: GameState): Hud => ({
@@ -72,6 +74,10 @@ const hudOf = (s: GameState): Hud => ({
   score: score(s),
   message: s.message,
   feedback: s.feedback ? { kind: s.feedback.kind, text: s.feedback.text } : null,
+  options:
+    s.message?.kind === "question"
+      ? (s.cols.find((c) => c.question?.text === s.message?.text)?.gaps.map((g) => g.label ?? "") ?? null)
+      : null,
 });
 
 const MESSAGE_STYLE: Record<Message["kind"], { border: string; label: string }> = {
@@ -84,6 +90,7 @@ export default function Game() {
   const { job, trackJob, choice } = useJob();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const roomRef = useRef<HTMLDivElement>(null);
+  const playAgainRef = useRef<HTMLButtonElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const game = useRef<GameState | null>(null);
   const size = useRef<{ css: number; dpr: number }>({ css: WORLD.w, dpr: 1 });
@@ -219,6 +226,11 @@ export default function Game() {
     setBest(Math.max(previous, total));
   }, [hud.phase, hud.score, trackJob]);
 
+  // Keyboard players land on Play again, so Space plays again.
+  useEffect(() => {
+    if (screen === "end") playAgainRef.current?.focus({ preventScroll: true });
+  }, [screen]);
+
   // …then show the end screen after a beat.
   useEffect(() => {
     if (hud.phase !== "over") return;
@@ -248,7 +260,7 @@ export default function Game() {
     draw();
   }
 
-  const msg = hud.message;
+  const msg = screen === "playing" ? hud.message : null;
 
   const styleSwitch = (
     <div className="flex flex-wrap items-center justify-center gap-2" role="group" aria-label="Obstacle style">
@@ -290,6 +302,9 @@ export default function Game() {
             <>
               <span className={`text-[10.5px] tracking-[0.12em] uppercase ${MESSAGE_STYLE[msg.kind].label}`}>{msg.label}</span>
               <span>{msg.text}</span>
+              {msg.kind === "question" && hud.options && (
+                <span className="sr-only">Openings, top to bottom: {hud.options.join(", ")}.</span>
+              )}
             </>
           ) : (
             <span className="text-ink-faint text-sm">
@@ -303,6 +318,7 @@ export default function Game() {
           <canvas
             ref={canvasRef}
             tabIndex={0}
+            role="application"
             aria-label="Answer gates game. Press space or tap to climb."
             onPointerDown={(e) => {
               if (screen !== "playing") return;
@@ -323,7 +339,7 @@ export default function Game() {
               <span>
                 Week {Math.floor(hud.days / 5) + 1} · {DAYS[hud.days % 5]}
               </span>
-              <span aria-label={`${hud.hearts} hearts left`}>
+              <span role="img" aria-label={`${hud.hearts} hearts left`}>
                 <span aria-hidden>{"♥".repeat(hud.hearts)}</span>
                 <span aria-hidden className="text-ink-faint">
                   {"♡".repeat(TUNING.hearts - hud.hearts)}
@@ -381,6 +397,7 @@ export default function Game() {
                   {COPY.tryFree}
                 </Link>
                 <button
+                  ref={playAgainRef}
                   type="button"
                   onClick={start}
                   className="border-hairline focus-visible:ring-ink rounded-lg border px-4 py-2.5 text-sm focus-visible:ring-2 focus-visible:outline-none"

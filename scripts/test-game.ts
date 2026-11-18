@@ -269,6 +269,49 @@ const early: GameState = { ...g1, index: 5, spawnInMs: 0, jobs: [], pending: [] 
 const afterEarly = step(early, 1);
 assert("a gate with no jobs in play becomes a normal column", afterEarly.cols.at(-1)?.kind === "normal");
 
+// ── Smaller fixes ───────────────────────────────────────────────────────────
+// A gate passed inside a wall while blinking still tells you the answer.
+{
+  const q: Question = { text: "When is the logo for Bloom due?", correct: "Wed", options: ["Mon", "Wed", "Fri"], jobId: 1, kind: "due" };
+  const wall = (WORLD.h - 3 * TUNING.gateGap) / 4;
+  const gate: Column = {
+    id: 500,
+    x: TUNING.playerX - 12 - TUNING.colW - 1,
+    kind: "gate",
+    gaps: q.options.map((label, i) => ({ top: wall * (i + 1) + TUNING.gateGap * i, h: TUNING.gateGap, label })),
+    overdue: false,
+    passed: false,
+    question: q,
+  };
+  const blinkingInWall: GameState = { ...g1, y: wall / 2, vy: 0, invulnMs: 1000, cols: [gate], message: { kind: "question", label: "? Fly through the answer", text: q.text }, messageUntilMs: null };
+  const missed = step(blinkingInWall, 1);
+  assert(
+    "a gate passed through a wall still shows the answer",
+    missed.asked === 1 && missed.right === 0 && missed.hearts === TUNING.hearts && missed.feedback?.text === "Missed. It was Wed",
+    missed.feedback?.text,
+  );
+}
+
+// A new job or change is shown in full before a question replaces it.
+function fullMessages(seed: number) {
+  let prev = flap(newGame({ seed, projects: P }));
+  let cut = 0;
+  let gates = 0;
+  for (let t = 0; t < 120_000 && prev.phase === "playing"; t += FRAME) {
+    const s = pilot(prev);
+    if (s.message?.kind === "question" && prev.message && prev.message.kind !== "question") {
+      gates++;
+      if (prev.messageUntilMs !== null && s.tMs < prev.messageUntilMs) cut++;
+    }
+    prev = s;
+  }
+  return { cut, gates, s: prev };
+}
+const full1 = fullMessages(1);
+const full7 = fullMessages(7);
+assert("a question never cuts a job or change message short", full1.cut === 0 && full7.cut === 0, `cut ${full1.cut}/${full1.gates}, ${full7.cut}/${full7.gates}`);
+assert("waiting for a message never stalls the run", full1.s.asked >= 10 && full7.s.asked >= 10, `asked ${full1.s.asked}, ${full7.s.asked}`);
+
 // ── Prefs and styles ────────────────────────────────────────────────────────
 assert(
   "every style has a drawer and a label",

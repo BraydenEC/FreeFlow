@@ -76,6 +76,7 @@ Replaces the 60-second clicker in chapter 5 (spec `docs/superpowers/specs/2026-1
 |---|---|
 | `rm -rf .next && npm test` / lint / build / `tsc --noEmit` | 21 suites, 1830 passed, 0 failed / 0 / 0 / 0 |
 | After the final review's fixes | 21 suites, 1833 passed, 0 failed / lint 0 / `tsc` 0 |
+| After the five smaller fixes (missed-gate answer, messages shown in full, strip clears at the end, focus on Play again, screen-reader labels and openings) | `rm -rf .next && npm test` 21 suites, 1840 passed, 0 failed / lint 0 / build 0 / `tsc` 0 |
 | Start | Space on the focused game, or the Start button, starts a run; the page doesn't scroll |
 | Run to the end | end screen: score and best, "from memory" line, where the week ended, closing line, Try FreeFlow free, Play again, style switch, launch list below |
 | round_played | one `/api/funnel` POST when a run ended (503 locally: no database, fire-and-forget as designed) |
