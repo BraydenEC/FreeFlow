@@ -1,145 +1,254 @@
 /*
-  The /demo chapter 5 game: a 60-second freelance clicker.
+  The /demo chapter 5 game: Answer gates.
 
-  Click to do the work; every finished project becomes an invoice. Collect
-  invoices before they go overdue, because overdue invoices lose value. Spend
-  what you collect on upgrades, each one a real FreeFlow feature. Score is
-  everything collected; cash is what's left to spend.
+  You fly a little freelancer through your work week. Columns of stacks scroll
+  in with one opening each, and every column passed is one working day. A tap
+  is an upward kick; gravity does the rest. Hitting a stack or the floor costs
+  a heart, then a short blink of invulnerability. Zero hearts ends the run.
+  Score is days flown plus 3 per right answer.
 
-  Pure by design: every function returns a new state and never mutates its
-  input, so the React component only renders and the rules are testable in
-  plain node (scripts/test-game.ts). Once the round is over, every function
-  returns the same state object unchanged.
+  Pure and seeded by design: every function returns a new state and never
+  mutates its input, randomness comes only from the mulberry32 state carried
+  in `rng`, and the world is a fixed 480 × 480 so a phone and a desktop play
+  the same game. The component only draws, reads input and drives the clock
+  (components/funnel/Game.tsx); the rules are testable in plain node
+  (scripts/test-game.ts). Once the run is over, every function returns the
+  same state object unchanged.
 */
 
-export type UpgradeId = "brief" | "alert" | "contract" | "terms";
+export const WORLD = { w: 480, h: 480 } as const;
 
-export type Invoice = { id: number; full: number; value: number; ageMs: number };
+export const TUNING = {
+  gravity: 1450,
+  flapVy: -410,
+  speedStart: 150,
+  speedMax: 205,
+  /** px/s added per second of play, up to speedMax. */
+  speedRamp: 1.4,
+  colW: 62,
+  gapStart: 168,
+  gapMin: 132,
+  /** px the normal gap shrinks per column spawned. */
+  gapShrink: 1.2,
+  gateGap: 108,
+  spacing: 285,
+  gateSpacing: 360,
+  spacingPadS: 0.2,
+  hitSlack: 6,
+  playerX: 125,
+  hearts: 3,
+  invulnMs: 1200,
+  /** Longest gap one step may cover, so a hidden tab can't skip ahead. */
+  maxTickMs: 50,
+  /** A gap's edges stay at least this far from the top and bottom. */
+  margin: 70,
+  coinChance: 0.55,
+  coinValues: [100, 150, 200, 250, 300, 350],
+  /** Share of normal columns drawn as overdue stacks. Cosmetic only. */
+  overdueChance: 0.3,
+  firstSpawnMs: 400,
+} as const;
+
+export const STYLE_IDS = ["invoices", "calendar", "spikes", "inbox"] as const;
+export type StyleId = (typeof STYLE_IDS)[number];
+
+export type Gap = { top: number; h: number; label?: string };
+
+export type Column = {
+  id: number;
+  x: number;
+  kind: "normal" | "gate";
+  gaps: Gap[];
+  overdue: boolean;
+  passed: boolean;
+};
+
+export type Coin = { id: number; x: number; y: number; value: number; taken: boolean };
 
 export type GameState = {
-  started: boolean;
-  over: boolean;
-  remainingMs: number;
-  progress: number;
-  projectIndex: number;
-  invoices: Invoice[];
-  collected: number;
-  cash: number;
-  lost: number;
-  owned: Record<UpgradeId, boolean>;
+  phase: "ready" | "playing" | "over";
+  tMs: number;
+  y: number;
+  vy: number;
+  speed: number;
+  cols: Column[];
+  coins: Coin[];
+  spawnInMs: number;
+  /** Columns spawned so far. */
+  index: number;
   nextId: number;
+  days: number;
+  hearts: number;
+  invulnMs: number;
+  right: number;
+  asked: number;
+  collected: number;
+  /** mulberry32 state. */
+  rng: number;
+  ramp: boolean;
+  projects: readonly string[];
 };
 
-export const BALANCE = {
-  roundMs: 60_000,
-  /** Percent of a project each click completes; 100 finishes it. */
-  workPerClick: 10,
-  briefMultiplier: 2,
-  invoiceMin: 250,
-  invoiceMax: 700,
-  yellowAtMs: 4_000,
-  overdueAtMs: 7_000,
-  /** Share of an invoice's full value lost per second once overdue. */
-  decayPerSec: 0.08,
-  alertDecayPerSec: 0.04,
-  /** An overdue invoice never falls below this share of its full value. */
-  floor: 0.15,
-  contractFloor: 0.7,
-  termsCollectAtMs: 5_000,
-  /** Longest gap one tick may cover, so a hidden tab can't end the round. */
-  maxTickMs: 250,
-  costs: { brief: 500, alert: 800, contract: 1100, terms: 1600 } as Record<UpgradeId, number>,
-};
-
-export function newGame(): GameState {
+export function newGame(opts: { seed: number; projects: readonly string[]; ramp?: boolean }): GameState {
   return {
-    started: false,
-    over: false,
-    remainingMs: BALANCE.roundMs,
-    progress: 0,
-    projectIndex: 0,
-    invoices: [],
-    collected: 0,
-    cash: 0,
-    lost: 0,
-    owned: { brief: false, alert: false, contract: false, terms: false },
+    phase: "ready",
+    tMs: 0,
+    y: WORLD.h / 2,
+    vy: 0,
+    speed: TUNING.speedStart,
+    cols: [],
+    coins: [],
+    spawnInMs: TUNING.firstSpawnMs,
+    index: 0,
     nextId: 1,
+    days: 0,
+    hearts: TUNING.hearts,
+    invulnMs: 0,
+    right: 0,
+    asked: 0,
+    collected: 0,
+    rng: opts.seed | 0,
+    ramp: opts.ramp ?? true,
+    projects: opts.projects,
   };
 }
 
-export function work(s: GameState, rng: () => number): GameState {
-  if (s.over) return s;
-  const step = BALANCE.workPerClick * (s.owned.brief ? BALANCE.briefMultiplier : 1);
-  const progress = s.progress + step;
-  if (progress < 100) return { ...s, started: true, progress };
-  const full = Math.round(BALANCE.invoiceMin + rng() * (BALANCE.invoiceMax - BALANCE.invoiceMin));
-  return {
+/** One mulberry32 draw: [value in 0..1, next state]. */
+export function nextRand(state: number): [number, number] {
+  const next = (state + 0x6d2b79f5) | 0;
+  let t = Math.imul(next ^ (next >>> 15), 1 | next);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return [((t ^ (t >>> 14)) >>> 0) / 4294967296, next];
+}
+
+export function flap(s: GameState): GameState {
+  if (s.phase === "over") return s;
+  return { ...s, phase: "playing", vy: TUNING.flapVy };
+}
+
+export function score(s: GameState): number {
+  return s.days + 3 * s.right;
+}
+
+const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+
+/** Where a run of `days` ended: "Monday morning", "Wednesday of week 2". */
+export function whereText(days: number): string {
+  if (days <= 0) return "Monday morning";
+  return `${DAY_NAMES[days % 5]} of week ${Math.floor(days / 5) + 1}`;
+}
+
+/** A working copy that one step may change freely before it is returned. */
+type Draft = GameState & { random: () => number };
+
+function draft(s: GameState): Draft {
+  const d = {
     ...s,
-    started: true,
-    progress: 0,
-    projectIndex: s.projectIndex + 1,
-    invoices: [...s.invoices, { id: s.nextId, full, value: full, ageMs: 0 }],
-    nextId: s.nextId + 1,
+    cols: s.cols.map((c) => ({ ...c, gaps: c.gaps.map((g) => ({ ...g })) })),
+    coins: s.coins.map((c) => ({ ...c })),
+  } as Draft;
+  d.random = () => {
+    const [v, n] = nextRand(d.rng);
+    d.rng = n;
+    return v;
   };
+  return d;
 }
 
-export function collect(s: GameState, id: number): GameState {
-  if (s.over) return s;
-  const inv = s.invoices.find((i) => i.id === id);
-  if (!inv) return s;
-  const amount = Math.round(inv.value);
-  return {
-    ...s,
-    started: true,
-    invoices: s.invoices.filter((i) => i.id !== id),
-    collected: s.collected + amount,
-    cash: s.cash + amount,
-  };
+function finish(d: Draft): GameState {
+  const { random: _random, ...s } = d;
+  return s;
 }
 
-export function buy(s: GameState, u: UpgradeId): GameState {
-  if (s.over || s.owned[u] || s.cash < BALANCE.costs[u]) return s;
-  return {
-    ...s,
-    started: true,
-    cash: s.cash - BALANCE.costs[u],
-    owned: { ...s.owned, [u]: true },
-  };
+function hit(d: Draft) {
+  if (d.invulnMs > 0) return;
+  d.hearts -= 1;
+  d.invulnMs = TUNING.invulnMs;
+  if (d.hearts <= 0) {
+    d.hearts = 0;
+    d.phase = "over";
+  }
 }
 
-export function tick(s: GameState, dtMs: number): GameState {
-  if (!s.started || s.over) return s;
-  const dt = Math.min(Math.max(dtMs, 0), BALANCE.maxTickMs);
-  const rate = s.owned.alert ? BALANCE.alertDecayPerSec : BALANCE.decayPerSec;
-  const floorShare = s.owned.contract ? BALANCE.contractFloor : BALANCE.floor;
+function spawnNormal(d: Draft) {
+  const gap = Math.max(TUNING.gapMin, TUNING.gapStart - d.index * TUNING.gapShrink);
+  const centre = TUNING.margin + gap / 2 + d.random() * (WORLD.h - 2 * TUNING.margin - gap);
+  const x = WORLD.w + 10;
+  d.cols.push({
+    id: d.nextId++,
+    x,
+    kind: "normal",
+    gaps: [{ top: centre - gap / 2, h: gap }],
+    overdue: d.random() < TUNING.overdueChance,
+    passed: false,
+  });
+  if (d.random() < TUNING.coinChance) {
+    const values = TUNING.coinValues;
+    d.coins.push({
+      id: d.nextId++,
+      x: x + TUNING.colW / 2,
+      y: centre + (d.random() - 0.5) * gap * 0.4,
+      value: values[Math.floor(d.random() * values.length)],
+      taken: false,
+    });
+  }
+}
 
-  let collected = s.collected;
-  let cash = s.cash;
-  let lost = s.lost;
-  const invoices: Invoice[] = [];
+function spawn(d: Draft) {
+  spawnNormal(d);
+  d.index += 1;
+  d.spawnInMs = (TUNING.spacing / d.speed + TUNING.spacingPadS) * 1000;
+}
 
-  for (const inv of s.invoices) {
-    const ageAfter = inv.ageMs + dt;
-    if (s.owned.terms && ageAfter >= BALANCE.termsCollectAtMs) {
-      const amount = Math.round(inv.value);
-      collected += amount;
-      cash += amount;
-      continue;
-    }
-    // Only the part of this tick spent past the overdue mark decays.
-    const overdueMs = Math.max(0, ageAfter - Math.max(inv.ageMs, BALANCE.overdueAtMs));
-    const floor = inv.full * floorShare;
-    const value = Math.max(floor, inv.value - inv.full * rate * (overdueMs / 1000));
-    lost += Math.max(0, inv.value - value);
-    invoices.push({ ...inv, ageMs: ageAfter, value });
+export function step(s: GameState, dtMs: number): GameState {
+  if (s.phase !== "playing") return s;
+  const dt = Math.min(Math.max(dtMs, 0), TUNING.maxTickMs);
+  if (dt === 0) return s;
+  const d = draft(s);
+  const sec = dt / 1000;
+
+  d.tMs += dt;
+  d.invulnMs = Math.max(0, d.invulnMs - dt);
+  d.speed = d.ramp ? Math.min(TUNING.speedMax, TUNING.speedStart + (TUNING.speedRamp * d.tMs) / 1000) : TUNING.speedStart;
+
+  d.vy += TUNING.gravity * sec;
+  d.y += d.vy * sec;
+  if (d.y < 12) {
+    d.y = 12;
+    d.vy = 0;
+  }
+  if (d.y > WORLD.h - 10) {
+    hit(d);
+    d.y = WORLD.h - 10;
+    d.vy = TUNING.flapVy;
   }
 
-  const remainingMs = Math.max(0, s.remainingMs - dt);
-  return { ...s, remainingMs, over: remainingMs === 0, invoices, collected, cash, lost };
-}
+  d.spawnInMs -= dt;
+  if (d.spawnInMs <= 0) spawn(d);
 
-export function invoiceStage(inv: Invoice): "fresh" | "yellow" | "overdue" {
-  if (inv.ageMs >= BALANCE.overdueAtMs) return "overdue";
-  if (inv.ageMs >= BALANCE.yellowAtMs) return "yellow";
-  return "fresh";
+  const dx = d.speed * sec;
+  for (const c of d.cols) c.x -= dx;
+  for (const c of d.coins) c.x -= dx;
+
+  const left = TUNING.playerX - 12;
+  const right = TUNING.playerX + 12;
+  for (const c of d.cols) {
+    const inX = right > c.x && left < c.x + TUNING.colW;
+    const inGap = c.gaps.some((g) => d.y - TUNING.hitSlack > g.top && d.y + TUNING.hitSlack < g.top + g.h);
+    if (inX && !inGap) hit(d);
+    if (!c.passed && c.x + TUNING.colW < left) {
+      c.passed = true;
+      d.days += 1;
+    }
+  }
+  for (const c of d.coins) {
+    if (!c.taken && Math.hypot(c.x - TUNING.playerX, c.y - d.y) < 22) {
+      c.taken = true;
+      d.collected += c.value;
+    }
+  }
+
+  d.cols = d.cols.filter((c) => c.x > -TUNING.colW - 10);
+  d.coins = d.coins.filter((c) => c.x > -20 && !c.taken);
+  return finish(d);
 }

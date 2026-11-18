@@ -1,24 +1,26 @@
 /*
-  /demo chapter 5 game engine tests.
+  /demo chapter 5 game engine tests: Answer gates.
   Run: npm run test:game
 
-  The engine is pure: every function takes a state and returns a new one. The
-  rules pinned here are the ones a player would notice breaking: the clock
-  waits for the first click, upgrades spend cash but never score, overdue
-  invoices lose value down to a floor and no further, a hidden tab can't end
-  the round in one tick, and nothing moves once the round is over.
+  The engine is pure and seeded: every function takes a state and returns a
+  new one, and the same seed always flies the same course. The rules pinned
+  here are the ones a player would notice breaking: nothing moves before the
+  first flap, a hidden tab can't skip ahead, the floor and the stacks cost a
+  heart (but not while blinking), zero hearts ends the run, and nothing moves
+  once it's over.
 */
 
+import { JOBS } from "@/lib/funnel/jobs";
 import {
-  BALANCE,
+  TUNING,
+  WORLD,
+  flap,
   newGame,
-  work,
-  collect,
-  buy,
-  tick,
-  invoiceStage,
+  score,
+  step,
+  whereText,
+  type Column,
   type GameState,
-  type UpgradeId,
 } from "@/lib/game/engine";
 
 let passed = 0;
@@ -34,80 +36,100 @@ function assert(name: string, condition: boolean, detail = "") {
   }
 }
 
-const rng = () => 0.5; // → invoice of 250 + 0.5 × 450 = 475
+const P = JOBS.designer.gameProjects;
+const FRAME = 16;
 
-const g0 = newGame();
-assert("timer does not run before first action", tick(g0, 1000).remainingMs === BALANCE.roundMs);
-let g = work(g0, rng);
-assert("first action starts the round", g.started);
-for (let i = 0; i < 9; i++) g = work(g, rng);
-assert("ten clicks finish a project into one invoice", g.invoices.length === 1 && g.progress === 0);
-assert("finishing a project moves to the next one", g.projectIndex === 1);
-assert("functions never mutate their input", g0.started === false && g0.invoices.length === 0);
-const id = g.invoices[0].id;
-const c = collect(g, id);
-assert("collecting adds to score and cash", c.collected === 475 && c.cash === 475);
-assert("collecting removes the invoice", c.invoices.length === 0);
-assert("collecting an unknown invoice changes nothing", collect(c, 999) === c);
-assert("buying needs cash", buy(c, "terms").owned.terms === false);
-const b = buy({ ...c, cash: 600 }, "brief");
-assert("buying spends cash, not score", b.cash === 100 && b.collected === c.collected);
-assert("an owned upgrade can't be bought twice", buy({ ...b, cash: 600 }, "brief").cash === 600);
-assert("brief doubles work per click", work(b, rng).progress === 20);
-assert(
-  "stages follow age",
-  invoiceStage({ ...g.invoices[0], ageMs: 0 }) === "fresh" &&
-    invoiceStage({ ...g.invoices[0], ageMs: 4500 }) === "yellow" &&
-    invoiceStage({ ...g.invoices[0], ageMs: 7500 }) === "overdue",
-);
-assert(
-  "tick clamps a huge gap",
-  tick(g, 600_000).remainingMs === g.remainingMs - BALANCE.maxTickMs,
-);
+/** The column the player is about to meet (or is inside). */
+const nextCol = (s: GameState): Column | undefined =>
+  s.cols.find((c) => c.x + TUNING.colW > TUNING.playerX - 12);
 
-// One fresh 475 invoice in a started round; advance in 250 ms ticks.
-const one = (owned: Partial<Record<UpgradeId, boolean>> = {}): GameState => ({
-  ...g,
-  invoices: [{ id: 1, full: 475, value: 475, ageMs: 0 }],
-  owned: { ...g.owned, ...owned },
-});
-const run = (s: GameState, ticks: number): GameState => {
-  for (let i = 0; i < ticks; i++) s = tick(s, 250);
+/** Where an autopilot aims inside a column: the first opening by default. */
+type Aim = (c: Column) => number;
+const firstGap: Aim = (c) => c.gaps[0].top + c.gaps[0].h / 2;
+
+/** One frame of a simple autopilot: flap while below the target. */
+function pilot(s: GameState, aim: Aim = firstGap): GameState {
+  const c = nextCol(s);
+  const target = (c ? aim(c) : WORLD.h / 2) + 12;
+  const t = s.y > target && s.vy > -60 ? flap(s) : s;
+  return step(t, FRAME);
+}
+
+function fly(seed: number, ms: number, opts: { ramp?: boolean } = {}, aim?: Aim, watch?: (s: GameState) => void) {
+  let s = flap(newGame({ seed, projects: P, ...opts }));
+  for (let t = 0; t < ms && s.phase === "playing"; t += FRAME) {
+    s = pilot(s, aim);
+    watch?.(s);
+  }
   return s;
+}
+
+// ── Before the first flap ───────────────────────────────────────────────────
+const g0 = newGame({ seed: 1, projects: P });
+assert("nothing moves before the first flap", step(g0, 500) === g0);
+const g1 = flap(g0);
+assert("first flap starts the run and kicks upward", g1.phase === "playing" && g1.vy === TUNING.flapVy);
+assert("flap never mutates its input", g0.phase === "ready" && g0.vy === 0);
+assert("a long frame is clamped", step(g1, 60_000).tMs === TUNING.maxTickMs);
+
+// ── Ceiling and floor ───────────────────────────────────────────────────────
+{
+  let s = g1;
+  for (let i = 0; i < 40; i++) s = step(flap(s), FRAME);
+  assert("the ceiling clamps", s.y >= 0);
+}
+let fall = g1;
+for (let i = 0; i < 200 && fall.hearts === TUNING.hearts; i++) fall = step(fall, FRAME);
+assert("hitting the floor costs one heart and bounces back up", fall.hearts === TUNING.hearts - 1 && fall.vy < 0);
+assert("a hit gives invulnerability", fall.invulnMs > 0);
+for (let i = 0; i < 20_000 && fall.phase === "playing"; i++) fall = step(fall, FRAME);
+assert("zero hearts ends the run", fall.phase === "over" && fall.hearts === 0);
+assert("nothing changes once over", step(fall, FRAME) === fall && flap(fall) === fall);
+
+// ── Columns ─────────────────────────────────────────────────────────────────
+const course = (seed: number) => {
+  const s = fly(seed, 20_000);
+  return { days: s.days, cols: s.cols.map((c) => [c.kind, Math.round(c.gaps[0].top)]) };
 };
-const close = (a: number, b: number) => Math.abs(a - b) < 0.01;
+assert("same seed, same course", JSON.stringify(course(1)) === JSON.stringify(course(1)));
+assert("different seeds, different courses", JSON.stringify(course(1)) !== JSON.stringify(course(2)));
 
-assert("no decay before overdue", close(run(one(), 28).invoices[0].value, 475));
-assert(
-  "overdue decays to the floor, never below",
-  close(run(one(), 108).invoices[0].value, 475 * BALANCE.floor),
-);
-assert("lost counts what decayed", close(run(one(), 108).lost, 475 - 475 * BALANCE.floor));
-assert(
-  "contract keeps a 70% floor",
-  close(run(one({ contract: true }), 108).invoices[0].value, 475 * BALANCE.contractFloor),
-);
-assert(
-  "2 s overdue: normal decay",
-  close(run(one(), 36).invoices[0].value, 475 - 475 * BALANCE.decayPerSec * 2),
-);
-assert(
-  "2 s overdue: alert halves decay",
-  close(run(one({ alert: true }), 36).invoices[0].value, 475 - 475 * BALANCE.alertDecayPerSec * 2),
-);
-const auto = run(one({ terms: true }), 20);
-assert(
-  "terms auto-collects at 5 s, before overdue",
-  auto.invoices.length === 0 && auto.collected === g.collected + 475,
-);
-assert("terms does not collect early", run(one({ terms: true }), 19).invoices.length === 1);
+const seen: Column[] = [];
+const auto = fly(1, 20_000, {}, undefined, (s) => s.cols.forEach((c) => !seen.some((x) => x.id === c.id) && seen.push(c)));
+assert("an autopilot passes columns and counts days", auto.days >= 5, `days ${auto.days}`);
+assert("the autopilot keeps its hearts", auto.hearts === TUNING.hearts, `hearts ${auto.hearts}`);
 
-const end = run(g, 240);
-assert("round ends at zero", end.over && end.remainingMs === 0);
+const long: Column[] = [];
+fly(3, 90_000, {}, undefined, (s) => s.cols.forEach((c) => !long.some((x) => x.id === c.id) && long.push(c)));
+const normals = long.filter((c) => c.kind === "normal");
+assert("the first gap starts at gapStart", Math.round(normals[0].gaps[0].h) === TUNING.gapStart);
+assert("normal gaps shrink but never below gapMin", normals.every((c) => c.gaps[0].h >= TUNING.gapMin - 1e-9) && normals.some((c) => c.gaps[0].h === TUNING.gapMin), `cols ${normals.length}`);
 assert(
-  "input after the end changes nothing",
-  work(end, rng) === end && collect(end, 1) === end && buy(end, "brief") === end && tick(end, 250) === end,
+  "every gap stays at least margin from the edges",
+  normals.every((c) => c.gaps[0].top >= TUNING.margin - 1e-9 && c.gaps[0].top + c.gaps[0].h <= WORLD.h - TUNING.margin + 1e-9),
 );
+assert("some stacks are overdue and most aren't", normals.some((c) => c.overdue) && normals.filter((c) => c.overdue).length < normals.length / 2);
+
+// ── Hits and invulnerability (built states) ─────────────────────────────────
+const wall: Column = { id: 999, x: TUNING.playerX - 20, kind: "normal", gaps: [{ top: 0, h: 10 }], overdue: false, passed: false };
+const atWall: GameState = { ...g1, y: WORLD.h / 2, vy: 0, cols: [wall] };
+assert("a stack costs one heart", step(atWall, 1).hearts === TUNING.hearts - 1);
+assert("a stack hit while blinking costs nothing", step({ ...atWall, invulnMs: 1000 }, 1).hearts === TUNING.hearts);
+
+// ── Coins ───────────────────────────────────────────────────────────────────
+const withCoin: GameState = { ...g1, coins: [{ id: 77, x: TUNING.playerX, y: g1.y, value: 200, taken: false }] };
+const took = step(withCoin, 1);
+assert("touching a coin adds it to collected", took.collected === 200 && !took.coins.some((c) => c.id === 77));
+assert("taking a coin never mutates the old state", withCoin.collected === 0 && withCoin.coins.length === 1);
+
+// ── Speed ───────────────────────────────────────────────────────────────────
+assert("speed ramps to the cap", step({ ...g1, tMs: 100_000 }, 1).speed === TUNING.speedMax);
+const calm = flap(newGame({ seed: 1, projects: P, ramp: false }));
+assert("without ramp the speed stays put", step({ ...calm, tMs: 100_000 }, 1).speed === TUNING.speedStart);
+
+// ── Score and words ─────────────────────────────────────────────────────────
+assert("score is days + 3 per right answer", score({ ...g1, days: 7, right: 2 }) === 13);
+assert("whereText", whereText(0) === "Monday morning" && whereText(7) === "Wednesday of week 2", whereText(7));
 
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed`);
