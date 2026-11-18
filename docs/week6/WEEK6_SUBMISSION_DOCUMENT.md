@@ -366,7 +366,7 @@ bug the external testers found.
 | 🧪 Test Evidence | 5 external users + full-site regression | ✅ Regression (below). [[⬅️ 5 external users: TO BE ADDED]] |
 | 🔁 Iteration Log | What changed after testing | ✅ Review fixes (below). [[⬅️ tester-driven fix: TO BE ADDED]] |
 | 🎥 Demo Video | 5 minutes | [[⬅️ TO BE ADDED]] |
-| 🧠 Human Decision Note | 150–250 words | [[⬅️ TO BE ADDED, in your own words]] |
+| 🧠 Human Decision Note | 150–250 words | ✅ 246 words (below) |
 
 ## Week 6 commits
 
@@ -567,4 +567,4 @@ Each change got a fresh whole-branch code review; every important finding was fi
 
 # Human Decision Note
 
-[[⬅️ TO BE ADDED: 150–250 words in your own words: decisions, rejections, corrections and tradeoffs]]
+One of the biggest decisions I had to make for the module was how much work I put into the look and design of the front demo page. I gave several examples and inspirations from pages that I liked and how I could make it my own. I also needed a clear story from start to finish: what the website is, why it exists and how it works. I wanted it to be personalized to me and my users, keeping the same theme as the website, including color schemes that I liked and letting users pick their own color. The hard part was figuring out how to tell my story in such a short page without losing the user, so picking the best words and the best way to tell the story was a big part as well. I also replaced the cluttered top bar with a simpler dock. The game at the bottom of the demo page was important to me. I wanted to include something fun and interactive, having learned its importance in a previous class. I brainstormed and ended with a Flappy Bird style game that has you memorize invoices and answer questions along the way. I decided not to include a leaderboard yet, acknowledging the possibility to cheat and wanting more time to find a good solution. Lastly, I wanted the demo to stay available to signed-in users, because having an account does not mean they have converted into a sale yet.
