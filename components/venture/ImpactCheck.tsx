@@ -35,7 +35,7 @@ export default function ImpactCheck() {
             {CHANGES.length} things people asked for have shipped so far, each one listed on the demo page with where it
             was said.
           </li>
-          <li>Five outside testers use it this week. What they find is added to the testing summary above, good or bad.</li>
+          <li>Five outside testers are next. What they find will be added to the testing summary above, good or bad.</li>
         </ul>
       </section>
 

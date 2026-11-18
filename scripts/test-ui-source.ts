@@ -199,6 +199,7 @@ assert("smooth scroll is torn down on leaving", funnel.includes(".destroy()"));
 assert("the red edge glow is retired", !funnel.includes("248,113,113"));
 assert("the funnel never scrolls sideways", funnel.includes("overflow-x-clip"));
 const hero = readOr("components/funnel/HeroField.tsx");
+assert("the impact check doesn't claim testers before they have tested", !readOr("components/venture/ImpactCheck.tsx").includes("Five outside testers use it this week"));
 assert("scroll turns each note into its checked row gradually: no snap at 90%", hero.includes("worryProgress(") && hero.includes("morph(") && !/order > 0\.9|order < 0\.9/.test(hero));
 assert("the hero reads reduced motion", /prefers-reduced-motion/.test(hero));
 assert("sorting the night is tracked", hero.includes('track("night_sorted"'));

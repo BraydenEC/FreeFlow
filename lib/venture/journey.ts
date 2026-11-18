@@ -78,7 +78,7 @@ export const JOURNEY: JourneyStep[] = [
     week: "Week 6",
     name: "One venture",
     purpose: "Bring every piece together into one product people can find, try and help steer.",
-    built: "The /demo story, the Dock, a public numbers tab and these docs, with a roadmap anyone can vote on.",
+    built: "The /demo story ending in a flying memory game, the Dock, a public numbers tab and these docs, with a roadmap anyone can vote on.",
     changed: "Every change and every number is now public. Pricing is settled for now: free today, a one-time purchase later.",
     poweredBy: "Rules, no AI · Your votes steer it",
   },

@@ -93,6 +93,9 @@ assert(
 
 // Timeline and prompt library.
 assert("timeline covers weeks 0 to 6", TIMELINE.map((w) => w.week).join() === "0,1,2,3,4,5,6");
+const week6 = TIMELINE.find((w) => w.week === 6)!;
+assert("week 6's build log covers the front-page redesign and the game", /front page/i.test(week6.iterations.join(" ")) && /Answer gates/.test(JSON.stringify(week6)));
+assert("week 6's prompts include the redesign and the game", PROMPTS.filter((p) => p.week === 6).length >= 4 && PROMPTS.some((p) => p.week === 6 && /game/i.test(p.text)));
 assert(
   "at least one prompt per week 1-5",
   [1, 2, 3, 4, 5].every((w) => PROMPTS.some((p) => p.week === w)),

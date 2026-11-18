@@ -82,4 +82,14 @@ export const PROMPTS: PromptEntry[] = [
     title: "Build fast, check at the end",
     text: "continue to work, use native for now as its quicker and we can do a full sweep for the end to ensure stability and speed",
   },
+  {
+    week: 6,
+    title: "One clear story, no extra steps",
+    text: "I dont necissarily want to add more steps to allow someone to feel bored but want the website funnel to read as one clear story bringing them along a journey, ending at the game that is fun and interesting and leads to a new user",
+  },
+  {
+    week: 6,
+    title: "Make the scroll flow",
+    text: "when scrolling I want the messy invoices to smoothly become checked, right now the animation does not fit the flow of the page",
+  },
 ];

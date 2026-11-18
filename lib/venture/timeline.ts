@@ -96,7 +96,10 @@ export const TIMELINE: WeekEntry[] = [
     decision: "Free now, a one-time purchase later, and every number and change in public.",
     iterations: [
       "A freelancer friend's advice settled pricing: keep it free as long as possible, and no subscription.",
+      "The front page was rebuilt around the visitor's own worries, which turn into checked rows as you scroll.",
+      "The finale became Answer gates, a flying memory game, chosen from playable prototypes.",
+      "Whole-site code reviews before each release; every important finding was fixed with a test that failed first.",
     ],
-    tests: "Five external testers and a full-site regression. Results are added here after testing.",
+    tests: "A full-site regression and 1,852 automated checks by the end of the week. Five external testers next; their results are added here after testing.",
   },
 ];
