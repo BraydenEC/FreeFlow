@@ -18,7 +18,7 @@ import type { Project } from "@/types/project";
   projects, so the new row appears without a client-side cache to keep.
 
   Fixed fee is the default, and is listed first. The Week 2 validation
-  interviewee: "I sell 1 time install shit so not a retainer model and it's
+  interviewee: "I sell 1 time install [jobs] so not a retainer model and it's
   always priced per job too." The hourly path stays, because the excluded
   segment work assumes it exists, but it is no longer what the form opens on.
 */

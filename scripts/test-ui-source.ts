@@ -199,6 +199,18 @@ assert("smooth scroll is torn down on leaving", funnel.includes(".destroy()"));
 assert("the red edge glow is retired", !funnel.includes("248,113,113"));
 assert("the funnel never scrolls sideways", funnel.includes("overflow-x-clip"));
 const hero = readOr("components/funnel/HeroField.tsx");
+{
+  // No curse words anywhere the site is built from (pages, components, content).
+  const { readdirSync, readFileSync } = await import("node:fs");
+  const { join } = await import("node:path");
+  const files = (dir: string): string[] =>
+    readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
+      e.isDirectory() ? files(join(dir, e.name)) : /\.(tsx?|md|json)$/.test(e.name) && !/ 2\./.test(e.name) ? [join(dir, e.name)] : [],
+    );
+  const CURSES = /\b(shit\w*|fuck\w*|damn\w*|bullshit|ass(hole)?|bitch\w*|bastard|crap|pissed|mfs?|motherfuck\w*|wtf|cunt|mierda|pinche|chingad\w*|cabr[oó]n|pendej\w*|verga|joder|carajo|put[ao])\b/i;
+  const dirty = ["app", "components", "lib"].flatMap(files).filter((f) => CURSES.test(readFileSync(f, "utf8")));
+  assert("no curse words anywhere on the site", dirty.length === 0, dirty.join(", "));
+}
 const pricingPage = readOr("app/pricing/page.tsx");
 assert("the Per-project tab only shows while per-project pricing is on", /PER_PROJECT_PRICING_ENABLED[\s\S]{0,200}id: "project"/.test(pricingPage));
 assert("an old ?tab=project link falls back to the Simulator", /tabs\.some\(\(t\) => t\.id === tab\) \? tab : "simulator"/.test(pricingPage));

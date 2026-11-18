@@ -164,7 +164,7 @@ export const VISIBLE_SEGMENTS: Segment[] = PER_PROJECT_PRICING_ENABLED ? SEGMENT
 export const EXCLUDED_SEGMENT = {
   name: "Fixed-price, one-time sellers",
   quote:
-    "I sell 1 time install shit so not a retainer model and it's always priced per job too so I haven't had a problem with tracking",
+    "I sell 1 time install [jobs] so not a retainer model and it's always priced per job too so I haven't had a problem with tracking",
   why: "No recurring workflow to subscribe to, no hours to reconcile, no repeat invoicing rhythm. A per-seat monthly subscription does not fit this person, and he said so directly when asked.",
   source: "Week 2 human validation conversation, recorded verbatim",
 
