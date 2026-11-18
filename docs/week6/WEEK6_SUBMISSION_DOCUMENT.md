@@ -2,8 +2,6 @@
 
 **Student:** Brayden Credeur · **Course:** Negocios Inteligentes y Comercio Digital, Ibero CDMX · **Project:** FreeFlow · **Date:** November 2026
 
-**Objective:** integrate all modules into a final venture site and prove it works, creates value, and avoids obvious harm.
-
 ---
 
 ## Required Links
@@ -13,16 +11,6 @@
 | **Live page: /demo** | https://www.freeflow.website/demo |
 | **GitHub** | https://github.com/BraydenEC/FreeFlow |
 | **Demo video (5 minutes)** | [[⬅️ TO BE ADDED]] |
-
-**Grader logins.** `/demo`, `/docs` and the public tab of `/dashboard` work signed out. To see records on `/dashboard`, sign in at https://www.freeflow.website/login with your demo account.
-
-<!-- logins:start -->
-| Email | Password |
-|---|---|
-| grader1@freeflow.website | [[⬅️ TO BE ADDED]] |
-| grader2@freeflow.website | [[⬅️ TO BE ADDED]] |
-| grader3@freeflow.website | [[⬅️ TO BE ADDED]] |
-<!-- logins:end -->
 
 ---
 
@@ -71,31 +59,29 @@ fixed and redeployed, and the full-site regression passes.
 The mockups were made by Claude as HTML and rendered to PNG (`swift scripts/snap.swift`),
 at the owner's request, from the throwaway prototypes he validated. They are not
 image-generator output. They show the target state: no Week 6 code existed when they were
-drawn, so every number in them is sample data or a placeholder ("—"). The course's image
-prompt is kept for reference in `IMAGE_PROMPT.md`, with a table showing where its four zones
-(user input, AI/agent output, saved results, testing evidence) appear. Sources:
+drawn, so every number in them is sample data or a placeholder ("—"). Sources:
 `docs/week6/mockup/*.html`.
 
 ![/demo mockup](images/mockup-demo.png)
 
-*Mockup made by Claude (HTML rendered to PNG), not an image generator. `/demo` as one tall
+*`/demo` as one tall
 page: chapter 1 mid-sort, a chapter 2 step with the one AI step labelled, the signed story,
 the "You said → we changed" proof, the game mid-round, the morning call to action, and the
 footer.*
 
 ![Dock mockup](images/mockup-dock.png)
 
-*Mockup made by Claude (HTML rendered to PNG), not an image generator. The Dock at rest,
+*The Dock at rest,
 expanded with magnification over "Pricing", and at 375 px as a tap-open sheet.*
 
 ![/dashboard mockup](images/mockup-dashboard.png)
 
-*Mockup made by Claude (HTML rendered to PNG), not an image generator. `/dashboard` with
+*`/dashboard` with
 "Your work" (sample data, today's labels) and "FreeFlow in public" (placeholders only).*
 
 ![/docs mockup](images/mockup-docs.png)
 
-*Mockup made by Claude (HTML rendered to PNG), not an image generator. `/docs`: the journey
+*`/docs`: the journey
 stepper (the agent map) on Week 5, then the week-by-week timeline with Week 5 open.*
 
 **Implementation note.** `/demo` is one long scroll in the founder's voice, built on AIDA:
@@ -201,7 +187,7 @@ Every criterion below is testable: by an automated suite (**auto**), by reading 
 | F6 | Chapter 6, 8:00 am (Action) | Primary "Use FreeFlow free now" → sign-up, recorded as `try_free_click`; secondary launch-list form (see L1–L5); no price (**live**, **source**) |
 | F7 | Footer | Contact and feedback `mailto:` to the public address, "If we get it wrong" → the impact section in `/docs`, and the launch-list privacy note (**live**) |
 
-> **Changed after Gate 1.** After the owner's review, the front page (Nov 12) and the game (Nov 18) were redesigned, each from playable mockups the owner chose, with its own design and plan written before code: `docs/superpowers/specs/2026-11-12-demo-front-page-design.md` and `docs/superpowers/specs/2026-11-18-demo-game-answer-gates-design.md`. Live now: the visitor's worries drift under the headline and turn into checked rows as you scroll (replacing F1's chapter 1), START FREE ends the page (replacing F6's morning), and the game is **Answer gates**, a one-button flying game where jobs pop up and gates ask about them (replacing G1–G8's clicker). Still true from G7: no leaderboard, no prize, no score sent to a server. The donations page (`/support`, D3 and R6) is switched off for now: it answers 404 and the Dock no longer lists it; the code is kept for later. Per-project pricing (the Per-project tab, the Project tier and its segment) is hidden from `/pricing` the same way, leaving Solo, Pro and Studio.
+> **Changed after Gate 1.** The front page (Nov 12) and the game (Nov 18) were redesigned after the owner's review, each with its own design written before code (`docs/superpowers/specs/`). Live now: worries turn into checked rows as you scroll (replacing F1), START FREE ends the page (replacing F6), and the game is **Answer gates**, a flying memory game (replacing G1–G6; G7–G8 still hold). The donations page and per-project pricing are switched off for now.
 
 ### The game
 
