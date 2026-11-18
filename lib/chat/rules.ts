@@ -14,6 +14,7 @@
 
 import type { Rule } from "./types";
 import { DONATIONS_ENABLED } from "@/lib/support";
+import { PER_PROJECT_PRICING_ENABLED } from "@/lib/pricing/tiers";
 
 export const CONTENT_RULES: Rule[] = [
   // lib/forecast/model.ts — deadline + terms (30-day default), paid skipped, past-due is "late"
@@ -234,8 +235,9 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["tier", "tiers", "pro", "studio", "solo", "plans"],
     strong: ["tiers", "tier"],
     phrases: ["pricing page", "pro plan", "studio plan", "get with pro", "with pro", "with studio", "pricing real", "how much is pro", "how much is studio", "how much is solo"],
-    answer:
-      "Solo (free), Project ($9 a month), Pro ($14 a month) and Studio ($12 per seat a month) are the model FreeFlow intends to move to, not a bill. None of it is charged today. The CFDI issuance and seats those paid tiers depend on are not built yet.",
+    answer: PER_PROJECT_PRICING_ENABLED
+      ? "Solo (free), Project ($9 a month), Pro ($14 a month) and Studio ($12 per seat a month) are the model FreeFlow intends to move to, not a bill. None of it is charged today. The CFDI issuance and seats those paid tiers depend on are not built yet."
+      : "Solo (free), Pro ($14 a month) and Studio ($12 per seat a month) are a possible long-term model, not a bill. None of it is charged today. The CFDI issuance and seats those paid tiers depend on are not built yet.",
     links: [{ label: "Pricing", href: "/pricing" }],
   },
   // app/support/page.tsx; lib/support.ts — real running costs, nothing gated on donating

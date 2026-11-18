@@ -1,5 +1,5 @@
 import SourceBadge from "@/components/research/SourceBadge";
-import { TIERS, toMxn } from "@/lib/pricing/tiers";
+import { VISIBLE_TIERS, toMxn } from "@/lib/pricing/tiers";
 
 /*
   The three tiers.
@@ -26,7 +26,7 @@ export default function TierCards() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        {TIERS.map((t) => (
+        {VISIBLE_TIERS.map((t) => (
           <article
             key={t.id}
             className={`flex flex-col rounded-xl border p-5 sm:p-6 ${

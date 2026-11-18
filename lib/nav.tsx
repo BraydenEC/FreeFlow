@@ -1,3 +1,5 @@
+import { PER_PROJECT_PRICING_ENABLED } from "@/lib/pricing/tiers";
+
 /*
   Navigation, in one place.
 
@@ -41,7 +43,8 @@ export const SUB_NAV: Record<string, SubNavItem[]> = {
   "/pricing": [
     { label: "Simulator", href: "?tab=simulator" },
     { label: "Tiers", href: "?tab=tiers" },
-    { label: "Per-project", href: "?tab=project" },
+    // Hidden while per-project pricing is off (lib/pricing/tiers.ts).
+    ...(PER_PROJECT_PRICING_ENABLED ? [{ label: "Per-project", href: "?tab=project" }] : []),
     { label: "Assumptions", href: "?tab=assumptions" },
     { label: "Saved", href: "?tab=saved" },
   ],

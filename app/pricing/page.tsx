@@ -13,6 +13,7 @@ import { getSavedScenarios } from "@/lib/pricing/saved";
 import { computePricing } from "@/lib/pricing/model";
 import { SCENARIOS } from "@/lib/pricing/scenarios";
 import { DONATIONS_ENABLED } from "@/lib/support";
+import { PER_PROJECT_PRICING_ENABLED } from "@/lib/pricing/tiers";
 
 /*
   /pricing — tiers, segments, simulator, assumptions, saved scenarios.
@@ -42,6 +43,9 @@ export default async function PricingPage({
   searchParams: Promise<{ tab?: string }>;
 }) {
   const { tab } = await searchParams;
+  // An old link to a hidden tab (?tab=project) opens the Simulator instead.
+  const tabs = ["simulator", "tiers", ...(PER_PROJECT_PRICING_ENABLED ? ["project"] : []), "assumptions", "saved"].map((id) => ({ id }));
+  const initialTab = tab !== undefined && tabs.some((t) => t.id === tab) ? tab : "simulator";
   const saved = await getSavedScenarios();
 
   // Computed, not written — the claim below cannot drift from the model.
@@ -143,7 +147,7 @@ export default async function PricingPage({
                 them, so every content check still sees the full page. */}
             <Suspense fallback={null}>
               <Tabs
-                initial={tab ?? "simulator"}
+                initial={initialTab}
                 tabs={[
                   { id: "simulator", label: "Simulator", content: <PricingCalculator /> },
                   {
@@ -156,11 +160,10 @@ export default async function PricingPage({
                       </>
                     ),
                   },
-                  {
-                    id: "project",
-                    label: "Per-project",
-                    content: <ProjectSegmentPanel />,
-                  },
+                  // Hidden while per-project pricing is off (lib/pricing/tiers.ts).
+                  ...(PER_PROJECT_PRICING_ENABLED
+                    ? [{ id: "project", label: "Per-project", content: <ProjectSegmentPanel /> }]
+                    : []),
                   { id: "assumptions", label: "Assumptions", content: <AssumptionsTable /> },
                   { id: "saved", label: "Saved", content: <SavedScenarios scenarios={saved} /> },
                 ]}

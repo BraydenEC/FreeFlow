@@ -14,6 +14,7 @@ import { answer, normalize } from "@/lib/chat/engine";
 import { GUARD_RULES } from "@/lib/chat/guards";
 import { CONTENT_RULES } from "@/lib/chat/rules";
 import { DONATIONS_ENABLED } from "@/lib/support";
+import { VISIBLE_TIERS } from "@/lib/pricing/tiers";
 import { SAMPLES } from "@/lib/chat/samples";
 import { SessionRequestSchema } from "@/lib/chat/schema";
 import { canSendMore, canWrite, firstMessage, shouldOfferTicket, needsTranscript, outcomeFor, replay } from "@/lib/chat/session";
@@ -277,7 +278,7 @@ assert("create uses the real button names", ans("project-create-edit").includes(
 assert("unpaid card counts only invoiced work", /Invoice sent/.test(ans("dashboard-numbers")));
 assert("worked example adds up", ans("tax-worked-example").includes("11,600") && ans("tax-worked-example").includes("9,533.33") && ans("tax-worked-example").includes("10,408.33"));
 assert("reset to defaults warns about currency", /currency/i.test(ans("layout-prefs")));
-assert("every tier is named", ["Solo", "Project", "Pro", "Studio"].every((n) => ans("pricing-tiers").includes(n)));
+assert("every tier on /pricing is named", VISIBLE_TIERS.every((t) => ans("pricing-tiers").includes(t.name)));
 
 assert("finding the regime field isn't tax advice", A("where do I set my tax regime", "how_to", "account").ruleId === "tax-regime");
 assert("choosing a regime still is", A("should I switch to resico", "how_to", "account").ruleId === "guard-tax-advice" && A("do I qualify for resico", "how_to", "account").ruleId === "guard-tax-advice");
@@ -386,6 +387,9 @@ assert("no-match offers the ticket", shouldOfferTicket({ ...solved, kind: "no_ma
 assert("input open below the cap", canSendMore(MAX_MESSAGES - 1));
 assert("input closed at the cap", !canSendMore(MAX_MESSAGES));
 assert("schema accepts exactly the cap", SessionRequestSchema.safeParse({ ...valid, messages: Array(MAX_MESSAGES).fill("hi") }).success);
+
+// Per-project pricing is off for now: the help desk mustn't quote it.
+assert("no answer quotes the hidden Project tier", CONTENT_RULES.every((r) => !/Project \(\$9/.test(r.answer) && !(r.links ?? []).some((l) => l.href.includes("tab=project"))));
 
 // Donations are off for now: the help desk mustn't send anyone to them.
 if (!DONATIONS_ENABLED) {

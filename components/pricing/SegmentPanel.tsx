@@ -1,4 +1,4 @@
-import { EXCLUDED_SEGMENT, SEGMENTS } from "@/lib/pricing/tiers";
+import { EXCLUDED_SEGMENT, VISIBLE_SEGMENTS } from "@/lib/pricing/tiers";
 import TierBadge from "@/components/pricing/TierBadge";
 
 /*
@@ -24,7 +24,7 @@ export default function SegmentPanel() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        {SEGMENTS.map((s) => (
+        {VISIBLE_SEGMENTS.map((s) => (
           <article
             key={s.id}
             className="border-hairline bg-surface rounded-xl border p-5 sm:p-6"
