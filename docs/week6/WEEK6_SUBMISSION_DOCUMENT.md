@@ -201,6 +201,8 @@ Every criterion below is testable: by an automated suite (**auto**), by reading 
 | F6 | Chapter 6, 8:00 am (Action) | Primary "Use FreeFlow free now" → sign-up, recorded as `try_free_click`; secondary launch-list form (see L1–L5); no price (**live**, **source**) |
 | F7 | Footer | Contact and feedback `mailto:` to the public address, "If we get it wrong" → the impact section in `/docs`, and the launch-list privacy note (**live**) |
 
+> **Changed after Gate 1.** After the owner's review, the front page (Nov 12) and the game (Nov 18) were redesigned, each from playable mockups the owner chose, with its own design and plan written before code: `docs/superpowers/specs/2026-11-12-demo-front-page-design.md` and `docs/superpowers/specs/2026-11-18-demo-game-answer-gates-design.md`. Live now: the visitor's worries drift under the headline and turn into checked rows as you scroll (replacing F1's chapter 1), START FREE ends the page (replacing F6's morning), and the game is **Answer gates**, a one-button flying game where jobs pop up and gates ask about them (replacing G1–G8's clicker). Still true from G7: no leaderboard, no prize, no score sent to a server.
+
 ### The game
 
 | # | Requirement | Acceptance criterion |
@@ -357,10 +359,10 @@ bug the external testers found.
 | 🖼 UX Image / Mockup | Image or wireframe | ✅ Four mockups + implementation note (above) |
 | 🧱 Product Spec | Requirements + acceptance criteria | ✅ Above |
 | 🏗 Architecture Sketch | Data flow and components | ✅ Above |
-| 🧑‍💻 GitHub Commits | Minimum 5 | ✅ **26** for Week 6 (below) |
-| 🚀 Vercel Deployments | Minimum 2 | ✅ 2 production deploys: `9cdc45d`, `3dc3b02` [[⬅️ add deploy after the tester fix]] |
+| 🧑‍💻 GitHub Commits | Minimum 5 | ✅ **51** for Week 6 (below) |
+| 🚀 Vercel Deployments | Minimum 2 | ✅ 6 production deploys (below) [[⬅️ add deploy after the tester fix]] |
 | 🗄 Supabase Evidence | Table/data evidence | ✅ Migration verify output and live counts (below) |
-| 🤖 Prompt Log | Minimum 5 coding prompts | ✅ **28** (below) |
+| 🤖 Prompt Log | Minimum 5 coding prompts | ✅ **47** (below) |
 | 🧪 Test Evidence | 5 external users + full-site regression | ✅ Regression (below). [[⬅️ 5 external users: TO BE ADDED]] |
 | 🔁 Iteration Log | What changed after testing | ✅ Review fixes (below). [[⬅️ tester-driven fix: TO BE ADDED]] |
 | 🎥 Demo Video | 5 minutes | [[⬅️ TO BE ADDED]] |
@@ -396,6 +398,31 @@ bug the external testers found.
 | `b202d84` | Nov 10 | Week 6: founder story says FreeFlow was built by choice, not for a class |
 | `3dc3b02` | Nov 10 | Week 6: founder story wording approved by the owner |
 | `9ce4805` | Nov 10 | Week 6: signed-in and 375 px live checks pass |
+| `bf08960` | Nov 11 | Week 6: submission packet draft (only what the rubric and dropbox sheet ask for) |
+| `acc9bad` | Nov 12 | Week 6: /demo redesign decisions so far (working notes from the brainstorm) |
+| `61233a1` | Nov 12 | Week 6: /demo front page design (draft for approval) |
+| `3101739` | Nov 12 | Week 6: /demo front page design: neutral game fallback, visit memory, colour wave |
+| `c919693` | Nov 12 | Week 6: /demo front page plan; design approved |
+| `d25e426` | Nov 12 | Week 6: /demo choices: neutral start, Brayden's own, accents and copy |
+| `560f366` | Nov 12 | Week 6: /demo worry field layout and counter; retire the old sort state |
+| `3e0ab27` | Nov 12 | Week 6: /demo hero worry field, job word picker, contour lines |
+| `6ee5bf2` | Nov 12 | Week 6: /demo flows pin, serif story with drawn line, START FREE band, square top link |
+| `e538d86` | Nov 12 | Week 6: /demo wired: hero, flows, story, band; contours and smooth scroll; red glow retired |
+| `45c1bf2` | Nov 12 | Week 6: /demo flows. fills (not drains); sorted rows settle into line; local checks recorded |
+| `c4227ad` | Nov 12 | Week 6: /demo review fixes: colour wave visible, touch drag works, picker fits a phone, Sort it for me scrolls to the rows |
+| `fcd5cfa` | Nov 18 | Week 6: /demo game design: Answer gates (fly and remember), little freelancer, four obstacle styles |
+| `e8401e7` | Nov 18 | Week 6: /demo game plan (Answer gates) |
+| `32dcc8c` | Nov 18 | Week 6: game engine: flying, columns, hearts and score (Answer gates) |
+| `342df4c` | Nov 18 | Week 6: game engine: jobs, changes and answer gates |
+| `47ed144` | Nov 18 | Week 6: game art: little freelancer and four obstacle styles |
+| `19079f8` | Nov 18 | Week 6: /demo chapter 5 is Answer gates |
+| `8a974ef` | Nov 18 | Week 6: Answer gates fits the window height; overlays match the game square |
+| `bf53758` | Nov 18 | Week 6: Answer gates local checks recorded |
+| `c9b8ea1` | Nov 18 | Week 6: Answer gates review fixes: fits its card on phones, no accidental starts while scrolling, red only for overdue |
+| `284a9d3` | Nov 18 | Week 6: Answer gates polish: missed gates show the answer, messages shown in full, end screen focus and screen-reader labels |
+| `6690205` | Nov 18 | Week 6: Answer gates deploy and live checks recorded |
+| `c07f942` | Nov 18 | Week 6: /demo hero: scrolling turns each messy note into its checked row smoothly, one after another |
+| `3a620e6` | Nov 18 | Week 6: /docs build log and prompt library cover the redesign and the game; impact check no longer claims testers early; prompt log to 47 |
 
 ## Vercel deployments
 
@@ -403,7 +430,11 @@ bug the external testers found.
 |---|---|---|---|
 | 1 | `9cdc45d` | Nov 10 | The integrated venture: `/demo`, the Dock, `/dashboard`, `/docs`, `/pricing` fixes |
 | 2 | `3dc3b02` | Nov 10 | Founder story wording approved by the owner; test evidence |
-| 3 | [[⬅️ TO BE ADDED]] | | Fix from the external tests |
+| 3 | `c4227ad` | Nov 12 | The redesigned `/demo` front page: worry field, flows., serif story, START FREE band |
+| 4 | `284a9d3` | Nov 18 | Answer gates, the new game, with its review fixes |
+| 5 | `6690205` | Nov 18 | Test evidence for the game's deploy and live checks |
+| 6 | `c07f942` | Nov 18 | The hero's notes turn into checked rows smoothly with the scroll |
+| 7 | [[⬅️ TO BE ADDED]] | | Fix from the external tests |
 
 ## Supabase evidence
 
@@ -418,6 +449,8 @@ Live writes on production: a roadmap vote saved, the same vote again read as "al
 ---
 
 # Prompt Log
+
+All quoted from the session transcripts, typos kept; dates as the transcripts record them (UTC).
 
 | # | Date | Prompt | Result |
 |---|---|---|---|
@@ -449,6 +482,25 @@ Live writes on production: a roadmap vote saved, the same vote again read as "al
 | 26 | Nov 10 | "He had told me to do the facebook strat, I can paste the conversation here. … I would rather keep the repo light to reduce load times etc... Do what you think is best" | The friend's real chat transcribed into `SOURCE_NOTES.md`; mockups shrunk to 1x |
 | 27 | Nov 10 | "continue to work, use native for now as its quicker and we can do a full sweep for the end to ensure stability and speed" | Tasks 2–13 built test-first inline; a fresh whole-branch review at the end found 4 important issues, all fixed |
 | 28 | Nov 10 | "continue" | Testing and submission documents prepared while the deploy waits on the owner's steps |
+| 29 | Nov 12 | "draft ONLY what it asks for, nothing more nothing less. … Additionally one change I would like to make, the front screen doesnt feel as unique and creative as I want, it feels like a generic page generated in the same typical claude format, … Please look specifically at the lando norris one, I think that would be something I would like to make my own in my own creative way." | Packet trimmed to the rubric; the `/demo` front page redesign began from playable mockups |
+| 30 | Nov 12 | "I like Option B the most because its the most unique and used with this background and with this design at the end" | The worry-field hero with contour lines chosen |
+| 31 | Nov 12 | "… also the Use freeflow now button is very Claude code typical style, please make something that blends better into the page, more unique more clean / sharp" | Square top link and the START FREE band |
+| 32 | Nov 12 | "I like version 2 the most, … I prefer the end page of version 3 the most, it stands out, hard to miss and is attention grabbing. Also the secondary color choice options, I want an option just for me, to be catered to me, I want it to be a greyish color. …" | Version 2 page with version 3's ending; "Brayden's own" grey choice |
+| 33 | Nov 12 | "… I am worried that all of the additions are too much for the funnel, too many things going on at the top while having to choose your own color. What do you think, based on marketing research is it too much" | Extras hidden until they matter; the job word itself became the picker |
+| 34 | Nov 12 | "I think the top clustered invoice messages is a little too much and should maybe be lower, placed below the hook, also please fix the hook format for videographer, the comma should be on the same line" | Worries drift under the headline; the hook keeps its comma on one line |
+| 35 | Nov 12 | "I would like to keep the same slash design in the original mockup, however I would like it to go below the text and not through it, … one more thing I would like to start with a grey or more neutral color and not a specific type of job." | Slash line under the story; the page starts neutral ("I'm a freelancer") |
+| 36 | Nov 12 | "Build the front page for now, based on what is already approved and the game can follow as its own update once we brainstorm and work it out more" → "push now and we can iterate if I want to make any changes" | Front page built, reviewed and deployed; the game left for its own update |
+| 37 | Nov 16 | "I want 3 playable prototypes, also help me brainstorm after building them an idea for a unique game that could increase user engagement and likelyness of conversion into downloading the app" | Three playable game prototypes: Remember?, Keep it flowing, Yes/no/invoice |
+| 38 | Nov 16 | "I mean converting as in getting people to sign up and to use the website, … The whole point is to make the whole funnel flow and make sense to the user in a way that all of the information is clear, easy to understand, the mission of the website and a last little game to hint to the user that I care about user experience and also build reputation and trusy" | The game's purpose written down: memorable, a sign of care, and a path to signing up |
+| 39 | Nov 16 | "… I dont want to add more work for the user, … I dont necissarily want to add more steps to allow someone to feel bored but want the website funnel to read as one clear story … I want to keep the memory game, but I want two new versions of games … even a side scroller like flappy bird but instead it has little invoices as obstacles and the thing flying through is your character." | No setup before playing; two one-button prototypes: Fly the week, Stack the week |
+| 40 | Nov 16 | "I like fly and I like the remember game, … I think maybe we can combine the two to make it about memory but also in a way also still that same flappy bird ish style, create this idea along with two more mockup ideas for a game" | Three ways to combine flying and memory: Answer gates, Fly then recall, Your head vs FreeFlow |
+| 41 | Nov 16 | "Side question: Does it say anywhere in freeflow that the predictions or information shown should also be self tested or verified on your own. …" | Audit of the site's "check it yourself" wording; per-feature caveats exist, no general line |
+| 42 | Nov 16 | "I would keeo game 1 for now. I want to develop little characters and actual designs for it though. Please help me brainstorm mockups for the flying figure aka your character amd barriers" | Four characters and four obstacle styles mocked up together |
+| 43 | Nov 16 | "would it make sense to have an option to pick your own template for the obstacles but to keep the little man on the laptop as the main character" → "available from the start" | The little freelancer on a laptop, with four obstacle styles all available |
+| 44 | Nov 18 | "Nothing for now. Again if anything needs to be changed or iterated it can be done later I like this current version and want to commit" | Answer gates design written, reviewed and planned, then built test-first |
+| 45 | Nov 18 | "Fix smaller issues. when done merge into main and deploy" | The review's minor findings fixed test-first; Answer gates deployed |
+| 46 | Nov 18 | "One fix for the live demo page, when scrolling I want the messy invoices to smoothly become checked, right now the animation does not fit the flow of the page" | The hero's notes now turn into checked rows with the scroll, one after another |
+| 47 | Nov 18 | "Now cross check Module 6 requirements with what has been pushed so far. What is missing?" | Requirement check; packet, prompt log and `/docs` brought up to date |
 
 ---
 
@@ -466,14 +518,17 @@ Live writes on production: a roadmap vote saved, the same vote again read as "al
 
 ## Full-site regression test
 
+Latest run: Nov 18, after the redesigned front page, Answer gates and the scroll fix (`3a620e6`). The signed-in rows are from the Nov 10 run on the owner's account.
+
 | Check | Result |
 |---|---|
-| `npm test` | 21 suites, 1,761 passed, 0 failed |
+| `npm test` | 21 suites, 1,852 passed, 0 failed |
 | `npm run lint`, `npm run build`, `npx tsc --noEmit` | all exit 0 |
 | Every page live, signed out | 12 pages HTTP 200; `/core` redirects to sign-up |
-| Signed in | `/` and `/login` go to `/dashboard`; "Your work" shows the records from Supabase; the public tab is beside it |
-| Every page at 375 px, signed in | no sideways scrolling on any of 11 pages; the Dock on each |
-| Live writes | vote, duplicate vote, refused vote, "Try free" click, counts rise |
+| Every page at 375 px, signed out | 12 pages: document width 375, nothing wider than the screen, the Dock on each |
+| `/demo` live | the hero sorts with the scroll; Answer gates starts by Space without scrolling the page, ends with focus on Play again; no console errors |
+| Signed in (Nov 10) | `/` and `/login` go to `/dashboard`; "Your work" shows the records from Supabase; the public tab is beside it; no sideways scrolling on any of 11 pages |
+| Live writes (Nov 10) | vote, duplicate vote, refused vote, "Try free" click, counts rise |
 
 ---
 
@@ -493,8 +548,18 @@ Three smaller findings were re-graded by their effect and fixed too: the first t
 ## 2. The owner's own review
 
 - The founder story said it was built "for a class". It now says it was built by choice.
+- The front screen "feels like a generic page". It was redesigned from playable mockups (Nov 12): the visitor's worries drift under the headline, the page starts neutral, and START FREE ends it.
+- The game needed to fit the story's ending. Three rounds of playable prototypes led to Answer gates (Nov 18): fly and remember, with no setup before playing.
+- The scroll sort "does not fit the flow of the page". The notes now turn into checked rows with the scroll, one after another (Nov 18).
 
-## 3. From the external tests
+## 3. Reviews of the redesign and the game
+
+Each change got a fresh whole-branch code review; every important finding was fixed with a test that failed first:
+
+- Front page (Nov 12): the colour wave was hidden behind the page, a finger drag was taken by the browser, the job picker was cut off on a phone, and "Sort it for me" didn't bring the rows into view.
+- Answer gates (Nov 18): the game spilled past its border on phones, a finger scrolling past could start a run (and inflate the public "rounds played" count), and red was used for things that aren't overdue. Five smaller findings were fixed too, including missed gates now showing the answer and screen readers hearing the answer options.
+
+## 4. From the external tests
 
 [[⬅️ TO BE ADDED: the bug a tester found, the failing test, the fix, the redeploy]]
 
