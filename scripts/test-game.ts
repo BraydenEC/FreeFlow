@@ -27,6 +27,9 @@ import {
   type Message,
   type Question,
 } from "@/lib/game/engine";
+import { STYLE_IDS } from "@/lib/game/engine";
+import { readBest, readStyle, saveBest, saveStyle } from "@/lib/game/prefs";
+import { STYLE_DRAWERS, STYLE_LABELS } from "@/components/funnel/game/styles";
 
 let passed = 0;
 let failed = 0;
@@ -265,6 +268,26 @@ assert("the question clears once its gate is passed", rightRun.s.message?.kind !
 const early: GameState = { ...g1, index: 5, spawnInMs: 0, jobs: [], pending: [] };
 const afterEarly = step(early, 1);
 assert("a gate with no jobs in play becomes a normal column", afterEarly.cols.at(-1)?.kind === "normal");
+
+// ── Prefs and styles ────────────────────────────────────────────────────────
+assert(
+  "every style has a drawer and a label",
+  STYLE_IDS.every((id) => typeof STYLE_DRAWERS[id] === "function" && STYLE_LABELS[id].length > 0),
+);
+assert("style defaults to invoice stacks without storage", readStyle() === "invoices");
+assert("best is 0 without storage", readBest() === 0);
+assert(
+  "saving without storage doesn't throw",
+  (() => {
+    try {
+      saveBest(5);
+      saveStyle("spikes");
+      return true;
+    } catch {
+      return false;
+    }
+  })(),
+);
 
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed`);
