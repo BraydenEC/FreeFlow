@@ -349,7 +349,7 @@ bug the external testers found.
 | 🚀 Vercel Deployments | Minimum 2 | ✅ 6 production deploys (below) [[⬅️ add deploy after the tester fix]] |
 | 🗄 Supabase Evidence | Table/data evidence | ✅ Migration verify output and live counts (below) |
 | 🤖 Prompt Log | Minimum 5 coding prompts | ✅ **47** (below) |
-| 🧪 Test Evidence | 5 external users + full-site regression | ✅ Regression (below). [[⬅️ 5 external users: TO BE ADDED]] |
+| 🧪 Test Evidence | 5 external users + full-site regression | ✅ Regression and an AI-automated pre-test, marked as AI (below). [[⬅️ 5 external users: TO BE ADDED]] |
 | 🔁 Iteration Log | What changed after testing | ✅ Review fixes (below). [[⬅️ tester-driven fix: TO BE ADDED]] |
 | 🎥 Demo Video | 5 minutes | [[⬅️ TO BE ADDED]] |
 | 🧠 Human Decision Note | 150–250 words | ✅ 246 words (below) |
@@ -491,6 +491,33 @@ All quoted from the session transcripts, typos kept; dates as the transcripts re
 ---
 
 # Test Evidence
+
+## AI-automated pre-test (not the 5 external users)
+
+**This test was run by AI, not by people.** On Nov 18–19, Claude Code drove five AI test personas through the live site, each in its own isolated headless Chromium browser (Playwright 1.65). It does not count toward the five external users below, who are still to be recorded. The prompt that started it: *"You are going to run an automated user-testing study on my website using 5 separate, isolated browser sessions representing 5 distinct test users."*
+
+| | |
+|---|---|
+| Personas | Impatient first-timer, non-technical casual user, power user, skeptical critic (all desktop, 1440×900) and mobile user (emulated iPhone 13, 390×844, touch) |
+| Sessions | Each persona explored first signed out with no script, then signed in. The five accounts were the owner's own `+test` addresses, confirmed by hand in Supabase because the confirmation emails went to Spam |
+| Recorded | Console errors, failed requests, HTTP errors and responses slower than 3 seconds, plus screenshots |
+| Limits | At most 3 calls per AI feature (13 brief extractions and 8 help desk messages in total); no payments or account deletions. The live site was running older code than this branch (`week6` had 7 commits not yet deployed) |
+| Result | 35 issues: 10 high, 15 medium, 10 low. Full write-up with screenshots: `docs/user-testing/USER_TESTING_HANDOFF.md` |
+
+Highest-impact findings:
+
+| ID | Finding | Personas |
+|---|---|---|
+| H1 | The live site still showed donations, the Per-project pricing tab and the curse word, all already fixed on `week6` but not yet deployed | All 5 |
+| H2 | Every confirmation email landed in Gmail Spam, so sign-up looked like a dead end | All 5 |
+| H3 | The floating "+" covers content on every page, and its menu is icons only | All 5 |
+| H4 | "Mark paid" can't be undone and always records today's date; Edit still says "Invoice sent" | All 5 |
+| H5 | Brief extraction drops a fixed budget ("budget 800 usd") and its currency, so the new project fails to save until the amount is typed | All 5 |
+| H7 | An empty "Add project" submit shows one error at a time, off-screen | All 5 |
+
+What worked: fast pages (public pages 0.2–0.75 s), no duplicate submits on double-clicks, odd input saved safely as text, the Mexican withholding arithmetic, and the CSV export.
+
+These findings are AI judgements, treated as leads for the external users to confirm, not as measured user behaviour.
 
 ## 5 external users
 
