@@ -496,7 +496,7 @@ All quoted from the session transcripts, typos kept; dates as the transcripts re
 
 **This test was run by AI, not by people.** On Nov 18–19, Claude Code drove five AI test personas through the live site, each in its own isolated headless Chromium browser (Playwright 1.65). It does not count toward the five external users below, who are still to be recorded. The prompt that started it: *"You are going to run an automated user-testing study on my website using 5 separate, isolated browser sessions representing 5 distinct test users."*
 
-| | |
+| Item | Detail |
 |---|---|
 | Personas | Impatient first-timer, non-technical casual user, power user, skeptical critic (all desktop, 1440×900) and mobile user (emulated iPhone 13, 390×844, touch) |
 | Sessions | Each persona explored first signed out with no script, then signed in. The five accounts were the owner's own `+test` addresses, confirmed by hand in Supabase because the confirmation emails went to Spam |
