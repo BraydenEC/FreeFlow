@@ -215,10 +215,10 @@ console.log("\n7. The submitted numbers have not moved");
 
 // Per-project pricing is off for now: hidden from /pricing, kept in the data.
 {
-  const { PER_PROJECT_PRICING_ENABLED, VISIBLE_TIERS, VISIBLE_SEGMENTS, TIERS: ALL_TIERS } = await import("@/lib/pricing/tiers");
-  assert("per-project pricing is off for now", PER_PROJECT_PRICING_ENABLED === false);
-  assert("the tier cards show no Project tier", !VISIBLE_TIERS.some((t) => t.id === "project") && VISIBLE_TIERS.length === ALL_TIERS.length - 1);
-  assert("the segment cards show no per-project segment", !VISIBLE_SEGMENTS.some((s) => s.id === "project") && VISIBLE_SEGMENTS.length === 2);
+  const { VISIBLE_TIERS, VISIBLE_SEGMENTS, TIERS: ALL_TIERS, SEGMENTS: ALL_SEGMENTS } = await import("@/lib/pricing/tiers");
+  const { PER_PROJECT_PRICING_ENABLED } = await import("@/lib/flags");
+  assert("the tier cards show the Project tier only while per-project pricing is on", VISIBLE_TIERS.some((t) => t.id === "project") === PER_PROJECT_PRICING_ENABLED && VISIBLE_TIERS.length === ALL_TIERS.length - (PER_PROJECT_PRICING_ENABLED ? 0 : 1));
+  assert("the segment cards show the per-project segment only while it's on", VISIBLE_SEGMENTS.some((s) => s.id === "project") === PER_PROJECT_PRICING_ENABLED && VISIBLE_SEGMENTS.length === ALL_SEGMENTS.length - (PER_PROJECT_PRICING_ENABLED ? 0 : 1));
   assert("the Project tier is kept in the data for later", ALL_TIERS.some((t) => t.id === "project"));
 }
 

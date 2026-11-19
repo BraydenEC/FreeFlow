@@ -1,6 +1,7 @@
 import Link from "next/link";
 import TierBadge from "@/components/pricing/TierBadge";
 import { FEATURE_GROUPS } from "@/lib/product/features";
+import { PER_PROJECT_PRICING_ENABLED } from "@/lib/flags";
 
 /*
   The feature map.
@@ -63,7 +64,8 @@ export default function FeatureMap() {
                     </div>
 
                     <div className="flex shrink-0 items-center gap-2">
-                      {f.tier && <TierBadge tier={f.tier} />}
+                      {/* No badge for a tier /pricing hides (lib/flags.ts). */}
+                      {f.tier && (PER_PROJECT_PRICING_ENABLED || f.tier !== "project") && <TierBadge tier={f.tier} />}
                       {f.shippedIn && (
                         <span className="text-ink-faint text-[11px]">
                           {f.shippedIn}

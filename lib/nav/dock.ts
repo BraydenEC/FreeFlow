@@ -1,4 +1,4 @@
-import { DONATIONS_ENABLED } from "@/lib/support";
+import { DONATIONS_ENABLED } from "@/lib/flags";
 /*
   The Dock's pages, grouped as the Week 6 spec fixes them:
 

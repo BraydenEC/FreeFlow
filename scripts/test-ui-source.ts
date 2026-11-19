@@ -216,6 +216,14 @@ assert("the Per-project tab only shows while per-project pricing is on", /PER_PR
 assert("an old ?tab=project link falls back to the Simulator", /tabs\.some\(\(t\) => t\.id === tab\) \? tab : "simulator"/.test(pricingPage));
 assert("tier and segment cards use the visible lists", readOr("components/pricing/TierCards.tsx").includes("VISIBLE_TIERS.map(") && readOr("components/pricing/SegmentPanel.tsx").includes("VISIBLE_SEGMENTS.map("));
 assert("the pricing menu drops Per-project while it's off", /PER_PROJECT_PRICING_ENABLED \? \[\{ label: "Per-project"/.test(readOr("lib/nav.tsx")));
+// The two switches live in a data-free module, so client components that read
+// them (SubNav via lib/nav, the Dock, the feature map) don't bundle pricing or
+// donation data.
+assert("the feature switches live in a module with no imports", !/^import /m.test(readOr("lib/flags.ts")) && /export const DONATIONS_ENABLED/.test(readOr("lib/flags.ts")) && /export const PER_PROJECT_PRICING_ENABLED/.test(readOr("lib/flags.ts")));
+assert("nav and the Dock read the switches from lib/flags only", ["lib/nav.tsx", "lib/nav/dock.ts"].every((f) => !/@\/lib\/(support|pricing\/tiers)"/.test(readOr(f))));
+assert("the sidebar picks its active tab with the shared fallback", /activeSubNavTab\(/.test(readOr("components/SubNav.tsx")));
+assert("the marketing generator and page use the shared free pitch, not donation wording", ["lib/marketing/engine.ts", "app/marketing/page.tsx"].every((f) => !/donation/i.test(readOr(f)) && /FREE_PITCH/.test(readOr(f))));
+assert("/product hides the Project tier badge while per-project pricing is off", /PER_PROJECT_PRICING_ENABLED[\s\S]{0,120}"project"[\s\S]{0,120}TierBadge/.test(readOr("components/product/FeatureMap.tsx")));
 assert("the Support page answers 404 while donations are off", /if \(!DONATIONS_ENABLED\) notFound\(\);/.test(readOr("app/support/page.tsx")));
 assert("the dashboard and pricing only link to Support while donations are on", ["app/dashboard/page.tsx", "app/pricing/page.tsx"].every((f) => /DONATIONS_ENABLED &&[\s\S]{0,400}href="\/support"/.test(readOr(f))));
 assert("the impact check doesn't claim testers before they have tested", !readOr("components/venture/ImpactCheck.tsx").includes("Five outside testers use it this week"));

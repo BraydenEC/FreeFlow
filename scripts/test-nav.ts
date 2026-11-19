@@ -9,7 +9,8 @@
 */
 
 import { DOCK_GROUPS } from "@/lib/nav/dock";
-import { DONATIONS_ENABLED } from "@/lib/support";
+import { DONATIONS_ENABLED } from "@/lib/flags";
+import { activeSubNavTab } from "@/lib/nav/subnav";
 import { iconSize } from "@/lib/nav/magnify";
 
 let passed = 0;
@@ -47,7 +48,15 @@ assert(
   DOCK_GROUPS.every((g) => g.items.every((i) => i.label.trim().length > 0)),
 );
 
-assert("donations are off for now, so the Dock has no Support page", DONATIONS_ENABLED === false && !hrefs.includes("/support"));
+assert("the Dock lists Support only while donations are on", hrefs.includes("/support") === DONATIONS_ENABLED);
+
+// The sidebar highlights the same tab the page shows: an unknown or hidden
+// ?tab= (an old /pricing?tab=project link) falls back to the first tab.
+const tabItems = [{ label: "Simulator", href: "?tab=simulator" }, { label: "Tiers", href: "?tab=tiers" }];
+assert("sidebar highlights the tab in the URL", activeSubNavTab(tabItems, "tiers") === "tiers");
+assert("sidebar falls back to the first tab with no ?tab=", activeSubNavTab(tabItems, null) === "simulator");
+assert("sidebar falls back to the first tab for a hidden or unknown ?tab=", activeSubNavTab(tabItems, "project") === "simulator");
+assert("anchor-only sidebars have no active tab", activeSubNavTab([{ label: "Overview", href: "#widget-metrics" }], null) === undefined);
 
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed`);

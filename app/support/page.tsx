@@ -3,8 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import SubNav from "@/components/SubNav";
 import DonateButton from "@/components/support/DonateButton";
+import { DONATIONS_ENABLED } from "@/lib/flags";
 import {
-  DONATIONS_ENABLED,
   isDonationConfigured,
   SUGGESTED_AMOUNTS,
   WHAT_IT_DOES_NOT_BUY,

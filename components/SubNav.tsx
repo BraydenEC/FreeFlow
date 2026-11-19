@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { SUB_NAV } from "@/lib/nav";
+import { activeSubNavTab } from "@/lib/nav/subnav";
 
 /*
   The sidebar: sections of the page you are on.
@@ -25,7 +26,8 @@ export default function SubNav() {
   if (!items) return null;
 
   // Tab links carry their own active state; anchors have none to compute.
-  const activeTab = search.get("tab") ?? items[0]?.href.split("=")[1];
+  // An unknown or hidden ?tab= falls back to the first tab, as the panel does.
+  const activeTab = activeSubNavTab(items, search.get("tab"));
 
   return (
     <aside className="border-hairline hidden w-48 shrink-0 border-r md:block">

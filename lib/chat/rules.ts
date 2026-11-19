@@ -13,8 +13,7 @@
 */
 
 import type { Rule } from "./types";
-import { DONATIONS_ENABLED } from "@/lib/support";
-import { PER_PROJECT_PRICING_ENABLED } from "@/lib/pricing/tiers";
+import { DONATIONS_ENABLED, PER_PROJECT_PRICING_ENABLED } from "@/lib/flags";
 
 export const CONTENT_RULES: Rule[] = [
   // lib/forecast/model.ts — deadline + terms (30-day default), paid skipped, past-due is "late"
@@ -622,7 +621,9 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["menu", "navigation", "tabs", "dock"],
     phrases: ["what is core", "what does core do", "core page", "main menu", "top bar", "where are the pages", "where is the menu"],
     answer:
-      "Every page is in the Dock, the round button at the bottom of the screen: hover it or tap it to open. Demo is a short tour of FreeFlow. Dashboard is your projects and money. Paste a brief turns a client's message into a project. Help desk is this guide. Research is the market evidence behind FreeFlow. Product lists what's built and planned. Pricing shows a possible long-term model. Marketing is FreeFlow's own campaign. Docs is how FreeFlow was built and what comes next. Support is for optional donations. Settings and your account stay at the top right.",
+      "Every page is in the Dock, the round button at the bottom of the screen: hover it or tap it to open. Demo is a short tour of FreeFlow. Dashboard is your projects and money. Paste a brief turns a client's message into a project. Help desk is this guide. Research is the market evidence behind FreeFlow. Product lists what's built and planned. Pricing shows a possible long-term model. Marketing is FreeFlow's own campaign. Docs is how FreeFlow was built and what comes next." +
+      (DONATIONS_ENABLED ? " Support is for optional donations." : "") +
+      " Settings and your account stay at the top right.",
   },
   // app/product/page.tsx; lib/product/features.ts
   {

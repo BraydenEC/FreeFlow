@@ -12,8 +12,7 @@ import TierCards from "@/components/pricing/TierCards";
 import { getSavedScenarios } from "@/lib/pricing/saved";
 import { computePricing } from "@/lib/pricing/model";
 import { SCENARIOS } from "@/lib/pricing/scenarios";
-import { DONATIONS_ENABLED } from "@/lib/support";
-import { PER_PROJECT_PRICING_ENABLED } from "@/lib/pricing/tiers";
+import { DONATIONS_ENABLED, PER_PROJECT_PRICING_ENABLED } from "@/lib/flags";
 
 /*
   /pricing — tiers, segments, simulator, assumptions, saved scenarios.

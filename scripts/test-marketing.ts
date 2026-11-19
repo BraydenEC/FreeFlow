@@ -12,7 +12,8 @@
   user) is asserted separately once the route exists.
 */
 
-import { SEED_CONTENT } from "@/lib/marketing/content";
+import { FREE_PITCH, SEED_CONTENT } from "@/lib/marketing/content";
+import { DONATIONS_ENABLED } from "@/lib/flags";
 import {
   buildCalendar,
   contentSummary,
@@ -118,6 +119,13 @@ assert(
   "an unknown test returns null rather than a wrong-pair headline",
   pickHeadlineWinner(SEED_CONTENT.headlines, "does-not-exist", "hl-b1") === null,
 );
+
+// Donations are off for now: the campaign copy and the line the generator is
+// told to use mustn't promise a donation button that doesn't exist.
+if (!DONATIONS_ENABLED) {
+  assert("seed campaign mentions no donation while donations are off", !/donat/i.test(JSON.stringify(SEED_CONTENT)));
+  assert("the free pitch mentions no donation while donations are off", !/donat/i.test(FREE_PITCH) && /free while/i.test(FREE_PITCH));
+}
 
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed`);

@@ -13,7 +13,7 @@ import { redact } from "@/lib/chat/redact";
 import { answer, normalize } from "@/lib/chat/engine";
 import { GUARD_RULES } from "@/lib/chat/guards";
 import { CONTENT_RULES } from "@/lib/chat/rules";
-import { DONATIONS_ENABLED } from "@/lib/support";
+import { DONATIONS_ENABLED, PER_PROJECT_PRICING_ENABLED } from "@/lib/flags";
 import { VISIBLE_TIERS } from "@/lib/pricing/tiers";
 import { SAMPLES } from "@/lib/chat/samples";
 import { SessionRequestSchema } from "@/lib/chat/schema";
@@ -389,12 +389,13 @@ assert("input closed at the cap", !canSendMore(MAX_MESSAGES));
 assert("schema accepts exactly the cap", SessionRequestSchema.safeParse({ ...valid, messages: Array(MAX_MESSAGES).fill("hi") }).success);
 
 // Per-project pricing is off for now: the help desk mustn't quote it.
-assert("no answer quotes the hidden Project tier", CONTENT_RULES.every((r) => !/Project \(\$9/.test(r.answer) && !(r.links ?? []).some((l) => l.href.includes("tab=project"))));
+if (!PER_PROJECT_PRICING_ENABLED) assert("no answer quotes the hidden Project tier", CONTENT_RULES.every((r) => !/Project \(\$9/.test(r.answer) && !(r.links ?? []).some((l) => l.href.includes("tab=project"))));
 
 // Donations are off for now: the help desk mustn't send anyone to them.
 if (!DONATIONS_ENABLED) {
   assert("no answer links to the Support page while donations are off", CONTENT_RULES.every((r) => !(r.links ?? []).some((l) => l.href === "/support")));
-  assert("no answer offers donations while they're off", CONTENT_RULES.every((r) => !/Donations are optional|Support page|donation button/i.test(r.answer)));
+  assert("no answer offers donations while they're off", CONTENT_RULES.every((r) => !/Donations are optional|optional donations|Support page|donation button|Support is for/i.test(r.answer)));
+  assert("the Dock answer doesn't list a Support page while donations are off", !/Support/.test(CONTENT_RULES.find((r) => r.id === "app-sections")!.answer));
   assert("asking how to donate gets a straight answer", /doesn't take donations right now/.test(CONTENT_RULES.find((r) => r.id === "donations")!.answer));
 }
 

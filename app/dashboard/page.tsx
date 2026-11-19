@@ -23,7 +23,7 @@ import { filterFromParams, filterProjects, isFilterActive } from "@/lib/projects
 import { getDashboardData } from "@/lib/projects";
 import { getUserPrefs } from "@/lib/prefs/server";
 import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
-import { DONATIONS_ENABLED } from "@/lib/support";
+import { DONATIONS_ENABLED } from "@/lib/flags";
 
 /*
   The dashboard.

@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { PERSONA } from "./persona";
-import { SEED_CONTENT } from "./content";
+import { FREE_PITCH, SEED_CONTENT } from "./content";
 import { buildCalendar, validateContentSet } from "./generate";
 import { MarketingGenerationSchema } from "./schema";
 import type { ContentSet } from "./types";
@@ -31,7 +31,7 @@ export function isModelConfigured(): boolean {
 
 const SYSTEM_PROMPT = `You are a marketing copywriter for FreeFlow, a free web app that helps freelancers track projects and forecast the cash coming from work they have not invoiced yet.
 
-Write in FreeFlow's voice: plain, specific, and unwilling to flatter. Name the task, not the feeling. Never claim a feature that is not described to you. The product is free while it grows, with an optional donation — say that honestly, never as a fake limited-time offer. Numbers, currencies and product names are exact.
+Write in FreeFlow's voice: plain, specific, and unwilling to flatter. Name the task, not the feeling. Never claim a feature that is not described to you. The product is ${FREE_PITCH} — say that honestly, never as a fake limited-time offer. Numbers, currencies and product names are exact.
 
 Ground every line in the persona you are given. Do not invent a different audience.
 
@@ -49,7 +49,7 @@ function buildUserMessage(): string {
     "DO NOT:",
     ...PERSONA.antiPatterns.map((a) => `- ${a}`),
     "",
-    "REAL FEATURES you may reference: cash-flow forecast weighted by project stage; fixed-fee-first project entry; 11 currencies with no hidden conversion; Mexican tax handled (IVA, retenciones, RESICO); CSV export with retenciones calculated; overdue invoices flagged; free while we grow with an optional donation.",
+    `REAL FEATURES you may reference: cash-flow forecast weighted by project stage; fixed-fee-first project entry; 11 currencies with no hidden conversion; Mexican tax handled (IVA, retenciones, RESICO); CSV export with retenciones calculated; overdue invoices flagged; ${FREE_PITCH}.`,
   ].join("\n");
 }
 

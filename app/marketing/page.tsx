@@ -2,6 +2,7 @@ import SubNav from "@/components/SubNav";
 import MarketingWorkbench from "@/components/marketing/MarketingWorkbench";
 import { PERSONA } from "@/lib/marketing/persona";
 import { SEED_CONTENT } from "@/lib/marketing/content";
+import { FREE_PITCH } from "@/lib/marketing/content";
 import { isModelConfigured } from "@/lib/marketing/engine";
 import { getSavedMarketing } from "@/lib/marketing/saved";
 import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
@@ -28,7 +29,7 @@ const BRAND_VOICE = [
   "Say what it is before asking for anything.",
   "Concrete over aspirational — name the task, not the feeling.",
   "Never claim what isn't built; label generated copy as generated.",
-  "Honest about being free: free while we grow, optional donation.",
+  `Honest about being free: ${FREE_PITCH}.`,
 ];
 
 const STATUS_SWATCHES = [

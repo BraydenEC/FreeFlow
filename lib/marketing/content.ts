@@ -4,6 +4,14 @@ import type {
   SocialPost,
   VideoScript,
 } from "./types";
+import { DONATIONS_ENABLED } from "@/lib/flags";
+
+/*
+  How the copy says FreeFlow is free. While donations are switched off
+  (lib/flags.ts) nothing promises a donation button that doesn't exist; the
+  marketing page and the campaign generator's prompt use this same line.
+*/
+export const FREE_PITCH = DONATIONS_ENABLED ? "free while it grows, with an optional donation" : "free while it grows";
 
 /*
   Seed content.
@@ -51,7 +59,7 @@ export const SEED_POSTS: SocialPost[] = [
     id: "post-05",
     channel: "reddit",
     hook: "Built a free tool for freelancers who bill per project (not hourly)",
-    body: "It tracks projects and forecasts the cash coming from work you haven't invoiced yet. Handles 11 currencies and Mexican tax (IVA, retenciones, RESICO) because half the people I built it for aren't in the US. No paywall — free while it grows, optional donation if it helps you.",
+    body: "It tracks projects and forecasts the cash coming from work you haven't invoiced yet. Handles 11 currencies and Mexican tax (IVA, retenciones, RESICO) because half the people I built it for aren't in the US. No paywall — free while it grows" + (DONATIONS_ENABLED ? ", optional donation if it helps you." : "."),
     cta: "freeflow.website — feedback welcome, roast the mobile view.",
   },
   {
@@ -72,7 +80,7 @@ export const SEED_POSTS: SocialPost[] = [
     id: "post-08",
     channel: "instagram",
     hook: "Export everything. Owe us nothing.",
-    body: "Your project list, retenciones already calculated, as a clean CSV your accountant can open. FreeFlow is free while we grow — donate only if it earns it.",
+    body: "Your project list, retenciones already calculated, as a clean CSV your accountant can open. FreeFlow is free while we grow" + (DONATIONS_ENABLED ? " — donate only if it earns it." : "."),
     cta: "Link in bio.",
   },
   {
@@ -113,7 +121,10 @@ export const SEED_SCRIPTS: VideoScript[] = [
     title: "Free while we grow",
     durationSec: 30,
     hook: "FreeFlow has no paywall. None.",
-    body: "It's free while we grow, because a tool nobody can afford to try is a tool nobody uses. If it makes your month easier, there's an optional donation button. If it doesn't, keep your money and tell us what's broken.",
+    body: "It's free while we grow, because a tool nobody can afford to try is a tool nobody uses. " +
+      (DONATIONS_ENABLED
+        ? "If it makes your month easier, there's an optional donation button. If it doesn't, keep your money and tell us what's broken."
+        : "If it doesn't make your month easier, tell us what's broken."),
     cta: "freeflow.website.",
   },
 ];

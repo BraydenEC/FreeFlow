@@ -24,15 +24,7 @@
   broken deploy.
 */
 
-/*
-  DONATIONS ARE OFF FOR NOW
-  The final assignment doesn't ask for a donation page, and a "chip in" ask
-  beside "free" confused the story. This one switch hides it everywhere:
-  /support answers 404, the Dock drops it, the dashboard and /pricing drop
-  their links, and the help desk says donations aren't taken right now.
-  Nothing is deleted; set it to true to bring the page back as it was.
-*/
-export const DONATIONS_ENABLED = false;
+// Donations are switched off for now: see DONATIONS_ENABLED in lib/flags.ts.
 
 export type SuggestedAmount = {
   usd: number;

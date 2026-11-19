@@ -1,4 +1,5 @@
 import type { Assumption, Segment, Tier } from "@/types/pricing";
+import { PER_PROJECT_PRICING_ENABLED } from "@/lib/flags";
 
 /*
   Tiers, segments, and assumptions.
@@ -142,15 +143,7 @@ export const SEGMENTS: Segment[] = [
   },
 ];
 
-/*
-  PER-PROJECT PRICING IS OFF FOR NOW
-  The Project tier (billed per job) and its segment were added after Week 3
-  as a separate estimate. For the final assignment they are hidden from
-  /pricing: no Per-project tab, no Project tier card, no per-project segment
-  card. Nothing is deleted; set this to true to bring them back as they were.
-*/
-export const PER_PROJECT_PRICING_ENABLED = false;
-
+// Per-project pricing is switched off for now: see lib/flags.ts.
 export const VISIBLE_TIERS: Tier[] = PER_PROJECT_PRICING_ENABLED ? TIERS : TIERS.filter((t) => t.id !== "project");
 export const VISIBLE_SEGMENTS: Segment[] = PER_PROJECT_PRICING_ENABLED ? SEGMENTS : SEGMENTS.filter((s) => s.id !== "project");
 
