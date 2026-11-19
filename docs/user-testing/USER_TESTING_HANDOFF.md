@@ -2,6 +2,8 @@
 
 As of 19 Nov 2026. An editable online copy of this handoff also exists; the Status column there is the one to update.
 
+**These are not the assignment's external user tests.** The five external users for Module 6 are recorded in the "5 external users" table of docs/week6/WEEK6_SUBMISSION_DOCUMENT.md, filled in only after each real session.
+
 ## Summary
 
 Five testers used freeflow.website on 18–19 Nov 2026, once signed out and once signed in. The core loop works and is fast. The problems sit in four places: navigation, money figures people can trust, brief extraction, and first impressions.
