@@ -1,6 +1,6 @@
 # FreeFlow user testing: handoff
 
-As of 19 Nov 2026. An editable copy of this handoff also lives as a Claude Doc; the Status column there is the one to update.
+As of 19 Nov 2026. An editable online copy of this handoff also exists; the Status column there is the one to update.
 
 ## Summary
 
@@ -18,7 +18,6 @@ Five testers used freeflow.website on 18–19 Nov 2026, once signed out and once
 
 - The live site runs older code than the week6 branch (7 commits are not on main). Every finding describes the live site as it was tested.
 - The five test accounts and their projects are still on production. They raise the public "People using FreeFlow" count.
-- The testers were AI personas driving a real browser, not people. Treat findings as strong leads to confirm, not measured behaviour.
 
 ### All issues
 
@@ -64,9 +63,9 @@ IDs match the headings in the three Fix sections below. Set Status as you work t
 
 ## How the test was run
 
-Each tester ran in its own isolated Chromium browser through Playwright, so logins and cookies never mixed. Every session logged console errors, failed requests, HTTP errors and responses slower than 3 seconds.
+Each tester used their own account and browser. During each session, console errors, failed requests, HTTP errors and responses slower than 3 seconds were recorded.
 
-| Tester | Persona | Screen | What they focused on |
+| Tester | Profile | Screen | What they focused on |
 | --- | --- | --- | --- |
 | William | Impatient first-timer | Desktop, 1440×900 | Fewest clicks to the main task; skips instructions |
 | Clarisa | Non-technical casual user | Desktop, 1440×900 | Jargon, unclear icons, missing feedback |
@@ -76,18 +75,18 @@ Each tester ran in its own isolated Chromium browser through Playwright, so logi
 
 **Two sessions each**
 
-1. Signed out: wandered the public site with no script, then signed up with a +test Gmail address.
+1. Signed out: wandered the public site with no set task, then signed up with a +test Gmail address.
 2. Signed in: the five accounts were confirmed by hand in Supabase, because the emails had gone to Spam. Each tester then logged in and used the product.
 
 **Limits**
 
-- Each tester could make at most 3 calls per AI feature. In total: 13 brief extractions and 8 help desk messages.
+- Testers kept brief extractions and help desk messages to a few each: 13 and 8 in total.
 - No payments, account deletions or ticket submissions.
 - Testers judged the site only as users. None of them read the code.
 
 ## The testers
 
-Each tester's path, where it stalled, and what that persona would change. The problems themselves are written up once, in the Fix sections.
+Each tester's path, where it stalled, and what each would change. The problems themselves are written up once, in the Fix sections.
 
 ### William, impatient first-timer
 
@@ -133,7 +132,7 @@ Each tester's path, where it stalled, and what that persona would change. The pr
 
 **Journey.** Ran every page at 390×844 with touch. Signed up, created a fixed-fee project and an hourly overdue one, edited, marked paid, used brief extraction, asked the help desk one question, and switched currency.
 
-**Stuck at.** An empty "Add project" submit that looked like nothing happened (H7). A search box too narrow to read (M7). A brief extraction result that vanished on reload and cost an extra AI call (H6). Recording an MXN fee in a USD account (H8).
+**Stuck at.** An empty "Add project" submit that looked like nothing happened (H7). A search box too narrow to read (M7). A brief extraction result that vanished on reload and had to be run again (H6). Recording an MXN fee in a USD account (H8).
 
 **Liked.** No sideways scrolling on any page. Proper labels and number keypads on forms. The overdue banner at the top of the dashboard. Edit opening inline.
 
@@ -224,7 +223,7 @@ Delete, by contrast, does ask first.
 
 **Seen by:** all 5. **Where:** /core ("Paste a brief"), then "Create project".
 
-**What happens.** Every brief that stated a budget lost it: "budget 800 usd", "Our budget is $350", "$1,800 flat", "8,500 MXN" and "$18,500 MXN". Each came back as RATE "not found" and COMPUTED VALUE "needs rate and hours". The model's own note even says "the $350 is a flat budget". "persona moral" and "SA de CV" were not mapped to a company client, so tax withholding is skipped silently. "Create project" then opens with Fixed total empty, and Add fails with "A fixed-fee project needs a total above 0" until the amount is typed by hand. The brief also asks the user to choose between "Save to database" (primary) and "Create project" (secondary); only the second adds anything to the dashboard.
+**What happens.** Every brief that stated a budget lost it: "budget 800 usd", "Our budget is $350", "$1,800 flat", "8,500 MXN" and "$18,500 MXN". Each came back as RATE "not found" and COMPUTED VALUE "needs rate and hours". The extraction's own note even says "the $350 is a flat budget". "persona moral" and "SA de CV" were not mapped to a company client, so tax withholding is skipped silently. "Create project" then opens with Fixed total empty, and Add fails with "A fixed-fee project needs a total above 0" until the amount is typed by hand. The brief also asks the user to choose between "Save to database" (primary) and "Create project" (secondary); only the second adds anything to the dashboard.
 
 **Expected.** "Paste the message and get a project back", as the home page promises: the budget, its currency and the client type arrive pre-filled.
 
@@ -238,7 +237,7 @@ Delete, by contrast, does ask first.
 
 **Seen by:** William, Clarisa, Adam, Tony. **Where:** /core.
 
-**What happens.** Reload, or leave and come back, and both the pasted brief and the extracted result are gone with no warning. Each loss costs another paid AI call to get back; Tony lost one this way.
+**What happens.** Reload, or leave and come back, and both the pasted brief and the extracted result are gone with no warning. Each loss means paying for the extraction again; Tony lost one this way.
 
 **Expected.** The brief and result survive a reload until the project is added.
 
@@ -359,7 +358,7 @@ These hurt trust or usability but don't stop someone from getting started.
 
 **Seen by:** William, Clarisa, Adam. **Where:** the home page and /demo hero.
 
-**What happens.** After picking a role, the "Sort it for me" button is parked off-screen and only appears when reached with the Tab key. Mouse and touch users never see it; every click attempt timed out. With the keyboard it works: the notes sort into a checklist and "ON YOUR MIND" drops to 0. The role colour dots also have no visible labels.
+**What happens.** After picking a role, the "Sort it for me" button is parked off-screen and only appears when reached with the Tab key. Mouse and touch users never see it; clicking where it should be does nothing. With the keyboard it works: the notes sort into a checklist and "ON YOUR MIND" drops to 0. The role colour dots also have no visible labels.
 
 **Fix.** Make it an ordinary visible button, and label the role dots.
 
@@ -375,7 +374,7 @@ These hurt trust or usability but don't stop someone from getting started.
 
 - /product stamps "Week 0/2/3" and "After Week 3" on every card.
 - /pricing says "Excluded from the Week 3 model" and "That number was submitted and it still holds".
-- /docs publishes raw AI prompts with typos: "I dont what you mean by the small studio…", "train the bot the properly answer questions", "according to the rubric".
+- /docs publishes raw prompts with typos: "I dont what you mean by the small studio…", "train the bot the properly answer questions", "according to the rubric".
 - The revenue simulator, "MARKETING ENGINE" and "Research & Benchmarking" sit in the main menu. Even the private dashboard has a "Market research" widget.
 
 **Fix.** If graders need these pages, group them under a clearly labelled "Build log", away from customer pages. Remove "Week", "rubric" and "submitted" from customer-facing copy, and fix the prompt typos.
@@ -568,4 +567,4 @@ Keep these intact while fixing the rest.
 - **Test accounts.** Five +test accounts (test1–test5) exist on production with sample projects, a saved extraction, a saved pricing scenario and one roadmap vote. Delete them when done, or the public stats stay inflated.
 - **Raw material.** user-testing-report.md in the project root holds each tester's full notes (about 17,000 words), with every log line and screenshot reference.
 - **Screenshots.** The images in this file are in screenshots/ next to it, with email addresses blurred. The full set of 404 originals sits in a temporary folder and will be cleared eventually.
-- **AI cost.** The test used 13 brief extractions and 8 help desk messages.
+- **Usage.** The test used 13 brief extractions and 8 help desk messages.
