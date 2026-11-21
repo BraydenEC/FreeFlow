@@ -359,7 +359,7 @@ export const CONTENT_RULES: Rule[] = [
       "The form shows what's wrong next to the field. A project needs a name, a client and a real deadline. A fixed-fee project needs a total above 0, an hourly one needs a rate above 0, and links must start with http:// or https://. If it says it could not save, try again, and submit a ticket if it keeps failing.",
     offerTicket: true,
   },
-  // ProjectForm STATUS_OPTIONS; lib/progress.ts; StatusBadge "Payment outranks status"
+  // ProjectForm STATUS_OPTIONS; StatusBadge "Payment outranks status"; no progress bars since M1
   {
     id: "project-statuses",
     categories: ["broken", "how_to"],
@@ -368,7 +368,7 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["status", "statuses", "stage"],
     phrases: ["awaiting review", "invoice sent", "contract signed", "in progress", "progress bar", "change the status"],
     answer:
-      "A project moves through Contract signed, In progress, Awaiting review, Invoice sent and Overdue. You set the status yourself with Edit on its row, and it doesn't change on its own. Paid isn't a status you choose: Mark paid records it, and the progress bar then shows 100%.",
+      "A project moves through Contract signed, In progress, Awaiting review, Invoice sent and Overdue. You set the status yourself with Edit on its row, and it doesn't change on its own. Paid isn't a status you choose: Mark paid records it. There's no progress bar: the status is the progress.",
   },
   // MarkPaidButton shows Mark unpaid on a paid row; ProjectForm has Paid on for a paid project
   {
@@ -1054,7 +1054,7 @@ export const CONTENT_RULES: Rule[] = [
     phrases: ["always be free", "stay free", "free forever", "free period", "start charging", "going to charge", "charge later", "will you charge", "pay later", "this free forever", "it free forever", "freeflow free forever", "going to get charged", "will i get charged", "charged later", "charge me later", "will i be charged", "charged in the future"],
     answer: DONATIONS_ENABLED
       ? "Honestly, probably not forever. The intention is to charge eventually, and the whole model is public on the Pricing page, but nothing is charged today and no date is set. The Support page says there's no plan to put today's features behind a price."
-      : "Honestly, probably not forever. The intention is to charge eventually, and the whole model is public on the Pricing page, but nothing is charged today and no date is set.",
+      : "Free during early access, with every feature and no limits. At launch FreeFlow becomes a one-time purchase, and the price isn't set yet. Nothing is charged today, and the Pricing page says the same in its first line.",
     links: DONATIONS_ENABLED
       ? [
           { label: "Pricing", href: "/pricing" },

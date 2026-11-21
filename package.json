@@ -11,7 +11,6 @@
     "test:pricing": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-pricing.ts",
     "test:prefs": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-prefs.ts",
     "test:projects": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-projects.ts",
-    "test:progress": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-progress.ts",
     "test:withholding": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-withholding.ts",
     "test:support": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-support.ts",
     "test:csv": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-csv.ts",
@@ -30,7 +29,7 @@
     "test:nav": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-nav.ts",
     "test:core": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/test-core.ts",
     "demo:accounts": "node --experimental-strip-types --no-warnings --loader ./scripts/alias-loader.mjs scripts/demo-accounts.ts",
-    "test": "npm run test:pricing && npm run test:filters && npm run test:prefs && npm run test:projects && npm run test:progress && npm run test:withholding && npm run test:support && npm run test:csv && npm run test:forecast && npm run test:currency && npm run test:features && npm run test:project-filter && npm run test:marketing && npm run test:ratelimit && npm run test:chat && npm run test:demo && npm run test:ui-source && npm run test:venture && npm run test:funnel && npm run test:game && npm run test:nav && npm run test:core"
+    "test": "npm run test:pricing && npm run test:filters && npm run test:prefs && npm run test:projects && npm run test:withholding && npm run test:support && npm run test:csv && npm run test:forecast && npm run test:currency && npm run test:features && npm run test:project-filter && npm run test:marketing && npm run test:ratelimit && npm run test:chat && npm run test:demo && npm run test:ui-source && npm run test:venture && npm run test:funnel && npm run test:game && npm run test:nav && npm run test:core"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.120.0",

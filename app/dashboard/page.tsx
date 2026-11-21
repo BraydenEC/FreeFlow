@@ -15,7 +15,7 @@ import Tabs from "@/components/prefs/Tabs";
 import PublicNumbers from "@/components/venture/PublicNumbers";
 import { getVentureCounts } from "@/lib/venture/counts";
 import { getSavedOutputs } from "@/lib/core/saved";
-import { daysUntil } from "@/lib/format";
+import { lateness } from "@/lib/format";
 import { DEFAULT_CURRENCY } from "@/lib/currency";
 import { DEFAULT_TERMS_DAYS } from "@/lib/forecast/model";
 import { DEFAULT_TAX_REGIME } from "@/lib/tax/withholding";
@@ -48,8 +48,10 @@ export const metadata = { title: "Dashboard — FreeFlow" };
   6. Signed out, that tab is an invitation to sign in instead.
 
   "FreeFlow in public" is visible to everyone: the venture's own numbers,
-  aggregate counts only, from venture_counts(). It is the default tab for a
-  signed-out visitor. The proxy does not gate this page for that reason.
+  aggregate counts only, from venture_counts(). The proxy does not gate this
+  page for that reason. It used to be the signed-out default; testers read
+  "People using FreeFlow 2" as "nobody uses this" before learning what
+  FreeFlow was (H10), so a visitor now opens on the pitch.
 */
 export default async function Dashboard({
   searchParams,
@@ -67,13 +69,13 @@ export default async function Dashboard({
         <header>
           <h1 className="page-title">Dashboard</h1>
           <p className="text-ink-muted mt-1 text-sm">
-            Your projects live here once you sign in. FreeFlow&rsquo;s own numbers are public.
+            Your projects live here once you sign in.
           </p>
         </header>
         <Suspense fallback={null}>
           <Tabs
             tablist="always"
-            initial="public"
+            initial="work"
             tabs={[
               { id: "work", label: "Your work", content: <SignInInvite /> },
               { id: "public", label: "FreeFlow in public", content: <PublicNumbers counts={await counts} /> },
@@ -118,9 +120,8 @@ export default async function Dashboard({
     (p) => !p.isPaid && p.clientTaxType === "persona_moral",
   );
 
-  const hasOverdue = projects.some(
-    (p) => !p.isPaid && (p.status === "overdue" || daysUntil(p.deadline, now) < 0),
-  );
+  // M1: an invoice is late after its payment terms, as the forecast assumes.
+  const hasOverdue = projects.some((p) => lateness(p, now, termsDays).late);
 
   return (
     <div data-source={source} className="flex min-h-[calc(100vh-3.5rem)]">
@@ -139,9 +140,20 @@ export default async function Dashboard({
                 Projects Overview
               </h1>
               <p className="text-ink-muted mt-1 text-sm">
-                Welcome back — here&rsquo;s where your money and deadlines
-                stand.
+                {/* L3: a brand-new account was greeted with "Welcome back". */}
+                {projects.length === 0
+                  ? "Welcome. Add your first project and FreeFlow tracks its deadline and money from here."
+                  : "Welcome back. Here\u2019s where your money and deadlines stand."}
               </p>
+              {/* M7: on a phone the New project form sat 1,500px down the page. */}
+              {projects.length > 0 && (
+                <a
+                  href="#new-project"
+                  className="border-hairline text-ink mt-3 inline-flex min-h-11 items-center rounded-lg border px-4 text-sm font-medium sm:hidden"
+                >
+                  + New project
+                </a>
+              )}
             </header>
 
             <Suspense fallback={null}>
@@ -162,7 +174,7 @@ export default async function Dashboard({
                           ...(hasForecast ? [] : ["forecast" as const]),
                         ]}
                         widgets={{
-                          overdue: <OverdueAlert projects={projects} now={now} currency={currency} />,
+                          overdue: <OverdueAlert projects={projects} now={now} currency={currency} termsDays={termsDays} />,
                           forecast: (
                             <ForecastPanel
                               projects={projects}
@@ -180,6 +192,7 @@ export default async function Dashboard({
                               now={now}
                               currency={currency}
                               regime={regime}
+                              termsDays={termsDays}
                               action={<ProjectForm defaultOpen={projects.length === 0} />}
                               filterActive={filterActive}
                               total={projects.length}
@@ -242,19 +255,38 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+/* H10: what FreeFlow is and how to start, before any numbers about it. */
 function SignInInvite() {
   return (
-    <section className="border-hairline bg-surface rounded-xl border px-5 py-6 sm:px-6">
-      <h2 className="text-[15px] font-semibold">Your projects, deadlines and money, in one place</h2>
+    <section className="border-hairline bg-surface rounded-xl border px-5 py-6 sm:px-8 sm:py-8">
+      <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
+        Your projects, deadlines and money, in one place
+      </h2>
       <p className="text-ink-muted mt-2 max-w-xl text-sm leading-relaxed">
-        Sign in to see your dashboard, or create a free account. Your projects are private to you.
+        FreeFlow is a free tracker for freelancers. Add each job, see what&rsquo;s due and what you&rsquo;re
+        owed, and get a month-by-month forecast of the money coming in.
       </p>
-      <div className="mt-4 flex flex-wrap gap-3">
-        <Link href="/signup" className="bg-accent text-app rounded-lg px-4 py-2 text-sm font-semibold">
+      <ul className="text-ink mt-4 grid max-w-2xl gap-2 text-sm sm:grid-cols-3">
+        <li className="border-hairline rounded-lg border px-3 py-2">Deadlines and late invoices flagged</li>
+        <li className="border-hairline rounded-lg border px-3 py-2">Six-month income forecast</li>
+        <li className="border-hairline rounded-lg border px-3 py-2">Paste a client message, get a project</li>
+      </ul>
+      <p className="text-ink-faint mt-3 max-w-xl text-xs leading-relaxed">
+        It tracks invoices you send from other tools; it doesn&rsquo;t create or send them yet. Your projects are
+        private to you.
+      </p>
+      <div className="mt-5 flex flex-wrap gap-3">
+        <Link
+          href="/signup"
+          className="bg-accent text-app inline-flex min-h-11 items-center rounded-lg px-5 text-base font-semibold"
+        >
           Create a free account
         </Link>
-        <Link href="/login" className="border-hairline text-ink rounded-lg border px-4 py-2 text-sm">
+        <Link href="/login" className="border-hairline text-ink inline-flex min-h-11 items-center rounded-lg border px-4 text-sm">
           Sign in
+        </Link>
+        <Link href="/demo" className="text-ink-muted hover:text-ink inline-flex min-h-11 items-center px-2 text-sm underline underline-offset-4">
+          See the demo first
         </Link>
       </div>
     </section>

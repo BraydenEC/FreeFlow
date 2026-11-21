@@ -4,7 +4,7 @@ import {
   EditableProjectRow,
 } from "@/components/dashboard/EditProject";
 import MarkPaidButton from "@/components/dashboard/MarkPaidButton";
-import ProgressBar from "@/components/ProgressBar";
+import { DEFAULT_TERMS_DAYS } from "@/lib/forecast/model";
 import StatusBadge from "@/components/StatusBadge";
 import {
   deadlineNote,
@@ -12,7 +12,6 @@ import {
   formatMonthDay,
   projectValue,
 } from "@/lib/format";
-import { projectProgress } from "@/lib/progress";
 import { computeWithholding, type TaxRegime } from "@/lib/tax/withholding";
 import type { CurrencyCode } from "@/lib/currency";
 import type { Project } from "@/types/project";
@@ -59,12 +58,12 @@ function RowLinks({ project }: { project: Project }) {
   );
 }
 
-function DeadlineText({ project, now }: { project: Project; now: Date }) {
-  const note = deadlineNote(project, now);
+function DeadlineText({ project, now, termsDays }: { project: Project; now: Date; termsDays: number }) {
+  const note = deadlineNote(project, now, termsDays);
 
   return (
     <>
-      <span className="text-ink block">{formatMonthDay(project.deadline)}</span>
+      <span className="text-ink block">{formatMonthDay(project.deadline, now)}</span>
       {note.text && (
         <span
           className={`block text-xs ${
@@ -88,13 +87,14 @@ function DeadlineText({ project, now }: { project: Project; now: Date }) {
 const TH = "px-5 py-2.5 text-[11px] font-medium tracking-[0.08em] uppercase";
 
 /* How many column headers the table has, so an edit row can span them all. */
-const COLUMN_COUNT = 6;
+const COLUMN_COUNT = 5;
 
 export default function ProjectsTable({
   projects,
   now,
   currency,
   regime,
+  termsDays = DEFAULT_TERMS_DAYS,
   action,
   filters,
   filterActive = false,
@@ -104,6 +104,8 @@ export default function ProjectsTable({
   now: Date;
   currency: CurrencyCode;
   regime: TaxRegime;
+  /** The account's default payment terms: an invoice is late after them (M1). */
+  termsDays?: number;
   /** Rendered in the header — the dashboard passes the New project control. */
   action?: React.ReactNode;
   /** The filter bar, rendered above the table. */
@@ -181,7 +183,7 @@ export default function ProjectsTable({
         <table className="hidden w-full text-left text-sm sm:table">
           <caption className="sr-only">
             Recent freelance projects with client, status, financial value,
-            pipeline progress, deadline, and a control to record payment.
+            deadline, and a control to record payment.
           </caption>
           <thead className="bg-raised/60 text-ink-faint border-hairline border-b">
             <tr>
@@ -194,9 +196,6 @@ export default function ProjectsTable({
               <th scope="col" className={`${TH} text-right`}>
                 Value
               </th>
-              <th scope="col" className={`${TH} w-44`}>
-                Progress
-              </th>
               <th scope="col" className={TH}>
                 Due Date
               </th>
@@ -207,7 +206,6 @@ export default function ProjectsTable({
           </thead>
           <tbody>
             {projects.map((project) => {
-              const progress = projectProgress(project);
               return (
                 <EditableProjectRow
                   key={project.id}
@@ -216,10 +214,11 @@ export default function ProjectsTable({
                   actions={<MarkPaidButton projectId={project.id} isPaid={project.isPaid} />}
                 >
                   <th scope="row" className="px-5 py-3.5 font-normal">
-                    <span className="text-ink block font-medium">
+                    {/* M11: a 120-character word wraps instead of widening the page. */}
+                    <span className="text-ink block font-medium [overflow-wrap:anywhere]">
                       {project.name}
                     </span>
-                    <span className="text-ink-muted block text-xs">
+                    <span className="text-ink-muted block text-xs [overflow-wrap:anywhere]">
                       {project.client}
                     </span>
                     <RowLinks project={project} />
@@ -252,15 +251,8 @@ export default function ProjectsTable({
                       ) : null;
                     })()}
                   </td>
-                  <td className="px-5 py-3.5">
-                    <ProgressBar
-                      percent={progress.percent}
-                      label={progress.label}
-                      complete={progress.complete}
-                    />
-                  </td>
                   <td className="px-5 py-3.5 whitespace-nowrap">
-                    <DeadlineText project={project} now={now} />
+                    <DeadlineText project={project} now={now} termsDays={termsDays} />
                   </td>
                 </EditableProjectRow>
               );
@@ -271,7 +263,6 @@ export default function ProjectsTable({
         {/* ---------- Mobile: stacked cards ---------- */}
         <ul className="sm:hidden">
           {projects.map((project) => {
-            const progress = projectProgress(project);
             return (
               <li
                 key={project.id}
@@ -287,17 +278,12 @@ export default function ProjectsTable({
                   </div>
                   <StatusBadge status={project.status} isPaid={project.isPaid} />
                 </div>
-                <ProgressBar
-                  percent={progress.percent}
-                  label={progress.label}
-                  complete={progress.complete}
-                />
                 <div className="flex items-baseline justify-between gap-3 text-sm">
                   <span className="numeric font-medium">
                     {formatCurrency(projectValue(project), currency)}
                   </span>
                   <span className="text-xs">
-                    <DeadlineText project={project} now={now} />
+                    <DeadlineText project={project} now={now} termsDays={termsDays} />
                   </span>
                 </div>
                 <EditableProjectCard

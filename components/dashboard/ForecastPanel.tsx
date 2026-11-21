@@ -21,7 +21,7 @@ import type { Project } from "@/types/project";
   weighted figure would quietly discount someone's income; showing only the
   raw one would promise money that has not been earned yet.
 
-  The bars are drawn from the same vocabulary as the progress bars in the
+  The bars are drawn from the same vocabulary as the status badges in the
   projects table rather than from a charting library — one visual language,
   and still no fourth dependency.
 */

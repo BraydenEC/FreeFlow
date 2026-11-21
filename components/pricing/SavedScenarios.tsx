@@ -41,7 +41,7 @@ export default function SavedScenarios({
       <div className="border-hairline bg-surface rounded-xl border">
         {scenarios.length === 0 ? (
           <p className="text-ink-faint px-5 py-8 text-center text-sm">
-            Adjust the simulator above and save a scenario to see it here.
+            Adjust the Simulator tab and save a scenario to see it here.
           </p>
         ) : (
           <ul>

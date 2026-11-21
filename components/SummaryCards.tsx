@@ -1,5 +1,5 @@
 import { formatCurrencyWhole } from "@/lib/format";
-import type { CurrencyCode } from "@/lib/currency";
+import { CURRENCIES, type CurrencyCode } from "@/lib/currency";
 import type { DashboardMetrics } from "@/types/project";
 
 /*
@@ -61,11 +61,15 @@ export default function SummaryCards({
 }) {
   return (
     <section aria-label="Cash flow summary">
+      {/* H8: the symbol alone ($) doesn't say which currency the account is in. */}
+      <p className="text-ink-faint mb-2 text-xs">
+        Amounts in {currency} · {CURRENCIES[currency]?.label ?? currency}. Change it in Settings.
+      </p>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card
           label="Unpaid Invoices"
           value={formatCurrencyWhole(metrics.unpaidInvoices, currency)}
-          hint="Billed and awaiting payment"
+          hint="Billed and awaiting payment, before any tax withheld"
           accent="bg-rose-400/10 text-rose-300"
           icon={
             <svg {...iconProps}>
@@ -77,7 +81,7 @@ export default function SummaryCards({
         <Card
           label="This Month's Earnings"
           value={formatCurrencyWhole(metrics.monthEarnings, currency)}
-          hint="Payments received this month"
+          hint="Paid this month, before any tax withheld"
           accent="bg-emerald-400/10 text-emerald-300"
           icon={
             <svg {...iconProps}>
@@ -87,9 +91,9 @@ export default function SummaryCards({
           }
         />
         <Card
-          label="Active Projects"
+          label="Work in progress"
           value={String(metrics.activeProjects)}
-          hint="Not yet invoiced"
+          hint="Projects you haven't invoiced yet"
           accent="bg-accent/10 text-accent-soft"
           icon={
             <svg {...iconProps}>

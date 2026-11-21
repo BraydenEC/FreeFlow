@@ -2,8 +2,8 @@
 
 import { useSession } from "@/components/auth/SessionProvider";
 import { TAX_REGIMES, TAX_REGIME_LABELS } from "@/lib/tax/withholding";
-import { CURRENCIES, CURRENCY_CODES } from "@/lib/currency";
-import { useEffect, useRef } from "react";
+import { CURRENCIES, CURRENCY_CODES, formatMoney, type CurrencyCode } from "@/lib/currency";
+import { useEffect, useRef, useState } from "react";
 import { usePrefs } from "@/components/prefs/PrefsProvider";
 import { WIDGET_LABELS } from "@/lib/prefs/schema";
 
@@ -58,6 +58,10 @@ export default function LayoutDrawer({
   const user = useSession();
 
   const headingRef = useRef<HTMLHeadingElement>(null);
+  // H8: a currency switch said nothing; now it says what it did and didn't do.
+  const [switchedFrom, setSwitchedFrom] = useState<CurrencyCode | null>(null);
+  // L7: the terms field can be empty while typing; it saves once it's a number.
+  const [termsText, setTermsText] = useState<string | null>(null);
 
   // Escape closes; body scroll locks while open. Focus moves into the sheet
   // and back to whatever opened it (M13), and body[data-sheet] tells the Dock
@@ -127,12 +131,17 @@ export default function LayoutDrawer({
                 type="number"
                 min={0}
                 max={365}
-                value={p.prefs.defaultTermsDays}
+                inputMode="numeric"
+                value={termsText ?? String(p.prefs.defaultTermsDays)}
                 onChange={(e) => {
-                  const n = Number(e.target.value);
-                  if (Number.isFinite(n)) p.setDefaultTermsDays(Math.min(365, Math.max(0, Math.round(n))));
+                  const text = e.target.value;
+                  setTermsText(text);
+                  if (text.trim() === "") return;
+                  const n = Number(text);
+                  if (Number.isFinite(n) && n >= 0) p.setDefaultTermsDays(Math.min(365, Math.round(n)));
                 }}
-                className="bg-raised border-hairline text-ink focus-visible:ring-accent w-24 rounded-lg border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
+                onBlur={() => setTermsText(null)}
+                className="bg-raised border-hairline text-ink focus-visible:ring-accent w-24 rounded-lg border px-3 py-2 text-base focus-visible:ring-2 focus-visible:outline-none sm:text-sm"
               />
               <span className="text-ink-muted text-sm">days after the deadline</span>
             </div>
@@ -150,7 +159,7 @@ export default function LayoutDrawer({
               htmlFor="prefs-regime"
               className="text-ink text-[13px] font-medium"
             >
-              Mexican tax regime
+              Tax regime in Mexico <span className="text-ink-faint font-normal">(optional)</span>
             </label>
             <select
               id="prefs-regime"
@@ -161,15 +170,15 @@ export default function LayoutDrawer({
               className="bg-raised border-hairline text-ink focus-visible:ring-accent mt-2 w-full rounded-lg border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
             >
               {TAX_REGIMES.map((r) => (
-                <option key={r} value={r}>
-                  {TAX_REGIME_LABELS[r]}
+                <option key={r} value={r} title={TAX_REGIME_LABELS[r]}>
+                  {r === "general" ? "General (most freelancers)" : "RESICO (simplified, lower rate)"}
                 </option>
               ))}
             </select>
             <p className="text-ink-faint mt-1.5 text-[11px]">
-              Only affects invoices to Mexican companies. RESICO is withheld at
-              1.25% ISR, régimen general at 10%. Ignore this if you do not
-              invoice in Mexico.
+              Skip this unless you invoice companies in Mexico. It sets how much
+              income tax (ISR) a Mexican company keeps back when it pays you:
+              10% on the general regime, 1.25% on RESICO.
             </p>
           </div>
 
@@ -186,9 +195,11 @@ export default function LayoutDrawer({
             <select
               id="prefs-currency"
               value={p.prefs.currency}
-              onChange={(e) =>
-                p.setCurrency(e.target.value as (typeof CURRENCY_CODES)[number])
-              }
+              onChange={(e) => {
+                const next = e.target.value as CurrencyCode;
+                if (next !== p.prefs.currency) setSwitchedFrom(switchedFrom ?? p.prefs.currency);
+                p.setCurrency(next);
+              }}
               className="bg-raised border-hairline text-ink focus-visible:ring-accent mt-2 w-full rounded-lg border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
             >
               {CURRENCY_CODES.map((c) => (
@@ -201,6 +212,13 @@ export default function LayoutDrawer({
               Applies everywhere. Amounts are never converted, so this changes
               how your figures are written, not what they are worth.
             </p>
+            {switchedFrom && switchedFrom !== p.prefs.currency && (
+              <p role="status" className="mt-2 rounded-lg bg-amber-400/10 px-3 py-2 text-xs text-amber-200 ring-1 ring-amber-400/20 ring-inset">
+                Switched from {switchedFrom} to {p.prefs.currency}. Existing amounts were not converted:{" "}
+                {formatMoney(1200, switchedFrom)} is now read as {formatMoney(1200, p.prefs.currency)}{" "}
+                ({p.prefs.currency}). Edit each project if its amount should change.
+              </p>
+            )}
           </div>
 
           <section>

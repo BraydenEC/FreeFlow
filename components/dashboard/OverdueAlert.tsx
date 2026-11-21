@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { daysUntil, formatCurrency, formatMonthDay, projectValue } from "@/lib/format";
+import { formatCurrency, formatMonthDay, lateness, paymentDue, projectValue } from "@/lib/format";
 import type { CurrencyCode } from "@/lib/currency";
 import type { Project } from "@/types/project";
 
@@ -20,15 +20,17 @@ export default function OverdueAlert({
   projects,
   now,
   currency,
+  termsDays,
 }: {
   projects: Project[];
   now: Date;
   currency: CurrencyCode;
+  termsDays: number;
 }) {
+  // M1: an invoice counts from its payment date, work from its deadline.
   const overdue = projects
-    .filter((p) => p.status === "overdue" || daysUntil(p.deadline, now) < 0)
-    .filter((p) => !p.isPaid)
-    .sort((a, b) => daysUntil(a.deadline, now) - daysUntil(b.deadline, now));
+    .filter((p) => lateness(p, now, termsDays).late)
+    .sort((a, b) => lateness(b, now, termsDays).days - lateness(a, now, termsDays).days);
 
   if (overdue.length === 0) return null;
 
@@ -52,20 +54,20 @@ export default function OverdueAlert({
       </div>
       <ul>
         {overdue.map((p) => {
-          const late = Math.abs(daysUntil(p.deadline, now));
+          const l = lateness(p, now, termsDays);
           return (
             <li
               key={p.id}
               className="flex items-center justify-between gap-4 border-t border-rose-400/10 px-5 py-2.5 first:border-t-0 sm:px-6"
             >
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium">{p.name}</p>
+                <p className="text-sm font-medium [overflow-wrap:anywhere]">{p.name}</p>
                 <p className="text-ink-muted truncate text-xs">{p.client}</p>
               </div>
               <div className="shrink-0 text-right">
                 <p className="numeric text-sm">{formatCurrency(projectValue(p), currency)}</p>
                 <p className="numeric text-status-overdue text-xs">
-                  {formatMonthDay(p.deadline)} · {late}d late
+                  {l.kind === "payment" ? `payment due ${formatMonthDay(paymentDue(p, termsDays), now)}` : formatMonthDay(p.deadline, now)} · {l.days}d late
                 </p>
               </div>
             </li>

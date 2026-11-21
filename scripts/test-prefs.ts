@@ -96,7 +96,7 @@ console.log("\nDEFAULTS — the product is the default\n" + "─".repeat(64));
 assert("default density is compact", DEFAULT_PREFS.density === "compact");
 assert("default is work mode (reasoning hidden)", DEFAULT_PREFS.showReasoning === false);
 assert("overdue pinned by default", DEFAULT_PREFS.dashboard.pinOverdue === true);
-assert("every widget visible by default", DEFAULT_PREFS.dashboard.widgets.every((w) => w.visible));
+assert("every widget but market research visible by default (M4)", DEFAULT_PREFS.dashboard.widgets.every((w) => w.visible === (w.id !== "research")));
 assert("defaults themselves validate", JSON.stringify(parsePrefs(DEFAULT_PREFS)) === JSON.stringify(DEFAULT_PREFS));
 
 // Currency, regime and terms are read on the server, so changing one means the

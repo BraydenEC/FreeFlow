@@ -15,7 +15,8 @@ import { withRealDeadline } from "@/lib/core/schema";
 import { extractionToProject } from "@/lib/core/to-project";
 import { getMockProjects } from "@/lib/mock-data";
 import { deriveMetrics } from "@/lib/projects/metrics";
-import { deadlineNote, formatRelativeDeadline } from "@/lib/format";
+import { deadlineNote, formatRelativeDeadline, lateness, paymentDue } from "@/lib/format";
+import { DEFAULT_TERMS_DAYS } from "@/lib/forecast/model";
 import { blankProject, fieldShownFor, NewProjectSchema, projectErrors, isProjectId, toRow, toUpdateRow } from "@/lib/projects/schema";
 import { formatMonthDay } from "@/lib/format";
 import { localToday, paidDateChanged, paidDateError } from "@/lib/projects/payment";
@@ -369,6 +370,27 @@ assert("a real uuid is a project id", isProjectId("3f2b8c1e-9a4d-4e2f-8b1a-2c3d4
 assert("not-a-uuid is not", !isProjectId("not-a-uuid"));
 assert("an empty id is not", !isProjectId(""));
 assert("a uuid with extra text is not", !isProjectId("3f2b8c1e-9a4d-4e2f-8b1a-2c3d4e5f6a7b; drop"));
+
+
+// ── M1: an invoice is late after its payment terms, not at the deadline ────
+{
+  const NOW = new Date("2026-11-21T12:00:00Z");
+  const inv = (deadline: string, terms: number | null = null) =>
+    ({ deadline, isPaid: false, status: "invoice_sent" as const, paymentTermsDays: terms });
+  assert("payment is due deadline + terms", paymentDue(inv("2026-11-12"), 30) === "2026-12-12");
+  assert("a project's own terms win", paymentDue(inv("2026-11-12", 15), 30) === "2026-11-27");
+  const fresh = deadlineNote(inv("2026-11-12"), NOW, 30);
+  assert("an invoice 9 days past its deadline, inside 30-day terms, is not late", fresh.tone !== "late" && !lateness(inv("2026-11-12"), NOW, 30).late, JSON.stringify(fresh));
+  assert("it says when payment is due", fresh.text === "payment due Dec 12", String(fresh.text));
+  const old = deadlineNote(inv("2026-10-01"), NOW, 30);
+  assert("an invoice past its terms is late, counted from the payment date", old.tone === "late" && old.text === "payment 21 days late", String(old.text));
+  assert("lateness counts payment days", lateness(inv("2026-10-01"), NOW, 30).days === 21);
+  const work = { deadline: "2026-11-12", isPaid: false, status: "in_progress" as const, paymentTermsDays: null };
+  assert("work past its deadline is still late", lateness(work, NOW, 30).late && deadlineNote(work, NOW, 30).text === "9 days overdue");
+  assert("a paid invoice is never late", !lateness({ ...inv("2026-01-01"), isPaid: true }, NOW, 30).late);
+  assert("marked overdue is late", lateness({ ...work, deadline: "2026-12-30", status: "overdue" as const }, NOW, 30).late);
+  assert("the default terms match the forecast's", deadlineNote(inv("2026-11-12"), NOW).text === `payment due ${DEFAULT_TERMS_DAYS === 30 ? "Dec 12" : "?"}`);
+}
 
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed\n`);

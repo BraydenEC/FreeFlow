@@ -25,9 +25,9 @@ import { DONATIONS_ENABLED, PER_PROJECT_PRICING_ENABLED } from "@/lib/flags";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Pricing & Revenue Simulator — FreeFlow",
+  title: "Pricing — FreeFlow",
   description:
-    "Three tiers anchored to verified competitor pricing, two customer segments, and a revenue model whose assumptions are stated rather than hidden.",
+    "FreeFlow is free during early access, then a one-time purchase at launch. Below it, the pricing model behind the business, with every assumption stated.",
 };
 
 const usd = new Intl.NumberFormat("en-US", {
@@ -62,10 +62,29 @@ export default async function PricingPage({
             className="from-accent/8 pointer-events-none absolute inset-x-0 top-0 h-64 bg-linear-to-b to-transparent"
           />
           <div className="relative mx-auto max-w-6xl page-stack px-5 sm:px-8 lg:px-10">
+            {/* H9: testers read the whole page and still couldn't say what
+                FreeFlow costs. The answer now comes first, in one line. */}
             <header className="max-w-3xl">
-              <h1 className="page-title">
-                Pricing &amp; Revenue Simulator
-              </h1>
+              <h1 className="page-title">Pricing</h1>
+              <p className="mt-3 text-xl leading-snug font-semibold">
+                Free during early access: every feature, for everyone. At launch FreeFlow becomes a one-time
+                purchase, and the price isn&rsquo;t set yet.
+              </p>
+              {/* M6: say plainly what FreeFlow doesn't do. */}
+              <p className="text-ink-muted mt-2 text-sm leading-relaxed">
+                FreeFlow tracks the invoices you send from other tools. It doesn&rsquo;t create or send invoices
+                yet, and it doesn&rsquo;t issue Mexican CFDI invoices.
+              </p>
+            </header>
+
+            <div className="border-hairline border-t pt-6">
+              <p className="text-ink-faint text-xs font-medium tracking-wide uppercase">Build log</p>
+              <h2 className="mt-1 text-lg font-semibold">The pricing model behind the business</h2>
+              <p className="text-ink-muted mt-1 max-w-3xl text-sm leading-relaxed">
+                The rest of this page is analysis, not a price list: possible later models, a revenue simulator
+                and the assumptions behind it, published so nobody has to guess later.
+              </p>
+              <div className="mt-3">
               <Reasoning label="Why this page is built the way it is">
                 <p className="text-ink-muted text-sm leading-relaxed">
                   A pricing simulator is a machine for producing encouraging
@@ -76,7 +95,8 @@ export default async function PricingPage({
                   hurts.
                 </p>
               </Reasoning>
-            </header>
+              </div>
+            </div>
 
             {/*
               The page describes a model, not a bill. FreeFlow is free while it
@@ -91,7 +111,8 @@ export default async function PricingPage({
                 None of this is being charged today.
               </p>
               <p className="text-ink mt-2 text-sm leading-relaxed">
-                These tiers are a possible long-term model. The plan for launch is a one-time purchase for full access.
+                The subscription tiers below are one possible long-term model, not something on sale. The plan
+                for launch is a one-time purchase for full access, and today there are no limits on anything.
               </p>
               <p className="text-ink-muted mt-2 text-sm leading-relaxed">
                 FreeFlow is free while it is early — every feature, for

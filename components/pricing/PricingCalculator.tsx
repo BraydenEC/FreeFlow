@@ -305,7 +305,7 @@ export default function PricingCalculator() {
             />
             <Stat
               label="Blended ARPU"
-              value={`$${result.arpu}`}
+              value={`$${result.arpu.toFixed(2)}`}
               sub="weighted across segments"
             />
             <Stat

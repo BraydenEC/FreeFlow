@@ -2,13 +2,15 @@ import SourceBadge from "@/components/research/SourceBadge";
 import { VISIBLE_TIERS, toMxn } from "@/lib/pricing/tiers";
 
 /*
-  The three tiers.
+  The possible subscription tiers (L4: the heading counts the cards it sits above).
 
   Each card carries its price anchor — the competitor figure the price was set
   against — with a source link. A pricing page that states numbers without
   saying where they came from is the same failure as a research page that
   states findings without citations, and Week 2 already built the badge for it.
 */
+
+const NUMBER_WORDS: Record<number, string> = { 1: "One", 2: "Two", 3: "Three", 4: "Four", 5: "Five" };
 
 const mxn = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
 
@@ -17,11 +19,11 @@ export default function TierCards() {
     <section aria-labelledby="tiers-heading" className="space-y-4">
       <div>
         <h2 id="tiers-heading" className="text-lg font-semibold">
-          Three tiers
+          {NUMBER_WORDS[VISIBLE_TIERS.length] ?? VISIBLE_TIERS.length} possible subscription tiers, not on sale
         </h2>
         <p className="text-ink-muted mt-1 text-sm">
-          Every price is anchored to a competitor figure fetched and dated in
-          the Week 2 research, not chosen because it looked plausible.
+          A long-term option the plan may never use: launch is a one-time purchase. Every price is anchored to
+          a competitor figure that was fetched and dated, not chosen because it looked plausible.
         </p>
       </div>
 

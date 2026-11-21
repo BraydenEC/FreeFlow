@@ -92,7 +92,8 @@ export const DEFAULT_PREFS: Prefs = {
       { id: "forecast", visible: true, width: "full" },
       { id: "withholding", visible: true, width: "half" },
       { id: "core", visible: true, width: "half" },
-      { id: "research", visible: true, width: "half" },
+      // M4: market research is the business's homework, not the user's; off by default.
+      { id: "research", visible: false, width: "half" },
     ],
   },
 };

@@ -57,7 +57,7 @@ const table = read("components/ProjectsTable.tsx");
 const editing = read("components/dashboard/EditProject.tsx");
 const form = read("components/dashboard/ProjectForm.tsx");
 const columns = table.match(/<th scope="col"/g)?.length ?? 0;
-assert("the table has its six columns", columns === 6, `found ${columns}`);
+assert("the table has its five columns (M1 dropped Progress)", columns === 5 && !table.includes("ProgressBar"), `found ${columns}`);
 assert("no edit form is left inside a table cell", !/<ProjectForm\b/.test(table));
 assert("the desktop row uses the full-width edit row", table.includes("<EditableProjectRow"));
 assert("the phone card uses the full-width edit panel", table.includes("<EditableProjectCard"));
@@ -315,9 +315,8 @@ assert("events never send a neutral pick as a job", ["StickyCta", "EndBand", "Ch
 // ── Week 6 /pricing framing ─────────────────────────────────────────────────
 assert(
   "/pricing says the tiers are long-term and launch is one-time",
-  read("app/pricing/page.tsx").includes(
-    "These tiers are a possible long-term model. The plan for launch is a one-time purchase for full access.",
-  ),
+  read("app/pricing/page.tsx").includes("one possible long-term model, not something on sale") &&
+    read("app/pricing/page.tsx").includes("At launch FreeFlow becomes a one-time"),
 );
 const cfdiIssuance = [...read("lib/pricing/tiers.ts").matchAll(/"([^"]*CFDI[^"]*issuance[^"]*)"/g)]
   .map((m) => m[1])
@@ -414,6 +413,22 @@ for (const path of ["app/api/projects/[id]/route.ts", "app/api/projects/[id]/pai
   assert("the keyboard hint is hidden on touch screens", bench.includes("[@media(hover:hover)]:inline"));
   assert("a budget is shown when the brief has one", bench.includes('label="Budget"'));
   assert("adding the project is the primary action", read("components/core/BriefToProject.tsx").includes('createLabel="Add to my projects"'));
+}
+
+
+// ── H9 / H10 / M1 / M6 / H8 ────────────────────────────────────────────────
+{
+  const pricing = read("app/pricing/page.tsx");
+  assert("/pricing answers what it costs before anything else", pricing.indexOf("Free during early access") > -1 && pricing.indexOf("Free during early access") < pricing.indexOf("<Tabs"));
+  assert("/pricing says FreeFlow doesn't send invoices", pricing.includes("doesn&rsquo;t create or send invoices"));
+  assert("the simulator sits under a Build log heading", pricing.indexOf("Build log") > -1 && pricing.indexOf("Build log") < pricing.indexOf("<Tabs"));
+  const dash = read("app/dashboard/page.tsx");
+  const signedOut = dash.slice(dash.indexOf("if (!user)"), dash.indexOf("const now = new Date()"));
+  assert("a signed-out visitor opens on the pitch, not the public numbers", signedOut.includes('initial="work"'));
+  assert("a new account isn't welcomed back", dash.includes("projects.length === 0") && dash.includes("Welcome. Add your first project"));
+  assert("lateness uses payment terms on the dashboard", dash.includes("lateness(p, now, termsDays)") && read("components/dashboard/OverdueAlert.tsx").includes("lateness("));
+  assert("the summary says which currency", read("components/SummaryCards.tsx").includes("Amounts in {currency}"));
+  assert("a currency switch warns that nothing was converted", read("components/prefs/LayoutDrawer.tsx").includes("Existing amounts were not converted"));
 }
 
 console.log("─".repeat(64));

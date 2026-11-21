@@ -15,7 +15,7 @@ export default function SegmentPanel() {
     <section aria-labelledby="segments-heading" className="space-y-4">
       <div>
         <h2 id="segments-heading" className="text-lg font-semibold">
-          Two segments — and one that is not a customer
+          {VISIBLE_SEGMENTS.length === 2 ? "Two" : VISIBLE_SEGMENTS.length} customer segments, and one that isn&rsquo;t a customer
         </h2>
         <p className="text-ink-muted mt-1 text-sm">
           Defined by billing model rather than by size, because billing model is

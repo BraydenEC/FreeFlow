@@ -88,19 +88,66 @@ export function formatRelativeDeadline(iso: string, now: Date): string {
   return `in ${days} days`;
 }
 
+/*
+  M1 (user testing): a project showed "9d late" in red while the forecast
+  expected its money in December. Both were right about different dates. Once
+  an invoice is sent, what matters is the payment date, deadline plus payment
+  terms, which is the date the forecast already uses. Work not yet invoiced is
+  still late at its deadline.
+
+  The default must equal DEFAULT_TERMS_DAYS in lib/forecast/model.ts (that
+  module imports this one, so it can't be imported here); a test pins them.
+*/
+const TERMS_FALLBACK = 30;
+
+type Timing = Pick<Project, "deadline" | "isPaid"> & Partial<Pick<Project, "status" | "paymentTermsDays">>;
+
+/** The date an invoiced project's money is expected: deadline + its terms. */
+export function paymentDue(project: Timing, termsDays: number = TERMS_FALLBACK): string {
+  const terms =
+    project.paymentTermsDays !== null && project.paymentTermsDays !== undefined && Number.isFinite(project.paymentTermsDays)
+      ? project.paymentTermsDays
+      : termsDays;
+  const d = parseIsoDate(project.deadline);
+  d.setUTCDate(d.getUTCDate() + terms);
+  return d.toISOString().slice(0, 10);
+}
+
+/** Whether a project is late, by how many days, and late for what. */
+export function lateness(
+  project: Timing,
+  now: Date,
+  termsDays: number = TERMS_FALLBACK,
+): { late: boolean; days: number; kind: "payment" | "deadline" } {
+  if (project.isPaid) return { late: false, days: 0, kind: "deadline" };
+  if (project.status === "invoice_sent") {
+    const days = -daysUntil(paymentDue(project, termsDays), now);
+    return { late: days > 0, days: Math.max(0, days), kind: "payment" };
+  }
+  const days = -daysUntil(project.deadline, now);
+  return { late: project.status === "overdue" || days > 0, days: Math.max(0, days), kind: "deadline" };
+}
+
 /**
  * What the Due Date column says under the date, and in what colour.
  *
  * A paid project has nothing left to be late for, so it gets no wording and no
- * colour at all, whatever its deadline. Lateness is about money that should
- * have arrived, the same reading lib/projects/filter.ts and the overdue alert
- * already use.
+ * colour at all, whatever its deadline. An invoiced project speaks about its
+ * payment date (M1); anything else about its deadline.
  */
 export function deadlineNote(
-  project: Pick<Project, "deadline" | "isPaid">,
+  project: Timing,
   now: Date,
+  termsDays: number = TERMS_FALLBACK,
 ): { text: string | null; tone: "late" | "soon" | "plain" } {
   if (project.isPaid) return { text: null, tone: "plain" };
+
+  if (project.status === "invoice_sent") {
+    const due = paymentDue(project, termsDays);
+    const days = daysUntil(due, now);
+    if (days < 0) return { text: `payment ${-days} day${days === -1 ? "" : "s"} late`, tone: "late" };
+    return { text: `payment due ${formatMonthDay(due, now)}`, tone: days <= 3 ? "soon" : "plain" };
+  }
 
   const days = daysUntil(project.deadline, now);
   return {

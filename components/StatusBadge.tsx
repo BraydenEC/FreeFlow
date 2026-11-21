@@ -33,7 +33,7 @@ export default function StatusBadge({
 }) {
   // Payment outranks status. A paid project whose row still says "Overdue"
   // is the one case where the stored status actively misleads, and the
-  // progress bar already resolves it the same way.
+  // table and the forecast resolve it the same way.
   const label = isPaid ? "Paid" : LABELS[status];
   const late = !isPaid && status === "overdue";
 
