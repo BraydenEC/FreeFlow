@@ -25,6 +25,13 @@ const monthDay = new Intl.DateTimeFormat("en-US", {
   timeZone: "UTC",
 });
 
+const monthDayYear = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
 const MS_PER_DAY = 86_400_000;
 
 /**
@@ -50,9 +57,10 @@ export function parseIsoDate(iso: string): Date {
   return new Date(Date.UTC(year, month - 1, day));
 }
 
-/** Render an ISO date as "Oct 25". */
-export function formatMonthDay(iso: string): string {
-  return monthDay.format(parseIsoDate(iso));
+/** Render an ISO date as "Oct 25", or "Jan 1, 2020" outside the current year (M12). */
+export function formatMonthDay(iso: string, now: Date = new Date()): string {
+  const d = parseIsoDate(iso);
+  return (d.getUTCFullYear() === now.getUTCFullYear() ? monthDay : monthDayYear).format(d);
 }
 
 /**

@@ -35,7 +35,7 @@ export const AREA_LABELS: Record<Area, string> = {
   dashboard: "Dashboard",
   forecast: "Forecast",
   projects: "Projects",
-  brief: "Brief extraction",
+  brief: "Paste a brief",
   research: "Research",
   pricing: "Pricing & plans",
   marketing: "Marketing",

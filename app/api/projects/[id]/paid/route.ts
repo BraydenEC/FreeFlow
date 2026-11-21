@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { paidDateError } from "@/lib/projects/payment";
+import { isProjectId } from "@/lib/projects/schema";
 import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
 
 /*
@@ -67,6 +68,9 @@ export async function POST(
   const { supabase, user } = auth;
 
   const { id } = await params;
+  if (!isProjectId(id)) {
+    return NextResponse.json({ error: "Project not found." }, { status: 404 });
+  }
 
   // A body is optional — "mark it paid today" is the common case.
   let raw: unknown = undefined;
@@ -120,6 +124,9 @@ export async function DELETE(
   const { supabase, user } = auth;
 
   const { id } = await params;
+  if (!isProjectId(id)) {
+    return NextResponse.json({ error: "Project not found." }, { status: 404 });
+  }
 
   const { data, error } = await supabase
     .from("projects")

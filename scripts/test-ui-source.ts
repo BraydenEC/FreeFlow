@@ -65,7 +65,7 @@ assert(`the edit row spans every column`, table.includes(`COLUMN_COUNT = ${colum
 assert("the Edit button says whether the form is open", editing.includes("aria-expanded={editing}") && editing.includes("aria-controls"));
 assert("closing hands focus back to the Edit button", /\.focus\(\)/.test(editing));
 assert("Edit stays the button's name, which the guide relies on", />\s*Edit\s*</.test(editing));
-assert("the form takes a whole line beside Export CSV", /<form[\s\S]{0,120}className="[^"]*\bw-full\b/.test(form));
+assert("the form takes a whole line beside Export CSV", /<form[\s\S]{0,600}className="[^"]*\bw-full\b/.test(form));
 assert("the form no longer pre-fills a signing date", !/contract_signed_on: todayIso/.test(form));
 
 // ── Paid projects in the Due Date column ────────────────────────────────────
@@ -115,7 +115,13 @@ assert("the Dock closes on Escape", dockSrc.includes('"Escape"'));
 assert("the Dock respects reduced motion", /prefers-reduced-motion/.test(dockSrc));
 assert("the Dock is a labelled nav", /<nav[^>]*aria-label=/.test(dockSrc));
 assert("the Dock toggle is a real button", /<button[\s\S]{0,200}aria-expanded/.test(dockSrc));
-assert("the top bar no longer lists pages", !readOr("components/TopBar.tsx").includes("PRIMARY_NAV"));
+// H3: the Dock must never be the only, icon-only menu, nor cover content
+assert("the top bar lists the user's tools on desktop", readOr("components/TopBar.tsx").includes("TOP_LINKS"));
+assert("open Dock labels are always visible", !/opacity-0 group-hover:opacity-100/.test(dockSrc));
+assert("the open Dock shows its group names", dockSrc.includes("{group.label}"));
+assert("the Dock hides on the sign-in pages", dockSrc.includes("AUTH_ROUTES"));
+assert("the Dock hides while Settings is open", dockSrc.includes("data-dock") && read("app/globals.css").includes('[data-sheet="open"] [data-dock]') && readOr("components/prefs/LayoutDrawer.tsx").includes("dataset.sheet"));
+assert("the open Dock wraps on phones instead of scrolling sideways", dockSrc.includes("flex-wrap"));
 
 // ── Week 6 /dashboard ───────────────────────────────────────────────────────
 assert("signed-in visitors to / go to the dashboard", read("app/page.tsx").includes('redirect("/dashboard")'));
@@ -299,7 +305,7 @@ assert(
 assert("the old morning chapter is gone", !existsSync("components/funnel/ChapterMorning.tsx"));
 const band = readOr("components/funnel/EndBand.tsx");
 assert("the end band tracks the click", band.includes('track("try_free_click"'));
-assert("the end band goes to sign-up", band.includes('href="/signup"'));
+assert("the end band goes to sign-up (or the dashboard when signed in)", band.includes("href={cta.href}") && read("components/funnel/useCta.ts").includes('"/signup"') && read("components/funnel/useCta.ts").includes('"/dashboard"'));
 assert("the end band states no price", !/\$\s?\d|\bMXN\b|per month/i.test(band));
 assert("the launch list sits under the band", band.includes("<LaunchListForm"));
 assert("the end band has no rounded button", !/rounded/.test(band));
@@ -370,6 +376,44 @@ assert("Sort it for me scrolls the rows clear of the headline (M2, re-graded)", 
   const form = read("components/dashboard/ProjectForm.tsx");
   assert("Edit shows Paid on for a paid project", form.includes("Paid on") && form.includes("project?.isPaid"));
   assert("a changed Paid on is saved through the paid route", form.includes("paidDateChanged(") && form.includes("/paid`"));
+}
+
+
+// ── H7 / M15: project routes ───────────────────────────────────────────────
+for (const path of ["app/api/projects/route.ts", "app/api/projects/[id]/route.ts"]) {
+  assert(`${path} returns every error at once`, read(path).includes("errors: projectErrors("));
+}
+for (const path of ["app/api/projects/[id]/route.ts", "app/api/projects/[id]/paid/route.ts"]) {
+  const src = read(path);
+  assert(`${path} answers a malformed id with 404`, (src.match(/isProjectId\(id\)/g) ?? []).length === 2);
+}
+
+
+// ── H7 / M8 / M13: the project form ────────────────────────────────────────
+{
+  const form = read("components/dashboard/ProjectForm.tsx");
+  const submit = form.slice(form.indexOf("async function onSubmit"));
+  assert("the form checks every field before sending", submit.indexOf("projectErrors(form)") > -1 && submit.indexOf("projectErrors(form)") < submit.indexOf("fetch("));
+  assert("a failed submit focuses the first problem", form.includes("focusField(list[0].field)"));
+  assert("the error summary sits by the submit button", form.includes("fields need attention"));
+  assert("opening the form focuses its first field", form.includes('focusField("name")'));
+  assert("Escape closes the form", /e\.key === "Escape"[\s\S]{0,80}close\(\)/.test(form));
+  assert("a half-filled new project is kept for the tab", form.includes("sessionStorage") && form.includes("DRAFT_KEY"));
+  assert("unsaved changes warn before leaving", form.includes("beforeunload"));
+  assert("a new project hides the extras under More details", form.includes("More details"));
+  assert("form text is 16px on phones", form.includes("text-base sm:text-sm"));
+}
+
+// ── H5 / H6 / M10: Paste a brief ───────────────────────────────────────────
+{
+  const bench = read("components/core/CoreWorkbench.tsx");
+  assert("the brief and result survive a reload", bench.includes("readDraft(window.sessionStorage)") && bench.includes("writeDraft(window.sessionStorage"));
+  assert("an unadded result warns before leaving", bench.includes("beforeunload"));
+  assert("one way forward: no Save to database button", !bench.includes("Save to database"));
+  assert("the button has a plain name", !bench.includes("Extract core") && bench.includes("Read the brief"));
+  assert("the keyboard hint is hidden on touch screens", bench.includes("[@media(hover:hover)]:inline"));
+  assert("a budget is shown when the brief has one", bench.includes('label="Budget"'));
+  assert("adding the project is the primary action", read("components/core/BriefToProject.tsx").includes('createLabel="Add to my projects"'));
 }
 
 console.log("─".repeat(64));

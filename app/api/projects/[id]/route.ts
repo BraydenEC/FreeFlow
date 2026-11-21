@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { NewProjectSchema, toUpdateRow } from "@/lib/projects/schema";
+import { isProjectId, NewProjectSchema, projectErrors, toUpdateRow } from "@/lib/projects/schema";
 import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
 
 /*
@@ -37,6 +37,9 @@ export async function PATCH(
   }
 
   const { id } = await params;
+  if (!isProjectId(id)) {
+    return NextResponse.json({ error: "Project not found." }, { status: 404 });
+  }
 
   let body: unknown;
   try {
@@ -52,7 +55,7 @@ export async function PATCH(
       {
         error: first?.message ?? "Invalid project.",
         field: first?.path?.[0] ?? null,
-        issues: parsed.error.issues,
+        errors: projectErrors(body),
       },
       { status: 400 },
     );
@@ -90,6 +93,9 @@ export async function DELETE(
   }
 
   const { id } = await params;
+  if (!isProjectId(id)) {
+    return NextResponse.json({ error: "Project not found." }, { status: 404 });
+  }
 
   // .select() so a delete that matched nothing is distinguishable from one
   // that worked. Without it PostgREST reports success either way, and

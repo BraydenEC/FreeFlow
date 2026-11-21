@@ -70,7 +70,7 @@ assert(
 assert("walkthrough covers all three areas", new Set(WALKTHROUGH.map((s) => s.area)).size === 3);
 
 // Copy.
-assert("the end band says Start free", COPY.startFree === "Start free" && COPY.startFreeTail === "now →");
+assert("M10: the end band uses the one sign-up label", COPY.startFree === "Create a free account" && COPY.tryFree === "Create a free account");
 
 // Choices: a neutral start, the five jobs, and Brayden's own.
 const ALL_CHOICES: Choice[] = ["freelancer", ...CHOICE_ORDER];

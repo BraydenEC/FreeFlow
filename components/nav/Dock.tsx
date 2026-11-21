@@ -3,22 +3,27 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-import { DOCK_GROUPS, type DockIcon } from "@/lib/nav/dock";
+import { AUTH_ROUTES, DOCK_GROUPS, type DockIcon } from "@/lib/nav/dock";
 import { iconSize } from "@/lib/nav/magnify";
 
 /*
-  The Dock: every page, one round button at the bottom of the screen.
+  The Dock: every page, one round button in the bottom-right corner.
 
-  At rest it is a single button, bottom-centre, on every page. Hovering it with
-  a mouse, or clicking or tapping it, opens every page in four groups.
-  Icons grow as the mouse passes over them (as on a Mac), a label shows on
-  hover and on keyboard focus, and a dot marks the page you're on. It closes
+  At rest it is a single button. Hovering it with a mouse, or clicking or
+  tapping it, opens every page in two labelled groups, Your tools and About
+  FreeFlow. Icons grow as the mouse passes over them (as on a Mac), every icon
+  carries its name underneath, and a dot marks the page you're on. It closes
   350 ms after the mouse leaves, on a tap outside, on Escape (focus returns to
   the button) and after you navigate.
 
+  User testing (H3) changed three things. Names are always visible, because
+  touch users never hover. The button sits in the corner, not over the middle
+  of forms. And it stays away from the sign-in pages and from the Settings
+  sheet (body[data-sheet="open"], see globals.css). On a phone the open Dock
+  wraps into rows instead of scrolling sideways behind a half-cut icon.
+
   No magnification on touch or under prefers-reduced-motion; those visitors
-  get the plain base size. At 375 px the open Dock scrolls sideways inside
-  itself, never the page.
+  get the plain base size.
 */
 
 const BASE = 48;
@@ -173,6 +178,8 @@ export default function Dock() {
     }
   };
 
+  if (AUTH_ROUTES.includes(pathname)) return null;
+
   let index = 0;
   const motion = calm ? "" : "transition-[width,height] duration-100 ease-out";
 
@@ -181,12 +188,13 @@ export default function Dock() {
       ref={wrapRef}
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
-      className="fixed bottom-4 left-1/2 z-40 flex max-w-[calc(100vw-24px)] -translate-x-1/2 flex-col items-center"
+      data-dock
+      className="fixed right-3 bottom-3 z-40 flex max-w-[calc(100vw-24px)] flex-col items-end sm:right-5 sm:bottom-5"
     >
       <div
         onPointerMove={onPointerMove}
-        className={`border-hairline flex max-w-full items-end rounded-[22px] border bg-[rgba(15,15,15,0.72)] shadow-[0_12px_40px_rgba(0,0,0,0.7)] backdrop-blur-xl ${
-          open ? "gap-1.5 px-2.5 py-2" : "p-1.5"
+        className={`border-hairline flex max-w-full flex-col-reverse items-end rounded-[22px] border bg-[rgba(15,15,15,0.92)] shadow-[0_12px_40px_rgba(0,0,0,0.7)] backdrop-blur-xl sm:flex-row sm:items-end ${
+          open ? "gap-2 px-2.5 py-2" : "p-1.5"
         }`}
       >
         <button
@@ -209,18 +217,18 @@ export default function Dock() {
           </Glyph>
         </button>
 
-        {/* Scrolling sideways (for 375 px screens) clips vertically too, so the
-            nav carries 80 px of transparent headroom, pulled back up with a
-            negative margin, for the labels and the magnified icons. */}
         <nav
           id={navId}
           aria-label="Pages"
           hidden={!open}
-          className={`-mt-20 -mb-2 flex min-w-0 items-end gap-1.5 overflow-x-auto pt-20 pb-2 ${armed ? "" : "pointer-events-none"}`}
+          className={`flex min-w-0 flex-col gap-2 sm:flex-row sm:items-end ${armed ? "" : "pointer-events-none"}`}
         >
           {DOCK_GROUPS.map((group) => (
-            <div key={group.id} role="group" aria-label={group.label} className="flex items-end gap-1.5">
-              <span aria-hidden className="bg-hairline mx-1 mb-1.5 h-9 w-px shrink-0 self-end" />
+            <div key={group.id} role="group" aria-label={group.label} className="flex flex-col gap-1">
+              <span className="text-ink-faint px-1 text-[11px] font-medium tracking-wide uppercase">
+                {group.label}
+              </span>
+              <div className="flex flex-wrap items-end gap-1.5">
               {group.items.map((item) => {
                 const i = index++;
                 const current = isActive(pathname, item.href);
@@ -229,15 +237,8 @@ export default function Dock() {
                     key={item.href}
                     href={item.href}
                     aria-current={current ? "page" : undefined}
-                    className="group relative flex shrink-0 flex-col items-center focus-visible:outline-none"
+                    className="group relative flex w-[64px] shrink-0 flex-col items-center focus-visible:outline-none"
                   >
-                    {/* The label is the link's accessible name too: visually it
-                        appears only on hover and keyboard focus. */}
-                    <span
-                      className="pointer-events-none absolute bottom-[calc(100%+10px)] rounded-md bg-white px-2 py-1 text-xs font-semibold whitespace-nowrap text-black opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"
-                    >
-                      {item.label}
-                    </span>
                     <span
                       ref={(el) => {
                         if (el) iconRefs.current[i] = el;
@@ -249,13 +250,16 @@ export default function Dock() {
                     >
                       <Glyph>{ICONS[item.icon]}</Glyph>
                     </span>
+                    {/* Always visible: touch users never hover (H3). */}
                     <span
-                      aria-hidden
-                      className={`mt-1 h-1 w-1 rounded-full ${current ? "bg-[var(--color-status-progress)]" : "bg-transparent"}`}
-                    />
+                      className={`mt-1 max-w-full truncate text-center text-[11px] leading-tight ${current ? "text-ink font-semibold" : "text-ink-muted group-hover:text-ink"}`}
+                    >
+                      {item.label}
+                    </span>
                   </Link>
                 );
               })}
+              </div>
             </div>
           ))}
         </nav>

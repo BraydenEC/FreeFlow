@@ -55,7 +55,7 @@ export default function CorePreview({
             id="core-preview-heading"
             className="text-[15px] font-semibold"
           >
-            Recent extractions
+            Recent briefs
           </h2>
           <p className="text-ink-faint mt-0.5 text-xs">
             Client briefs turned into structured projects

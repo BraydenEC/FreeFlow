@@ -271,6 +271,8 @@ assert(
 assert("brief fields can't be edited, so don't tell people to", !/before (you )?sav/i.test(ans("brief-wrong-field")) && !/fill it in yourself/i.test(ans("brief-unsure")));
 assert("relative dates: no correcting before saving", !/before saving/i.test(ans("relative-dates")));
 assert("saving a brief does not create a project", /doesn't create a project/i.test(ans("brief-saved-where")));
+assert("H5: the brief answers name one button, Add to my projects", ["brief-saved-where", "brief-wrong-field", "brief-unsure", "relative-dates", "brief-value"].every((id) => ans(id).includes("Add to my projects") && !/Save to database|Create project|Extract core/.test(ans(id))));
+assert("H5: a fixed budget is read now", /budget/.test(ans("brief-value")) && !/doesn't read a fixed fee/.test(ans("brief-value")));
 assert("reset needs signing out first: the page redirects signed-in users", /sign out/i.test(ans("password-reset")));
 assert("guard-secret also says to sign out first", /sign out/i.test(GUARD_RULES.find((g) => g.id === "guard-secret")?.answer ?? ""));
 assert("delete starts from the real Edit button", ans("project-delete").includes("Edit") && ans("project-delete").includes("Yes, delete"));
@@ -344,7 +346,7 @@ assert("a wrong client on a project isn't a brief problem", A("i entered the wro
 assert("a greyed-out project button isn't Generate live", A("the save changes button is greyed out", "broken", "projects").ruleId !== "marketing-generate");
 
 // App fixes: answers follow what the app now does
-assert("a brief becomes a project through Create project", ans("brief-saved-where").includes("Create project") && ans("brief-wrong-field").includes("Create project") && ans("brief-unsure").includes("Create project") && ans("relative-dates").includes("Create project") && ans("brief-value").includes("Create project"));
+
 assert("core no longer shows dollars regardless", !/always display in dollars/.test(ans("brief-value")));
 assert("active projects leaves out paid work", /unpaid/.test(ans("dashboard-numbers").split("Active Projects")[1] ?? "") && !/including ones already marked paid/.test(ans("dashboard-numbers")));
 

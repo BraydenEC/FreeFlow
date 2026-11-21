@@ -107,7 +107,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["brief", "extract", "extraction", "wrong", "field", "paste", "pasted", "misread", "client", "name", "rate"],
     phrases: ["client email", "wrong client", "wrong rate", "got it wrong", "read it wrong", "edit the result", "edit the fields", "can i edit"],
     answer:
-      "Brief extraction can misread things. Choose Create project on the result and correct any field in the form before choosing Add project. Or change the text in the box so the detail is stated clearly and choose Extract core again. The note under the result names the fields to double-check.",
+      "Paste a brief can misread things. Choose Add to my projects on the result and correct any field in the form before choosing Add project. Or change the text in the box so the detail is stated clearly and choose Read the brief again. The note under the result names the fields to double-check.",
   },
   // lib/core/heuristic.ts — unknowns are null and named in the confidence note
   {
@@ -117,7 +117,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["unsure", "note", "confidence", "blank", "heuristic", "pattern", "matching", "null", "badge", "claude", "say", "says"],
     phrases: ["not sure", "left blank", "pattern matching", "empty field", "not found"],
     answer:
-      "When extraction can't find something, the field says \"not found\" and the note names it, instead of guessing. Choose Create project and fill the gap in the form, or add the detail to the brief and extract again. A Pattern matching badge means the AI model wasn't available, so the extraction is simpler; a Claude badge means the AI model read it.",
+      "When extraction can't find something, the field says \"not found\" and the note names it, instead of guessing. Choose Add to my projects and fill the gap in the form, or add the detail to the brief and read it again. A Pattern matching badge means the AI model wasn't available, so the extraction is simpler; a Claude badge means the AI model read it.",
   },
   // lib/core/heuristic.ts — year-less dates resolve to the next future occurrence
   {
@@ -127,7 +127,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["date", "deadline", "friday", "monday", "tomorrow", "year", "relative", "wrong", "picked"],
     phrases: ["next friday", "next week", "end of the month", "wrong date", "wrong year"],
     answer:
-      "Dates without a year are read as the next time that date comes around. Phrases like \"next Friday\" are only understood when the AI model did the extraction, so a Pattern matching badge means you should check it. To fix a wrong date, choose Create project and correct the deadline in the form, or write the date out, like Nov 14, and extract again. If the project already exists, choose Edit on its row and change the deadline there.",
+      "Dates without a year are read as the next time that date comes around. Phrases like \"next Friday\" are only understood when the AI model did the extraction, so a Pattern matching badge means you should check it. To fix a wrong date, choose Add to my projects and correct the deadline in the form, or write the date out, like Nov 14, and read it again. If the project already exists, choose Edit on its row and change the deadline there.",
   },
   // lib/currency.ts — 11 currencies, one per account, never converted
   {
@@ -544,7 +544,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["extractions", "widget"],
     phrases: ["recent extractions", "market research", "research widget"],
     answer:
-      "Recent extractions lists the briefs you've saved in Core, and Market research summarises the Research page. They're there for reference, and you can switch either off in Settings (top right).",
+      "Recent briefs lists the briefs you've turned into projects on Paste a brief, and Market research summarises the Research page. They're there for reference, and you can switch either off in Settings (top right).",
   },
   // components/TopBar.tsx — the Settings label is hidden on small screens
   {
@@ -774,7 +774,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: [],
     phrases: ["what can you do", "what can you help", "this assistant", "this bot", "how can you help", "what can i ask", "what do you know", "who are you"],
     answer:
-      "I'm FreeFlow's automated guide. I answer from written rules about problems in the app, how each feature works, pricing and technical questions. Ask in a sentence, and if I can't help, you can submit a ticket to the owner.",
+      "I'm FreeFlow's help desk, an automated guide. I answer from written rules about problems in the app, how each feature works, pricing and technical questions. Ask in a sentence, and if I can't help, you can submit a ticket to the owner.",
   },
   // Whole-message small talk: without these "hi" would read as an unanswered question
   {
@@ -906,8 +906,8 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["core", "extract", "brief", "briefs", "workbench"],
     phrases: ["use core", "how does core", "brief extraction", "extract core", "how do i extract", "paste a brief", "what is a brief", "what do i paste", "what to paste"],
     answer:
-      "Go to Core, paste a client email, message or call notes, and choose Extract core. You get the project, client, rate, hours, deadline and status. Choose Create project to check it and add it to your dashboard, Save to database to keep the extraction, or Re-run to try again; use example fills in a sample brief.",
-    links: [{ label: "Core", href: "/core" }],
+      "Go to Paste a brief, paste a client email, message or call notes, and choose Read the brief. You get the project, client, budget or rate and hours, deadline and status. Choose Add to my projects to check it and add it to your dashboard, or Read it again to try again; use example fills in a sample brief.",
+    links: [{ label: "Paste a brief", href: "/core" }],
   },
   // app/api/core/save inserts into core_outputs only; lib/core/saved.ts limit 8
   {
@@ -917,7 +917,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["saved", "database", "extraction"],
     phrases: ["save to database", "saved the brief", "saved brief", "saved output", "saved outputs", "in my projects", "does saving", "add it to my", "turn it into a project", "into a project", "create a project from", "become a project"],
     answer:
-      "Save to database keeps the extraction under Saved outputs on Core and Recent extractions on the dashboard, showing the latest 8. It doesn't create a project, so its money isn't counted yet. To track it, choose Create project on the result or on a saved row, check the form and choose Add project.",
+      "Adding a brief's project also keeps the brief under Saved outputs on Paste a brief and Recent briefs on the dashboard, showing the latest 8. A saved brief on its own doesn't create a project, so its money isn't counted. To track one, choose Add to my projects on the result or on a saved row, check the form and choose Add project. Until then the brief and its result stay in your browser tab, even after a reload.",
   },
   // lib/core/schema.ts — rate and hours only; lib/core/to-project.ts opens the form on fixed fee without a rate
   {
@@ -928,7 +928,7 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["computed"],
     phrases: ["needs rate and hours", "computed value", "fixed fee", "fixed price", "flat fee", "in dollars"],
     answer:
-      "Extraction reads an hourly rate and hours and multiplies them. It doesn't read a fixed fee, so that case says \"needs rate and hours\". Choose Create project and enter the total as a fixed fee in the form. Amounts show in your account's currency and are never converted.",
+      "A stated budget, like \"budget 800 usd\" or \"$1,800 flat\", is read as the fixed total and filled into the form. With no budget, an hourly rate and hours are multiplied. If the brief names another currency than your account's, it says so: amounts are never converted. Choose Add to my projects to check the amount before adding it.",
   },
   // app/api/core/extract MAX_BRIEF_LENGTH 8000, rateLimit 15/min; CoreWorkbench error copy
   {
@@ -949,7 +949,7 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["anthropic"],
     phrases: ["ai model", "sent to", "is my brief", "who sees", "my client s email"],
     answer:
-      "When the AI model is on, the text you paste is sent to Anthropic's Claude to be read. FreeFlow only keeps it if you choose Save to database, and then the brief and its fields are stored on your account, where other users can't see them. Avoid pasting passwords or bank details.",
+      "When the AI model is on, the text you paste is sent to Anthropic's Claude to be read. FreeFlow only keeps it once you add its project, and then the brief and its fields are stored on your account, where other users can't see them. Avoid pasting passwords or bank details.",
   },
   // lib/core/heuristic.ts — English month names and hour/rate words
   {
@@ -970,7 +970,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["unsave", "delete", "remove"],
     phrases: ["delete a saved", "remove a saved", "delete saved", "remove saved", "delete a scenario", "delete a record", "delete an extraction", "remove an extraction", "delete my saved", "clear saved"],
     answer:
-      "Saved items can't be edited or deleted in the app. The lists show the latest ones: 8 in Core, 12 in Research, 10 in Pricing and 12 in Marketing. To remove something, submit a ticket saying which one.",
+      "Saved items can't be edited or deleted in the app. The lists show the latest ones: 8 in Paste a brief, 12 in Research, 10 in Pricing and 12 in Marketing. To remove something, submit a ticket saying which one.",
     offerTicket: true,
   },
 
@@ -1570,7 +1570,7 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["chatgpt", "openai"],
     phrases: ["use ai", "uses ai", "using ai", "which ai", "what ai", "use chatgpt", "artificial intelligence"],
     answer:
-      "AI is used in three places when it's available: brief extraction on Core, note structuring on Research, and Generate live on Marketing. Each result says whether AI or a simpler fallback produced it. This help guide doesn't use AI: it answers from written rules.",
+      "AI is used in three places when it's available: reading briefs on Paste a brief, note structuring on Research, and Generate live on Marketing. Each result says whether AI or a simpler fallback produced it. This help guide doesn't use AI: it answers from written rules.",
   },
   // No program exists in lib/support.ts or app/
   {
@@ -1713,8 +1713,8 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["brief", "core", "extraction", "wrong", "confused", "confusing", "explain"],
     phrases: ["this page", "what is this", "how does this work", "why is this", "do i need to"],
     answer:
-      "Core reads a pasted client message and pulls out the project, client, rate, hours, deadline and status. Create project turns the result into a project on your dashboard, and Save to database only keeps the extraction. Tell me which part you mean and I can go further, or submit a ticket.",
-    links: [{ label: "Core", href: "/core" }],
+      "Paste a brief reads a client message and pulls out the project, client, budget or rate and hours, deadline and status. Add to my projects turns the result into a project on your dashboard. Tell me which part you mean and I can go further, or submit a ticket.",
+    links: [{ label: "Paste a brief", href: "/core" }],
     offerTicket: true,
   },
   {

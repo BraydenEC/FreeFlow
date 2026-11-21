@@ -16,7 +16,8 @@ import { extractionToProject } from "@/lib/core/to-project";
 import { getMockProjects } from "@/lib/mock-data";
 import { deriveMetrics } from "@/lib/projects/metrics";
 import { deadlineNote, formatRelativeDeadline } from "@/lib/format";
-import { blankProject, fieldShownFor, NewProjectSchema, toRow, toUpdateRow } from "@/lib/projects/schema";
+import { blankProject, fieldShownFor, NewProjectSchema, projectErrors, isProjectId, toRow, toUpdateRow } from "@/lib/projects/schema";
+import { formatMonthDay } from "@/lib/format";
 import { localToday, paidDateChanged, paidDateError } from "@/lib/projects/payment";
 import type { Project } from "@/types/project";
 
@@ -253,7 +254,7 @@ if (edit.success) {
 // --- A date the card can't render must not reach it --------------------------
 {
   const f = (deadline: string | null) =>
-    withRealDeadline({ project_name: "x", client: null, hourly_rate: null, hours_logged: null, deadline, status: "in_progress", confidence_note: "" }).deadline;
+    withRealDeadline({ project_name: "x", client: null, hourly_rate: null, hours_logged: null, fixed_total: null, currency: null, client_type: null, deadline, status: "in_progress", confidence_note: "" }).deadline;
   assert("a real deadline survives", f("2026-11-14") === "2026-11-14");
   assert("words instead of a date become not found", f("next friday") === null);
   assert("an impossible date becomes not found", f("2026-02-31") === null);
@@ -302,15 +303,16 @@ assert("seed data shows 4 active projects", deriveMetrics(getMockProjects(new Da
 
 // --- What a new project form starts with ------------------------------------
 {
-  const start = blankProject("2026-11-06");
+  const start = blankProject();
   assert("nobody entered a signing date, so none is filled in", start.contract_signed_on === "");
-  assert("the deadline still starts on today", start.deadline === "2026-11-06");
-  const filled = NewProjectSchema.safeParse({ ...start, name: "Logo", client: "Acme", invoice_total: "500" });
+  // H7: a quick-added project was instantly "due today"
+  assert("the deadline starts empty, not on today", start.deadline === "");
+  const filled = NewProjectSchema.safeParse({ ...start, name: "Logo", client: "Acme", invoice_total: "500", deadline: "2026-12-01" });
   assert("a blank signing date is accepted", filled.success);
   if (filled.success) {
     assert("a blank signing date is stored as null", toRow(filled.data).contract_signed_on === null);
   }
-  assert("each form gets its own blank", blankProject("2026-11-06") !== start);
+  assert("each form gets its own blank", blankProject() !== start);
 }
 
 
@@ -332,6 +334,41 @@ assert("seed data shows 4 active projects", deriveMetrics(getMockProjects(new Da
   assert("an unpaid project has no paid date to change", !paidDateChanged({ isPaid: false, paidAt: null }, "2026-10-30"));
   assert("a cleared Paid on is not sent", !paidDateChanged(paid, ""));
 }
+
+
+// ── H7: every problem at once, in plain words ──────────────────────────────
+{
+  const errs = projectErrors(blankProject());
+  const fields = errs.map((e) => e.field).sort().join();
+  assert("an empty form reports name, client, amount and deadline at once", fields === "client,deadline,invoice_total,name", fields);
+  assert("each field is reported once", new Set(errs.map((e) => e.field)).size === errs.length);
+  const huge = projectErrors({ ...blankProject(), name: "A", client: "B", deadline: "2026-12-01", invoice_total: "1000000000" as unknown as number });
+  assert("a huge total gets a plain message", huge.length === 1 && huge[0].message === "Fixed total is too large", JSON.stringify(huge));
+  const nan = projectErrors({ ...blankProject(), name: "A", client: "B", deadline: "2026-12-01", billing: "hourly", hourly_rate: "abc" as unknown as number, hours_logged: "2" as unknown as number });
+  assert("a non-number rate says so plainly", nan.some((e) => e.field === "hourly_rate" && /number/.test(e.message)), JSON.stringify(nan));
+  const all = [...errs, ...huge, ...nan].map((e) => e.message).join(" | ");
+  assert("no developer text reaches the form", !/expected|<=|>=|Too big|Too small|Invalid input|YYYY/.test(all), all);
+  assert("a valid project has no errors", projectErrors({ ...blankProject(), name: "A", client: "B", deadline: "2026-12-01", invoice_total: "500" as unknown as number }).length === 0);
+  // M12: a rate that rounds to nothing is not a rate
+  const tiny = projectErrors({ ...blankProject(), name: "A", client: "B", deadline: "2026-12-01", billing: "hourly", hourly_rate: "0.001" as unknown as number, hours_logged: "1e3" as unknown as number });
+  assert("an hourly rate under one cent is refused", tiny.some((e) => e.field === "hourly_rate"), JSON.stringify(tiny));
+  assert("1e3 hours is read as 1000", NewProjectSchema.safeParse({ ...blankProject(), name: "A", client: "B", deadline: "2026-12-01", billing: "hourly", hourly_rate: "10", hours_logged: "1e3" }).success);
+}
+
+// ── M12: dates outside this year show the year ─────────────────────────────
+{
+  const now = new Date(Date.UTC(2026, 10, 21));
+  assert("a date this year has no year", formatMonthDay("2026-01-01", now) === "Jan 1", formatMonthDay("2026-01-01", now));
+  assert("an old date shows its year", formatMonthDay("2020-01-01", now).includes("2020"), formatMonthDay("2020-01-01", now));
+  assert("next year's date shows its year", formatMonthDay("2027-02-03", now).includes("2027"));
+}
+
+
+// ── M15: a malformed id is a 404, not a 500 ────────────────────────────────
+assert("a real uuid is a project id", isProjectId("3f2b8c1e-9a4d-4e2f-8b1a-2c3d4e5f6a7b"));
+assert("not-a-uuid is not", !isProjectId("not-a-uuid"));
+assert("an empty id is not", !isProjectId(""));
+assert("a uuid with extra text is not", !isProjectId("3f2b8c1e-9a4d-4e2f-8b1a-2c3d4e5f6a7b; drop"));
 
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed\n`);

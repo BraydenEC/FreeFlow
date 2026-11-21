@@ -6,30 +6,22 @@ import { useState } from "react";
 import SignOutButton from "@/components/auth/SignOutButton";
 import { useSession } from "@/components/auth/SessionProvider";
 import LayoutDrawer from "@/components/prefs/LayoutDrawer";
+import { AUTH_ROUTES, TOP_LINKS } from "@/lib/nav/dock";
 
 /*
   The application bar: the brand mark, Settings and the account.
 
-  Since Week 6 the pages live in the Dock at the bottom of the screen
-  (components/nav/Dock.tsx), so this bar lists none of them. What stays is
-  what acts on the application rather than navigating it: Settings and the
-  account, top right. The brand mark still leads home.
-
-  Not sticky any more: with no page links it has nothing to offer once you
-  scroll, and the Dock is always within reach.
+  Every page lives in the Dock (components/nav/Dock.tsx). User testing (H3)
+  showed the Dock alone was not enough: an icon-only button was the only way
+  around. So on desktop this bar also names the user's own tools (TOP_LINKS):
+  Dashboard, Paste a brief, Help desk. On a phone there is no room, and the
+  Dock's labelled grid does the job.
 
   Renders nothing on the auth pages. A bar advertising Settings and an account
   menu to someone who has neither is noise, and the sign-up page is
   deliberately the whole screen.
 */
 
-const AUTH_ROUTES = [
-  "/signup",
-  "/login",
-  "/verify-email",
-  "/forgot-password",
-  "/reset-password",
-];
 
 export default function TopBar() {
   const pathname = usePathname();
@@ -55,6 +47,24 @@ export default function TopBar() {
             </svg>
           </span>
         </Link>
+
+        <nav aria-label="Your tools" className="hidden items-center gap-1 sm:flex">
+          {TOP_LINKS.map((l) => {
+            const current = pathname === l.href || pathname.startsWith(`${l.href}/`);
+            return (
+              <Link
+                key={l.href}
+                href={l.href}
+                aria-current={current ? "page" : undefined}
+                className={`focus-visible:ring-accent rounded-md px-2.5 py-1.5 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none ${
+                  current ? "text-ink bg-raised font-medium" : "text-ink-muted hover:text-ink hover:bg-raised"
+                }`}
+              >
+                {l.label}
+              </Link>
+            );
+          })}
+        </nav>
 
         <div className="flex-1" />
 

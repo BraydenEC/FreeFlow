@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { NewProjectSchema, toRow } from "@/lib/projects/schema";
+import { NewProjectSchema, projectErrors, toRow } from "@/lib/projects/schema";
 import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
 
 /*
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       {
         error: first?.message ?? "Invalid project.",
         field: first?.path?.[0] ?? null,
-        issues: parsed.error.issues,
+        errors: projectErrors(body),
       },
       { status: 400 },
     );

@@ -1,5 +1,5 @@
 /*
-  Dock tests.
+  Navigation tests.
   Run: npm run test:nav
 
   The Dock replaces the top bar's page links. What's pinned here: the pages it
@@ -8,7 +8,7 @@
   settle back to the base size by 150 px away.
 */
 
-import { DOCK_GROUPS } from "@/lib/nav/dock";
+import { DOCK_GROUPS, TOP_LINKS } from "@/lib/nav/dock";
 import { DONATIONS_ENABLED } from "@/lib/flags";
 import { activeSubNavTab } from "@/lib/nav/subnav";
 import { iconSize } from "@/lib/nav/magnify";
@@ -33,20 +33,23 @@ assert("closer icons are larger", iconSize(50) > iconSize(100));
 assert("size never drops below base", iconSize(-20) <= 78 && iconSize(1e6) === 48);
 
 const hrefs = DOCK_GROUPS.flatMap((g) => g.items.map((i) => i.href));
+// H3: the user's own tools first, then the pages about the business
 assert(
-  "the Dock lists every page in the spec's order",
+  "the Dock lists the user's tools first, then About FreeFlow",
   hrefs.join() ===
-    "/demo,/dashboard,/core,/chat,/research,/product,/pricing,/marketing,/docs" + (DONATIONS_ENABLED ? ",/support" : ""),
+    "/dashboard,/core,/chat,/demo,/research,/product,/pricing,/marketing,/docs" + (DONATIONS_ENABLED ? ",/support" : ""),
   hrefs.join(),
 );
-assert(
-  "groups are demo, work, business, about",
-  DOCK_GROUPS.map((g) => g.id).join() === "demo,work,business,about",
-);
+assert("groups are Your tools and About FreeFlow", DOCK_GROUPS.map((g) => g.label).join() === "Your tools,About FreeFlow");
 assert(
   "every item has a label",
   DOCK_GROUPS.every((g) => g.items.every((i) => i.label.trim().length > 0)),
 );
+// M10: one name per feature
+const labels = DOCK_GROUPS.flatMap((g) => g.items.map((i) => i.label));
+assert("brief extraction is called Paste a brief", labels.includes("Paste a brief"));
+assert("help is called Help desk", labels.includes("Help desk"));
+assert("TOP_LINKS are the user's tools", TOP_LINKS.map((l) => l.href).join() === "/dashboard,/core,/chat");
 
 assert("the Dock lists Support only while donations are on", hrefs.includes("/support") === DONATIONS_ENABLED);
 

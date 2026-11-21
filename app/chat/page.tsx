@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Help — FreeFlow",
   description:
-    "FreeFlow's automated guide: answers from written rules, and a ticket to the owner when it can't help.",
+    "FreeFlow's help desk: answers from written rules, and a ticket to the owner when it can't help.",
 };
 
 export default async function ChatPage() {
@@ -32,7 +32,7 @@ export default async function ChatPage() {
           <header>
             <h1 className="page-title">Help</h1>
             <p className="text-ink-muted mt-4 text-base leading-relaxed">
-              FreeFlow&apos;s automated guide. It answers from written rules, and anything
+              FreeFlow&apos;s help desk. It answers from written rules, and anything
               it can&apos;t solve becomes a ticket the owner reads.
             </p>
           </header>
@@ -51,7 +51,7 @@ export default async function ChatPage() {
                   Sign in
                 </Link>
                 <Link href="/signup" className="border-hairline text-ink rounded-lg border px-3 py-2">
-                  Create an account
+                  Create a free account
                 </Link>
               </div>
             </section>

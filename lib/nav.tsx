@@ -31,7 +31,7 @@ export const SUB_NAV: Record<string, SubNavItem[]> = {
   "/dashboard": [
     { label: "Overview", href: "#widget-metrics" },
     { label: "Projects", href: "#widget-projects" },
-    { label: "Core", href: "#widget-core" },
+    { label: "Recent briefs", href: "#widget-core" },
     { label: "Research", href: "#widget-research" },
   ],
   "/research": [

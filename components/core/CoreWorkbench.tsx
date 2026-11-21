@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import BriefToProject from "@/components/core/BriefToProject";
 import ExtractorBadge from "@/components/core/ExtractorBadge";
@@ -8,6 +8,8 @@ import { usePrefs } from "@/components/prefs/PrefsProvider";
 import StatusBadge from "@/components/StatusBadge";
 import { formatCurrency, formatMonthDay, formatRelativeDeadline } from "@/lib/format";
 import { extractionValue, type ExtractionResult } from "@/lib/core/schema";
+import { readDraft, writeDraft } from "@/lib/core/draft";
+import { CURRENCIES, isCurrencyCode } from "@/lib/currency";
 
 const SAMPLE_BRIEF = `Hi — following up on the redesign we discussed. Need it done by Nov 14. We agreed $85/hr, I've tracked about 22 hours so far.
 
@@ -51,8 +53,34 @@ export default function CoreWorkbench() {
   const [error, setError] = useState<string | null>(null);
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [savedBrief, setSavedBrief] = useState("");
+  const [added, setAdded] = useState(false);
 
   const trimmed = brief.trim();
+
+  // H6/M8: the brief and its result survive a reload until the project is
+  // added. Read after mount, so the server render and the first client render
+  // agree.
+  useEffect(() => {
+    const draft = readDraft(window.sessionStorage);
+    if (!draft) return;
+    setBrief(draft.brief); // eslint-disable-line react-hooks/set-state-in-effect
+    if (draft.result) {
+      setResult(draft.result);
+      setSavedBrief(draft.brief.trim());
+    }
+  }, []);
+
+  useEffect(() => {
+    writeDraft(window.sessionStorage, added ? null : { brief, result });
+  }, [brief, result, added]);
+
+  // A result that hasn't become a project yet: ask before leaving the page.
+  useEffect(() => {
+    if (!result || added) return;
+    const warn = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [result, added]);
 
   async function handleExtract(event?: React.FormEvent) {
     event?.preventDefault();
@@ -62,6 +90,7 @@ export default function CoreWorkbench() {
     setError(null);
     setResult(null);
     setSaveState("idle");
+    setAdded(false);
 
     try {
       const response = await fetch("/api/core/extract", {
@@ -111,7 +140,7 @@ export default function CoreWorkbench() {
       }
 
       setSaveState("saved");
-      // Re-render the server component so the new row appears in the list.
+      // Re-render the server component so the new row appears in Recent briefs.
       router.refresh();
     } catch {
       setError("Could not reach the save service.");
@@ -122,6 +151,16 @@ export default function CoreWorkbench() {
   const fields = result?.fields;
   const value = fields ? extractionValue(fields) : null;
   const now = new Date();
+  // Amounts show in the brief's own currency when it names one; never converted.
+  const briefCurrency = fields?.currency && isCurrencyCode(fields.currency) ? fields.currency : null;
+  const money = briefCurrency ?? currency;
+  const currencyClash = fields?.currency && fields.currency !== currency ? fields.currency : null;
+
+  // One way forward (H5): adding the project also keeps the brief in Recent briefs.
+  function onAdded() {
+    setAdded(true);
+    void handleSave();
+  }
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
@@ -165,9 +204,10 @@ export default function CoreWorkbench() {
             disabled={!trimmed || extracting}
             className="bg-accent rounded-lg px-4 py-2.5 text-sm font-semibold text-app transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {extracting ? "Extracting…" : "Extract core"}
+            {extracting ? "Reading…" : "Read the brief"}
           </button>
-          <span className="text-ink-faint text-xs">⌘ + Enter</span>
+          {/* A keyboard shortcut means nothing on a phone (M7). */}
+          <span className="text-ink-faint hidden text-xs [@media(hover:hover)]:inline">⌘ + Enter</span>
           <span className="text-ink-faint ml-auto text-xs">
             {brief.length}/8000
           </span>
@@ -187,7 +227,7 @@ export default function CoreWorkbench() {
       <section className="border-hairline bg-surface rounded-xl border p-5 sm:p-6">
         <div className="flex items-center justify-between gap-4">
           <h2 className="text-[15px] font-semibold">
-            <span className="text-accent-soft mr-2">2</span>Extracted project
+            <span className="text-accent-soft mr-2">2</span>What FreeFlow read
           </h2>
           {result && <ExtractorBadge extractor={result.extractor} />}
         </div>
@@ -203,14 +243,33 @@ export default function CoreWorkbench() {
             <div className="mt-4">
               <Field label="Project" value={fields.project_name} />
               <Field label="Client" value={fields.client} />
-              <Field
-                label="Rate"
-                value={
-                  fields.hourly_rate === null
-                    ? null
-                    : `${formatCurrency(fields.hourly_rate, currency)} / hr`
-                }
-              />
+              {fields.fixed_total !== null && (
+                <Field label="Budget" value={`${formatCurrency(fields.fixed_total, money)} fixed`} />
+              )}
+              {(fields.fixed_total === null || fields.hourly_rate !== null) && (
+                <Field
+                  label="Rate"
+                  value={
+                    fields.hourly_rate === null
+                      ? null
+                      : `${formatCurrency(fields.hourly_rate, money)} / hr`
+                  }
+                />
+              )}
+              {fields.currency && (
+                <Field
+                  label="Currency"
+                  value={fields.currency}
+                  hint={isCurrencyCode(fields.currency) ? CURRENCIES[fields.currency].label : undefined}
+                />
+              )}
+              {fields.client_type && (
+                <Field
+                  label="Client type"
+                  value={fields.client_type === "company" ? "Company" : "Individual"}
+                  hint={fields.client_type === "company" ? "Tax withheld if you invoice in Mexico" : undefined}
+                />
+              )}
               <Field
                 label="Hours logged"
                 value={
@@ -238,24 +297,29 @@ export default function CoreWorkbench() {
               </div>
             </div>
 
-            {/* Computed, never extracted — stated so the number is trustworthy. */}
+            {/* A fixed total is read; rate × hours is calculated, and says so. */}
             <div className="mt-4">
               <p className="text-ink-muted text-xs tracking-wide uppercase">
-                Computed value
+                Project value
               </p>
               <p className="numeric mt-1 text-2xl font-semibold tracking-tight">
                 {value === null ? (
                   <span className="text-ink-faint text-base font-normal italic">
-                    needs rate and hours
+                    add a budget, or a rate and hours
                   </span>
                 ) : (
-                  formatCurrency(value, currency)
+                  formatCurrency(value, money)
                 )}
               </p>
-              {value !== null && (
+              {value !== null && fields.fixed_total === null && (
                 <p className="text-ink-faint mt-1 text-xs">
-                  {fields.hours_logged}h × {formatCurrency(fields.hourly_rate!, currency)} —
-                  calculated, not extracted
+                  {fields.hours_logged}h × {formatCurrency(fields.hourly_rate!, money)}, calculated
+                </p>
+              )}
+              {currencyClash && (
+                <p className="mt-2 rounded-lg bg-amber-400/10 px-3 py-2 text-xs text-amber-200 ring-1 ring-amber-400/20 ring-inset">
+                  This brief is in {currencyClash}, and your account is in {currency}. FreeFlow doesn&apos;t convert, so
+                  check the amount before adding it.
                 </p>
               )}
             </div>
@@ -270,29 +334,25 @@ export default function CoreWorkbench() {
               </p>
             )}
 
-            <div className="mt-5 flex items-center gap-3">
-              <button
-                onClick={handleSave}
-                disabled={saveState === "saving" || saveState === "saved"}
-                className="bg-accent rounded-lg px-4 py-2.5 text-sm font-semibold text-app transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                {saveState === "saving"
-                  ? "Saving…"
-                  : saveState === "saved"
-                    ? "Saved ✓"
-                    : "Save to database"}
-              </button>
+            {/* Keyed so a re-run starts from the new result, not the last one. */}
+            <BriefToProject
+              key={JSON.stringify(fields)}
+              fields={fields}
+              onCreated={onAdded}
+              className="border-hairline mt-5 border-t pt-4"
+            />
+            <div className="mt-3 flex items-center gap-3">
               <button
                 onClick={() => handleExtract()}
                 disabled={extracting}
-                className="border-hairline text-ink-muted hover:text-ink rounded-lg border px-4 py-2.5 text-sm transition-colors disabled:opacity-40"
+                className="text-ink-faint hover:text-ink text-xs underline underline-offset-2 disabled:opacity-40"
               >
-                Re-run
+                Read it again
               </button>
+              {saveState === "error" && (
+                <span className="text-ink-faint text-xs">The project was added; the brief wasn&apos;t kept in Recent briefs.</span>
+              )}
             </div>
-
-            {/* Keyed so a re-run starts from the new result, not the last one. */}
-            <BriefToProject key={JSON.stringify(fields)} fields={fields} className="border-hairline mt-4 border-t pt-4" />
           </>
         )}
       </section>

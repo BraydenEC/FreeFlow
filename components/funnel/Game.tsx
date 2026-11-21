@@ -20,9 +20,9 @@ import { readBest, readStyle, saveBest, saveStyle } from "@/lib/game/prefs";
 import { STYLE_DRAWERS, STYLE_LABELS } from "@/components/funnel/game/styles";
 import { drawCharacter, drawCoin, drawContours, drawGateFrame, drawGateLabel } from "@/components/funnel/game/draw";
 import { JOBS } from "@/lib/funnel/jobs";
-import { COPY } from "@/lib/funnel/copy";
 import { track } from "@/lib/funnel/track";
 import { useJob } from "@/components/funnel/JobContext";
+import { useCta } from "@/components/funnel/useCta";
 import LaunchListForm from "@/components/funnel/LaunchListForm";
 
 /*
@@ -88,6 +88,7 @@ const MESSAGE_STYLE: Record<Message["kind"], { border: string; label: string }> 
 
 export default function Game() {
   const { job, trackJob, choice } = useJob();
+  const cta = useCta();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const roomRef = useRef<HTMLDivElement>(null);
   const playAgainRef = useRef<HTMLButtonElement>(null);
@@ -390,11 +391,11 @@ export default function Game() {
               <p className="text-ink-muted max-w-md text-sm">{CLOSING}</p>
               <div className="mt-1 flex flex-wrap justify-center gap-3">
                 <Link
-                  href="/signup"
-                  onClick={() => track("try_free_click", trackJob)}
+                  href={cta.href}
+                  onClick={() => !cta.signedIn && track("try_free_click", trackJob)}
                   className="focus-visible:ring-ink rounded-lg bg-[var(--job)] px-4 py-2.5 text-[15px] font-bold text-black focus-visible:ring-2 focus-visible:outline-none"
                 >
-                  {COPY.tryFree}
+                  {cta.label}
                 </Link>
                 <button
                   ref={playAgainRef}

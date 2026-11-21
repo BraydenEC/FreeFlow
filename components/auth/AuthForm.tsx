@@ -28,7 +28,7 @@ const COPY: Record<Mode, { title: string; sub: string; cta: string; busy: string
   signup: {
     title: "Create your account",
     sub: "A clean dashboard, your projects only. Takes ten seconds.",
-    cta: "Create account",
+    cta: "Create a free account",
     busy: "Creating…",
   },
   login: {
@@ -185,7 +185,7 @@ export default function AuthForm({ mode }: { mode: Mode }) {
           <>
             New here?{" "}
             <Link href="/signup" className="text-ink underline-offset-4 hover:underline">
-              Create an account
+              Create a free account
             </Link>
           </>
         )}

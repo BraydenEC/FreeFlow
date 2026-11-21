@@ -186,3 +186,8 @@ html.lenis body {
 .lenis.lenis-smooth iframe {
   pointer-events: none;
 }
+
+/* H3: the Dock steps aside while a sheet (Settings) is open. */
+body[data-sheet="open"] [data-dock] {
+  display: none;
+}

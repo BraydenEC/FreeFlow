@@ -3,7 +3,7 @@
 import { useSession } from "@/components/auth/SessionProvider";
 import { TAX_REGIMES, TAX_REGIME_LABELS } from "@/lib/tax/withholding";
 import { CURRENCIES, CURRENCY_CODES } from "@/lib/currency";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { usePrefs } from "@/components/prefs/PrefsProvider";
 import { WIDGET_LABELS } from "@/lib/prefs/schema";
 
@@ -57,16 +57,25 @@ export default function LayoutDrawer({
   const p = usePrefs();
   const user = useSession();
 
-  // Escape closes; body scroll locks while open.
+  const headingRef = useRef<HTMLHeadingElement>(null);
+
+  // Escape closes; body scroll locks while open. Focus moves into the sheet
+  // and back to whatever opened it (M13), and body[data-sheet] tells the Dock
+  // to step aside (H3).
   useEffect(() => {
     if (!open) return;
+    const opener = document.activeElement as HTMLElement | null;
+    headingRef.current?.focus();
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     document.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    document.body.dataset.sheet = "open";
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
+      delete document.body.dataset.sheet;
+      opener?.focus?.();
     };
   }, [open, onClose]);
 
@@ -85,7 +94,7 @@ export default function LayoutDrawer({
       <aside className="bg-surface border-hairline absolute inset-y-0 right-0 flex w-full max-w-md flex-col border-l shadow-2xl">
         <div className="border-hairline flex items-center justify-between border-b px-5 py-4">
           <div>
-            <h2 id="drawer-title" className="text-[15px] font-semibold">
+            <h2 id="drawer-title" ref={headingRef} tabIndex={-1} className="text-[15px] font-semibold focus:outline-none">
               Settings
             </h2>
             <p className="text-ink-faint text-xs">

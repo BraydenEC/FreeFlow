@@ -73,8 +73,9 @@ export const NewProjectSchema = z
     ]),
     deadline: z
       .string()
-      .regex(ISO_DATE, "Deadline must be YYYY-MM-DD")
-      .refine(isRealCalendarDate, "Not a real date"),
+      .min(1, "Pick a deadline")
+      .regex(ISO_DATE, "Pick a deadline")
+      .refine(isRealCalendarDate, "That deadline isn't a real date"),
     billing: z.enum(["hourly", "fixed"]),
     hours_logged: nonNegative.max(9999.99).default(0),
     hourly_rate: nonNegative.max(999999.99).default(0),
@@ -112,14 +113,68 @@ export const NewProjectSchema = z
           message: "A fixed-fee project needs a total above 0",
         });
       }
-    } else if (v.hourly_rate <= 0) {
+    } else if (v.hourly_rate < 0.01) {
+      // M12: 0.001 passed "above 0" and saved a project worth $0.00.
       ctx.addIssue({
         code: "custom",
         path: ["hourly_rate"],
-        message: "An hourly project needs a rate above 0",
+        message: "An hourly project needs a rate of at least 0.01",
       });
     }
   });
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** M15: Postgres rejects a malformed uuid with an error, which surfaced as a 500. */
+export function isProjectId(id: string): boolean {
+  return UUID.test(id);
+}
+
+const FIELD_LABELS: Record<string, string> = {
+  name: "Name",
+  client: "Client",
+  deadline: "Deadline",
+  hours_logged: "Hours logged",
+  hourly_rate: "Hourly rate",
+  invoice_total: "Fixed total",
+  contract_signed_on: "Contract signed",
+  contract_url: "Contract link",
+  payment_url: "Payment link",
+  payment_terms_days: "Payment terms",
+};
+
+export type FieldError = { field: string; message: string };
+
+/*
+  Every problem with a project, at most one per field, in plain words (H7).
+
+  The form checks this before sending, so an empty form shows all of its
+  problems at once instead of one per round trip, and the API returns the same
+  list. Zod's own messages ("Too big: expected number to be <=99999999.99")
+  are developer text; anything without a written message is reworded here.
+*/
+export function projectErrors(input: unknown): FieldError[] {
+  const parsed = NewProjectSchema.safeParse(input);
+  if (parsed.success) return [];
+  const seen = new Set<string>();
+  const out: FieldError[] = [];
+  for (const issue of parsed.error.issues) {
+    const field = String(issue.path[0] ?? "");
+    if (seen.has(field)) continue;
+    seen.add(field);
+    const label = FIELD_LABELS[field] ?? "This field";
+    let message = issue.message;
+    if (issue.code === "too_big") message = `${label} is too large`;
+    else if (issue.code === "too_small" && !/required|Pick/.test(message)) message = `${label} can't be negative`;
+    else if (issue.code === "invalid_type" || issue.code === "invalid_union" || /expected|Invalid input/i.test(message)) {
+      message = `${label} must be a number`;
+    }
+    if (field === "hourly_rate" && message === "Must be a number") message = "Hourly rate must be a number";
+    if (field === "hours_logged" && message === "Must be a number") message = "Hours logged must be a number";
+    out.push({ field, message });
+  }
+  return out;
+}
 
 /*
   Whether the form draws a given field for this billing model. An error on a
@@ -135,17 +190,17 @@ export type NewProjectInput = z.input<typeof NewProjectSchema>;
 export type NewProject = z.output<typeof NewProjectSchema>;
 
 /*
-  What the new project form starts with. The deadline is required, so it opens
-  on today as something to change. A contract signing date is a fact about the
+  What the new project form starts with. The deadline is required but starts
+  empty: opening on today made every quick-added project "due today" (H7). A contract signing date is a fact about the
   past, and filling one in would record a signature nobody entered, so it
-  starts blank. `today` is passed in, for the same reason `now` is elsewhere.
+  starts blank.
 */
-export function blankProject(today: string): NewProjectInput {
+export function blankProject(): NewProjectInput {
   return {
     name: "",
     client: "",
     status: "contracted",
-    deadline: today,
+    deadline: "",
     billing: "fixed",
     hours_logged: "" as unknown as number,
     hourly_rate: "" as unknown as number,

@@ -30,7 +30,7 @@ export const WIDGET_LABELS: Record<WidgetId, string> = {
   withholding: "After retenciones",
   metrics: "Cash-flow metrics",
   projects: "Projects table",
-  core: "Recent extractions",
+  core: "Recent briefs",
   research: "Market research",
 };
 

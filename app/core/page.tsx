@@ -19,7 +19,7 @@ import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Core — FreeFlow",
+  title: "Paste a brief — FreeFlow",
   description:
     "Turn an unstructured client brief into a structured project record.",
 };
@@ -48,7 +48,7 @@ export default async function CorePage() {
             <header>
               <div className="flex flex-wrap items-center gap-3">
                 <h1 className="page-title">
-                  FreeFlow Core
+                  Paste a brief
                 </h1>
                 {!modelConfigured && (
                   <span className="rounded-full bg-amber-400/10 px-2.5 py-1 text-xs font-medium text-amber-300 ring-1 ring-amber-400/20 ring-inset">

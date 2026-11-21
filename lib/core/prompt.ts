@@ -10,7 +10,7 @@
   produced it — without that, comparing extractions across time is guesswork.
 */
 
-export const PROMPT_VERSION = "v1.0.0";
+export const PROMPT_VERSION = "v1.1.0";
 
 export const SYSTEM_PROMPT = `You extract structured project records from unstructured freelance briefs.
 
@@ -23,6 +23,12 @@ RULES
 2. Dates must be ISO calendar dates (YYYY-MM-DD). Resolve relative expressions ("end of month", "in two weeks", "next Friday") against TODAY, which is supplied in the user message. If a date names no year, choose the interpretation that lands in the future relative to TODAY.
 
 3. Money is a plain number. "$85/hr", "85 an hour", and "85USD per hour" all extract as 85. Never include currency symbols or units.
+
+3a. A flat budget or fixed fee for the whole job goes in fixed_total, not hourly_rate: "budget 800 usd", "Our budget is $350", "$1,800 flat" and "8,500 MXN" extract as 800, 350, 1800 and 8500. A brief can have a fixed_total and no rate; that is normal, not missing data.
+
+3b. currency is the ISO 4217 code of the brief's money (USD, MXN, EUR…) only when the brief states it by code, by name ("pesos", "dollars") or with an unambiguous symbol (€, £). A bare "$" is null.
+
+3c. client_type is "company" when the brief says the client is one: persona moral, SA de CV, S. de R.L., LLC, Inc. It is "individual" for persona física. Otherwise null.
 
 4. Hours are a plain number. "about 22 hours", "22h", and "roughly 22" all extract as 22. Approximation words do not make a value absent — record the number and note the imprecision.
 

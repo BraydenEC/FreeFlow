@@ -61,12 +61,54 @@ function findRate(text: string): number | null {
   const patterns = [
     /\$\s*(\d+(?:\.\d+)?)\s*(?:\/|\s*per\s+|\s+an?\s+)\s*(?:hr|hour)/i,
     /(\d+(?:\.\d+)?)\s*(?:usd)?\s*(?:\/|\s*per\s+|\s+an?\s+)\s*(?:hr|hour)/i,
-    /(?:rate|hourly)\D{0,12}?\$?\s*(\d+(?:\.\d+)?)/i,
+    /(?<!(?:flat|fixed)\s)(?:rate|hourly)\D{0,12}?\$?\s*(\d+(?:\.\d+)?)/i,
   ];
   for (const p of patterns) {
     const m = text.match(p);
     if (m) return Number(m[1]);
   }
+  return null;
+}
+
+const NUM = "[$€£]?\\s*\\d[\\d,]*(?:\\.\\d+)?";
+const toNumber = (raw: string) => Number(raw.replace(/[$€£\s,]/g, ""));
+// An amount followed by an hours word is a rate or a duration, not a budget.
+const HOURLY_AFTER = /^\s*(?:usd|mxn|eur|dollars?|pesos?)?\s*(?:\/\s*h|per\s+h|an?\s+hour|hourly|hours?\b|hrs?\b|horas?\b|por\s+hora)/i;
+
+/** A flat budget. Handles "budget 800 usd", "$1,800 flat", "8,500 MXN", "fixed fee of €2,400" (H5). */
+function findFixedTotal(text: string): number | null {
+  const patterns = [
+    new RegExp(`(?:budget|presupuesto|fixed fee|flat fee|flat rate)\\D{0,20}?(${NUM})`, "i"),
+    new RegExp(`(${NUM})\\s*(?:usd|mxn|eur|dollars|pesos)?\\s*(?:flat|fixed)\\b`, "i"),
+    new RegExp(`(${NUM})\\s*(?:usd|mxn|eur|cad|gbp|cop|ars|brl|clp|pen|uyu|pesos|dollars)\\b`, "i"),
+    new RegExp(`\\bpor\\s+([$€£]\\s*\\d[\\d,]*(?:\\.\\d+)?)`, "i"),
+  ];
+  for (const p of patterns) {
+    const m = p.exec(text);
+    if (!m) continue;
+    const after = text.slice(m.index + m[0].length);
+    if (HOURLY_AFTER.test(after) || HOURLY_AFTER.test(text.slice(m.index + m[0].indexOf(m[1]) + m[1].length))) continue;
+    const value = toNumber(m[1]);
+    if (value > 0) return value;
+  }
+  return null;
+}
+
+/** The brief's currency, only when it says so: a bare "$" could be several. */
+function findCurrency(text: string): string | null {
+  const code = text.match(/\b(usd|mxn|eur|cad|gbp|cop|ars|brl|clp|pen|uyu)\b/i);
+  if (code) return code[1].toUpperCase();
+  if (/\bpesos?\b/i.test(text)) return "MXN";
+  if (/\bdollars?\b|\bd[oó]lares\b/i.test(text)) return "USD";
+  if (text.includes("€")) return "EUR";
+  if (text.includes("£")) return "GBP";
+  return null;
+}
+
+/** Company or individual, only when stated (persona moral, SA de CV, LLC…). */
+function findClientType(text: string): "company" | "individual" | null {
+  if (/persona\s+moral|\bs\.?\s?a\.?\s+de\s+c\.?\s?v\b|\bs\.?\s+de\s+r\.?\s?l\b|\bllc\b|\binc\b|\bcorp\b/i.test(text)) return "company";
+  if (/persona\s+f[ií]sica/i.test(text)) return "individual";
   return null;
 }
 
@@ -164,14 +206,17 @@ function findStatus(text: string, deadline: string | null, today: Date): CoreExt
 
 export function heuristicExtract(brief: string, today: Date): CoreExtraction {
   const deadline = findDeadline(brief, today);
-  const hourly_rate = findRate(brief);
+  const fixed_total = findFixedTotal(brief);
+  const hourly_rate = fixed_total === null ? findRate(brief) : null;
   const hours_logged = findHours(brief);
   const client = findClient(brief);
 
   const missing: string[] = [];
   if (client === null) missing.push("client");
-  if (hourly_rate === null) missing.push("hourly rate");
-  if (hours_logged === null) missing.push("hours logged");
+  if (fixed_total === null) {
+    if (hourly_rate === null) missing.push("hourly rate or budget");
+    if (hours_logged === null) missing.push("hours logged");
+  }
   if (deadline === null) missing.push("deadline");
 
   const confidence_note =
@@ -184,6 +229,9 @@ export function heuristicExtract(brief: string, today: Date): CoreExtraction {
     client,
     hourly_rate,
     hours_logged,
+    fixed_total,
+    currency: findCurrency(brief),
+    client_type: findClientType(brief),
     deadline,
     status: findStatus(brief, deadline, today),
     confidence_note,

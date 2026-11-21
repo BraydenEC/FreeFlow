@@ -38,7 +38,7 @@ type Bubble =
   | { role: "bot"; text: string; reply?: EngineReply };
 
 const GREETING =
-  "Hi, I'm FreeFlow's automated guide. What do you need help with?";
+  "Hi, this is FreeFlow's help desk. What do you need help with?";
 const NOTICE =
   "Conversations are saved so FreeFlow's owner can fix problems. Don't paste passwords or card numbers.";
 const FILED = "Filed. The owner reads every ticket and will email you.";

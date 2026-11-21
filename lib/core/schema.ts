@@ -44,6 +44,20 @@ export const CoreExtractionSchema = z.object({
     .number()
     .nullable()
     .describe("Hours worked so far as a number. Null if not stated."),
+  // H5: every user tester's brief stated a flat budget, and all of them came
+  // back as "rate not found". A fixed total is read, never computed.
+  fixed_total: z
+    .number()
+    .nullable()
+    .describe("A flat budget or fixed fee for the whole job as a plain number, in the brief's own currency, never converted. Null if the brief gives only an hourly rate or no amount."),
+  currency: z
+    .string()
+    .nullable()
+    .describe("ISO 4217 code (USD, MXN, EUR…) of the brief's money, only when stated by code, name (pesos, dollars) or an unambiguous symbol (€, £). A bare $ is null."),
+  client_type: z
+    .enum(["company", "individual"])
+    .nullable()
+    .describe("company when the client says it is one (persona moral, SA de CV, S. de R.L., LLC, Inc); individual for persona física. Null if not stated."),
   deadline: z
     .string()
     .nullable()
@@ -80,8 +94,9 @@ export function withRealDeadline(fields: CoreExtraction): CoreExtraction {
   return { ...fields, deadline: null };
 }
 
-/** Value of an extracted project. Mirrors projectValue() for the dashboard. */
+/** Value of an extracted project. Mirrors projectValue() for the dashboard: a fixed total wins. */
 export function extractionValue(fields: CoreExtraction): number | null {
+  if (fields.fixed_total !== null && fields.fixed_total !== undefined) return fields.fixed_total;
   if (fields.hourly_rate === null || fields.hours_logged === null) return null;
   return fields.hourly_rate * fields.hours_logged;
 }

@@ -16,9 +16,11 @@ import { extractionToProject, type ExtractedFields } from "@/lib/core/to-project
 export default function BriefToProject({
   fields,
   className = "",
+  onCreated,
 }: {
   fields: ExtractedFields;
   className?: string;
+  onCreated?: () => void;
 }) {
   const [created, setCreated] = useState(false);
 
@@ -34,8 +36,12 @@ export default function BriefToProject({
       ) : (
         <ProjectForm
           prefill={extractionToProject(fields)}
-          createLabel="Create project"
-          onCreated={() => setCreated(true)}
+          createLabel="Add to my projects"
+          primary
+          onCreated={() => {
+            setCreated(true);
+            onCreated?.();
+          }}
         />
       )}
     </div>

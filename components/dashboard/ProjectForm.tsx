@@ -1,10 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { usePrefs } from "@/components/prefs/PrefsProvider";
 import { localToday, paidDateChanged } from "@/lib/projects/payment";
-import { blankProject, fieldShownFor, type NewProjectInput } from "@/lib/projects/schema";
+import { blankProject, projectErrors, type FieldError, type NewProjectInput } from "@/lib/projects/schema";
 import type { Project } from "@/types/project";
 
 /*
@@ -32,9 +32,13 @@ const STATUS_OPTIONS: { value: NewProjectInput["status"]; label: string }[] = [
   { value: "overdue", label: "Overdue" },
 ];
 
-const todayIso = () => new Date().toISOString().slice(0, 10);
+const blank = () => blankProject();
 
-const blank = () => blankProject(todayIso());
+// Fields under "More details" on a new project (H7: the form opened on 12).
+const EXTRA_FIELDS = ["status", "contract_signed_on", "contract_url", "payment_terms_days", "client_tax_type", "payment_url"];
+
+// A half-filled new project survives a reload (M8). Per tab, never synced.
+const DRAFT_KEY = "freeflow:new-project";
 
 /* An existing row, back into the shape the form edits. Billing model is
    inferred the same way the table infers it: a fixed fee is the presence of
@@ -62,6 +66,7 @@ export default function ProjectForm({
   project,
   prefill,
   createLabel = "+ New project",
+  primary = false,
   onCreated,
   onClose,
 }: {
@@ -72,6 +77,8 @@ export default function ProjectForm({
   prefill?: NewProjectInput;
   /** The closed button's text for a create. */
   createLabel?: string;
+  /** Style the closed button as the page's main action. */
+  primary?: boolean;
   onCreated?: () => void;
   /** Called when an edit finishes, so EditProject can take the form away. */
   onClose?: () => void;
@@ -90,20 +97,108 @@ export default function ProjectForm({
   const [paidOn, setPaidOn] = useState(project?.paidAt ?? "");
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [error, setError] = useState<{ message: string; field: string | null } | null>(null);
+  const [errors, setErrors] = useState<FieldError[]>([]);
   const [busy, setBusy] = useState(false);
+  const [more, setMore] = useState(editing);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [baseline, setBaseline] = useState(form);
+  const focusOnOpen = useRef(editing);
+  const usesDraft = !editing && !prefill;
 
   function close() {
     setOpen(false);
     onClose?.();
   }
 
+  function openForm() {
+    focusOnOpen.current = true;
+    setOpen(true);
+  }
+
+  const focusField = (field: string) =>
+    setTimeout(() => {
+      const el = formRef.current?.querySelector<HTMLElement>(`[data-field="${field}"]`);
+      el?.focus();
+      el?.scrollIntoView({ block: "center", behavior: "smooth" });
+    }, 0);
+
+  // H7/M13: every problem at once, and the cursor on the first.
+  function showErrors(list: FieldError[]) {
+    setErrors(list);
+    if (list.some((e) => EXTRA_FIELDS.includes(e.field))) setMore(true);
+    if (list[0]) focusField(list[0].field);
+  }
+
+  // M13: opening the form puts the cursor in it, not on the page body.
+  useEffect(() => {
+    if (open && focusOnOpen.current) {
+      focusOnOpen.current = false;
+      focusField("name");
+    }
+  }, [open]);
+
+  // M7: "+ New project" near the top of a phone screen links to #new-project.
+  useEffect(() => {
+    if (editing || prefill) return;
+    const check = () => {
+      if (window.location.hash === "#new-project") openForm();
+    };
+    check();
+    window.addEventListener("hashchange", check);
+    return () => window.removeEventListener("hashchange", check);
+  }, [editing, prefill]);
+
+  // M8: restore a half-filled new project.
+  useEffect(() => {
+    if (!usesDraft) return;
+    try {
+      const raw = window.sessionStorage.getItem(DRAFT_KEY);
+      if (raw) {
+        // Restoring from storage after hydration, as Roadmap does.
+        setForm({ ...blank(), ...(JSON.parse(raw) as Partial<NewProjectInput>) }); // eslint-disable-line react-hooks/set-state-in-effect
+        setOpen(true);
+      }
+    } catch {
+      // Blocked or corrupt storage: start blank.
+    }
+  }, [usesDraft]);
+
+  const dirty = open && JSON.stringify(form) !== JSON.stringify(baseline);
+
+  // M8: keep it as it is typed.
+  useEffect(() => {
+    if (!usesDraft) return;
+    try {
+      if (dirty) window.sessionStorage.setItem(DRAFT_KEY, JSON.stringify(form));
+      else window.sessionStorage.removeItem(DRAFT_KEY);
+    } catch {
+      // Storage full or blocked: no draft, the form still works.
+    }
+  }, [usesDraft, dirty, form]);
+
+  // M8: unsaved changes ask before the page goes away.
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
+
   function set<K extends keyof NewProjectInput>(key: K, value: NewProjectInput[K]) {
     setForm((f) => ({ ...f, [key]: value }));
+    // A field stops being flagged as soon as it is edited.
+    setErrors((list) => list.filter((e) => e.field !== key));
   }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    const problems = projectErrors(form);
+    if (problems.length > 0) {
+      showErrors(problems);
+      return;
+    }
+    setErrors([]);
     setBusy(true);
     try {
       // The paid date first: if it is refused, nothing has been saved yet.
@@ -115,7 +210,7 @@ export default function ProjectForm({
         });
         if (!paid.ok) {
           const json = (await paid.json().catch(() => ({}))) as { error?: string };
-          setError({ message: json.error ?? "Could not save the paid date.", field: "paid_at" });
+          showErrors([{ field: "paid_at", message: json.error ?? "Could not save the paid date." }]);
           return;
         }
       }
@@ -127,15 +222,20 @@ export default function ProjectForm({
           body: JSON.stringify(form),
         },
       );
-      const json = (await res.json()) as { error?: string; field?: string | null };
+      const json = (await res.json()) as { error?: string; errors?: FieldError[] };
       if (!res.ok) {
-        setError({ message: json.error ?? "Could not save.", field: json.field ?? null });
+        if (json.errors?.length) showErrors(json.errors);
+        else setError({ message: json.error ?? "Could not save.", field: null });
         return;
       }
+      setBaseline(form);
       // Only a create clears the fields. After an edit the form closes and
       // the row it edited is the record of what happened.
       if (!editing) {
-        setForm(prefill ?? blank());
+        const fresh = prefill ?? blank();
+        setBaseline(fresh);
+        setForm(fresh);
+        setMore(false);
         onCreated?.();
       }
       close();
@@ -167,13 +267,19 @@ export default function ProjectForm({
     }
   }
 
+  // 16px text on phones, or iOS zooms into every field it focuses (M7).
   const input =
-    "bg-raised border-hairline text-ink placeholder:text-ink-faint focus-visible:ring-accent w-full rounded-lg border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none";
+    "bg-raised border-hairline text-ink placeholder:text-ink-faint focus-visible:ring-accent aria-invalid:border-status-overdue w-full rounded-lg border px-3 py-2 text-base sm:text-sm focus-visible:ring-2 focus-visible:outline-none";
   const label = "text-ink-muted text-xs";
-  const err = (field: string) =>
-    error?.field === field ? (
-      <span className="text-status-overdue text-xs">{error.message}</span>
+  const bad = (field: string) => errors.some((e) => e.field === field) || undefined;
+  const err = (field: string) => {
+    const found = errors.find((e) => e.field === field);
+    return found ? (
+      <span id={`${id}-${field}-error`} className="text-status-overdue text-xs">
+        {found.message}
+      </span>
     ) : null;
+  };
 
   if (!open) {
     // An edit's button lives in EditProject, so it can stay on the row while
@@ -182,8 +288,13 @@ export default function ProjectForm({
     return (
       <button
         type="button"
-        onClick={() => setOpen(true)}
-        className="border-hairline text-ink-muted hover:text-ink hover:border-ink-faint focus-visible:ring-accent rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none"
+        id={prefill ? undefined : "new-project"}
+        onClick={openForm}
+        className={
+          primary
+            ? "bg-accent text-app focus-visible:ring-accent min-h-11 rounded-lg px-4 py-2 text-sm font-semibold focus-visible:ring-2 focus-visible:outline-none sm:min-h-0"
+            : "border-hairline text-ink-muted hover:text-ink hover:border-ink-faint focus-visible:ring-accent min-h-11 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none sm:min-h-0"
+        }
       >
         {createLabel}
       </button>
@@ -192,7 +303,17 @@ export default function ProjectForm({
 
   return (
     <form
+      ref={formRef}
+      id={editing || prefill ? undefined : "new-project"}
       onSubmit={onSubmit}
+      // M13: Escape closes the form, as it does the Settings sheet.
+      onKeyDown={(e) => {
+        if (e.key === "Escape") {
+          e.stopPropagation();
+          setErrors([]);
+          close();
+        }
+      }}
       aria-labelledby={`${id}-title`}
       className="border-hairline bg-surface w-full rounded-xl border p-5 sm:p-6"
       noValidate
@@ -205,6 +326,7 @@ export default function ProjectForm({
           type="button"
           onClick={() => {
             setError(null);
+            setErrors([]);
             close();
           }}
           className="text-ink-faint hover:text-ink text-xs"
@@ -216,25 +338,17 @@ export default function ProjectForm({
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="flex flex-col gap-1">
           <span className={label}>Project name</span>
-          <input className={input} value={form.name} onChange={(e) => set("name", e.target.value)} required maxLength={120} />
+          <input data-field="name" aria-invalid={bad("name")} aria-describedby={bad("name") ? `${id}-name-error` : undefined} className={input} value={form.name} onChange={(e) => set("name", e.target.value)} required maxLength={120} />
           {err("name")}
         </label>
         <label className="flex flex-col gap-1">
           <span className={label}>Client</span>
-          <input className={input} value={form.client} onChange={(e) => set("client", e.target.value)} required maxLength={120} />
+          <input data-field="client" aria-invalid={bad("client")} aria-describedby={bad("client") ? `${id}-client-error` : undefined} className={input} value={form.client} onChange={(e) => set("client", e.target.value)} required maxLength={120} />
           {err("client")}
         </label>
         <label className="flex flex-col gap-1">
-          <span className={label}>Status</span>
-          <select className={input} value={form.status} onChange={(e) => set("status", e.target.value as NewProjectInput["status"])}>
-            {STATUS_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
-        </label>
-        <label className="flex flex-col gap-1">
           <span className={label}>Deadline</span>
-          <input type="date" className={input} value={form.deadline} onChange={(e) => set("deadline", e.target.value)} required />
+          <input data-field="deadline" aria-invalid={bad("deadline")} aria-describedby={bad("deadline") ? `${id}-deadline-error` : undefined} type="date" className={input} value={form.deadline} onChange={(e) => set("deadline", e.target.value)} required />
           {err("deadline")}
         </label>
 
@@ -245,6 +359,8 @@ export default function ProjectForm({
               type="date"
               className={input}
               value={paidOn}
+              data-field="paid_at"
+              aria-invalid={bad("paid_at")}
               max={localToday()}
               onChange={(e) => setPaidOn(e.target.value)}
             />
@@ -256,8 +372,8 @@ export default function ProjectForm({
           <legend className={label}>Billing</legend>
           <div className="flex gap-4 text-sm" role="radiogroup">
             {(["fixed", "hourly"] as const).map((b) => (
-              <label key={b} className="flex items-center gap-1.5">
-                <input type="radio" name={`${id}-billing`} checked={form.billing === b} onChange={() => set("billing", b)} />
+              <label key={b} className="flex min-h-11 items-center gap-2 sm:min-h-0">
+                <input type="radio" className="h-5 w-5 sm:h-4 sm:w-4" name={`${id}-billing`} checked={form.billing === b} onChange={() => set("billing", b)} />
                 {b === "hourly" ? "Hourly" : "Fixed fee"}
               </label>
             ))}
@@ -268,28 +384,45 @@ export default function ProjectForm({
           <>
             <label className="flex flex-col gap-1">
               <span className={label}>Hours logged</span>
-              <input type="number" inputMode="decimal" min={0} step="0.25" className={input} value={String(form.hours_logged ?? "")} onChange={(e) => set("hours_logged", e.target.value as unknown as number)} />
+              <input data-field="hours_logged" aria-invalid={bad("hours_logged")} aria-describedby={bad("hours_logged") ? `${id}-hours_logged-error` : undefined} type="number" inputMode="decimal" min={0} step="0.25" className={input} value={String(form.hours_logged ?? "")} onChange={(e) => set("hours_logged", e.target.value as unknown as number)} />
               {err("hours_logged")}
             </label>
             <label className="flex flex-col gap-1">
               <span className={label}>Hourly rate ({prefs.currency})</span>
-              <input type="number" inputMode="decimal" min={0} step="0.01" className={input} value={String(form.hourly_rate ?? "")} onChange={(e) => set("hourly_rate", e.target.value as unknown as number)} />
+              <input data-field="hourly_rate" aria-invalid={bad("hourly_rate")} aria-describedby={bad("hourly_rate") ? `${id}-hourly_rate-error` : undefined} type="number" inputMode="decimal" min={0} step="0.01" className={input} value={String(form.hourly_rate ?? "")} onChange={(e) => set("hourly_rate", e.target.value as unknown as number)} />
               {err("hourly_rate")}
             </label>
           </>
         ) : (
           <label className="flex flex-col gap-1 sm:col-span-2">
             <span className={label}>Fixed total ({prefs.currency})</span>
-            <input type="number" inputMode="decimal" min={0} step="0.01" className={input} value={String(form.invoice_total ?? "")} onChange={(e) => set("invoice_total", e.target.value as unknown as number)} />
+            <input data-field="invoice_total" aria-invalid={bad("invoice_total")} aria-describedby={bad("invoice_total") ? `${id}-invoice_total-error` : undefined} type="number" inputMode="decimal" min={0} step="0.01" className={input} value={String(form.invoice_total ?? "")} onChange={(e) => set("invoice_total", e.target.value as unknown as number)} />
             {err("invoice_total")}
           </label>
         )}
       </div>
 
+      {!more ? (
+        <button
+          type="button"
+          onClick={() => setMore(true)}
+          className="text-ink-muted hover:text-ink mt-4 min-h-11 text-sm underline underline-offset-2 sm:min-h-0"
+        >
+          More details: status, contract, payment terms, client type
+        </button>
+      ) : (
       <div className="border-hairline mt-4 grid gap-4 border-t pt-4 sm:grid-cols-2">
         <label className="flex flex-col gap-1">
+          <span className={label}>Status</span>
+          <select data-field="status" aria-invalid={bad("status")} aria-describedby={bad("status") ? `${id}-status-error` : undefined} className={input} value={form.status} onChange={(e) => set("status", e.target.value as NewProjectInput["status"])}>
+            {STATUS_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1">
           <span className={label}>Contract signed</span>
-          <input
+          <input data-field="contract_signed_on" aria-invalid={bad("contract_signed_on")} aria-describedby={bad("contract_signed_on") ? `${id}-contract_signed_on-error` : undefined}
             type="date"
             className={input}
             value={form.contract_signed_on ?? ""}
@@ -299,7 +432,7 @@ export default function ProjectForm({
         </label>
         <label className="flex flex-col gap-1">
           <span className={label}>Contract link</span>
-          <input
+          <input data-field="contract_url" aria-invalid={bad("contract_url")} aria-describedby={bad("contract_url") ? `${id}-contract_url-error` : undefined}
             type="url"
             inputMode="url"
             placeholder="https://…"
@@ -311,7 +444,7 @@ export default function ProjectForm({
         </label>
         <label className="flex flex-col gap-1">
           <span className={label}>Payment terms</span>
-          <input
+          <input data-field="payment_terms_days" aria-invalid={bad("payment_terms_days")} aria-describedby={bad("payment_terms_days") ? `${id}-payment_terms_days-error` : undefined}
             type="number"
             inputMode="numeric"
             min={0}
@@ -330,7 +463,7 @@ export default function ProjectForm({
         </label>
         <label className="flex flex-col gap-1">
           <span className={label}>Client is a…</span>
-          <select
+          <select data-field="client_tax_type" aria-invalid={bad("client_tax_type")} aria-describedby={bad("client_tax_type") ? `${id}-client_tax_type-error` : undefined}
             className={input}
             value={form.client_tax_type ?? ""}
             onChange={(e) =>
@@ -348,7 +481,7 @@ export default function ProjectForm({
         </label>
         <label className="flex flex-col gap-1 sm:col-span-2">
           <span className={label}>Stripe invoice or payment link</span>
-          <input
+          <input data-field="payment_url" aria-invalid={bad("payment_url")} aria-describedby={bad("payment_url") ? `${id}-payment_url-error` : undefined}
             type="url"
             inputMode="url"
             placeholder="https://…"
@@ -359,13 +492,18 @@ export default function ProjectForm({
           {err("payment_url")}
         </label>
       </div>
+      )}
 
-      {error && (error.field === null || !fieldShownFor(form.billing, error.field)) && (
+      {error && (
         <p role="alert" className="text-status-overdue mt-4 text-sm">
-          {error.field === "hours_logged" && "Hours logged: "}
-          {error.field === "hourly_rate" && "Hourly rate: "}
-          {error.field === "invoice_total" && "Fixed total: "}
           {error.message}
+        </p>
+      )}
+      {/* Beside the button that was just pressed, so it is never off-screen (H7). */}
+      {errors.length > 0 && (
+        <p role="alert" className="text-status-overdue mt-4 text-sm">
+          {errors.length === 1 ? "One field needs attention" : `${errors.length} fields need attention`}:{" "}
+          {errors.map((e) => e.message).join(". ")}.
         </p>
       )}
 
@@ -403,7 +541,7 @@ export default function ProjectForm({
             <button
               type="button"
               onClick={() => setConfirmingDelete(true)}
-              className="text-ink-faint hover:text-status-overdue text-xs transition-colors"
+              className="text-ink-faint hover:text-status-overdue min-h-11 text-xs transition-colors sm:min-h-0"
             >
               Delete project
             </button>

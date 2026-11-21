@@ -7,9 +7,10 @@
 */
 
 export const COPY = {
-  tryFree: "Try FreeFlow free",
-  startFree: "Start free",
-  startFreeTail: "now →",
+  // One sign-up label everywhere (M10: testers met five).
+  tryFree: "Create a free account",
+  startFree: "Create a free account",
+  startFreeTail: "→",
   freeWhileItGrows: "Free while it grows.",
   launchListCta: "Get notified when the lifetime version launches",
   RETIRED_LANDING_HEADLINES: [
