@@ -346,7 +346,7 @@ bug the external testers found.
 | 🧱 Product Spec | Requirements + acceptance criteria | ✅ Above |
 | 🏗 Architecture Sketch | Data flow and components | ✅ Above |
 | 🧑‍💻 GitHub Commits | Minimum 5 | ✅ **70** for Week 6 (below) |
-| 🚀 Vercel Deployments | Minimum 2 | ✅ 7 production deploys (below) [[⬅️ add deploy 8: the AI pre-test fixes]] |
+| 🚀 Vercel Deployments | Minimum 2 | ✅ 8 production deploys (below) |
 | 🗄 Supabase Evidence | Table/data evidence | ✅ Migration verify output and live counts (below) |
 | 🤖 Prompt Log | Minimum 5 coding prompts | ✅ **55** (below) |
 | 🧪 Test Evidence | 5 external users + full-site regression | ✅ Regression (Nov 21) and an AI-automated pre-test, marked as AI, with its 35 findings worked through (below). [[⬅️ 5 external users: TO BE ADDED]] |
@@ -440,7 +440,7 @@ bug the external testers found.
 | 5 | `6690205` | Nov 18 | Test evidence for the game's deploy and live checks |
 | 6 | `c07f942` | Nov 18 | The hero's notes turn into checked rows smoothly with the scroll |
 | 7 | `81d8783` | Nov 21 | Donations and per-project pricing switched off, no curse words; checked live: `/support` 404, no Per-project on `/pricing` |
-| 8 | [[⬅️ TO BE ADDED]] | | The AI pre-test fixes (H1–L10) |
+| 8 | `3428f6d` | Nov 21 | The AI pre-test fixes (H1–L10); checked live: 16 public pages 200 (new `/privacy`, `/terms`, `/robots.txt`, `/sitemap.xml`), unknown URLs get the branded 404, `/core` redirects to sign-in with `?next=`, `/pricing` leads with the cost line, the signed-out dashboard opens on the pitch |
 | 9 | [[⬅️ TO BE ADDED]] | | Fix from the external tests |
 
 ## Supabase evidence
@@ -571,7 +571,8 @@ Latest run: Nov 21, after the AI pre-test fixes (`3557631`), on a local producti
 | Phone width (390 px frame) | the Dock opens as a labelled grid; document width 388, nothing wider than the screen |
 | Signed in (Nov 10) | `/` and `/login` go to `/dashboard`; "Your work" shows the records from Supabase; no sideways scrolling on any of 11 pages |
 | Live writes (Nov 10) | vote, duplicate vote, refused vote, "Try free" click, counts rise |
-| Still to run | the live site after deploy 8, and the signed-in flows (Mark unpaid, Paid on, Add to my projects) on the owner's account |
+| Live after deploy 8 (Nov 21) | 16 public pages 200; `/support` and unknown URLs 404 (branded page); `/core` → `/login?next=/core`; `/pricing`, `/dashboard` and `/chat` show the new copy signed out |
+| Still to run | the signed-in flows (Mark unpaid, Paid on, Add to my projects) on the owner's account |
 
 ---
 
@@ -620,7 +621,7 @@ The rest:
 - Phone fixes (M7).
 - Sign-in checks and plain errors (M14).
 
-Each finding and its status is in `docs/week6/MODULE6_CHANGES_OVERVIEW.md`. Deploy: [[⬅️ deploy 8]].
+Each finding and its status is in `docs/week6/MODULE6_CHANGES_OVERVIEW.md`. Live since deploy 8 (`3428f6d`, Nov 21).
 
 ## 5. From the external tests
 

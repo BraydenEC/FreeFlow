@@ -11,11 +11,11 @@ FreeFlow (https://www.freeflow.website) is a free tracker for freelancers: proje
 | | |
 |---|---|
 | Week 6 commits | 70 on `week6` (Nov 9–21), including this write-up |
-| Production deploys | 7 so far; the AI pre-test fixes are ready for the 8th |
+| Production deploys | 8; the AI pre-test fixes went live on Nov 21 (deploy 8, `3428f6d`) |
 | Automated tests | 22 suites, 2,054 passed, 0 failed (up from 21 suites and 1,852 on Nov 18) |
 | Coding prompts logged | 55, quoted from the session transcripts |
 | AI pre-test findings | 35 (10 high, 15 medium, 10 low): 32 fixed, 2 fixed in the app with an owner step left (H2, M5), 1 partly fixed by design (L6) |
-| Still to come | 5 external users, the demo video, and the deploy of the latest fixes |
+| Still to come | 5 external users and the demo video |
 
 ---
 
@@ -153,15 +153,15 @@ Each commit passed the full test suite, lint and type check. The build was clean
   - `/pricing` leads with the cost;
   - "Sort it for me" is visible;
   - `/demo` made no requests while idle.
-- **Not yet checked:** signed-in flows in the browser (they need the owner's sign-in) and the live site after the next deploy.
+- **Live after deploy 8:** 16 public pages return 200, unknown URLs get the branded 404, `/core` redirects to sign-in with a way back, and the new copy shows on `/pricing`, `/dashboard` and `/chat`.
+- **Not yet checked:** the signed-in flows in the browser, which need the owner's sign-in.
 
 ---
 
 ## 5. What's left for the owner
 
-1. **Deploy** the fixes (`week6` → `main`), then re-check them live.
-2. **External users:** run 5 real testers and fill in the packet's table and iteration step 5.
-3. **Demo video:** record 5 minutes, showing `/dashboard` signed in.
-4. **Email deliverability (H2):** set up SPF, DKIM and DMARC for freeflow.website in Brevo, send from a named address, and score a message at mail-tester.com.
-5. **Domain contact (M5):** set up `hello@freeflow.website` forwarding, then change `CONTACT_EMAIL` in `lib/site.ts`.
-6. **Test accounts (L4):** delete the five `+test` accounts on production, so the public counts are true.
+1. **External users:** run 5 real testers and fill in the packet's table and iteration step 5.
+2. **Demo video:** record 5 minutes, showing `/dashboard` signed in.
+3. **Email deliverability (H2):** set up SPF, DKIM and DMARC for freeflow.website in Brevo, send from a named address, and score a message at mail-tester.com.
+4. **Domain contact (M5):** set up `hello@freeflow.website` forwarding, then change `CONTACT_EMAIL` in `lib/site.ts`.
+5. **Test accounts (L4):** delete the five `+test` accounts on production, so the public counts are true.
