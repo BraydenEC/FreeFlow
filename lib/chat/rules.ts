@@ -45,7 +45,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["paid", "mark", "received", "earnings", "pagado", "pago"],
     phrases: ["mark paid", "mark as paid", "mark a project", "got paid", "record a payment", "record payment", "client paid", "como pagado", "me pagaron", "marcar pagado", "marcar un pago", "marco un pago"],
     answer:
-      "Use Mark paid on the project's row. It records the payment with today's date and counts it in this month's earnings. Payment isn't editable in the project form, so Mark paid is the way to record it.",
+      "Use Mark paid on the project's row. It records the payment with today's date and counts it in that month's earnings. If the money arrived on another day, open Edit and change Paid on.",
   },
   // app/page.tsx hasOverdue (unpaid and past deadline); components/dashboard/OverdueAlert.tsx
   {
@@ -370,17 +370,17 @@ export const CONTENT_RULES: Rule[] = [
     answer:
       "A project moves through Contract signed, In progress, Awaiting review, Invoice sent and Overdue. You set the status yourself with Edit on its row, and it doesn't change on its own. Paid isn't a status you choose: Mark paid records it, and the progress bar then shows 100%.",
   },
-  // MarkPaidButton hides once paid and sends no date; PATCH never touches payment
+  // MarkPaidButton shows Mark unpaid on a paid row; ProjectForm has Paid on for a paid project
   {
     id: "payment-undo",
     categories: "any",
     areas: ["projects", "dashboard", "other"],
     keywords: ["undo", "unmark", "mistake", "accidentally", "reverse"],
-    strong: ["unmark"],
-    phrases: ["as unpaid", "mark unpaid", "paid by mistake", "paid by accident", "paid date", "date paid", "undo mark paid"],
+    strong: ["unmark", "undo"],
+    // "undo mark" and "by mistake" are how all five user testers asked it (H4)
+    phrases: ["as unpaid", "mark unpaid", "paid by mistake", "paid by accident", "paid date", "date paid", "undo mark paid", "undo mark", "by mistake", "undo that", "undo it"],
     answer:
-      "Mark paid can't be undone in the app, and it always records today's date, so a payment can't be edited afterwards. Submit a ticket with the project's name and what it should say, and the owner can correct it.",
-    offerTicket: true,
+      "Paid by mistake? Press Mark unpaid on the project's row and it goes back to unpaid. To fix the date instead, open Edit, change Paid on and press Save changes.",
   },
   // No partial-payment fields: is_paid + paid_at on the whole project
   {

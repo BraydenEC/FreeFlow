@@ -17,6 +17,7 @@ import { getMockProjects } from "@/lib/mock-data";
 import { deriveMetrics } from "@/lib/projects/metrics";
 import { deadlineNote, formatRelativeDeadline } from "@/lib/format";
 import { blankProject, fieldShownFor, NewProjectSchema, toRow, toUpdateRow } from "@/lib/projects/schema";
+import { localToday, paidDateChanged, paidDateError } from "@/lib/projects/payment";
 import type { Project } from "@/types/project";
 
 let passed = 0;
@@ -310,6 +311,26 @@ assert("seed data shows 4 active projects", deriveMetrics(getMockProjects(new Da
     assert("a blank signing date is stored as null", toRow(filled.data).contract_signed_on === null);
   }
   assert("each form gets its own blank", blankProject("2026-11-06") !== start);
+}
+
+
+// ── H4: Mark paid can be undone and dated ──────────────────────────────────
+{
+  assert("local today uses the local calendar, not UTC", localToday(new Date(2026, 10, 30, 23, 30)) === "2026-11-30");
+  assert("local today pads month and day", localToday(new Date(2026, 0, 5, 9)) === "2026-01-05");
+  assert("a past paid date is fine", paidDateError("2026-11-02", "2026-11-21") === null);
+  assert("today is fine", paidDateError("2026-11-21", "2026-11-21") === null);
+  assert("tomorrow is allowed for time zones ahead of the server", paidDateError("2026-11-22", "2026-11-21") === null);
+  assert("two days ahead is refused", paidDateError("2026-11-23", "2026-11-21") !== null);
+  assert("the future message says why", /future/i.test(paidDateError("2027-01-01", "2026-11-21") ?? ""));
+  assert("a month boundary is handled", paidDateError("2026-12-01", "2026-11-30") === null && paidDateError("2026-12-02", "2026-11-30") !== null);
+  assert("a date that doesn't exist is refused", paidDateError("2026-02-30", "2026-11-21") !== null);
+  assert("a non-date is refused", paidDateError("last week", "2026-11-21") !== null);
+  const paid = { isPaid: true, paidAt: "2026-11-02" };
+  assert("an untouched Paid on is not a change", !paidDateChanged(paid, "2026-11-02"));
+  assert("a new Paid on is a change", paidDateChanged(paid, "2026-10-30"));
+  assert("an unpaid project has no paid date to change", !paidDateChanged({ isPaid: false, paidAt: null }, "2026-10-30"));
+  assert("a cleared Paid on is not sent", !paidDateChanged(paid, ""));
 }
 
 console.log("─".repeat(64));

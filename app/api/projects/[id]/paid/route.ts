@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { isRealCalendarDate } from "@/lib/projects/schema";
+import { paidDateError } from "@/lib/projects/payment";
 import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
 
 /*
-  POST /api/projects/[id]/paid — record that a project has been paid.
+  POST   /api/projects/[id]/paid — record that a project has been paid.
+  DELETE /api/projects/[id]/paid — undo that (H4: every tester wanted to).
 
   The dashboard has computed "This Month's Earnings" from is_paid and paid_at
   since Week 0, and until now there was no way to set either without opening
@@ -31,27 +32,39 @@ export const dynamic = "force-dynamic";
 
 
 
+const utcToday = () => new Date().toISOString().slice(0, 10);
+
 const Body = z
   .object({
     paid_at: z
       .string()
-      .refine(isRealCalendarDate, "paid_at must be a real date, YYYY-MM-DD")
+      .superRefine((value, ctx) => {
+        const error = paidDateError(value, utcToday());
+        if (error) ctx.addIssue({ code: "custom", message: error });
+      })
       .optional(),
   })
   .optional();
+
+async function signedIn() {
+  const supabase = await getServerSupabase();
+  if (!supabase) {
+    return { error: NextResponse.json({ error: "Database is not configured." }, { status: 503 }) } as const;
+  }
+  const user = await getSessionUser(supabase);
+  if (!user) {
+    return { error: NextResponse.json({ error: "Sign in to update projects." }, { status: 401 }) } as const;
+  }
+  return { supabase, user } as const;
+}
 
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const supabase = await getServerSupabase();
-  if (!supabase) {
-    return NextResponse.json({ error: "Database is not configured." }, { status: 503 });
-  }
-  const user = await getSessionUser(supabase);
-  if (!user) {
-    return NextResponse.json({ error: "Sign in to update projects." }, { status: 401 });
-  }
+  const auth = await signedIn();
+  if ("error" in auth) return auth.error;
+  const { supabase, user } = auth;
 
   const { id } = await params;
 
@@ -72,7 +85,7 @@ export async function POST(
     );
   }
 
-  const paidAt = parsed.data?.paid_at ?? new Date().toISOString().slice(0, 10);
+  const paidAt = parsed.data?.paid_at ?? utcToday();
 
   const { data, error } = await supabase
     .from("projects")
@@ -91,4 +104,38 @@ export async function POST(
   }
 
   return NextResponse.json({ id: data.id, paid_at: paidAt });
+}
+
+/*
+  Both columns go back together, as the paid_requires_date constraint demands.
+  No confirmation: Mark paid sits right beside it, so undoing an undo is one
+  click too.
+*/
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const auth = await signedIn();
+  if ("error" in auth) return auth.error;
+  const { supabase, user } = auth;
+
+  const { id } = await params;
+
+  const { data, error } = await supabase
+    .from("projects")
+    .update({ is_paid: false, paid_at: null })
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    console.warn("[projects] Mark unpaid failed:", error.message);
+    return NextResponse.json({ error: "Could not update. Please try again." }, { status: 500 });
+  }
+  if (!data) {
+    return NextResponse.json({ error: "Project not found." }, { status: 404 });
+  }
+
+  return NextResponse.json({ id: data.id, paid_at: null });
 }

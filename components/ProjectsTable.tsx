@@ -213,7 +213,7 @@ export default function ProjectsTable({
                   key={project.id}
                   project={project}
                   colSpan={COLUMN_COUNT}
-                  actions={!project.isPaid && <MarkPaidButton projectId={project.id} />}
+                  actions={<MarkPaidButton projectId={project.id} isPaid={project.isPaid} />}
                 >
                   <th scope="row" className="px-5 py-3.5 font-normal">
                     <span className="text-ink block font-medium">
@@ -302,7 +302,7 @@ export default function ProjectsTable({
                 </div>
                 <EditableProjectCard
                   project={project}
-                  actions={!project.isPaid && <MarkPaidButton projectId={project.id} />}
+                  actions={<MarkPaidButton projectId={project.id} isPaid={project.isPaid} />}
                 />
               </li>
             );

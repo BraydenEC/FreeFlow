@@ -399,6 +399,17 @@ if (!DONATIONS_ENABLED) {
   assert("asking how to donate gets a straight answer", /doesn't take donations right now/.test(CONTENT_RULES.find((r) => r.id === "donations")!.answer));
 }
 
+
+// H4: payment can now be undone and dated in the app
+for (const q of ["I clicked mark paid on a job by mistake. How do I undo that?", "How do I undo Mark paid?"]) {
+  assert(`the testers' undo question gets the undo answer: ${q}`, A(q, "how_to", "projects").ruleId === "payment-undo", A(q, "how_to", "projects").ruleId ?? "none");
+}
+assert("undo points at Mark unpaid", ans("payment-undo").includes("Mark unpaid"));
+assert("a wrong paid date points at Paid on in Edit", ans("payment-undo").includes("Paid on") && ans("payment-undo").includes("Edit"));
+assert("undo no longer says it can't be done", !/can't be undone|ticket/i.test(ans("payment-undo")));
+assert("undo no longer offers a ticket", CONTENT_RULES.find((r) => r.id === "payment-undo")?.offerTicket !== true);
+assert("record payment says the date can be changed", ans("record-payment").includes("Paid on") && !/isn't editable/.test(ans("record-payment")));
+
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import { usePrefs } from "@/components/prefs/PrefsProvider";
+import { localToday, paidDateChanged } from "@/lib/projects/payment";
 import { blankProject, fieldShownFor, type NewProjectInput } from "@/lib/projects/schema";
 import type { Project } from "@/types/project";
 
@@ -83,6 +84,10 @@ export default function ProjectForm({
   const [form, setForm] = useState<NewProjectInput>(() =>
     project ? fromProject(project) : (prefill ?? blank()),
   );
+  // Payment isn't part of the PATCH body (that route never touches it), so
+  // Paid on is kept apart and saved through the paid route. Shown only once a
+  // project is paid: an unpaid project has no date to correct.
+  const [paidOn, setPaidOn] = useState(project?.paidAt ?? "");
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [error, setError] = useState<{ message: string; field: string | null } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -101,6 +106,19 @@ export default function ProjectForm({
     setError(null);
     setBusy(true);
     try {
+      // The paid date first: if it is refused, nothing has been saved yet.
+      if (editing && paidDateChanged(project, paidOn)) {
+        const paid = await fetch(`/api/projects/${project.id}/paid`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paid_at: paidOn }),
+        });
+        if (!paid.ok) {
+          const json = (await paid.json().catch(() => ({}))) as { error?: string };
+          setError({ message: json.error ?? "Could not save the paid date.", field: "paid_at" });
+          return;
+        }
+      }
       const res = await fetch(
         editing ? `/api/projects/${project.id}` : "/api/projects",
         {
@@ -219,6 +237,20 @@ export default function ProjectForm({
           <input type="date" className={input} value={form.deadline} onChange={(e) => set("deadline", e.target.value)} required />
           {err("deadline")}
         </label>
+
+        {project?.isPaid && (
+          <label className="flex flex-col gap-1">
+            <span className={label}>Paid on</span>
+            <input
+              type="date"
+              className={input}
+              value={paidOn}
+              max={localToday()}
+              onChange={(e) => setPaidOn(e.target.value)}
+            />
+            {err("paid_at")}
+          </label>
+        )}
 
         <fieldset className="flex flex-col gap-2 sm:col-span-2">
           <legend className={label}>Billing</legend>
@@ -340,8 +372,8 @@ export default function ProjectForm({
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
         {/*
           Delete asks twice, unlike Mark paid which asks not at all. The
-          difference is recoverability: a payment recorded in error can be
-          corrected, a deleted project is gone and there is no undo. So the
+          difference is recoverability: a payment recorded in error is undone
+          with Mark unpaid and its date fixed in Paid on, a deleted project is gone and there is no undo. So the
           destructive action states what it will destroy, by name, before it
           will do it.
         */}

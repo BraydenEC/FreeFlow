@@ -353,6 +353,25 @@ assert("a finger drag moves the notes sideways instead of being taken by the bro
 assert("the picker panel stays on screen on a phone (I3)", readOr("components/funnel/JobWord.tsx").includes("innerWidth"));
 assert("Sort it for me scrolls the rows clear of the headline (M2, re-graded)", /sortForMe[\s\S]{0,800}scrollTo/.test(hero));
 
+
+// ── H4: Mark paid can be undone and dated ──────────────────────────────────
+{
+  const paidRoute = read("app/api/projects/[id]/paid/route.ts");
+  const del = paidRoute.slice(paidRoute.indexOf("export async function DELETE"));
+  assert("the paid route can mark a project unpaid", paidRoute.includes("export async function DELETE"));
+  assert("unpaid clears both columns together", del.includes("is_paid: false") && del.includes("paid_at: null"));
+  assert("unpaid only touches the signed-in user's project", del.includes('.eq("user_id", user.id)'));
+  assert("a future paid date is refused by the route", paidRoute.includes("paidDateError("));
+  const button = read("components/dashboard/MarkPaidButton.tsx");
+  assert("Mark paid sends the local date", button.includes("localToday()") && button.includes("paid_at"));
+  assert("a paid row offers Mark unpaid", button.includes("Mark unpaid") && button.includes('method: "DELETE"'));
+  const table = read("components/ProjectsTable.tsx");
+  assert("paid rows keep a payment control", !table.includes("!project.isPaid && <MarkPaidButton") && table.split("<MarkPaidButton projectId={project.id} isPaid={project.isPaid} />").length === 3);
+  const form = read("components/dashboard/ProjectForm.tsx");
+  assert("Edit shows Paid on for a paid project", form.includes("Paid on") && form.includes("project?.isPaid"));
+  assert("a changed Paid on is saved through the paid route", form.includes("paidDateChanged(") && form.includes("/paid`"));
+}
+
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed\n`);
 if (failed > 0) process.exit(1);
