@@ -1,6 +1,6 @@
 # Week 6 Coding-Agent Prompt Log
 
-**Agent:** Claude Code · **Requirement:** minimum 5 · **Delivered:** 47, all quoted from the session transcripts (dates as the transcripts record them, in UTC)
+**Agent:** Claude Code · **Requirement:** minimum 5 · **Delivered:** 55, all quoted from the session transcripts (dates as the transcripts record them, in UTC)
 
 > Typos are kept. Long prompts are shortened where marked with `…`, and a pasted
 > funnel brief is noted rather than reproduced. Friends are never named. Short replies
@@ -55,3 +55,11 @@
 | 45 | Nov 18 | "Fix smaller issues. when done merge into main and deploy" | The review's minor findings fixed test-first; Answer gates deployed |
 | 46 | Nov 18 | "One fix for the live demo page, when scrolling I want the messy invoices to smoothly become checked, right now the animation does not fit the flow of the page" | The hero's notes now turn into checked rows with the scroll, one after another |
 | 47 | Nov 18 | "Now cross check Module 6 requirements with what has been pushed so far. What is missing?" | Requirement check; packet, prompt log and `/docs` brought up to date |
+| 48 | Nov 18 | "finish everything you can on your own. When finished help brainstorm human decision note" | Packet brought up to date; the decision note drafted from the owner's own words |
+| 49 | Nov 18 | "One more thing, Removee the donations page for now, it was not asked for the final assignment and will add confusion. Keep the code but and everything, when project is done we can bring it back" | Donations switched off behind `DONATIONS_ENABLED`; `/support` answers 404 |
+| 50 | Nov 18 | "Remove the per project pricing from the pricing section as well" | Per-project pricing hidden behind `PER_PROJECT_PRICING_ENABLED` |
+| 51 | Nov 18 | "remove any curse words on the website" | The interview quote reworded; a test scans the site |
+| 52 | Nov 18 | "drop it. When complete revise the submission document and make sure it ONLY includes what is asked for in the documents procided for module 6." | Packet trimmed to the Module 6 documents |
+| 53 | Nov 19 | "You are going to run an automated user-testing study on my website using 5 separate, isolated browser sessions representing 5 distinct test users. …" | The AI-automated pre-test: five AI personas, 35 findings |
+| 54 | Nov 19 | "Record it truthfully and mark it as AI automated in the submission document" | The pre-test recorded as AI, apart from the 5 external users |
+| 55 | Nov 21 | "Fix all of testers problems / found errors and bugs when done create a new submission document and a overview of the changes and iterations done for module 6" | All 35 findings worked through test-first in six commits; this revised packet and `MODULE6_CHANGES_OVERVIEW.md` |

@@ -23,45 +23,45 @@ Five testers used freeflow.website on 18–19 Nov 2026, once signed out and once
 
 ### All issues
 
-IDs match the headings in the three Fix sections below. Set Status as you work through them.
+IDs match the headings in the three Fix sections below. Set Status as you work through them. Status as of Nov 21: see `docs/week6/MODULE6_CHANGES_OVERVIEW.md` for what changed for each.
 
 | ID | Problem | Impact | Seen by | Status |
 | --- | --- | --- | --- | --- |
-| H1 | Live site shows donations, Per-project pricing and a curse word | High | All 5 | Not started |
-| H2 | Confirmation email lands in Spam | High | All 5 | Not started |
-| H3 | Floating "+" covers content and is the only, icon-only menu | High | All 5 | Not started |
-| H4 | "Mark paid" can't be undone or dated | High | All 5 | Not started |
-| H5 | Brief extraction drops the fixed budget, currency and client type | High | All 5 | Not started |
-| H6 | Brief extraction result is lost on reload | High | William, Clarisa, Adam, Tony | Not started |
-| H7 | New project errors show one at a time, off-screen | High | All 5 | Not started |
-| H8 | Currency switch is invisible and relabels amounts | High | Clarisa, Adam, Anton, Tony | Not started |
-| H9 | Pricing page never says what FreeFlow costs | High | William, Clarisa, Anton, Tony | Not started |
-| H10 | Signed-out dashboard doesn't explain the product | High | William, Clarisa, Anton | Not started |
-| M1 | Dashboard money figures contradict each other | Medium | Clarisa, Anton | Not started |
-| M2 | Help desk is hard to reach and sometimes answers the wrong question | Medium | All 5 | Not started |
-| M3 | "Sort it for me" can't be clicked with a mouse or finger | Medium | William, Clarisa, Adam | Not started |
-| M4 | Public pages read like a course project | Medium | Clarisa, Anton | Not started |
-| M5 | No privacy, terms or contact pages; plain white 404 | Medium | Adam, Anton | Not started |
-| M6 | FreeFlow can't create or send invoices | Medium | William, Anton | Not started |
-| M7 | Mobile: small tap targets, zooming inputs, squashed search | Medium | Tony | Not started |
-| M8 | Unsaved work is lost without warning | Medium | William, Clarisa, Adam, Tony | Not started |
-| M9 | Jargon and internal names shown to users | Medium | William, Clarisa, Anton | Not started |
-| M10 | One feature goes by many names | Medium | William, Clarisa, Anton | Not started |
-| M11 | A long project name breaks the dashboard layout | Medium | Adam | Not started |
-| M12 | Zero-value projects are accepted; old dates show no year | Medium | Adam | Not started |
-| M13 | Keyboard focus gets lost | Medium | Adam, Tony | Not started |
-| M14 | Sign-up and login show raw server errors | Medium | Adam | Not started |
-| M15 | A malformed project ID returns a server error (500) | Medium | Adam | Not started |
-| L1 | Email address breaks mid-word on the confirm page | Low | All 5 | Not started |
-| L2 | Home page notes overlap | Low | William, Clarisa, Anton, Tony | Not started |
-| L3 | Two logos, five sign-up labels, "Welcome back" for new users | Low | William, Anton | Not started |
-| L4 | Small copy and number mistakes on /pricing and /product | Low | Adam, Anton, Tony | Not started |
-| L5 | Sign-out and sign-in land on the wrong page | Low | William, Clarisa, Adam | Not started |
-| L6 | No bulk actions or keyboard shortcuts | Low | Adam | Not started |
-| L7 | Payment-terms setting can't be emptied | Low | Adam | Not started |
-| L8 | Pricing sliders jump on touch | Low | Tony | Not started |
-| L9 | Resend link trusts the address in the URL | Low | Adam, Anton | Not started |
-| L10 | Demo page keeps loading and shows "Try free" when signed in | Low | William, Clarisa | Not started |
+| H1 | Live site shows donations, Per-project pricing and a curse word | High | All 5 | Fixed (deploy 7, Nov 21) |
+| H2 | Confirmation email lands in Spam | High | All 5 | Fixed in app (Nov 21); email settings: owner |
+| H3 | Floating "+" covers content and is the only, icon-only menu | High | All 5 | Fixed (Nov 21) |
+| H4 | "Mark paid" can't be undone or dated | High | All 5 | Fixed (Nov 21) |
+| H5 | Brief extraction drops the fixed budget, currency and client type | High | All 5 | Fixed (Nov 21) |
+| H6 | Brief extraction result is lost on reload | High | William, Clarisa, Adam, Tony | Fixed (Nov 21) |
+| H7 | New project errors show one at a time, off-screen | High | All 5 | Fixed (Nov 21) |
+| H8 | Currency switch is invisible and relabels amounts | High | Clarisa, Adam, Anton, Tony | Fixed (Nov 21) |
+| H9 | Pricing page never says what FreeFlow costs | High | William, Clarisa, Anton, Tony | Fixed (Nov 21) |
+| H10 | Signed-out dashboard doesn't explain the product | High | William, Clarisa, Anton | Fixed (Nov 21) |
+| M1 | Dashboard money figures contradict each other | Medium | Clarisa, Anton | Fixed (Nov 21) |
+| M2 | Help desk is hard to reach and sometimes answers the wrong question | Medium | All 5 | Fixed (Nov 21) |
+| M3 | "Sort it for me" can't be clicked with a mouse or finger | Medium | William, Clarisa, Adam | Fixed (Nov 21) |
+| M4 | Public pages read like a course project | Medium | Clarisa, Anton | Fixed (Nov 21) |
+| M5 | No privacy, terms or contact pages; plain white 404 | Medium | Adam, Anton | Fixed (Nov 21); domain email: owner |
+| M6 | FreeFlow can't create or send invoices | Medium | William, Anton | Fixed (Nov 21) |
+| M7 | Mobile: small tap targets, zooming inputs, squashed search | Medium | Tony | Fixed (Nov 21) |
+| M8 | Unsaved work is lost without warning | Medium | William, Clarisa, Adam, Tony | Fixed (Nov 21) |
+| M9 | Jargon and internal names shown to users | Medium | William, Clarisa, Anton | Fixed (Nov 21) |
+| M10 | One feature goes by many names | Medium | William, Clarisa, Anton | Fixed (Nov 21) |
+| M11 | A long project name breaks the dashboard layout | Medium | Adam | Fixed (Nov 21) |
+| M12 | Zero-value projects are accepted; old dates show no year | Medium | Adam | Fixed (Nov 21) |
+| M13 | Keyboard focus gets lost | Medium | Adam, Tony | Fixed (Nov 21) |
+| M14 | Sign-up and login show raw server errors | Medium | Adam | Fixed (Nov 21) |
+| M15 | A malformed project ID returns a server error (500) | Medium | Adam | Fixed (Nov 21) |
+| L1 | Email address breaks mid-word on the confirm page | Low | All 5 | Fixed (Nov 21) |
+| L2 | Home page notes overlap | Low | William, Clarisa, Anton, Tony | Fixed (Nov 21) |
+| L3 | Two logos, five sign-up labels, "Welcome back" for new users | Low | William, Anton | Fixed (Nov 21) |
+| L4 | Small copy and number mistakes on /pricing and /product | Low | Adam, Anton, Tony | Fixed (Nov 21) |
+| L5 | Sign-out and sign-in land on the wrong page | Low | William, Clarisa, Adam | Fixed (Nov 21) |
+| L6 | No bulk actions or keyboard shortcuts | Low | Adam | Partly (Nov 21): shortcuts; bulk later |
+| L7 | Payment-terms setting can't be emptied | Low | Adam | Fixed (Nov 21) |
+| L8 | Pricing sliders jump on touch | Low | Tony | Fixed (Nov 21) |
+| L9 | Resend link trusts the address in the URL | Low | Adam, Anton | Fixed (Nov 21) |
+| L10 | Demo page keeps loading and shows "Try free" when signed in | Low | William, Clarisa | Fixed (Nov 21) |
 
 ## How the test was run
 
