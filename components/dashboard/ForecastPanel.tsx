@@ -176,6 +176,9 @@ export default function ForecastPanel({
           Assumes payment {f.assumptions.termsDays} days after each deadline
           unless a project sets its own.
           Net of withholding where a client tax type is recorded.
+          {/* M1: testers saw $900 here and $1,044 in the CSV for one project. */}
+          {" "}Amounts are what you&rsquo;re paid, before any IVA you add on top, so the CSV&rsquo;s
+          invoice Total can be higher.
           {f.beyondHorizon.count > 0 && (
             <>
               {" "}

@@ -558,7 +558,9 @@ export default function ChatWindow({ userEmail, signedIn = true }: { userEmail: 
         </p>
       )}
 
-      <p className="text-ink-muted mt-6 text-xs">{NOTICE}</p>
+      <p className="text-ink-muted mt-6 text-xs">
+        {signedIn ? NOTICE : "Signed out, nothing here is saved. Don't paste passwords or card numbers."}
+      </p>
     </div>
   );
 }

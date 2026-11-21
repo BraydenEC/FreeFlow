@@ -28,6 +28,11 @@ export default function FunnelFooter() {
           If we get it wrong
         </Link>
       </div>
+      {/* M6: say plainly, where people decide, what FreeFlow doesn't do. */}
+      <p className="text-ink-muted mt-4 max-w-2xl text-xs leading-relaxed">
+        FreeFlow tracks the invoices you send from other tools. It doesn&rsquo;t create or send invoices yet,
+        and it doesn&rsquo;t issue Mexican CFDI invoices.
+      </p>
       <p className="text-ink-faint mt-4 max-w-2xl text-xs leading-relaxed">
         Your email is used only to tell you when the lifetime version of FreeFlow launches. It is kept by Brayden (braydenemeryc@gmail.com). To be removed, email that address. Every launch email also has a remove-me link.
       </p>

@@ -17,10 +17,11 @@ import type { ProjectStatus } from "@/types/project";
 */
 
 const LABELS: Record<ProjectStatus, string> = {
-  contracted: "Contract Signed",
-  in_progress: "In Progress",
-  awaiting_review: "Awaiting Review",
-  invoice_sent: "Invoice Sent",
+  // L4: the same casing as the Edit form's dropdown.
+  contracted: "Contract signed",
+  in_progress: "In progress",
+  awaiting_review: "Awaiting review",
+  invoice_sent: "Invoice sent",
   overdue: "Overdue",
 };
 
