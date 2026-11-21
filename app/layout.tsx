@@ -5,6 +5,7 @@ import { PrefsProvider } from "@/components/prefs/PrefsProvider";
 import { SessionProvider } from "@/components/auth/SessionProvider";
 import TopBar from "@/components/TopBar";
 import Dock from "@/components/nav/Dock";
+import SiteFooter from "@/components/SiteFooter";
 import { getUserPrefs } from "@/lib/prefs/server";
 import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
 
@@ -44,8 +45,18 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <body className="bg-app text-ink min-h-full pb-28">
         <SessionProvider user={user}>
           <PrefsProvider initial={prefs} scope={user?.id ?? null}>
+            {/* M13: a skip link, the first thing a keyboard reaches. */}
+            <a
+              href="#main"
+              className="bg-accent text-app sr-only z-50 rounded-md px-3 py-2 text-sm font-semibold focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+            >
+              Skip to content
+            </a>
             <TopBar />
-            {children}
+            <div id="main" tabIndex={-1} className="focus:outline-none">
+              {children}
+            </div>
+            <SiteFooter />
             <Dock />
           </PrefsProvider>
         </SessionProvider>

@@ -6,6 +6,7 @@ import { useState } from "react";
 import SignOutButton from "@/components/auth/SignOutButton";
 import { useSession } from "@/components/auth/SessionProvider";
 import LayoutDrawer from "@/components/prefs/LayoutDrawer";
+import Logo from "@/components/Logo";
 import { AUTH_ROUTES, TOP_LINKS } from "@/lib/nav/dock";
 
 /*
@@ -41,11 +42,7 @@ export default function TopBar() {
           aria-label="FreeFlow home"
           className="mr-2 flex shrink-0 items-center"
         >
-          <span className="bg-ink flex h-7 w-7 items-center justify-center rounded-md">
-            <svg viewBox="0 0 24 24" className="text-app h-4 w-4" aria-hidden>
-              <path d="M4 20V7a3 3 0 0 1 3-3h13L4 20Z" fill="currentColor" />
-            </svg>
-          </span>
+          <Logo />
         </Link>
 
         <nav aria-label="Your tools" className="hidden items-center gap-1 sm:flex">
@@ -73,7 +70,8 @@ export default function TopBar() {
             type="button"
             onClick={() => setDrawerOpen(true)}
             aria-haspopup="dialog"
-            className="text-ink-muted hover:text-ink hover:bg-raised focus-visible:ring-accent flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
+            aria-label="Settings"
+            className="text-ink-muted hover:text-ink hover:bg-raised focus-visible:ring-accent flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-md px-2.5 py-1.5 text-sm sm:min-h-0 sm:min-w-0 transition-colors focus-visible:ring-2 focus-visible:outline-none"
           >
             <svg
               viewBox="0 0 24 24"
@@ -104,7 +102,7 @@ export default function TopBar() {
           ) : (
             <Link
               href="/login"
-              className="text-ink-muted hover:text-ink px-2 text-sm"
+              className="text-ink-muted hover:text-ink flex min-h-11 items-center px-2 text-sm sm:min-h-0"
             >
               Sign in
             </Link>

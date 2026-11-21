@@ -9,7 +9,8 @@ import { getSupabaseEnv } from "@/lib/supabase/env";
     1. Refresh the Supabase session cookie so server components always read a
        valid token. Without this, an expired token would look like "signed out"
        to every page for the rest of the session.
-    2. Redirect. Private routes send visitors with no account to /signup;
+    2. Redirect. Private routes send visitors with no account to /login
+       (with ?next= so they come back);
        the auth pages send signed-in users home.
 
   When Supabase is not configured there is no session to refresh and no auth
@@ -70,10 +71,11 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
+  // L5: say why, and come back here after signing in (AuthForm reads ?next=).
   if (!user && isPrivate(pathname)) {
     const url = request.nextUrl.clone();
-    url.pathname = "/signup";
-    url.search = "";
+    url.pathname = "/login";
+    url.search = `?next=${encodeURIComponent(pathname)}`;
     return NextResponse.redirect(url);
   }
 

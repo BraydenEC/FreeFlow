@@ -13,7 +13,8 @@ export default function SignOutButton() {
     if (!supabase) return;
     setBusy(true);
     await supabase.auth.signOut();
-    router.push("/signup");
+    // L5: signing out landed on "Create your account". Home is where you left from.
+    router.push("/");
     router.refresh();
   }
 
@@ -22,7 +23,7 @@ export default function SignOutButton() {
       type="button"
       onClick={signOut}
       disabled={busy}
-      className="text-ink-faint hover:text-ink text-[11px] underline-offset-4 hover:underline disabled:opacity-40"
+      className="text-ink-faint hover:text-ink flex min-h-11 items-center px-2 text-xs underline-offset-4 hover:underline disabled:opacity-40 sm:min-h-0"
     >
       {busy ? "Signing out…" : "Sign out"}
     </button>

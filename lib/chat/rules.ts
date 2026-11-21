@@ -752,8 +752,8 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["gdpr", "terminos"],
     phrases: ["terms of service", "terms of use", "terms and conditions", "privacy policy", "aviso de privacidad"],
     answer:
-      "FreeFlow doesn't have separate terms or privacy policy pages yet. In short: other users can't see your projects, and nothing is charged. If you need something specific in writing, submit a ticket.",
-    offerTicket: true,
+      "Yes: Privacy and Terms are linked at the bottom of every page. In short: other users can't see your projects, the owner can read saved data to fix problems, nothing is charged, and you can ask for your account to be deleted.",
+    links: [{ label: "Privacy", href: "/privacy" }, { label: "Terms", href: "/terms" }],
   },
   // ChatWindow FILED copy; supabase/chat_sessions.sql tickets frozen by RLS
   {

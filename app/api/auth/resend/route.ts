@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { clientKey, rateLimit } from "@/lib/ratelimit";
 import { getServerSupabase } from "@/lib/supabase/server";
 
 /*
@@ -21,6 +22,16 @@ export const dynamic = "force-dynamic";
 const Body = z.object({ email: z.string().email() });
 
 export async function POST(request: Request) {
+  // L9: a per-visitor limit, so the button (whose cooldown reset on refresh)
+  // can't be used to send someone a stream of emails.
+  const limited = rateLimit(clientKey(request, "auth-resend"), { limit: 3, windowMs: 10 * 60_000 });
+  if (!limited.ok) {
+    return NextResponse.json(
+      { ok: false, message: "Too many emails just now. Wait a few minutes and try again." },
+      { status: 429 },
+    );
+  }
+
   const supabase = await getServerSupabase();
   if (!supabase) {
     return NextResponse.json({ error: "Accounts are not configured." }, { status: 503 });

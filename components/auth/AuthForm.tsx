@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import FragmentSession from "@/components/auth/FragmentSession";
+import Logo from "@/components/Logo";
+import { authProblems, friendlyAuthError, PENDING_EMAIL_KEY, safeNext, type AuthProblem } from "@/lib/auth/validate";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 
 /*
@@ -44,15 +46,36 @@ export default function AuthForm({ mode }: { mode: Mode }) {
   const params = useSearchParams();
   // /auth/confirm redirects here with ?error= when a link is expired or reused.
   const linkError = params.get("error");
+  // L5: a private page sent you here; go back to it afterwards.
+  const next = safeNext(params.get("next"));
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [problems, setProblems] = useState<AuthProblem[]>([]);
+  const problem = (field: AuthProblem["field"]) => problems.find((p) => p.field === field)?.message;
+
+  function waitForConfirmation() {
+    // L9: the address waits in this tab, not in the URL (history, analytics).
+    try {
+      window.sessionStorage.setItem(PENDING_EMAIL_KEY, email.trim());
+    } catch {
+      // Storage blocked: the confirm page still works, without the address.
+    }
+    router.push("/verify-email");
+  }
   const [busy, setBusy] = useState(false);
   const copy = COPY[mode];
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    // M14: checked here first, all at once, in plain words.
+    const found = authProblems(email, password, mode);
+    setProblems(found);
+    if (found.length > 0) {
+      document.getElementById(`auth-${found[0].field}`)?.focus();
+      return;
+    }
 
     const supabase = getBrowserSupabase();
     if (!supabase) {
@@ -64,13 +87,13 @@ export default function AuthForm({ mode }: { mode: Mode }) {
     const result =
       mode === "signup"
         ? await supabase.auth.signUp({
-            email,
+            email: email.trim(),
             password,
             // Send the confirmation link to the handler that can actually
             // write a session cookie, rather than to the bare site root.
             options: { emailRedirectTo: `${window.location.origin}/auth/confirm` },
           })
-        : await supabase.auth.signInWithPassword({ email, password });
+        : await supabase.auth.signInWithPassword({ email: email.trim(), password });
     setBusy(false);
 
     if (result.error) {
@@ -78,39 +101,39 @@ export default function AuthForm({ mode }: { mode: Mode }) {
       // "Email not confirmed" is not a wrong password — it is an unfinished
       // sign-up, and the waiting room can resend the link.
       if (/not confirmed/i.test(message)) {
-        router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+        waitForConfirmation();
         return;
       }
-      setError(message);
+      setError(friendlyAuthError(message));
       return;
     }
 
     // Confirmation is on, so sign-up returns a user and no session.
     if (mode === "signup" && !result.data.session) {
-      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+      waitForConfirmation();
       return;
     }
 
-    router.push("/dashboard");
+    router.push(next);
     router.refresh();
   }
 
   const inputClass =
-    "bg-raised border-hairline text-ink placeholder:text-ink-faint focus-visible:ring-accent w-full rounded-lg border px-3 py-2.5 text-sm focus-visible:ring-2 focus-visible:outline-none";
+    "bg-raised border-hairline text-ink placeholder:text-ink-faint focus-visible:ring-accent aria-invalid:border-status-overdue w-full rounded-lg border px-3 py-2.5 text-base sm:text-sm focus-visible:ring-2 focus-visible:outline-none";
 
   return (
     <div className="border-hairline bg-surface w-full max-w-sm rounded-2xl border p-6 sm:p-8">
-      <div className="mb-6 flex items-center gap-2.5">
-        <span className="bg-ink text-app flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold">
-          F
-        </span>
-        <span className="text-[15px] font-semibold tracking-tight">
-          Free<span className="text-ink-muted">Flow</span>
-        </span>
-      </div>
+      <Link href="/" aria-label="FreeFlow home" className="mb-6 inline-flex">
+        <Logo wordmark />
+      </Link>
 
       <h1 className="text-xl font-semibold tracking-tight">{copy.title}</h1>
       <p className="text-ink-muted mt-1 text-sm">{copy.sub}</p>
+      {params.get("next") && (
+        <p role="status" className="border-hairline text-ink mt-4 rounded-lg border px-3 py-2 text-sm">
+          {next === "/core" ? "Sign in to use Paste a brief." : "Sign in to see that page."} You&rsquo;ll go straight back to it.
+        </p>
+      )}
 
       {/* Catches a session arriving in the URL fragment (default email template). */}
       <FragmentSession />
@@ -125,14 +148,27 @@ export default function AuthForm({ mode }: { mode: Mode }) {
         <label className="flex flex-col gap-1.5 text-sm">
           <span className="text-ink-muted">Email</span>
           <input
+            id="auth-email"
             type="email"
             name="email"
             autoComplete="email"
+            autoFocus
             required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setError(null);
+              setProblems((list) => list.filter((p) => p.field !== "email"));
+            }}
+            aria-invalid={problem("email") ? true : undefined}
+            aria-describedby={problem("email") ? "auth-email-error" : undefined}
             className={inputClass}
           />
+          {problem("email") && (
+            <span id="auth-email-error" className="text-status-overdue text-xs">
+              {problem("email")}
+            </span>
+          )}
         </label>
         <label className="flex flex-col gap-1.5 text-sm">
           <span className="text-ink-muted">Password</span>
@@ -141,11 +177,23 @@ export default function AuthForm({ mode }: { mode: Mode }) {
             name="password"
             autoComplete={mode === "signup" ? "new-password" : "current-password"}
             required
+            id="auth-password"
             minLength={6}
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setError(null);
+              setProblems((list) => list.filter((p) => p.field !== "password"));
+            }}
+            aria-invalid={problem("password") ? true : undefined}
+            aria-describedby={problem("password") ? "auth-password-error" : undefined}
             className={inputClass}
           />
+          {problem("password") && (
+            <span id="auth-password-error" className="text-status-overdue text-xs">
+              {problem("password")}
+            </span>
+          )}
           {mode === "signup" ? (
             <span className="text-ink-faint text-xs">At least 6 characters.</span>
           ) : (
@@ -166,25 +214,33 @@ export default function AuthForm({ mode }: { mode: Mode }) {
 
         <button
           type="submit"
-          disabled={busy || !email || !password}
+          disabled={busy}
           className="bg-accent text-app focus-visible:ring-accent mt-1 rounded-lg px-4 py-2.5 text-sm font-semibold transition-opacity disabled:cursor-not-allowed disabled:opacity-40 focus-visible:ring-2 focus-visible:outline-none"
         >
           {busy ? copy.busy : copy.cta}
         </button>
+        {mode === "signup" && (
+          // M5: sign-up had no consent line and nowhere to read the terms.
+          <p className="text-ink-faint text-center text-xs">
+            By creating an account you agree to the{" "}
+            <Link href="/terms" className="text-ink-muted underline underline-offset-2">Terms</Link> and{" "}
+            <Link href="/privacy" className="text-ink-muted underline underline-offset-2">Privacy policy</Link>.
+          </p>
+        )}
       </form>
 
       <p className="text-ink-muted mt-6 text-center text-sm">
         {mode === "signup" ? (
           <>
             Already have an account?{" "}
-            <Link href="/login" className="text-ink underline-offset-4 hover:underline">
+            <Link href={params.get("next") ? `/login?next=${encodeURIComponent(next)}` : "/login"} className="text-ink underline-offset-4 hover:underline">
               Sign in
             </Link>
           </>
         ) : (
           <>
             New here?{" "}
-            <Link href="/signup" className="text-ink underline-offset-4 hover:underline">
+            <Link href={params.get("next") ? `/signup?next=${encodeURIComponent(next)}` : "/signup"} className="text-ink underline-offset-4 hover:underline">
               Create a free account
             </Link>
           </>

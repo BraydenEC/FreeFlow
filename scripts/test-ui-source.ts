@@ -143,8 +143,10 @@ for (const path of [
   "components/core/BriefToProject.tsx",
   "app/core/page.tsx",
 ]) {
-  const src = read(path);
-  assert(`${path} sends people to /dashboard, not /`, src.includes('"/dashboard"') && !/(href=|push\(|replace\()[^\n]{0,40}"\/"[^\w]/.test(src));
+  // The logo's home link (L3) is a link home, not a post-sign-in destination.
+  const src = read(path).replace(/<Link href="\/" aria-label="FreeFlow home"/g, "");
+  const dest = path.endsWith("AuthForm.tsx") ? read("lib/auth/validate.ts") : src;
+  assert(`${path} sends people to /dashboard, not /`, dest.includes('"/dashboard"') && !/(href=|push\(|replace\()[^\n]{0,40}"\/"[^\w]/.test(src));
 }
 const publicNumbers = readOr("components/venture/PublicNumbers.tsx");
 assert("the public tab exists", publicNumbers.length > 0);
@@ -429,6 +431,30 @@ for (const path of ["app/api/projects/[id]/route.ts", "app/api/projects/[id]/pai
   assert("lateness uses payment terms on the dashboard", dash.includes("lateness(p, now, termsDays)") && read("components/dashboard/OverdueAlert.tsx").includes("lateness("));
   assert("the summary says which currency", read("components/SummaryCards.tsx").includes("Amounts in {currency}"));
   assert("a currency switch warns that nothing was converted", read("components/prefs/LayoutDrawer.tsx").includes("Existing amounts were not converted"));
+}
+
+
+// ── M5 / M13 / M14 / L1 / L5 / L9 / H2 ─────────────────────────────────────
+{
+  for (const f of ["app/privacy/page.tsx", "app/terms/page.tsx", "app/not-found.tsx", "app/robots.ts", "app/sitemap.ts"]) {
+    assert(`${f} exists`, existsSync(f));
+  }
+  const layout = read("app/layout.tsx");
+  assert("every page has the footer with Privacy and Terms", layout.includes("<SiteFooter />") && read("components/SiteFooter.tsx").includes('href="/privacy"'));
+  assert("a skip link comes before the top bar", layout.indexOf("Skip to content") > -1 && layout.indexOf("Skip to content") < layout.indexOf("<TopBar />"));
+  assert("the Settings gear has a name", read("components/TopBar.tsx").includes('aria-label="Settings"'));
+  const auth = read("components/auth/AuthForm.tsx");
+  assert("sign-up checks fields before the server", auth.indexOf("authProblems(") > -1 && auth.indexOf("authProblems(") < auth.indexOf("signUp("));
+  assert("server errors are reworded", auth.includes("friendlyAuthError(message)") && !auth.includes("setError(message)"));
+  assert("the email field takes the cursor", auth.includes("autoFocus"));
+  assert("sign-up has a consent line", auth.includes('href="/terms"') && auth.includes('href="/privacy"'));
+  assert("the email never goes in the URL", !auth.includes("verify-email?email") && !read("app/(auth)/verify-email/page.tsx").includes("searchParams"));
+  assert("signing in returns to where you were", auth.includes("router.push(next)") && read("proxy.ts").includes("?next="));
+  assert("signing out goes home", read("components/auth/SignOutButton.tsx").includes('router.push("/")'));
+  const verify = read("components/auth/VerifyEmailPanel.tsx");
+  assert("the confirm page leads with the spam folder", verify.includes("Check your Spam folder"));
+  assert("the address wraps only after the @", verify.includes("<wbr />") && !verify.includes("break-all"));
+  assert("resend is rate limited per visitor", read("app/api/auth/resend/route.ts").includes("rateLimit("));
 }
 
 console.log("─".repeat(64));
