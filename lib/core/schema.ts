@@ -100,3 +100,27 @@ export function extractionValue(fields: CoreExtraction): number | null {
   if (fields.hourly_rate === null || fields.hours_logged === null) return null;
   return fields.hourly_rate * fields.hours_logged;
 }
+
+/*
+  M9: model notes said things like "status was inferred as in_progress" and
+  "hours_logged is null". The prompt now asks for plain words; this catches
+  any that slip through, at display time.
+*/
+const PLAIN: [RegExp, string][] = [
+  [/\bproject_name\b/g, "project name"],
+  [/\bhourly_rate\b/g, "hourly rate"],
+  [/\bhours_logged\b/g, "hours worked"],
+  [/\bfixed_total\b/g, "budget"],
+  [/\bclient_type\b/g, "client type"],
+  [/\bconfidence_note\b/g, "note"],
+  [/\bin_progress\b/g, "in progress"],
+  [/\bawaiting_review\b/g, "awaiting review"],
+  [/\binvoice_sent\b/g, "invoice sent"],
+  [/\bis null\b/g, "wasn't found"],
+  [/\b(?:was|is) set to null\b/g, "was left empty"],
+  [/\bnull\b/g, "empty"],
+];
+
+export function plainNote(note: string): string {
+  return PLAIN.reduce((s, [re, word]) => s.replace(re, word), note);
+}

@@ -20,7 +20,8 @@ export default function EndBand() {
   return (
     <section id="morning" aria-labelledby="morning-title" className="relative z-[2] flex flex-col gap-[3vh] pt-[16vh]">
       <div className="px-[6vw]">
-        <p className="text-ink-muted text-[11px] font-semibold tracking-[0.12em] uppercase">8:00 am · good morning</p>
+        {/* L2: the sticky clock already says 8:00 AM; repeating it here overlapped it. */}
+        <p className="text-ink-muted text-[11px] font-semibold tracking-[0.12em] uppercase">Good morning</p>
         <h2 id="morning-title" className="text-ink-muted mt-[1vh] text-[13px] font-medium">
           {COPY.freeWhileItGrows}
         </h2>

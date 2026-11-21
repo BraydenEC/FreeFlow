@@ -37,7 +37,7 @@ export default function Reasoning({
           aria-expanded={expanded}
           aria-controls={id}
           onClick={() => setOpen((v) => !v)}
-          className="text-ink-faint hover:text-accent-soft focus-visible:ring-accent inline-flex items-center gap-1.5 rounded text-xs transition-colors focus-visible:ring-2 focus-visible:outline-none"
+          className="text-ink-faint hover:text-accent-soft focus-visible:ring-accent inline-flex min-h-11 items-center gap-1.5 rounded text-xs transition-colors sm:min-h-0 focus-visible:ring-2 focus-visible:outline-none"
         >
           <span
             aria-hidden

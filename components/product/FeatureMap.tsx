@@ -66,11 +66,8 @@ export default function FeatureMap() {
                     <div className="flex shrink-0 items-center gap-2">
                       {/* No badge for a tier /pricing hides (lib/flags.ts). */}
                       {f.tier && (PER_PROJECT_PRICING_ENABLED || f.tier !== "project") && <TierBadge tier={f.tier} />}
-                      {f.shippedIn && (
-                        <span className="text-ink-faint text-[11px]">
-                          {f.shippedIn}
-                        </span>
-                      )}
+                      {/* M4: "Week 0", "After Week 3" read like a course project to
+                          testers. The build history lives on /docs. */}
                       {f.route && (
                         <Link
                           href={f.route}

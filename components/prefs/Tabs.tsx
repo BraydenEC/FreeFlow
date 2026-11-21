@@ -46,10 +46,27 @@ export default function Tabs({
     router.replace(`?${next.toString()}`, { scroll: false });
   }
 
+  // M13: the ARIA tabs pattern. Arrow keys, Home and End move between tabs;
+  // only the selected tab is in the Tab order.
+  function onKeyDown(e: React.KeyboardEvent) {
+    const i = tabs.findIndex((t) => t.id === active);
+    const to =
+      e.key === "ArrowRight" ? (i + 1) % tabs.length
+      : e.key === "ArrowLeft" ? (i - 1 + tabs.length) % tabs.length
+      : e.key === "Home" ? 0
+      : e.key === "End" ? tabs.length - 1
+      : -1;
+    if (to < 0) return;
+    e.preventDefault();
+    select(tabs[to].id);
+    document.getElementById(`${base}-tab-${tabs[to].id}`)?.focus();
+  }
+
   return (
     <div>
       <div
         role="tablist"
+        onKeyDown={onKeyDown}
         className={`border-hairline bg-surface flex flex-wrap gap-1 rounded-lg border p-1 ${tablist === "mobile" ? "md:hidden" : ""}`}
       >
         {tabs.map((t) => (
@@ -59,9 +76,10 @@ export default function Tabs({
             role="tab"
             id={`${base}-tab-${t.id}`}
             aria-selected={active === t.id}
+            tabIndex={active === t.id ? 0 : -1}
             aria-controls={`${base}-panel-${t.id}`}
             onClick={() => select(t.id)}
-            className={`focus-visible:ring-accent flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none ${
+            className={`focus-visible:ring-accent min-h-11 flex-1 rounded-lg px-3 py-2 text-sm sm:min-h-0 font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none ${
               active === t.id
                 ? "bg-accent/15 text-accent-soft"
                 : "text-ink-muted hover:bg-raised/50 hover:text-ink"

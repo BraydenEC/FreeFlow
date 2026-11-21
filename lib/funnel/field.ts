@@ -33,9 +33,28 @@ export function sortedTarget(k: number, width: number): { x: number; y: number }
 }
 
 /** Notes still on your mind for a sort progress (0-1). Lands on 0 just before the end. */
-export function counterFor(order: number): number {
+export function counterFor(order: number, total: number = FIELD_CARDS): number {
   const o = clamp01(order);
-  return o >= 0.98 ? 0 : Math.round(FIELD_CARDS * (1 - o));
+  return o >= 0.98 ? 0 : Math.round(total * (1 - o));
+}
+
+/*
+  L2 (user testing): at 390px the 18 notes piled on top of each other and
+  each worry showed twice. On a phone each worry is on the field once, and
+  starts in its own slot of a two-column grid.
+*/
+export const NARROW_FIELD = 640;
+
+export function fieldCount(viewportW: number, worries: number): number {
+  return viewportW < NARROW_FIELD ? worries : FIELD_CARDS;
+}
+
+export function gridSlot(i: number, n: number, w: number, top: number, bottom: number): { x: number; y: number } {
+  const cols = 2;
+  const rows = Math.max(1, Math.ceil(n / cols));
+  const col = i % cols;
+  const row = Math.floor(i / cols);
+  return { x: ((col + 0.5) * w) / cols, y: top + ((row + 0.5) * (bottom - top)) / rows };
 }
 
 /** The vertical band the notes drift in: under the hero's controls, above the bottom edge. */

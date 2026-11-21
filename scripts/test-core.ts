@@ -8,7 +8,7 @@
 */
 
 import { heuristicExtract } from "@/lib/core/heuristic";
-import { CoreExtractionSchema, extractionValue } from "@/lib/core/schema";
+import { CoreExtractionSchema, extractionValue, plainNote } from "@/lib/core/schema";
 import { extractionToProject } from "@/lib/core/to-project";
 import { readDraft, writeDraft, type DraftStore } from "@/lib/core/draft";
 import { NewProjectSchema } from "@/lib/projects/schema";
@@ -94,6 +94,11 @@ assert("a fixed total is the extraction's value", extractionValue({ ...x("Our bu
   try { writeDraft(broken, { brief: "x", result: null }); } catch { threw = true; }
   assert("blocked storage never throws on write", !threw);
 }
+
+
+// ── M9: no field names in what the user reads ──────────────────────────────
+assert("field names become words", plainNote("status was inferred as in_progress; hours_logged is null") === "status was inferred as in progress; hours worked wasn't found", plainNote("status was inferred as in_progress; hours_logged is null"));
+assert("a plain note is untouched", plainNote("The client asked for a logo by Friday.") === "The client asked for a logo by Friday.");
 
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed\n`);

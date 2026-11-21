@@ -18,7 +18,7 @@ import { moodFor } from "@/lib/funnel/mood";
 import { STORY } from "@/lib/funnel/story";
 import { CHOICE_ORDER, DEFAULT_CHOICE, isChoice, jobForChoice, contentJob, choiceWord, choicePrefix, choiceName, choiceAccentVar, worriesFor, type Choice } from "@/lib/funnel/choice";
 import { NEUTRAL_WORRIES } from "@/lib/funnel/jobs";
-import { FIELD_CARDS, sortedColumns, rowHeight, sortedTarget, counterFor, fieldBand, worryProgress, morph } from "@/lib/funnel/field";
+import { fieldCount, gridSlot, FIELD_CARDS, sortedColumns, rowHeight, sortedTarget, counterFor, fieldBand, worryProgress, morph } from "@/lib/funnel/field";
 
 let passed = 0;
 let failed = 0;
@@ -183,6 +183,18 @@ const allText = JSON.stringify({
   COPY,
 });
 assert("no prices in funnel content", !PRICE_PATTERN.test(allText), allText.match(PRICE_PATTERN)?.[0]);
+
+
+// L2: a phone shows each worry once, each in its own slot
+assert("a phone shows each worry once", fieldCount(390, 9) === 9);
+assert("a desktop keeps the full field", fieldCount(1440, 9) === FIELD_CARDS);
+assert("the counter starts at the phone's count", counterFor(0, 9) === 9 && counterFor(0.98, 9) === 0);
+{
+  const slots = Array.from({ length: 9 }, (_, i) => gridSlot(i, 9, 390, 300, 800));
+  const distinct = new Set(slots.map((p) => `${Math.round(p.x)},${Math.round(p.y)}`));
+  assert("no two phone slots coincide", distinct.size === 9);
+  assert("phone slots stay inside the band", slots.every((p) => p.x > 0 && p.x < 390 && p.y > 300 && p.y < 800));
+}
 
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed`);

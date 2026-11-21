@@ -13,6 +13,7 @@ import { redact } from "@/lib/chat/redact";
 import { answer, normalize } from "@/lib/chat/engine";
 import { GUARD_RULES } from "@/lib/chat/guards";
 import { CONTENT_RULES } from "@/lib/chat/rules";
+import { guessIntake } from "@/lib/chat/intake";
 import { DONATIONS_ENABLED, PER_PROJECT_PRICING_ENABLED } from "@/lib/flags";
 import { VISIBLE_TIERS } from "@/lib/pricing/tiers";
 import { SAMPLES } from "@/lib/chat/samples";
@@ -411,6 +412,18 @@ assert("a wrong paid date points at Paid on in Edit", ans("payment-undo").includ
 assert("undo no longer says it can't be done", !/can't be undone|ticket/i.test(ans("payment-undo")));
 assert("undo no longer offers a ticket", CONTENT_RULES.find((r) => r.id === "payment-undo")?.offerTicket !== true);
 assert("record payment says the date can be changed", ans("record-payment").includes("Paid on") && !/isn't editable/.test(ans("record-payment")));
+
+
+// M2: a question typed straight away, with no chips, still lands
+const typed = (q: string) => { const g = guessIntake(q); return A(q, g.category, g.area).ruleId; };
+assert("typed: undo Mark paid", typed("How do I undo Mark paid?") === "payment-undo", String(typed("How do I undo Mark paid?")));
+assert("typed: the tester's mistaken click", typed("I clicked mark paid on a job by mistake. How do I undo that?") === "payment-undo");
+assert("typed: what it costs", /pricing/.test(String(typed("how much does freeflow cost"))), String(typed("how much does freeflow cost")));
+assert("typed: forecast is empty", guessIntake("my forecast is empty").area === "forecast" && guessIntake("my forecast is empty").category === "how_to" || guessIntake("the forecast is broken").category === "broken");
+assert("typed: feedback goes to feedback", guessIntake("suggestion: please add dark mode").category === "feedback");
+assert("typed: unknown words fall back to how-to, other", JSON.stringify(guessIntake("hello there")) === JSON.stringify({ category: "how_to", area: "other" }));
+assert("typed: bulk delete gets the bulk answer", typed("can I delete several projects at once or use keyboard shortcuts") === "bulk-shortcuts", String(typed("can I delete several projects at once or use keyboard shortcuts")));
+assert("bulk answer names the real shortcuts", /\bn\b/.test(ans("bulk-shortcuts")) && ans("bulk-shortcuts").includes("/"));
 
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed`);

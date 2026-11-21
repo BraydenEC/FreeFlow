@@ -53,7 +53,7 @@ export default async function DocsPage() {
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-14 px-4 py-10 sm:px-8">
       <header>
-        <p className="text-ink-faint text-[11px] tracking-[0.08em] uppercase">Docs</p>
+        <p className="text-ink-faint text-[11px] tracking-[0.08em] uppercase">Docs · build log</p>
         <h1 className="page-title mt-2">How FreeFlow was built</h1>
         <p className="text-ink-muted mt-2 max-w-2xl text-sm leading-relaxed">
           From an idea to one venture in seven steps: what each part is for, what changed along the way, how it was
@@ -69,7 +69,7 @@ export default async function DocsPage() {
         <WeekTimeline />
       </Section>
 
-      <Section id="prompts" title="Prompt library" intro="What the coding agent was actually asked, quoted as written.">
+      <Section id="prompts" title="Prompt library" intro="What the coding agent was actually asked, quoted exactly as typed, typos included. It is a record, so it isn't tidied.">
         <PromptLibrary />
       </Section>
 

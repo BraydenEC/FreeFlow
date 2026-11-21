@@ -155,7 +155,7 @@ export default async function PricingPage({
                 <p className="text-ink-muted text-sm leading-relaxed">
                   Both numbers come from the same model with different
                   assumptions. The conservative case is not the base case
-                  reduced — it encodes what the Week 2 validation conversation
+                  reduced — it encodes what the validation interview
                   actually found: that most freelancers are content with a
                   spreadsheet, and that the one person interviewed said he
                   would not buy.

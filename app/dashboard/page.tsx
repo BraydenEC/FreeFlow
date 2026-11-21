@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import CorePreview from "@/components/core/CorePreview";
 import DashboardGrid from "@/components/dashboard/DashboardGrid";
+import DashboardShortcuts from "@/components/dashboard/DashboardShortcuts";
 import ProjectFilters from "@/components/dashboard/ProjectFilters";
 import ProjectForm from "@/components/dashboard/ProjectForm";
 import ForecastPanel from "@/components/dashboard/ForecastPanel";
@@ -125,6 +126,7 @@ export default async function Dashboard({
 
   return (
     <div data-source={source} className="flex min-h-[calc(100vh-3.5rem)]">
+      <DashboardShortcuts />
       <SubNav />
 
       <main className="min-w-0 flex-1">

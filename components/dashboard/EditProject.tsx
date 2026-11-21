@@ -53,7 +53,7 @@ function EditButton({
       onClick={onClick}
       aria-expanded={editing}
       aria-controls={editing ? formId : undefined}
-      className="border-hairline text-ink-muted hover:text-ink hover:border-ink-faint focus-visible:ring-accent rounded-md border px-2.5 py-1 text-xs whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:outline-none"
+      className="border-hairline text-ink-muted hover:text-ink hover:border-ink-faint focus-visible:ring-accent min-h-11 rounded-md border px-3 py-1 text-xs whitespace-nowrap sm:min-h-0 sm:px-2.5 transition-colors focus-visible:ring-2 focus-visible:outline-none"
     >
       Edit
     </button>

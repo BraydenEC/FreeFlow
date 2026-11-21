@@ -351,7 +351,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
     id: "cfdi",
     name: "Invoice legally in Mexico",
     purpose:
-      "The gap the research found, and the reason the Pro tier can charge anything at all. None of this is built.",
+      "The gap the research found, and the reason the Pro tier could charge anything at all. Issuing invoices isn't built; the withholding maths is.",
     features: [
       {
         id: "cfdi-issue",

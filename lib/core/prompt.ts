@@ -10,7 +10,7 @@
   produced it — without that, comparing extractions across time is guesswork.
 */
 
-export const PROMPT_VERSION = "v1.1.0";
+export const PROMPT_VERSION = "v1.2.0";
 
 export const SYSTEM_PROMPT = `You extract structured project records from unstructured freelance briefs.
 
@@ -42,6 +42,8 @@ RULES
 6. project_name should be a short title-case name a freelancer would recognize in a list. If the brief does not name the work, derive a concise descriptive name from what is being built. Do not copy a whole sentence.
 
 7. confidence_note is one sentence stating what was missing, ambiguous, or inferred. If everything was stated explicitly, say so plainly. This is the user's signal about which fields to double-check, so be specific: name the fields.
+
+8. confidence_note is read by the freelancer, not a developer. Use plain words ("hours worked", "in progress"), never field names or raw values like hours_logged, hourly_rate or in_progress.
 
 Do not compute totals. Rate multiplied by hours is calculated by the application, not by you.`;
 

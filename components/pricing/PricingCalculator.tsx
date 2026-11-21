@@ -61,9 +61,26 @@ function Field({
         <label htmlFor={id} className="text-sm font-medium">
           {label}
         </label>
-        <span className="numeric text-accent-soft text-sm">
-          {display}
-          {percent ? "%" : suffix ? ` ${suffix}` : ""}
+        {/* L8: a short drag on a phone jumped 400 to 1,390. Type it instead. */}
+        <span className="flex items-baseline gap-1">
+          <input
+            type="number"
+            inputMode="decimal"
+            aria-label={`${label}, exact value`}
+            min={percent ? min * 100 : min}
+            max={percent ? max * 100 : max}
+            step={percent ? step * 100 : step}
+            value={display}
+            onChange={(e) => {
+              if (e.target.value === "") return;
+              const n = Number(e.target.value);
+              if (!Number.isFinite(n)) return;
+              const raw = percent ? n / 100 : n;
+              onChange(Math.min(max, Math.max(min, raw)));
+            }}
+            className="numeric text-accent-soft bg-raised border-hairline w-20 rounded-md border px-2 py-1 text-right text-sm"
+          />
+          <span className="text-accent-soft text-sm">{percent ? "%" : suffix ? suffix : ""}</span>
         </span>
       </div>
       {hint && <p className="text-ink-faint mt-0.5 text-xs">{hint}</p>}
@@ -75,7 +92,7 @@ function Field({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="accent-accent mt-2 w-full"
+        className="accent-accent mt-2 h-11 w-full cursor-pointer touch-pan-y sm:h-6"
       />
     </div>
   );

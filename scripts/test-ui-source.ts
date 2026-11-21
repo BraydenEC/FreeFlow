@@ -457,6 +457,29 @@ for (const path of ["app/api/projects/[id]/route.ts", "app/api/projects/[id]/pai
   assert("resend is rate limited per visitor", read("app/api/auth/resend/route.ts").includes("rateLimit("));
 }
 
+
+// ── M2 / M3 / M4 / M7 / M9 / M13 / L2 / L6 / L8 ────────────────────────────
+{
+  const chatWin = read("components/chat/ChatWindow.tsx");
+  assert("help desk hides internal rule names", !chatWin.includes("Answer from rule"));
+  assert("help desk shows a text box from the start", chatWin.includes('step !== "preview" && step !== "filed"'));
+  assert("help desk routes a typed question by its words", chatWin.includes("guessIntake(raw)"));
+  assert("help desk keeps the conversation across reloads", chatWin.includes("sessionStorage") && chatWin.includes("STORE_KEY"));
+  assert("signed out, nothing is saved", chatWin.includes("!signedIn ||"));
+  assert("signed-out visitors get the help desk", read("app/chat/page.tsx").includes("signedIn={Boolean(user)}") && !read("app/chat/page.tsx").includes("Help is for people who use FreeFlow"));
+  const hero = read("components/funnel/HeroField.tsx");
+  assert("Sort it for me is a visible button", hero.includes("Sort it for me") && !hero.includes("-left-[9999px]"));
+  assert("the role dots carry visible names", !read("components/funnel/JobWord.tsx").includes("opacity-0 group-hover:opacity-100"));
+  assert("phones get one note per worry", hero.includes("fieldCount(w, list.length)"));
+  assert("/product shows no week stamps", !read("components/product/FeatureMap.tsx").includes("{f.shippedIn}"));
+  assert("search is full width on phones", read("components/dashboard/ProjectFilters.tsx").includes("basis-full"));
+  assert("phones get 16px fields everywhere", read("app/globals.css").includes("font-size: 16px !important"));
+  assert("extraction notes are shown in plain words", read("components/core/CoreWorkbench.tsx").includes("plainNote(fields.confidence_note)"));
+  assert("tabs move with the arrow keys", read("components/prefs/Tabs.tsx").includes("ArrowRight"));
+  assert("dashboard shortcuts are mounted", read("app/dashboard/page.tsx").includes("<DashboardShortcuts />"));
+  assert("every slider has a number field", read("components/pricing/PricingCalculator.tsx").includes("exact value"));
+}
+
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed\n`);
 if (failed > 0) process.exit(1);

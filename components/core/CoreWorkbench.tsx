@@ -7,7 +7,7 @@ import ExtractorBadge from "@/components/core/ExtractorBadge";
 import { usePrefs } from "@/components/prefs/PrefsProvider";
 import StatusBadge from "@/components/StatusBadge";
 import { formatCurrency, formatMonthDay, formatRelativeDeadline } from "@/lib/format";
-import { extractionValue, type ExtractionResult } from "@/lib/core/schema";
+import { extractionValue, plainNote, type ExtractionResult } from "@/lib/core/schema";
 import { readDraft, writeDraft } from "@/lib/core/draft";
 import { CURRENCIES, isCurrencyCode } from "@/lib/currency";
 
@@ -325,7 +325,7 @@ export default function CoreWorkbench() {
             </div>
 
             <p className="text-ink-muted border-hairline mt-4 border-t pt-4 text-xs leading-relaxed">
-              {fields.confidence_note}
+              {plainNote(fields.confidence_note)}
             </p>
 
             {result?.fallbackReason && (

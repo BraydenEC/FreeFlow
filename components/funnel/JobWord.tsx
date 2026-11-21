@@ -84,7 +84,8 @@ export default function JobWord() {
         className="absolute top-[calc(100%+14px)] left-0 z-30 flex flex-col gap-2.5 border border-[#2a2a2a] bg-[#0d0d0df2] px-4 pt-3.5 pb-6 text-xs font-medium tracking-normal whitespace-nowrap normal-case backdrop-blur-md [&[hidden]]:hidden"
       >
         <span className="text-ink-muted text-[10px] font-semibold tracking-[0.14em] uppercase">What do you do?</span>
-        <span className="flex gap-2">
+        {/* M3: the colour dots now carry their names, not just on hover. */}
+        <span className="flex flex-col gap-1">
           {CHOICE_ORDER.map((c) => (
             <button
               key={c}
@@ -97,16 +98,16 @@ export default function JobWord() {
                 setOpen(false);
                 wordRef.current?.focus({ preventScroll: true });
               }}
-              className={`group relative grid size-[34px] cursor-pointer place-items-center rounded-full border-2 focus-visible:outline-2 focus-visible:outline-white ${choice === c ? "border-white" : "border-transparent"}`}
+              className={`group flex min-h-11 cursor-pointer items-center gap-2.5 rounded-full border-2 py-1 pr-3 pl-1.5 text-left focus-visible:outline-2 focus-visible:outline-white ${choice === c ? "border-white" : "border-transparent"}`}
             >
               <i
-                className="block size-5 rounded-full"
+                className="block size-5 shrink-0 rounded-full"
                 style={{
                   background: `var(${choiceAccentVar(c)})`,
                   boxShadow: c === "brayden" ? `inset 0 0 0 2px #0a0a0a, 0 0 0 1px var(${choiceAccentVar(c)})` : undefined,
                 }}
               />
-              <span className="text-ink-muted pointer-events-none absolute top-[calc(100%+4px)] left-1/2 -translate-x-1/2 text-[10px] whitespace-nowrap opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 motion-safe:transition-opacity">
+              <span className="text-ink text-[13px] font-medium whitespace-nowrap normal-case tracking-normal">
                 {choiceName(c)}
               </span>
             </button>

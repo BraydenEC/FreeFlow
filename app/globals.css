@@ -191,3 +191,12 @@ html.lenis body {
 body[data-sheet="open"] [data-dock] {
   display: none;
 }
+
+/* M7: iOS Safari zooms into any field under 16px. Phones get 16px fields. */
+@media (max-width: 639px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}

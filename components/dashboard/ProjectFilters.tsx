@@ -81,7 +81,7 @@ export default function ProjectFilters({
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Search projects or clients"
-        className={`${control} min-w-0 flex-1 sm:max-w-64`}
+        className={`${control} w-full min-w-0 basis-full sm:w-auto sm:flex-1 sm:basis-auto sm:max-w-64`}
       />
 
       <label className="sr-only" htmlFor="project-status">

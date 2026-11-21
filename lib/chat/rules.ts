@@ -59,6 +59,17 @@ export const CONTENT_RULES: Rule[] = [
       "A project counts as overdue when it isn't paid and either its deadline has passed or its status is Overdue. The alert only appears then, and it sits at the top of the dashboard while Pin overdue to the top is on in Settings. Marking the project paid clears it; if the deadline was wrong, move it and change the status too.",
   },
   // components/dashboard/ProjectForm.tsx — "New project", "Edit project", "Save changes", Hourly / Fixed fee
+  // L6: components/dashboard/DashboardShortcuts.tsx; no row checkboxes yet
+  {
+    id: "bulk-shortcuts",
+    categories: "any",
+    areas: "any",
+    keywords: ["bulk", "shortcut", "shortcuts", "keyboard", "several", "multiple", "hotkey", "hotkeys"],
+    strong: ["bulk", "shortcut", "shortcuts", "hotkey", "hotkeys"],
+    phrases: ["at once", "all at once", "select all", "keyboard shortcuts", "several projects", "multiple projects", "many projects"],
+    answer:
+      "On the dashboard, press n to start a new project and / to jump to search. There's no way to select several projects at once yet, so Mark paid, Delete and Edit work one row at a time; Export CSV always includes every project.",
+  },
   {
     id: "project-create-edit",
     categories: ["broken", "how_to"],
@@ -214,11 +225,11 @@ export const CONTENT_RULES: Rule[] = [
     areas: "any",
     keywords: ["free", "cost", "costs", "price", "pay", "charge", "charged", "subscription", "cancel", "refund", "billing", "trial", "gratis", "cuesta", "costo"],
     strong: ["gratis", "refund", "subscription", "costo"],
-    phrases: ["how much does it cost", "how much is freeflow", "is it free", "cancel my subscription", "being charged", "was charged", "got charged", "did i get charged", "want a refund", "credit card", "pay for freeflow", "pay in", "is freeflow free", "is this free", "is this app free", "free to use", "what s included", "whats included", "included for free", "es gratis", "cuanto cuesta", "tiene costo"],
+    phrases: ["how much does it cost", "how much does freeflow cost", "does freeflow cost", "what does it cost", "what does freeflow cost", "how much will it cost", "how much is freeflow", "is it free", "cancel my subscription", "being charged", "was charged", "got charged", "did i get charged", "want a refund", "credit card", "pay for freeflow", "pay in", "is freeflow free", "is this free", "is this app free", "free to use", "what s included", "whats included", "included for free", "es gratis", "cuanto cuesta", "tiene costo"],
     exact: ["how much", "how do i pay", "can i cancel", "how much is it"],
     answer: DONATIONS_ENABLED
       ? "FreeFlow is free while it grows: every feature, for everyone, and nothing is charged today. There's no subscription to cancel and nothing to refund. Donations are optional and don't unlock anything."
-      : "FreeFlow is free while it grows: every feature, for everyone, and nothing is charged today. There's no subscription to cancel and nothing to refund.",
+      : "FreeFlow is free during early access: every feature, for everyone, and nothing is charged today. At launch it becomes a one-time purchase, and the price isn't set yet. There's no subscription to cancel and nothing to refund.",
     links: DONATIONS_ENABLED
       ? [
           { label: "Pricing", href: "/pricing" },

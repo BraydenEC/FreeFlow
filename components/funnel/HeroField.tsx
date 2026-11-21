@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { choicePrefix, worriesFor } from "@/lib/funnel/choice";
-import { worryProgress, morph, FIELD_CARDS, counterFor, fieldBand, rowHeight, sortedColumns, sortedTarget } from "@/lib/funnel/field";
+import { worryProgress, morph, FIELD_CARDS, counterFor, fieldBand, fieldCount, gridSlot, rowHeight, sortedColumns, sortedTarget } from "@/lib/funnel/field";
 import { track } from "@/lib/funnel/track";
 import type { Worry } from "@/lib/funnel/jobs";
 import { useJob } from "@/components/funnel/JobContext";
@@ -19,7 +19,8 @@ import JobWord from "@/components/funnel/JobWord";
   sort space below pulls them into rows near the top: ✓, the worry, and what
   FreeFlow did with it. Each worry is on the field twice; the copies merge
   into one row. "On your mind" counts down from 18 as they sort. Keyboard
-  users get "Sort it for me" when they tab to it.
+  users, and anyone else, can press "Sort it for me" (M3: it used to be
+  parked off-screen until tabbed to, so mouse and touch users never saw it).
 
   Under prefers-reduced-motion there is no canvas and no sort space: the
   sorted rows are simply shown under the headline. The canvas stops drawing
@@ -82,16 +83,23 @@ export default function HeroField() {
     s.order = 0;
     s.forced = 0;
     const [bt, bb] = band();
-    const cards: Card[] = Array.from({ length: FIELD_CARDS }, (_, i) => ({
-      w: list[i % list.length],
-      k: i % list.length,
-      first: i < list.length,
-      x: Math.random() * w,
-      y: bt + Math.random() * (bb - bt),
-      vx: (Math.random() - 0.5) * 1.4,
-      vy: (Math.random() - 0.5) * 1.4,
-      a: Math.random() * 6,
-    }));
+    // L2: on a phone, each worry once, in its own slot, drifting slowly.
+    const total = fieldCount(w, list.length);
+    const narrow = total !== FIELD_CARDS;
+    const cards: Card[] = Array.from({ length: total }, (_, i) => {
+      const slot = narrow ? gridSlot(i, total, w, bt, bb) : { x: Math.random() * w, y: bt + Math.random() * (bb - bt) };
+      const speed = narrow ? 0.3 : 1.4;
+      return {
+        w: list[i % list.length],
+        k: i % list.length,
+        first: i < list.length,
+        x: slot.x,
+        y: slot.y,
+        vx: (Math.random() - 0.5) * speed,
+        vy: (Math.random() - 0.5) * speed,
+        a: Math.random() * 6,
+      };
+    });
 
     const m = { x: -999, y: -999, px: -999, py: -999 };
     const onPointer = (e: PointerEvent) => {
@@ -103,7 +111,7 @@ export default function HeroField() {
 
     const setOrder = (o: number) => {
       s.order = Math.max(o, s.forced);
-      if (countRef.current) countRef.current.textContent = String(counterFor(s.order));
+      if (countRef.current) countRef.current.textContent = String(counterFor(s.order, total));
       if (s.order >= 0.98 && !s.sortedTracked) {
         s.sortedTracked = true;
         track("night_sorted", trackJobRef.current);
@@ -293,7 +301,7 @@ export default function HeroField() {
             <button
               type="button"
               onClick={sortForMe}
-              className="absolute -left-[9999px] border border-[#333] bg-black/50 px-3 py-2 text-[13px] font-semibold focus:static focus:left-auto"
+              className="relative z-[3] min-h-11 border border-[#333] bg-black/50 px-3 py-2 text-[13px] font-semibold hover:border-[var(--job)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--job)]"
             >
               Sort it for me
             </button>
