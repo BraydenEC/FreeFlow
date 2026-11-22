@@ -112,7 +112,7 @@ const readOr = (path: string) => {
 const dockSrc = readOr("components/nav/Dock.tsx");
 assert("the Dock exposes its open state", dockSrc.includes("aria-expanded"));
 assert("the Dock closes on Escape", dockSrc.includes('"Escape"'));
-assert("the Dock respects reduced motion", /prefers-reduced-motion/.test(dockSrc));
+assert("the Dock respects reduced motion (motion-safe only)", /motion-safe:/.test(dockSrc) && !/transition-\[width/.test(dockSrc));
 assert("the Dock is a labelled nav", /<nav[^>]*aria-label=/.test(dockSrc));
 assert("the Dock toggle is a real button", /<button[\s\S]{0,200}aria-expanded/.test(dockSrc));
 // H3: the Dock must never be the only, icon-only menu, nor cover content
@@ -124,7 +124,7 @@ assert("the Dock hides while Settings is open", dockSrc.includes("data-dock") &&
 assert("the open Dock wraps on phones instead of scrolling sideways", dockSrc.includes("flex-wrap"));
 
 // ── Week 6 /dashboard ───────────────────────────────────────────────────────
-assert("signed-in visitors to / go to the dashboard", read("app/page.tsx").includes('redirect("/dashboard")'));
+assert("signed-in visitors to / go to the dashboard (in the proxy)", /pathname === "\/"/.test(read("proxy.ts")));
 const dashPage = readOr("app/dashboard/page.tsx");
 assert("the dashboard has no public-numbers tab any more", !dashPage.includes("<Tabs") && !dashPage.includes("FreeFlow in public") && !existsSync("components/venture/PublicNumbers.tsx"));
 assert("the dashboard stays dynamic", dashPage.includes('export const dynamic = "force-dynamic"'));
@@ -314,7 +314,7 @@ assert(
 // I1: hover-opening the Dock moves the toggle; page icons must not take a
 // click until the visitor has had a moment to see the Dock open.
 const dockNow = read("components/nav/Dock.tsx");
-assert("a hover-opened Dock ignores clicks for a moment", dockNow.includes("armed") && /pointer-events-none/.test(dockNow));
+assert("the Dock never ignores a click (no arming delay)", !dockNow.includes("armed") && !dockNow.includes("armTimer"));
 // I2, I3 (dragged worries in the old chapter 1) retired with ChapterNight in the front-page redesign.
 // I4: help-desk answers match the Week 6 site.
 const rulesNow = read("lib/chat/rules.ts");
@@ -518,6 +518,25 @@ for (const path of ["app/api/projects/[id]/route.ts", "app/api/projects/[id]/pai
   assert("/features says what FreeFlow doesn't do", page.includes("doesn&rsquo;t create or send invoices") && page.includes("CFDI"));
   assert("/features links to the roadmap", page.includes('href="/roadmap"'));
   assert("the home page no longer says Chapter 2", !read("components/funnel/ChapterWalkthrough.tsx").includes("Chapter 2"));
+}
+
+// ── Speed: fewer round trips, cacheable pages, a Dock that keeps up ─────────
+{
+  const proxy = read("proxy.ts");
+  assert("the proxy checks the session locally with getClaims, not getUser", proxy.includes("auth.getClaims()") && !proxy.includes("auth.getUser()"));
+  assert("the proxy passes Supabase's cache headers on", /setAll\(toSet, headers\)/.test(proxy) && proxy.includes("response.headers.set("));
+  assert("the proxy still runs on every page (the layout reads the session, so it must be refreshed first)", !/matcher[\s\S]*(demo|features|pricing|terms)\$/.test(proxy));
+  assert("the proxy sends a signed-in visitor from / to the dashboard", /pathname === "\/"[\s\S]{0,200}"\/dashboard"/.test(proxy));
+  const home = read("app/page.tsx");
+  assert("the home page does no session lookup of its own", !home.includes("getSessionUser") && !home.includes("force-dynamic"));
+  const server = read("lib/supabase/server.ts");
+  assert("pages read the user with getClaims (verified locally), not a network getUser", server.includes("auth.getClaims()") && !server.includes("auth.getUser()"));
+  assert("navigations show a loading state at once", existsSync("app/loading.tsx"));
+  const dock = read("components/nav/Dock.tsx");
+  assert("the Dock doesn't resize icons on every mouse move", !dock.includes("onPointerMove") && !dock.includes("getBoundingClientRect"));
+  assert("the Dock skips the costly backdrop blur", !dock.includes("backdrop-blur"));
+  assert("the toggle stays under the pointer when the Dock opens", dock.includes("sm:flex-row-reverse"));
+  assert("a Dock link shows it's loading", dock.includes("useLinkStatus"));
 }
 
 // ── Public site: check-your-records note (a commitment in the owner's essay) ──

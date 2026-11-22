@@ -5,7 +5,11 @@ import { getSupabaseEnv } from "@/lib/supabase/env";
 /*
   Session refresh + route gating.
 
-  Two jobs, both cheap:
+  Two jobs, both cheap. getClaims() verifies the session token locally against
+  the project's cached public keys (the project signs with ES256), so this no
+  longer costs a network round trip to Supabase on every request; it only
+  calls Supabase when the token is near expiry and needs refreshing.
+
     1. Refresh the Supabase session cookie so server components always read a
        valid token. Without this, an expired token would look like "signed out"
        to every page for the rest of the session.
@@ -23,12 +27,10 @@ import { getSupabaseEnv } from "@/lib/supabase/env";
 */
 
 /*
-  "/" and "/dashboard" are deliberately absent. The root shows the public
-  front page when signed out and sends a signed-in visitor to /dashboard.
-  /dashboard itself has a public tab ("FreeFlow in public") that a signed-out
-  visitor sees, so the page decides what to show rather than a redirect.
-  Gating either here would send every cold visitor to a sign-up form before
-  telling them what they were signing up for.
+  "/" and "/dashboard" are deliberately not private. The root shows the public
+  front page when signed out; a signed-in visitor is sent to /dashboard below,
+  here rather than in the page, so the page itself stays static and cached.
+  /dashboard shows a signed-out visitor the pitch, so the page decides.
 */
 const PRIVATE_PREFIXES = ["/brief"];
 // Pages a signed-in user has no business seeing. /auth/confirm is absent on
@@ -53,21 +55,25 @@ export async function proxy(request: NextRequest) {
       getAll() {
         return request.cookies.getAll();
       },
-      setAll(toSet) {
+      setAll(toSet, headers) {
         for (const { name, value } of toSet) request.cookies.set(name, value);
         response = NextResponse.next({ request });
         for (const { name, value, options } of toSet) {
           response.cookies.set(name, value, options);
         }
+        // A refreshed session must never be cached by a CDN: Supabase hands
+        // over the cache headers to send with it.
+        for (const [key, value] of Object.entries(headers ?? {})) response.headers.set(key, value);
       },
     },
   });
 
-  // getUser() (not getSession()) — it validates against Supabase rather than
-  // trusting the cookie, and it triggers the refresh that job 1 depends on.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims() verifies the token's signature (unlike getSession(), which
+  // trusts the cookie) and refreshes it when it is about to expire, which is
+  // what job 1 depends on. Never put code between creating the client and
+  // this call.
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims?.sub ? data.claims : null;
 
   const { pathname } = request.nextUrl;
 
@@ -79,7 +85,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && AUTH_ROUTES.includes(pathname)) {
+  if (user && (pathname === "/" || AUTH_ROUTES.includes(pathname))) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     url.search = "";
@@ -90,7 +96,10 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Everything except static assets. API routes are included so their
-  // session cookie is refreshed too.
+  // Every page and API route, everything except static assets. The root
+  // layout reads the session on every page, so the proxy must refresh it on
+  // every page first: a Server Component can't save a refreshed cookie, and a
+  // refresh that isn't saved can get the session revoked. getClaims() keeps
+  // this cheap (no network call unless the token needs refreshing).
   matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)"],
 };

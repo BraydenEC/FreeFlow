@@ -30,8 +30,8 @@ export async function getServerSupabase(): Promise<ServerSupabase | null> {
       },
       setAll(toSet) {
         // Server Components cannot set cookies; only Route Handlers and Server
-        // Actions can. The proxy refreshes the session on every request, so a
-        // failed write here is expected and safe to ignore.
+        // Actions can. The proxy refreshes the session on every route that
+        // reads it, so a failed write here is expected and safe to ignore.
         try {
           for (const { name, value, options } of toSet) {
             cookieStore.set(name, value, options);
@@ -47,18 +47,20 @@ export async function getServerSupabase(): Promise<ServerSupabase | null> {
 export type SessionUser = { id: string; email: string | null };
 
 /**
-  The signed-in user, or null. `getUser()` validates the token against
-  Supabase rather than trusting the cookie's claims, which is what makes it
-  safe to use for authorisation on the server.
+  The signed-in user, or null. `getClaims()` verifies the session token's
+  signature against the project's public keys (cached, so usually no network
+  call), unlike `getSession()`, which trusts the cookie. That makes it safe for
+  authorisation on the server, and it is the same token RLS checks anyway.
 */
 export async function getSessionUser(
   supabase: ServerSupabase | null,
 ): Promise<SessionUser | null> {
   if (!supabase) return null;
   try {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) return null;
-    return { id: data.user.id, email: data.user.email ?? null };
+    const { data, error } = await supabase.auth.getClaims();
+    const claims = data?.claims;
+    if (error || !claims?.sub) return null;
+    return { id: claims.sub, email: typeof claims.email === "string" ? claims.email : null };
   } catch {
     return null;
   }

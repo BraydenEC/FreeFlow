@@ -4,14 +4,13 @@
 
   The Dock replaces the top bar's page links. What's pinned here: the pages it
   lists and their order (every page in the product, grouped as the spec
-  fixes), and the magnification curve, which must peak under the pointer and
-  settle back to the base size by 150 px away.
+  fixes). The magnification curve was removed for speed (a CSS hover scale
+  replaced it).
 */
 
 import { DOCK_GROUPS, FOOTER_COLUMNS, SITE_LINKS, TOP_LINKS } from "@/lib/nav/dock";
 import { DOCS_PAGE_ENABLED, DONATIONS_ENABLED, MARKETING_IN_MENUS, RESEARCH_PAGE_ENABLED } from "@/lib/flags";
 import { activeSubNavTab } from "@/lib/nav/subnav";
-import { iconSize } from "@/lib/nav/magnify";
 
 let passed = 0;
 let failed = 0;
@@ -26,11 +25,6 @@ function assert(name: string, condition: boolean, detail = "") {
   }
 }
 
-assert("icon is largest under the pointer", iconSize(0) === 78);
-assert("icon is base size at the radius", iconSize(150) === 48);
-assert("icon stays base size beyond the radius", iconSize(400) === 48);
-assert("closer icons are larger", iconSize(50) > iconSize(100));
-assert("size never drops below base", iconSize(-20) <= 78 && iconSize(1e6) === 48);
 
 const hrefs = DOCK_GROUPS.flatMap((g) => g.items.map((i) => i.href));
 // The user's own tools first, then the public pages about FreeFlow.

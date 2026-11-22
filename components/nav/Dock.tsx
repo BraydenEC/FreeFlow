@@ -1,18 +1,18 @@
 "use client";
 
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { AUTH_ROUTES, DOCK_GROUPS, type DockIcon } from "@/lib/nav/dock";
-import { iconSize } from "@/lib/nav/magnify";
 
 /*
   The Dock: every page, one round button in the bottom-right corner.
 
   At rest it is a single button. Hovering it with a mouse, or clicking or
   tapping it, opens every page in two labelled groups, Your tools and About
-  FreeFlow. Icons grow as the mouse passes over them (as on a Mac), every icon
-  carries its name underneath, and a dot marks the page you're on. It closes
+  FreeFlow. The icon under the mouse grows a little (a CSS transform, so no
+  layout work), every icon carries its name underneath, and a border marks the
+  page you're on. A clicked link pulses until its page arrives. It closes
   350 ms after the mouse leaves, on a tap outside, on Escape (focus returns to
   the button) and after you navigate.
 
@@ -22,11 +22,12 @@ import { iconSize } from "@/lib/nav/magnify";
   sheet (body[data-sheet="open"], see globals.css). On a phone the open Dock
   wraps into rows instead of scrolling sideways behind a half-cut icon.
 
-  No magnification on touch or under prefers-reduced-motion; those visitors
-  get the plain base size.
+  Speed: the toggle sits at the right-hand end, so opening the Dock on hover
+  never moves it out from under the mouse, and clicks work immediately (the
+  old 450 ms "arming" pause is gone). Icons no longer resize on every mouse
+  move, and the bar has no backdrop blur, which was costly to repaint.
 */
 
-const BASE = 48;
 
 const ICONS: Record<DockIcon, React.ReactNode> = {
   demo: <path d="M6 4l13 8-13 8z" />,
@@ -91,6 +92,13 @@ function Glyph({ children, dark = false }: { children: React.ReactNode; dark?: b
   );
 }
 
+/* A ring that pulses on the clicked link until its page arrives. */
+function PendingRing() {
+  const { pending } = useLinkStatus();
+  if (!pending) return null;
+  return <span aria-hidden className="absolute inset-0 animate-pulse rounded-[13px] border-2 border-white/70" />;
+}
+
 const isActive = (pathname: string, href: string) =>
   pathname === href || pathname.startsWith(`${href}/`);
 
@@ -99,35 +107,12 @@ export default function Dock() {
   // Open on the page it was opened on: navigating anywhere closes it.
   const [openOn, setOpenOn] = useState<string | null>(null);
   const open = openOn === pathname;
-  const [calm, setCalm] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
-  const iconRefs = useRef<HTMLSpanElement[]>([]);
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // Hover-opening widens the centred bar, which moves the toggle out from under
-  // the mouse. Until `armed`, page icons ignore the pointer, so a click aimed
-  // at the toggle can't land on a page and navigate away.
-  const [armed, setArmed] = useState(true);
-  const armTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navId = useId();
 
-  // Reduced motion: no magnification and no transitions.
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setCalm(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-
-  const resetSizes = useCallback(() => {
-    for (const el of iconRefs.current) el?.style.setProperty("--s", `${BASE}px`);
-  }, []);
-
-  const close = useCallback(() => {
-    setOpenOn(null);
-    resetSizes();
-  }, [resetSizes]);
+  const close = useCallback(() => setOpenOn(null), []);
 
   // Tap or click outside, and Escape.
   useEffect(() => {
@@ -151,38 +136,22 @@ export default function Dock() {
 
   useEffect(() => () => {
     if (leaveTimer.current) clearTimeout(leaveTimer.current);
-    if (armTimer.current) clearTimeout(armTimer.current);
   }, []);
 
   const onPointerEnter = (e: React.PointerEvent) => {
     if (e.pointerType !== "mouse") return;
     if (leaveTimer.current) clearTimeout(leaveTimer.current);
     if (open) return;
-    setArmed(false);
-    if (armTimer.current) clearTimeout(armTimer.current);
-    armTimer.current = setTimeout(() => setArmed(true), 450);
     setOpenOn(pathname);
   };
 
   const onPointerLeave = (e: React.PointerEvent) => {
     if (e.pointerType !== "mouse") return;
-    resetSizes();
     leaveTimer.current = setTimeout(close, 350);
-  };
-
-  const onPointerMove = (e: React.PointerEvent) => {
-    if (!open || calm || e.pointerType !== "mouse") return;
-    for (const el of iconRefs.current) {
-      if (!el) continue;
-      const r = el.parentElement!.getBoundingClientRect();
-      el.style.setProperty("--s", `${iconSize(e.clientX - (r.left + r.width / 2))}px`);
-    }
   };
 
   if (AUTH_ROUTES.includes(pathname)) return null;
 
-  let index = 0;
-  const motion = calm ? "" : "transition-[width,height] duration-100 ease-out";
 
   return (
     <div
@@ -193,8 +162,7 @@ export default function Dock() {
       className="fixed right-3 bottom-3 z-40 flex max-w-[calc(100vw-24px)] flex-col items-end sm:right-5 sm:bottom-5"
     >
       <div
-        onPointerMove={onPointerMove}
-        className={`border-hairline flex max-w-full flex-col-reverse items-end rounded-[22px] border bg-[rgba(15,15,15,0.92)] shadow-[0_12px_40px_rgba(0,0,0,0.7)] backdrop-blur-xl sm:flex-row sm:items-end ${
+        className={`border-hairline flex max-w-full flex-col-reverse items-end rounded-[22px] border bg-[#0f0f0f] shadow-[0_12px_40px_rgba(0,0,0,0.7)] sm:flex-row-reverse sm:items-end ${
           open ? "gap-2 px-2.5 py-2" : "p-1.5"
         }`}
       >
@@ -204,13 +172,7 @@ export default function Dock() {
           aria-expanded={open}
           aria-controls={navId}
           aria-label={open ? "Close pages" : "Open pages"}
-          onClick={() => {
-            // A click that arrives just after hover opened the Dock was aimed
-            // at opening it: keep it open.
-            if (open && !armed) setArmed(true);
-            else if (open) close();
-            else setOpenOn(pathname);
-          }}
+          onClick={() => (open ? close() : setOpenOn(pathname))}
           className="focus-visible:ring-accent group relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white focus-visible:ring-2 focus-visible:outline-none"
         >
           <Glyph dark>
@@ -222,7 +184,7 @@ export default function Dock() {
           id={navId}
           aria-label="Pages"
           hidden={!open}
-          className={`flex min-w-0 flex-col gap-2 sm:flex-row sm:items-end ${armed ? "" : "pointer-events-none"}`}
+          className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-end"
         >
           {DOCK_GROUPS.map((group) => (
             <div key={group.id} role="group" aria-label={group.label} className="flex flex-col gap-1">
@@ -231,7 +193,6 @@ export default function Dock() {
               </span>
               <div className="flex flex-wrap items-end gap-1.5">
               {group.items.map((item) => {
-                const i = index++;
                 const current = isActive(pathname, item.href);
                 return (
                   <Link
@@ -241,15 +202,12 @@ export default function Dock() {
                     className="group relative flex w-[64px] shrink-0 flex-col items-center focus-visible:outline-none"
                   >
                     <span
-                      ref={(el) => {
-                        if (el) iconRefs.current[i] = el;
-                      }}
-                      style={{ "--s": `${BASE}px` } as React.CSSProperties}
-                      className={`flex h-[var(--s)] w-[var(--s)] items-center justify-center rounded-[13px] border bg-[#111] group-focus-visible:ring-2 group-focus-visible:ring-white ${motion} ${
+                      className={`relative flex h-12 w-12 items-center justify-center rounded-[13px] border bg-[#111] group-focus-visible:ring-2 group-focus-visible:ring-white motion-safe:transition-transform motion-safe:duration-150 motion-safe:group-hover:scale-110 ${
                         current ? "border-[var(--color-status-progress)]" : "border-hairline group-hover:border-[#525252]"
                       }`}
                     >
                       <Glyph>{ICONS[item.icon]}</Glyph>
+                      <PendingRing />
                     </span>
                     {/* Always visible: touch users never hover (H3). */}
                     <span

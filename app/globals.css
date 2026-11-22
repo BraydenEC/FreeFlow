@@ -200,3 +200,15 @@ body[data-sheet="open"] [data-dock] {
     font-size: 16px !important;
   }
 }
+
+/* app/loading.tsx: a thin bar sliding across the top while a page loads. */
+@keyframes loading-bar {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(300%); }
+}
+.loading-bar {
+  animation: loading-bar 1s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .loading-bar { animation: none; width: 100%; opacity: 0.5; }
+}
