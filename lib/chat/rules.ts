@@ -1657,7 +1657,7 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["unsubscribe", "newsletter"],
     phrases: ["stop getting emails", "stop emails", "marketing emails", "stop sending"],
     answer:
-      "FreeFlow only sends account emails you ask for, like confirming your address or resetting your password. The one exception is the launch list: if you joined it on the demo page, you get one email when the lifetime version launches, and nothing else. To be removed, email braydenemeryc@gmail.com; every launch email also has a remove-me link.",
+      "FreeFlow only sends account emails you ask for, like confirming your address or resetting your password. The one exception is the launch list: if you joined it on the demo page, you get one email before FreeFlow starts charging, and nothing else. To be removed, email hello@freeflow.website; that email also has a remove-me link.",
   },
 
   // proxy.ts PRIVATE_PREFIXES; app/page.tsx landing page; app/chat/page.tsx

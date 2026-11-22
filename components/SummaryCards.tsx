@@ -1,6 +1,7 @@
 import { formatCurrencyWhole } from "@/lib/format";
 import { CURRENCIES, type CurrencyCode } from "@/lib/currency";
 import type { DashboardMetrics } from "@/types/project";
+import { CHECK_YOUR_RECORDS } from "@/lib/site";
 
 /*
   The three cash-flow figures. Every value here is derived from the live
@@ -63,7 +64,8 @@ export default function SummaryCards({
     <section aria-label="Cash flow summary">
       {/* H8: the symbol alone ($) doesn't say which currency the account is in. */}
       <p className="text-ink-faint mb-2 text-xs">
-        Amounts in {currency} · {CURRENCIES[currency]?.label ?? currency}. Change it in Settings.
+        Amounts in {currency} · {CURRENCIES[currency]?.label ?? currency}. Change it in Settings.{" "}
+        {CHECK_YOUR_RECORDS}
       </p>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card

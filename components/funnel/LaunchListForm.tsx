@@ -4,7 +4,7 @@ import { useId, useState } from "react";
 import { COPY } from "@/lib/funnel/copy";
 
 /*
-  "Get notified when the lifetime version launches": the optional launch list.
+  "Get one email before FreeFlow starts charging": the optional launch list.
 
   Consent is a required checkbox with exact wording; the address is used for
   nothing else. Signing up twice is a success ("already on the list"). With no
@@ -15,7 +15,7 @@ import { COPY } from "@/lib/funnel/copy";
 type State = "idle" | "sending" | "saved" | "already" | "invalid" | "failed";
 
 const MESSAGES: Record<Exclude<State, "idle" | "sending">, string> = {
-  saved: "You're on the list. One email, when it launches.",
+  saved: "You're on the list. One email, before FreeFlow starts charging.",
   already: "You're already on the list.",
   invalid: "Please check your email address.",
   failed: "Couldn't save right now. Please try again later.",
@@ -83,7 +83,7 @@ export default function LaunchListForm({ source }: { source: "morning" | "game_e
               onChange={(e) => setConsent(e.target.checked)}
               className="mt-0.5 accent-[var(--job)]"
             />
-            <span>Email me when the lifetime version launches. Nothing else.</span>
+            <span>Email me once, before FreeFlow starts charging. Nothing else.</span>
           </label>
         </>
       )}

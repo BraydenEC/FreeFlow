@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { answer } from "@/lib/chat/engine";
+import { CONTACT_EMAIL } from "@/lib/site";
 import { guessIntake } from "@/lib/chat/intake";
 import { redact } from "@/lib/chat/redact";
 import { canSendMore, shouldOfferTicket } from "@/lib/chat/session";
@@ -414,7 +415,7 @@ export default function ChatWindow({ userEmail, signedIn = true }: { userEmail: 
               <Link href="/login?next=/chat" className="text-accent-soft underline underline-offset-2">
                 Sign in
               </Link>{" "}
-              or email <a className="text-ink underline" href="mailto:braydenemeryc@gmail.com">braydenemeryc@gmail.com</a>.
+              or email <a className="text-ink underline" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
             </p>
           ) : (
           <>

@@ -5,7 +5,7 @@ import { CONTACT_EMAIL } from "@/lib/site";
 
 export const metadata: Metadata = { title: "Terms — FreeFlow" };
 
-/* M5: plain terms for an early-access product that charges nothing. */
+/* M5: plain terms for a product that is free today, takes optional donations, and plans a one-time purchase later. */
 export default function TermsPage() {
   return (
     <LegalPage title="Terms">
@@ -18,11 +18,23 @@ export default function TermsPage() {
         Its tax figures for Mexico are estimates to plan with; check anything you file with your accountant.
       </p>
 
-      <h2>Early access</h2>
+      <h2>Free, for now</h2>
       <p>
-        FreeFlow is free during early access, with every feature. At launch it becomes a one-time purchase; the
-        price isn&rsquo;t set yet, and nothing you have will be charged for without you choosing to buy it. See{" "}
+        FreeFlow is free, with every feature, for everyone. At some point it will become a one-time purchase, not a
+        subscription; the price isn&rsquo;t set yet. You&rsquo;ll get plenty of notice before that happens, you can
+        always export your data, and nothing you have will be charged for without you choosing to buy it. See{" "}
         <Link className="text-ink underline" href="/pricing">Pricing</Link>.
+      </p>
+
+      <h2 id="donations">Donations</h2>
+      <p>
+        Donations are optional gifts toward running FreeFlow. They are handled by Stripe, and FreeFlow never sees your
+        card. A donation doesn&rsquo;t buy features, faster support or a say in what gets built.
+      </p>
+      <p>
+        One thank-you: anyone who donates, of any amount, before the paid version launches gets it free. Donate with the
+        same email as your FreeFlow account, or email us to say which account is yours. If you donated by mistake,
+        email us and we&rsquo;ll sort it out.
       </p>
       <p>
         It is new software made by one person. Features may change, and things can break. Keep your own copy of
@@ -35,6 +47,18 @@ export default function TermsPage() {
         <li>Don&rsquo;t store anything you aren&rsquo;t allowed to, or anything you wouldn&rsquo;t want the owner to see.</li>
         <li>Don&rsquo;t try to break, overload or get into other people&rsquo;s data.</li>
       </ul>
+
+      <h2 id="if-we-get-it-wrong">If we get something wrong</h2>
+      <p>FreeFlow is made by one person, and mistakes will happen. When one does:</p>
+      <ul>
+        <li>Everyone affected is told quickly and plainly, and it gets fixed.</li>
+        <li>
+          If it affected your work, Brayden helps put it right, for example by correcting your records or writing a
+          short note to your client explaining that FreeFlow made the mistake.
+        </li>
+        <li>If it cost you real money or a client, you get the paid version free when it launches, without asking.</li>
+      </ul>
+      <p>FreeFlow doesn&rsquo;t pay cash for lost income, and won&rsquo;t pretend otherwise.</p>
 
       <h2>Your data</h2>
       <p>

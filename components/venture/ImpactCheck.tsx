@@ -1,3 +1,4 @@
+import { CONTACT_EMAIL } from "@/lib/site";
 import { CHANGES } from "@/lib/venture/changes";
 
 /*
@@ -93,8 +94,8 @@ export default function ImpactCheck() {
         <p className="text-ink-muted mt-3 text-sm leading-relaxed">
           FreeFlow doesn&rsquo;t pay cash for lost income, and won&rsquo;t pretend otherwise. If something went wrong,
           email{" "}
-          <a href="mailto:braydenemeryc@gmail.com" className="text-ink underline-offset-4 hover:underline">
-            braydenemeryc@gmail.com
+          <a href={`mailto:${CONTACT_EMAIL}`} className="text-ink underline-offset-4 hover:underline">
+            {CONTACT_EMAIL}
           </a>
           .
         </p>

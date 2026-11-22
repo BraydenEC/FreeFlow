@@ -1,3 +1,4 @@
+import { CONTACT_EMAIL } from "@/lib/site";
 /*
   /demo chapter 3, 1 am: the founder's story, in his own voice.
 
@@ -18,5 +19,5 @@ export const STORY = {
   ],
   mission: "FreeFlow is here to bring ease to freelancers.",
   promise: "I'll keep listening, and I'll keep improving it.",
-  ps: "P.S. Tell me what's missing: braydenemeryc@gmail.com",
+  ps: `P.S. Tell me what's missing: ${CONTACT_EMAIL}`,
 };

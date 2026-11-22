@@ -28,7 +28,7 @@ export default function PrivacyPage() {
           answer, with secrets removed.
         </li>
         <li>Anonymous counts on the demo page (for example, how many games were played). No names.</li>
-        <li>Your email, if you join the launch list. It is used once, when the lifetime version launches.</li>
+        <li>Your email, if you join the launch list. It is used once, before FreeFlow starts charging.</li>
       </ul>
 
       <h2>Who can see it</h2>
@@ -36,6 +36,13 @@ export default function PrivacyPage() {
         Your data is stored in a hosted Supabase database. Row-level security stops other users from seeing your
         rows. The owner can read saved data and tickets to fix problems, so don&rsquo;t store anything you
         wouldn&rsquo;t want seen, like passwords or bank details.
+      </p>
+
+      <h2>Your clients&rsquo; details</h2>
+      <p>
+        The clients you add never signed up to FreeFlow. Add only what you need to track the work: a client&rsquo;s
+        name is required, and every other detail about them (tax type, contract and payment links) is optional. Their details are treated like yours: private to
+        your account, never shared or sold.
       </p>
 
       <h2>Who else handles it</h2>
@@ -47,6 +54,10 @@ export default function PrivacyPage() {
           Anthropic&rsquo;s Claude to be read.
         </li>
         <li>Account emails (confirming your address, resetting your password) are sent through an email provider.</li>
+        <li>
+          Donations are processed by Stripe. FreeFlow never sees your card; Stripe shares your email and the amount
+          with the owner, used only to thank you and to give donors the paid version free when it launches.
+        </li>
       </ul>
       <p>FreeFlow has no ads and doesn&rsquo;t sell or share your data with anyone else.</p>
 

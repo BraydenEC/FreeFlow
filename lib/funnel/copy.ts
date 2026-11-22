@@ -12,7 +12,7 @@ export const COPY = {
   startFree: "Create a free account",
   startFreeTail: "→",
   freeWhileItGrows: "Free while it grows.",
-  launchListCta: "Get notified when the lifetime version launches",
+  launchListCta: "Get one email before FreeFlow starts charging",
   RETIRED_LANDING_HEADLINES: [
     "You cannot tell whether March is going to be fine",
     "The deadline and the invoice live in different tools",

@@ -164,7 +164,7 @@ assert(
 );
 assert("/docs has the impact and roadmap anchors", docsPage.includes('id="impact"') && docsPage.includes('id="roadmap"'));
 const impact = readOr("components/venture/ImpactCheck.tsx");
-assert("the impact check gives the public contact", impact.includes("braydenemeryc@gmail.com"));
+assert("the impact check gives the public contact", impact.includes("{CONTACT_EMAIL}"));
 assert("the impact check's top tier is free lifetime access", impact.includes("free lifetime access"));
 assert("the impact check promises no refunds or cash", !/refund/i.test(impact));
 const roadmapSrc = readOr("components/venture/Roadmap.tsx");
@@ -291,17 +291,17 @@ assert("screen readers get the game as an application and the hearts as an image
 assert("a question's openings are read out, top to bottom", game.includes("Openings, top to bottom:") && /className="sr-only"/.test(game));
 const launchForm = readOr("components/funnel/LaunchListForm.tsx");
 assert("the launch list needs a consent checkbox", /type="checkbox"[\s\S]{0,200}required/.test(launchForm));
-assert("the consent label is exact", launchForm.includes("Email me when the lifetime version launches. Nothing else."));
+assert("the consent label is exact", launchForm.includes("Email me once, before FreeFlow starts charging. Nothing else."));
 assert("the launch list posts to its route", launchForm.includes('"/api/launch-list"'));
 assert("a 503 says it couldn't save", launchForm.includes("Couldn't save right now. Please try again later."));
 assert("a repeat sign-up says already on the list", launchForm.includes("You're already on the list."));
 const footer = readOr("components/funnel/FunnelFooter.tsx");
-assert("the footer gives the contact address", footer.includes("mailto:braydenemeryc@gmail.com"));
-assert("the footer links to the impact check", footer.includes("/docs#impact"));
+assert("the footer gives the contact address", footer.includes("mailto:${CONTACT_EMAIL}") && read("lib/site.ts").includes('CONTACT_EMAIL = "hello@freeflow.website"'));
+assert("the footer links to the make-it-right promise", footer.includes("/terms#if-we-get-it-wrong") && read("app/terms/page.tsx").includes('id="if-we-get-it-wrong"'));
 assert(
   "the footer carries the exact privacy note",
   footer.includes(
-    "Your email is used only to tell you when the lifetime version of FreeFlow launches. It is kept by Brayden (braydenemeryc@gmail.com). To be removed, email that address. Every launch email also has a remove-me link.",
+    "Your email is used only to tell you, once, before FreeFlow starts charging. It is kept by Brayden ({CONTACT_EMAIL}). To be removed, email that address. That email also has a remove-me link.",
   ),
 );
 assert("the old morning chapter is gone", !existsSync("components/funnel/ChapterMorning.tsx"));
@@ -478,6 +478,16 @@ for (const path of ["app/api/projects/[id]/route.ts", "app/api/projects/[id]/pai
   assert("tabs move with the arrow keys", read("components/prefs/Tabs.tsx").includes("ArrowRight"));
   assert("dashboard shortcuts are mounted", read("app/dashboard/page.tsx").includes("<DashboardShortcuts />"));
   assert("every slider has a number field", read("components/pricing/PricingCalculator.tsx").includes("exact value"));
+}
+
+// ── Public site: check-your-records note (a commitment in the owner's essay) ──
+{
+  const site = read("lib/site.ts");
+  assert("one shared check-your-records note", /export const CHECK_YOUR_RECORDS =\s*"[^"]*own records[^"]*"/.test(site));
+  const cards = read("components/SummaryCards.tsx");
+  assert("dashboard totals carry the note", cards.includes("{CHECK_YOUR_RECORDS}"));
+  const exportButton = read("components/dashboard/ExportButton.tsx");
+  assert("the CSV export carries the note", exportButton.includes("{CHECK_YOUR_RECORDS}"));
 }
 
 console.log("─".repeat(64));

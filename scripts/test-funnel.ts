@@ -172,7 +172,7 @@ assert(
 assert("the story opens with video editing", /video editing/i.test(STORY.paragraphs[0] ?? ""));
 assert("the story states no price", !PRICE_PATTERN.test(JSON.stringify(STORY)));
 assert("the mission is about ease", STORY.mission.includes("ease"));
-assert("the P.S. gives the public contact", STORY.ps.includes("braydenemeryc@gmail.com"));
+assert("the P.S. gives the public contact", STORY.ps.includes("hello@freeflow.website"));
 assert("every walkthrough step has a labelled sample", WALKTHROUGH.every((s) => s.sample.trim().length > 0));
 
 // No prices anywhere in funnel content.

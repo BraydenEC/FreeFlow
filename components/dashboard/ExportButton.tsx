@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CHECK_YOUR_RECORDS } from "@/lib/site";
 
 /*
   Downloads the project list as CSV.
@@ -58,6 +59,7 @@ export default function ExportButton() {
       >
         {busy ? "Preparing…" : "Export CSV"}
       </button>
+      <span className="text-ink-faint max-w-xs text-xs">{CHECK_YOUR_RECORDS}</span>
       {error && (
         <span role="alert" className="text-status-overdue text-xs">
           {error}
