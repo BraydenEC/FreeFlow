@@ -24,6 +24,15 @@ export const WIDGET_IDS = [
 ] as const;
 export type WidgetId = (typeof WIDGET_IDS)[number];
 
+/*
+  Widgets that no longer show anywhere. They stay in WIDGET_IDS so saved
+  preferences that mention them still parse; Settings and the dashboard skip
+  them. "research" was the course's market-research panel.
+*/
+export const RETIRED_WIDGETS = ["research"] as const satisfies readonly WidgetId[];
+export type LiveWidgetId = Exclude<WidgetId, (typeof RETIRED_WIDGETS)[number]>;
+export const isRetiredWidget = (id: WidgetId): boolean => (RETIRED_WIDGETS as readonly WidgetId[]).includes(id);
+
 export const WIDGET_LABELS: Record<WidgetId, string> = {
   overdue: "Overdue alert",
   forecast: "Expected income",

@@ -41,7 +41,7 @@ for (const m of raw) {
 assert("wrong password says what to do", /reset/i.test(friendlyAuthError("Invalid login credentials")));
 
 // ── L5: back to the page you came from, and only to this site ─────────────
-assert("next=/core returns to /core", safeNext("/core") === "/core");
+assert("next=/brief returns to /brief", safeNext("/brief") === "/brief");
 assert("no next goes to the dashboard", safeNext(null) === "/dashboard");
 assert("another site is refused", safeNext("https://evil.example") === "/dashboard" && safeNext("//evil.example") === "/dashboard");
 assert("a backslash trick is refused", safeNext("/\\evil.example") === "/dashboard");

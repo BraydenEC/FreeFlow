@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { answer } from "@/lib/chat/engine";
 import { CONTACT_EMAIL } from "@/lib/site";
+import { MARKETING_IN_MENUS, RESEARCH_PAGE_ENABLED } from "@/lib/flags";
 import { guessIntake } from "@/lib/chat/intake";
 import { redact } from "@/lib/chat/redact";
 import { canSendMore, shouldOfferTicket } from "@/lib/chat/session";
@@ -47,7 +48,7 @@ const GREETING =
   "Hi, this is FreeFlow's help desk. What do you need help with?";
 const NOTICE =
   "Conversations are saved so FreeFlow's owner can fix problems. Don't paste passwords or card numbers.";
-const FILED = "Filed. The owner reads every ticket and will email you.";
+const FILED = "Filed. Brayden reads every ticket and will email you.";
 
 const DESCRIBE_PROMPT: Record<Category, string> = {
   broken: "In a sentence, what happened?",
@@ -393,7 +394,7 @@ export default function ChatWindow({ userEmail, signedIn = true }: { userEmail: 
 
       {step === "area" && (
         <div className="mt-3 flex flex-wrap gap-2">
-          {AREAS.map((a) => (
+          {AREAS.filter((a) => (a !== "research" || RESEARCH_PAGE_ENABLED) && (a !== "marketing" || MARKETING_IN_MENUS)).map((a) => (
             <button
               key={a}
               type="button"

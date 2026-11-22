@@ -1,33 +1,32 @@
 import Link from "next/link";
-import AssumptionsTable from "@/components/pricing/AssumptionsTable";
-import Reasoning from "@/components/prefs/Reasoning";
-import Tabs from "@/components/prefs/Tabs";
-import { Suspense } from "react";
-import ProjectSegmentPanel from "@/components/pricing/ProjectSegmentPanel";
-import PricingCalculator from "@/components/pricing/PricingCalculator";
-import SavedScenarios from "@/components/pricing/SavedScenarios";
-import SegmentPanel from "@/components/pricing/SegmentPanel";
-import SubNav from "@/components/SubNav";
-import TierCards from "@/components/pricing/TierCards";
-import { getSavedScenarios } from "@/lib/pricing/saved";
-import { computePricing } from "@/lib/pricing/model";
-import { SCENARIOS } from "@/lib/pricing/scenarios";
-import { DONATIONS_ENABLED, PER_PROJECT_PRICING_ENABLED } from "@/lib/flags";
+import PricingCta from "@/components/pricing/PricingCta";
+import DonateButton from "@/components/support/DonateButton";
+import { CONTACT_EMAIL } from "@/lib/site";
+import {
+  DONOR_PERK,
+  isDonationConfigured,
+  PRICING_FAQ,
+  SUGGESTED_AMOUNTS,
+  WHAT_IT_DOES_NOT_BUY,
+  WHAT_IT_FUNDS,
+} from "@/lib/support";
 
 /*
-  /pricing — tiers, segments, simulator, assumptions, saved scenarios.
+  /pricing: free, and how to support it.
 
-  Unlike /research, which is a document, this page is an instrument: numbers
-  move as you drag. The headline figures are computed from the scenario presets
-  at render time so the prose cannot drift from the model.
+  The answer comes first (H9: testers couldn't find what FreeFlow costs). Then
+  the optional donation, what it pays for and what it doesn't buy, the honest
+  note about charging someday, and the questions people ask. The old revenue
+  model (tiers, simulator, assumptions) was course work and is no longer shown;
+  its components stay in components/pricing.
+
+  /support redirects here (#support).
 */
-
-export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Pricing — FreeFlow",
   description:
-    "FreeFlow is free during early access, then a one-time purchase at launch. Below it, the pricing model behind the business, with every assumption stated.",
+    "FreeFlow is free: every feature, for everyone. If it helps you, you can chip in to keep it running.",
 };
 
 const usd = new Intl.NumberFormat("en-US", {
@@ -36,162 +35,137 @@ const usd = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
 });
 
-export default async function PricingPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ tab?: string }>;
-}) {
-  const { tab } = await searchParams;
-  // An old link to a hidden tab (?tab=project) opens the Simulator instead.
-  const tabs = ["simulator", "tiers", ...(PER_PROJECT_PRICING_ENABLED ? ["project"] : []), "assumptions", "saved"].map((id) => ({ id }));
-  const initialTab = tab !== undefined && tabs.some((t) => t.id === tab) ? tab : "simulator";
-  const saved = await getSavedScenarios();
-
-  // Computed, not written — the claim below cannot drift from the model.
-  const conservative = computePricing(SCENARIOS.conservative.inputs);
-  const base = computePricing(SCENARIOS.base.inputs);
-  const ratio = Math.round((conservative.arr / base.arr) * 100);
+export default function PricingPage() {
+  const configured = isDonationConfigured();
 
   return (
-    <div className="flex min-h-[calc(100vh-3.5rem)]">
-      <SubNav />
-      <main className="min-w-0 flex-1">
-        <div className="relative">
-          <div
-            aria-hidden
-            className="from-accent/8 pointer-events-none absolute inset-x-0 top-0 h-64 bg-linear-to-b to-transparent"
-          />
-          <div className="relative mx-auto max-w-6xl page-stack px-5 sm:px-8 lg:px-10">
-            {/* H9: testers read the whole page and still couldn't say what
-                FreeFlow costs. The answer now comes first, in one line. */}
-            <header className="max-w-3xl">
-              <h1 className="page-title">Pricing</h1>
-              <p className="mt-3 text-xl leading-snug font-semibold">
-                Free during early access: every feature, for everyone. At launch FreeFlow becomes a one-time
-                purchase, and the price isn&rsquo;t set yet.
-              </p>
-              {/* M6: say plainly what FreeFlow doesn't do. */}
-              <p className="text-ink-muted mt-2 text-sm leading-relaxed">
-                FreeFlow tracks the invoices you send from other tools. It doesn&rsquo;t create or send invoices
-                yet, and it doesn&rsquo;t issue Mexican CFDI invoices.
-              </p>
-            </header>
-
-            <div className="border-hairline border-t pt-6">
-              <p className="text-ink-faint text-xs font-medium tracking-wide uppercase">Build log</p>
-              <h2 className="mt-1 text-lg font-semibold">The pricing model behind the business</h2>
-              <p className="text-ink-muted mt-1 max-w-3xl text-sm leading-relaxed">
-                The rest of this page is analysis, not a price list: possible later models, a revenue simulator
-                and the assumptions behind it, published so nobody has to guess later.
-              </p>
-              <div className="mt-3">
-              <Reasoning label="Why this page is built the way it is">
-                <p className="text-ink-muted text-sm leading-relaxed">
-                  A pricing simulator is a machine for producing encouraging
-                  numbers — you choose the inputs, so the output is whatever
-                  you already believed. This one states every assumption,
-                  anchors every price to a competitor that was actually
-                  checked, and includes a pessimistic case that genuinely
-                  hurts.
-                </p>
-              </Reasoning>
-              </div>
-            </div>
-
-            {/*
-              The page describes a model, not a bill. FreeFlow is free while it
-              is gathering users, and leaving a page of prices standing without
-              saying so would let a visitor conclude they are being charged.
-              The analysis stays published because a product that intends to
-              charge later and will not say what or when is asking people to
-              find out the hard way.
-            */}
-            <aside className="border-hairline rounded-lg border border-dashed p-5">
-              <p className="text-[15px] font-semibold">
-                None of this is being charged today.
-              </p>
-              <p className="text-ink mt-2 text-sm leading-relaxed">
-                The subscription tiers below are one possible long-term model, not something on sale. The plan
-                for launch is a one-time purchase for full access, and today there are no limits on anything.
-              </p>
-              <p className="text-ink-muted mt-2 text-sm leading-relaxed">
-                FreeFlow is free while it is early — every feature, for
-                everyone. What follows is the model it intends to move to, with
-                each price anchored to a competitor that was actually checked
-                and every assumption labelled. It is published now so that
-                nobody has to guess later.
-              </p>
-              {DONATIONS_ENABLED && (
-              <p className="text-ink-muted mt-2 text-sm leading-relaxed">
-                If it is useful to you in the meantime, there is an{" "}
-                <Link
-                  href="/support"
-                  className="text-ink underline-offset-4 hover:underline"
-                >
-                  optional donation
-                </Link>{" "}
-                that covers hosting and keeps the SAT rules current. It buys
-                nothing and unlocks nothing.
-              </p>
-              )}
-            </aside>
-
-            <section
-              aria-label="Headline"
-              className="border-accent/30 bg-accent/5 rounded-xl border p-5 sm:p-6"
-            >
-              <p className="text-lg leading-relaxed font-medium">
-                Base case is{" "}
-                <span className="text-accent-soft numeric">
-                  {usd.format(base.arr)}
-                </span>{" "}
-                ARR. The conservative case is{" "}
-                <span className="numeric text-rose-300">
-                  {usd.format(conservative.arr)}
-                </span>{" "}
-                — <span className="numeric">{ratio}%</span> of it, and falling.
-              </p>
-              <Reasoning className="mt-3">
-                <p className="text-ink-muted text-sm leading-relaxed">
-                  Both numbers come from the same model with different
-                  assumptions. The conservative case is not the base case
-                  reduced — it encodes what the validation interview
-                  actually found: that most freelancers are content with a
-                  spreadsheet, and that the one person interviewed said he
-                  would not buy.
-                </p>
-              </Reasoning>
-            </section>
-
-            {/* Tabs hide inactive panels with CSS rather than unmounting
-                them, so every content check still sees the full page. */}
-            <Suspense fallback={null}>
-              <Tabs
-                initial={initialTab}
-                tabs={[
-                  { id: "simulator", label: "Simulator", content: <PricingCalculator /> },
-                  {
-                    id: "tiers",
-                    label: "Tiers & segments",
-                    content: (
-                      <>
-                        <TierCards />
-                        <SegmentPanel />
-                      </>
-                    ),
-                  },
-                  // Hidden while per-project pricing is off (lib/pricing/tiers.ts).
-                  ...(PER_PROJECT_PRICING_ENABLED
-                    ? [{ id: "project", label: "Per-project", content: <ProjectSegmentPanel /> }]
-                    : []),
-                  { id: "assumptions", label: "Assumptions", content: <AssumptionsTable /> },
-                  { id: "saved", label: "Saved", content: <SavedScenarios scenarios={saved} /> },
-                ]}
-              />
-            </Suspense>
-          </div>
+    <main className="mx-auto max-w-4xl page-stack px-5 sm:px-8">
+      <header className="max-w-2xl">
+        <h1 className="page-title">Pricing</h1>
+        <p className="mt-3 text-2xl leading-snug font-semibold tracking-tight">Free. Every feature, for everyone.</p>
+        <p className="text-ink-muted mt-3 text-sm leading-relaxed">
+          No limits, no trial and no card. FreeFlow is made by one freelancer and runs on donations while it grows.
+          If it saves you time or money, you can chip in to keep it going.
+        </p>
+        {/* M6: say plainly what FreeFlow doesn't do. */}
+        <p className="text-ink-muted mt-2 text-sm leading-relaxed">
+          FreeFlow tracks the invoices you send from other tools. It doesn&rsquo;t create or send invoices yet, and it
+          doesn&rsquo;t issue Mexican CFDI invoices.
+        </p>
+        <div className="mt-5">
+          <PricingCta />
         </div>
-      </main>
-    </div>
+      </header>
+
+      {/* ---------- The ask ---------- */}
+      <section
+        id="support"
+        aria-labelledby="support-heading"
+        className="border-hairline bg-surface scroll-mt-20 rounded-lg border p-5 sm:p-6"
+      >
+        <h2 id="support-heading" className="text-[15px] font-semibold">
+          Support FreeFlow
+        </h2>
+        {configured ? (
+          <>
+            <p className="text-ink-muted mt-2 text-sm">
+              One-time, any amount. The suggestions are what the project actually spends.
+            </p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              {SUGGESTED_AMOUNTS.map((a) => (
+                <div key={a.usd} className="border-hairline flex flex-col rounded-lg border p-4">
+                  <p className="text-ink-faint text-[11px] tracking-[0.08em] uppercase">{a.label}</p>
+                  <p className="numeric mt-1.5 text-2xl font-semibold tracking-tight">{usd.format(a.usd)}</p>
+                  <p className="text-ink-faint mt-1.5 flex-1 text-xs">{a.covers}</p>
+                  <DonateButton amountUsd={a.usd} variant="quiet" className="mt-4 min-h-11 justify-center">
+                    Give {usd.format(a.usd)}
+                  </DonateButton>
+                </div>
+              ))}
+            </div>
+            <div className="border-hairline mt-5 flex flex-wrap items-center gap-3 border-t pt-5">
+              <DonateButton className="min-h-11">Choose your own amount</DonateButton>
+              <span className="text-ink-faint text-xs">Handled by Stripe. FreeFlow never sees your card.</span>
+            </div>
+          </>
+        ) : (
+          <p className="text-ink-muted mt-2 text-sm leading-relaxed">
+            Donations open soon. Until then, the best support is telling a freelancer friend about FreeFlow, or{" "}
+            <a className="text-ink underline-offset-4 hover:underline" href={`mailto:${CONTACT_EMAIL}?subject=FreeFlow%20feedback`}>
+              telling me what&rsquo;s missing
+            </a>
+            .
+          </p>
+        )}
+        <p className="text-ink-muted border-hairline mt-5 border-t pt-4 text-sm leading-relaxed">
+          <span className="text-ink font-medium">A thank-you:</span> {DONOR_PERK}
+        </p>
+      </section>
+
+      {/* ---------- Where it goes ---------- */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <section aria-labelledby="funds-heading" className="border-hairline bg-surface rounded-lg border p-5 sm:p-6">
+          <h2 id="funds-heading" className="text-[15px] font-semibold">
+            What it pays for
+          </h2>
+          <ul className="text-ink-muted mt-3 flex flex-col gap-2.5 text-sm">
+            {WHAT_IT_FUNDS.map((line) => (
+              <li key={line} className="flex gap-2.5">
+                <span aria-hidden className="text-ink-faint">
+                  —
+                </span>
+                {line}
+              </li>
+            ))}
+          </ul>
+        </section>
+        <section aria-labelledby="notbuy-heading" className="border-hairline rounded-lg border border-dashed p-5 sm:p-6">
+          <h2 id="notbuy-heading" className="text-[15px] font-semibold">
+            What it doesn&rsquo;t buy
+          </h2>
+          <ul className="text-ink-muted mt-3 flex flex-col gap-2.5 text-sm">
+            {WHAT_IT_DOES_NOT_BUY.map((line) => (
+              <li key={line} className="flex gap-2.5">
+                <span aria-hidden className="text-ink-faint">
+                  —
+                </span>
+                {line}
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
+
+      {/* ---------- Someday ---------- */}
+      <section aria-labelledby="later-heading" className="max-w-2xl">
+        <h2 id="later-heading" className="text-[15px] font-semibold">
+          Will FreeFlow always be free?
+        </h2>
+        <p className="text-ink-muted mt-2 text-sm leading-relaxed">
+          Probably not forever. At some point FreeFlow will become a one-time purchase, not a subscription, once it has
+          more users and has earned it. The price isn&rsquo;t set. You&rsquo;ll get plenty of notice before anything
+          changes, you can always export your data, and donors get the paid version free.
+        </p>
+      </section>
+
+      {/* ---------- Questions ---------- */}
+      <section aria-labelledby="faq-heading" className="max-w-2xl">
+        <h2 id="faq-heading" className="text-[15px] font-semibold">
+          Questions
+        </h2>
+        <dl className="border-hairline mt-3 divide-y divide-[var(--color-hairline)] border-y">
+          {PRICING_FAQ.map((f) => (
+            <div key={f.q} className="py-4">
+              <dt className="text-sm font-medium">{f.q}</dt>
+              <dd className="text-ink-muted mt-1 text-sm leading-relaxed">{f.a}</dd>
+            </div>
+          ))}
+        </dl>
+        <p className="text-ink-faint mt-4 text-xs">
+          More in the <Link href="/terms#donations" className="underline-offset-4 hover:underline">Terms</Link> and on
+          the <Link href="/privacy" className="underline-offset-4 hover:underline">Privacy</Link> page.
+        </p>
+      </section>
+    </main>
   );
 }

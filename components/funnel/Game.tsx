@@ -284,7 +284,7 @@ export default function Game() {
 
   return (
     <section id="game" aria-labelledby="game-title" className="py-16">
-      <p className="text-ink-faint text-[11px] tracking-[0.08em] uppercase">Chapter 5</p>
+      <p className="text-ink-faint text-[11px] tracking-[0.08em] uppercase">Your turn</p>
       <h2 id="game-title" className="mt-2 text-3xl font-semibold tracking-tight">
         Now you try.
       </h2>

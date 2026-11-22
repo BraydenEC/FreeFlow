@@ -1,4 +1,6 @@
+import { notFound } from "next/navigation";
 import BenchmarkCards from "@/components/research/BenchmarkCards";
+import { RESEARCH_PAGE_ENABLED } from "@/lib/flags";
 import Reasoning from "@/components/prefs/Reasoning";
 import Tabs from "@/components/prefs/Tabs";
 import { Suspense } from "react";
@@ -33,6 +35,8 @@ export default async function ResearchPage({
 }: {
   searchParams: Promise<{ tab?: string }>;
 }) {
+  // Course material, hidden from the public site (lib/flags.ts).
+  if (!RESEARCH_PAGE_ENABLED) notFound();
   const { tab } = await searchParams;
   const summary = researchSummary();
   const saved = await getSavedResearch();

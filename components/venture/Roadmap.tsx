@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { ROADMAP, type RoadmapBucket } from "@/lib/venture/roadmap";
 
 /*
-  /docs V2 roadmap with upvotes.
+  The roadmap with upvotes, on /roadmap.
 
   One vote per item per browser: an anonymous key (ff_voter, a random uuid)
   and the items voted for (ff_votes) live in browser storage. That is a courtesy,

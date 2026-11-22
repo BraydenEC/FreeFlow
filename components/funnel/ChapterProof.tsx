@@ -16,7 +16,7 @@ const when = (iso: string) =>
 export default function ChapterProof() {
   return (
     <section id="proof" aria-labelledby="proof-title" className="py-16">
-      <p className="text-ink-faint text-[11px] tracking-[0.08em] uppercase">Chapter 4</p>
+      <p className="text-ink-faint text-[11px] tracking-[0.08em] uppercase">Listening</p>
       <h2 id="proof-title" className="mt-2 text-3xl font-semibold tracking-tight">
         You said. We changed it.
       </h2>
@@ -38,7 +38,7 @@ export default function ChapterProof() {
         ))}
         <li className="border-hairline text-ink-faint flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed p-4 text-center text-sm">
           <span>Your request could be next.</span>
-          <Link href="/docs#roadmap" className="text-ink-muted hover:text-ink underline-offset-4 hover:underline">
+          <Link href="/roadmap" className="text-ink-muted hover:text-ink underline-offset-4 hover:underline">
             See and vote on the roadmap
           </Link>
         </li>

@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { WALKTHROUGH, type WalkthroughStep } from "@/lib/funnel/walkthrough";
+import { WALKTHROUGH, WALKTHROUGH_AREAS as AREAS } from "@/lib/funnel/walkthrough";
 
 /*
-  /demo chapter 2, midnight: every worry has a place. (Interest.)
+  /demo, midnight: every worry has a place. (Interest.)
 
   Each numbered step takes one worry from the night and shows the built
   feature that answers it, with a one-line benefit and a small sample of what
@@ -10,19 +10,13 @@ import { WALKTHROUGH, type WalkthroughStep } from "@/lib/funnel/walkthrough";
   (lib/funnel/walkthrough.ts is tested against lib/product/features.ts).
 */
 
-const AREAS: { id: WalkthroughStep["area"]; label: string }[] = [
-  { id: "money", label: "Money" },
-  { id: "paperwork", label: "Paperwork & tax" },
-  { id: "organization", label: "Organization" },
-];
-
 // Steps are numbered straight through all three areas.
 const ORDER = AREAS.flatMap((a) => WALKTHROUGH.filter((s) => s.area === a.id));
 
 export default function ChapterWalkthrough() {
   return (
     <section id="walkthrough" aria-labelledby="walkthrough-title" className="py-16">
-      <p className="text-ink-faint text-[11px] tracking-[0.08em] uppercase">Chapter 2</p>
+      <p className="text-ink-faint text-[11px] tracking-[0.08em] uppercase">How it works</p>
       <h2 id="walkthrough-title" className="mt-2 text-3xl font-semibold tracking-tight">
         Every worry has a place.
       </h2>

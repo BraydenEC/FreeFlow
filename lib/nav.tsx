@@ -1,5 +1,3 @@
-import { PER_PROJECT_PRICING_ENABLED } from "@/lib/flags";
-
 /*
   Navigation, in one place.
 
@@ -32,21 +30,12 @@ export const SUB_NAV: Record<string, SubNavItem[]> = {
     { label: "Overview", href: "#widget-metrics" },
     { label: "Projects", href: "#widget-projects" },
     { label: "Recent briefs", href: "#widget-core" },
-    { label: "Research", href: "#widget-research" },
   ],
   "/research": [
     { label: "Competitors", href: "?tab=competitors" },
     { label: "Benchmarks", href: "?tab=benchmarks" },
     { label: "Risks", href: "?tab=risks" },
     { label: "Intake", href: "?tab=intake" },
-  ],
-  "/pricing": [
-    { label: "Simulator", href: "?tab=simulator" },
-    { label: "Tiers", href: "?tab=tiers" },
-    // Hidden while per-project pricing is off (lib/flags.ts).
-    ...(PER_PROJECT_PRICING_ENABLED ? [{ label: "Per-project", href: "?tab=project" }] : []),
-    { label: "Assumptions", href: "?tab=assumptions" },
-    { label: "Saved", href: "?tab=saved" },
   ],
   "/marketing": [
     { label: "Context", href: "#band-context" },

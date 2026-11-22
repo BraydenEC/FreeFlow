@@ -9,7 +9,7 @@
 
 import { readFileSync } from "node:fs";
 import { JOBS, JOB_ORDER, DEFAULT_JOB } from "@/lib/funnel/jobs";
-import { WALKTHROUGH } from "@/lib/funnel/walkthrough";
+import { WALKTHROUGH, featureAnchor } from "@/lib/funnel/walkthrough";
 import { COPY } from "@/lib/funnel/copy";
 import { PRICE_PATTERN } from "@/lib/venture/changes";
 import { FEATURE_GROUPS } from "@/lib/product/features";
@@ -174,6 +174,8 @@ assert("the story states no price", !PRICE_PATTERN.test(JSON.stringify(STORY)));
 assert("the mission is about ease", STORY.mission.includes("ease"));
 assert("the P.S. gives the public contact", STORY.ps.includes("hello@freeflow.website"));
 assert("every walkthrough step has a labelled sample", WALKTHROUGH.every((s) => s.sample.trim().length > 0));
+assert("every walkthrough step links to its own /features section", WALKTHROUGH.every((s) => s.href === `/features#${featureAnchor(s.featureName)}`) && new Set(WALKTHROUGH.map((s) => s.href)).size === WALKTHROUGH.length);
+assert("feature anchors are plain slugs", featureAnchor("Project & deadline table") === "project-and-deadline-table" && featureAnchor("Export to CSV") === "export-to-csv");
 
 // No prices anywhere in funnel content.
 const allText = JSON.stringify({

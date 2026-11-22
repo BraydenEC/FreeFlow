@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { DOCS_PAGE_ENABLED } from "@/lib/flags";
 import ImpactCheck from "@/components/venture/ImpactCheck";
 import JourneyStepper from "@/components/venture/JourneyStepper";
 import PromptLibrary from "@/components/venture/PromptLibrary";
@@ -48,6 +50,8 @@ function Section({
 }
 
 export default async function DocsPage() {
+  // Course material, hidden from the public site (lib/flags.ts).
+  if (!DOCS_PAGE_ENABLED) notFound();
   const counts = await getVentureCounts(await getServerSupabase());
 
   return (

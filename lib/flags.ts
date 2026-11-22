@@ -7,22 +7,35 @@
 */
 
 /*
-  DONATIONS ARE OFF FOR NOW
-  The final assignment doesn't ask for a donation page, and a "chip in" ask
-  beside "free" confused the story. This one switch hides it everywhere:
-  /support answers 404, the Dock drops it, the dashboard and /pricing drop
-  their links, the help desk says donations aren't taken right now, and the
-  marketing copy stops promising a donation button. Nothing is deleted; set it
-  to true to bring all of it back as it was.
+  DONATIONS ARE ON
+  /pricing is built around optional donations (lib/support.ts). Turning this
+  off hides the donation section, the Dock and footer links, and the help
+  desk's donation answers; nothing is deleted.
 */
-export const DONATIONS_ENABLED = false;
+export const DONATIONS_ENABLED = true;
 
 /*
-  PER-PROJECT PRICING IS OFF FOR NOW
-  The Project tier (billed per job) and its segment were added after Week 3
-  as a separate estimate. For the final assignment they are hidden: no
-  Per-project tab or sidebar link on /pricing, no Project tier card, no
-  per-project segment card, no Project badge on /product, and the help desk
-  doesn't quote it. Nothing is deleted; set this to true to bring them back.
+  PER-PROJECT PRICING IS OFF
+  The Project tier (billed per job) from the old revenue model. The model is
+  no longer on /pricing, so this only affects the feature data and the help
+  desk. Nothing is deleted; set it to true to bring it back.
 */
 export const PER_PROJECT_PRICING_ENABLED = false;
+
+/*
+  COURSE PAGES ARE HIDDEN
+  /research (market research) and /docs (the build log, prompt library and
+  testing summary) were written for the Ibero course, not for customers. Off,
+  they answer 404 and leave the menus, the sitemap and the help desk. The code
+  stays, so either can come back.
+*/
+export const RESEARCH_PAGE_ENABLED = false;
+export const DOCS_PAGE_ENABLED = false;
+
+/*
+  THE MARKETING ENGINE IS A PREVIEW
+  /marketing stays reachable by its address while it is reworked into a tool
+  customers use for their own marketing, but it isn't in any menu or the
+  sitemap.
+*/
+export const MARKETING_IN_MENUS = false;

@@ -7,16 +7,16 @@ import SignOutButton from "@/components/auth/SignOutButton";
 import { useSession } from "@/components/auth/SessionProvider";
 import LayoutDrawer from "@/components/prefs/LayoutDrawer";
 import Logo from "@/components/Logo";
-import { AUTH_ROUTES, TOP_LINKS } from "@/lib/nav/dock";
+import { AUTH_ROUTES, SITE_LINKS, TOP_LINKS } from "@/lib/nav/dock";
 
 /*
   The application bar: the brand mark, Settings and the account.
 
-  Every page lives in the Dock (components/nav/Dock.tsx). User testing (H3)
-  showed the Dock alone was not enough: an icon-only button was the only way
-  around. So on desktop this bar also names the user's own tools (TOP_LINKS):
-  Dashboard, Paste a brief, Help desk. On a phone there is no room, and the
-  Dock's labelled grid does the job.
+  Every page lives in the Dock (components/nav/Dock.tsx). On desktop this bar
+  also names the pages that matter to whoever is looking: a signed-in user's
+  own tools (TOP_LINKS: Dashboard, Paste a brief, Help desk), or a visitor's
+  product pages (SITE_LINKS: Features, Pricing, Roadmap, Help), with a sign-up
+  button, the way product sites do. On a phone the Dock's grid does the job.
 
   Renders nothing on the auth pages. A bar advertising Settings and an account
   menu to someone who has neither is noise, and the sign-up page is
@@ -45,8 +45,8 @@ export default function TopBar() {
           <Logo />
         </Link>
 
-        <nav aria-label="Your tools" className="hidden items-center gap-1 sm:flex">
-          {TOP_LINKS.map((l) => {
+        <nav aria-label={user ? "Your tools" : "FreeFlow"} className="hidden items-center gap-1 sm:flex">
+          {(user ? TOP_LINKS : SITE_LINKS).map((l) => {
             const current = pathname === l.href || pathname.startsWith(`${l.href}/`);
             return (
               <Link
@@ -100,12 +100,21 @@ export default function TopBar() {
               <SignOutButton />
             </div>
           ) : (
-            <Link
-              href="/login"
-              className="text-ink-muted hover:text-ink flex min-h-11 items-center px-2 text-sm sm:min-h-0"
-            >
-              Sign in
-            </Link>
+            <div className="flex items-center gap-1">
+              <Link
+                href="/login"
+                className="text-ink-muted hover:text-ink flex min-h-11 items-center px-2 text-sm sm:min-h-0"
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/signup"
+                className="bg-accent text-app focus-visible:ring-accent flex min-h-11 items-center rounded-md px-3 text-sm font-semibold whitespace-nowrap focus-visible:ring-2 focus-visible:outline-none sm:min-h-9"
+              >
+                <span className="sm:hidden">Sign up</span>
+                <span className="hidden sm:inline">Create a free account</span>
+              </Link>
+            </div>
           )}
         </div>
       </div>

@@ -1,9 +1,10 @@
 /*
   The donation funnel.
 
-  FreeFlow is free while it gathers users. That is a deliberate stage, not an
-  absence of a plan: the pricing work on /pricing is what the product intends
-  to move to, and until then the only way to fund development is to ask.
+  FreeFlow is free while it grows, and /pricing is built around asking for
+  optional support. Someday it becomes a one-time purchase; until then,
+  donations are the only way to fund it, and every donor gets the paid version
+  free when it launches (DONOR_PERK).
 
   WHY A PAYMENT LINK RATHER THAN AN INTEGRATION
   A Stripe Checkout integration needs a secret key, a webhook endpoint, and a
@@ -24,7 +25,6 @@
   broken deploy.
 */
 
-// Donations are switched off for now: see DONATIONS_ENABLED in lib/flags.ts.
 
 export type SuggestedAmount = {
   usd: number;
@@ -42,7 +42,7 @@ export const SUGGESTED_AMOUNTS: SuggestedAmount[] = [
   {
     usd: 5,
     label: "Coffee",
-    covers: "About a month of the model calls behind brief extraction.",
+    covers: "About a month of the AI reading behind Paste a brief.",
   },
   {
     usd: 15,
@@ -58,9 +58,9 @@ export const SUGGESTED_AMOUNTS: SuggestedAmount[] = [
 
 /** What the money is for, stated plainly rather than as marketing. */
 export const WHAT_IT_FUNDS = [
-  "Keeping the SAT and CFDI rules current as they change — the part of this product that rots fastest if nobody maintains it.",
+  "Keeping the Mexican tax rules (IVA and ISR withholding) current as they change, the part that goes stale fastest if nobody maintains it.",
   "Hosting, the database, and the domain.",
-  "Model usage for brief extraction, which costs money per request.",
+  "The AI reading behind Paste a brief, which costs money per request.",
 ] as const;
 
 /** What donating does NOT buy. Said out loud so nobody assumes otherwise. */
@@ -69,6 +69,40 @@ export const WHAT_IT_DOES_NOT_BUY = [
   "Priority support. There is no support queue to be at the front of.",
   "A say in the roadmap beyond what any user gets by asking.",
 ] as const;
+
+/** The one thank-you donors get. Repeated word for word wherever it is promised. */
+export const DONOR_PERK =
+  "Anyone who donates, any amount, before the paid version launches gets it free. Donate with the same email as your FreeFlow account so it can be matched.";
+
+export type FaqEntry = { q: string; a: string };
+
+/** /pricing's questions, in the order people ask them. No price for FreeFlow itself. */
+export const PRICING_FAQ: FaqEntry[] = [
+  {
+    q: "Is FreeFlow really free?",
+    a: "Yes. Every feature, for everyone, with no limits and no card needed. Donations are optional and unlock nothing.",
+  },
+  {
+    q: "Will I have to pay later?",
+    a: "At some point FreeFlow will become a one-time purchase, not a subscription. The price isn't set. You'll get plenty of notice before that happens, and nothing you have will be charged for unless you choose to buy it.",
+  },
+  {
+    q: "What do donors get?",
+    a: DONOR_PERK,
+  },
+  {
+    q: "Can I take my data with me?",
+    a: "Yes. The dashboard can export every project as a CSV at any time, free now and after the paid version launches.",
+  },
+  {
+    q: "Does FreeFlow send invoices?",
+    a: "No. FreeFlow tracks the invoices you send from other tools; it doesn't create or send invoices yet, and it doesn't issue Mexican CFDI invoices.",
+  },
+  {
+    q: "Is my data private?",
+    a: "Your projects are private to your account, protected by row-level security, and never sold or shared. The Privacy page says exactly what is kept.",
+  },
+];
 
 /**
  * The Stripe Payment Link, or null when it is not configured.

@@ -73,6 +73,7 @@ const ICONS: Record<DockIcon, React.ReactNode> = {
     </>
   ),
   support: <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" />,
+  roadmap: <path d="M5 21V4m0 1h12l-2.5 4L17 13H5" />,
 };
 
 function Glyph({ children, dark = false }: { children: React.ReactNode; dark?: boolean }) {

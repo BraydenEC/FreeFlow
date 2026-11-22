@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Help desk — FreeFlow",
   description:
-    "FreeFlow's help desk: answers from written rules, and a ticket to the owner when it can't help.",
+    "Ask FreeFlow's help desk anything. If it can't answer, your question goes straight to the person who builds FreeFlow.",
 };
 
 export default async function ChatPage() {
@@ -31,8 +31,8 @@ export default async function ChatPage() {
           <header>
             <h1 className="page-title">Help desk</h1>
             <p className="text-ink-muted mt-4 text-base leading-relaxed">
-              FreeFlow&apos;s help desk. It answers from written rules, and anything
-              it can&apos;t solve becomes a ticket the owner reads.
+              Ask anything about FreeFlow. If the help desk can&apos;t answer, your question goes
+              straight to Brayden, who builds FreeFlow and reads every one.
             </p>
           </header>
 

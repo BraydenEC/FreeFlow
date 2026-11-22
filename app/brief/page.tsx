@@ -9,7 +9,7 @@ import { getUserPrefs } from "@/lib/prefs/server";
 import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
 
 /*
-  /core — the generative core module.
+  /brief (was /core): Paste a brief, the generative core module.
 
   Server Component: it reads saved outputs before the HTML is sent, and checks
   model configuration server-side so the key is never involved in client code.

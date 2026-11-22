@@ -30,7 +30,7 @@ import { getSupabaseEnv } from "@/lib/supabase/env";
   Gating either here would send every cold visitor to a sign-up form before
   telling them what they were signing up for.
 */
-const PRIVATE_PREFIXES = ["/core"];
+const PRIVATE_PREFIXES = ["/brief"];
 // Pages a signed-in user has no business seeing. /auth/confirm is absent on
 // purpose: it must run even for someone already signed in, or a second click
 // of a confirmation link would bounce before verifying.

@@ -5,7 +5,8 @@ import { TAX_REGIMES, TAX_REGIME_LABELS } from "@/lib/tax/withholding";
 import { CURRENCIES, CURRENCY_CODES, formatMoney, type CurrencyCode } from "@/lib/currency";
 import { useEffect, useRef, useState } from "react";
 import { usePrefs } from "@/components/prefs/PrefsProvider";
-import { WIDGET_LABELS } from "@/lib/prefs/schema";
+import { isRetiredWidget, WIDGET_LABELS } from "@/lib/prefs/schema";
+import { RESEARCH_PAGE_ENABLED } from "@/lib/flags";
 
 /*
   The Settings drawer.
@@ -245,6 +246,8 @@ export default function LayoutDrawer({
             </div>
           </section>
 
+          {/* "Why" notes only exist on /research, which is hidden (lib/flags.ts). */}
+          {RESEARCH_PAGE_ENABLED && (
           <section>
             <h3 className="text-ink-muted text-xs font-medium tracking-wide uppercase">
               Reading
@@ -256,6 +259,7 @@ export default function LayoutDrawer({
               onChange={p.setShowReasoning}
             />
           </section>
+          )}
 
           <section>
             <h3 className="text-ink-muted text-xs font-medium tracking-wide uppercase">
@@ -269,7 +273,7 @@ export default function LayoutDrawer({
             />
 
             <ul className="border-hairline mt-2 divide-y rounded-lg border">
-              {widgets.map((w, i) => (
+              {widgets.map((w, i) => isRetiredWidget(w.id) ? null : (
                 <li key={w.id} className="flex items-center gap-2 px-3 py-2">
                   <input
                     type="checkbox"

@@ -1,7 +1,7 @@
 "use client";
 
 import { usePrefs } from "@/components/prefs/PrefsProvider";
-import type { WidgetId } from "@/lib/prefs/schema";
+import { isRetiredWidget, type LiveWidgetId, type WidgetId } from "@/lib/prefs/schema";
 
 /*
   Arranges dashboard widgets by preference.
@@ -22,7 +22,7 @@ export default function DashboardGrid({
   hasOverdue,
   hidden = [],
 }: {
-  widgets: Record<WidgetId, React.ReactNode>;
+  widgets: Record<LiveWidgetId, React.ReactNode>;
   hasOverdue: boolean;
   /**
    * Widgets with nothing to say right now. Overdue used to be the only one and
@@ -47,7 +47,7 @@ export default function DashboardGrid({
   // The overdue widget renders nothing when nothing is overdue; skip its slot
   // so an empty cell does not leave a gap in the grid.
   ordered = ordered.filter((w) => w.id !== "overdue" || hasOverdue);
-  ordered = ordered.filter((w) => !hidden.includes(w.id));
+  ordered = ordered.filter((w) => !hidden.includes(w.id) && !isRetiredWidget(w.id));
 
   return (
     <div className="grid gap-[var(--section-gap,2rem)] lg:grid-cols-2">
@@ -57,7 +57,7 @@ export default function DashboardGrid({
           id={`widget-${w.id}`}
           className={`scroll-mt-20 ${w.width === "full" ? "lg:col-span-2" : "lg:col-span-1"}`}
         >
-          {widgets[w.id]}
+          {widgets[w.id as LiveWidgetId]}
         </div>
       ))}
     </div>

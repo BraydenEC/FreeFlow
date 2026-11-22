@@ -8,8 +8,8 @@
   settle back to the base size by 150 px away.
 */
 
-import { DOCK_GROUPS, TOP_LINKS } from "@/lib/nav/dock";
-import { DONATIONS_ENABLED } from "@/lib/flags";
+import { DOCK_GROUPS, FOOTER_COLUMNS, SITE_LINKS, TOP_LINKS } from "@/lib/nav/dock";
+import { DOCS_PAGE_ENABLED, DONATIONS_ENABLED, MARKETING_IN_MENUS, RESEARCH_PAGE_ENABLED } from "@/lib/flags";
 import { activeSubNavTab } from "@/lib/nav/subnav";
 import { iconSize } from "@/lib/nav/magnify";
 
@@ -33,11 +33,10 @@ assert("closer icons are larger", iconSize(50) > iconSize(100));
 assert("size never drops below base", iconSize(-20) <= 78 && iconSize(1e6) === 48);
 
 const hrefs = DOCK_GROUPS.flatMap((g) => g.items.map((i) => i.href));
-// H3: the user's own tools first, then the pages about the business
+// The user's own tools first, then the public pages about FreeFlow.
 assert(
   "the Dock lists the user's tools first, then About FreeFlow",
-  hrefs.join() ===
-    "/dashboard,/core,/chat,/demo,/research,/product,/pricing,/marketing,/docs" + (DONATIONS_ENABLED ? ",/support" : ""),
+  hrefs.join() === "/dashboard,/brief,/chat,/demo,/features,/pricing,/roadmap",
   hrefs.join(),
 );
 assert("groups are Your tools and About FreeFlow", DOCK_GROUPS.map((g) => g.label).join() === "Your tools,About FreeFlow");
@@ -49,9 +48,24 @@ assert(
 const labels = DOCK_GROUPS.flatMap((g) => g.items.map((i) => i.label));
 assert("brief extraction is called Paste a brief", labels.includes("Paste a brief"));
 assert("help is called Help desk", labels.includes("Help desk"));
-assert("TOP_LINKS are the user's tools", TOP_LINKS.map((l) => l.href).join() === "/dashboard,/core,/chat");
+assert("the story page is called Tour, not Demo", labels.includes("Tour") && !labels.includes("Demo"));
+assert("TOP_LINKS are the user's tools", TOP_LINKS.map((l) => l.href).join() === "/dashboard,/brief,/chat");
+assert("signed-out visitors get the public pages", SITE_LINKS.map((l) => l.href).join() === "/features,/pricing,/roadmap,/chat");
 
-assert("the Dock lists Support only while donations are on", hrefs.includes("/support") === DONATIONS_ENABLED);
+// Course pages stay out of every menu while their switches are off.
+const everyLink = [
+  ...hrefs,
+  ...SITE_LINKS.map((l) => l.href),
+  ...FOOTER_COLUMNS.flatMap((c) => c.links.map((l) => l.href)),
+];
+assert("no menu links to /research while it's hidden", RESEARCH_PAGE_ENABLED || !everyLink.includes("/research"));
+assert("no menu links to /docs while it's hidden", DOCS_PAGE_ENABLED || !everyLink.some((h) => h.startsWith("/docs")));
+assert("the marketing preview isn't in a menu", MARKETING_IN_MENUS || !everyLink.includes("/marketing"));
+assert("nothing links to the old /core, /product or /support addresses", !everyLink.some((h) => ["/core", "/product", "/support"].includes(h)));
+
+assert("the footer has Product, Support and Legal columns", FOOTER_COLUMNS.map((c) => c.heading).join() === "Product,Support,Legal");
+assert("the footer links Privacy and Terms", everyLink.includes("/privacy") && everyLink.includes("/terms"));
+assert("the footer links the donation section while donations are on", everyLink.includes("/pricing#support") === DONATIONS_ENABLED);
 
 // The sidebar highlights the same tab the page shows: an unknown or hidden
 // ?tab= (an old /pricing?tab=project link) falls back to the first tab.

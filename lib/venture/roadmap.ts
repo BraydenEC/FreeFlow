@@ -1,7 +1,10 @@
 /*
-  The V2 roadmap shown on /docs, with visitor upvotes.
+  The roadmap shown on /roadmap, with visitor upvotes.
 
-  Exactly the spec's list, in its order. The ids are what /api/roadmap/vote
+  The ids are also listed in the roadmap_votes check constraint
+  (supabase/week6_venture.sql), so a NEW item needs that constraint updated in
+  Supabase first, or its votes are refused. "tester-requests" (a course item)
+  was dropped from the page; the database still accepts it, harmlessly. The ids are what /api/roadmap/vote
   accepts, so changing one orphans its votes: add new items rather than
   renaming old ones.
 */
@@ -25,13 +28,7 @@ export const ROADMAP: RoadmapItem[] = [
   {
     id: "one-time-launch",
     title: "The one-time purchase launch",
-    detail: "Buy once, keep full access. The free version keeps working until then.",
-    bucket: "next",
-  },
-  {
-    id: "tester-requests",
-    title: "What this week's testers ask for",
-    detail: "Filled in after the Week 6 user tests, from what testers actually asked for.",
+    detail: "Buy once, keep full access. Plenty of notice first, and donors get it free.",
     bucket: "next",
   },
   {
@@ -43,7 +40,7 @@ export const ROADMAP: RoadmapItem[] = [
   {
     id: "more-languages",
     title: "More languages",
-    detail: "Spanish first.",
+    detail: "Spanish first, starting with the help desk.",
     bucket: "later",
   },
   {

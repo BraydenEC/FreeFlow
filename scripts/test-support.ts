@@ -9,7 +9,7 @@
   encrypted, or to a javascript: handler.
 */
 
-import { getDonateUrl, isDonationConfigured, SUGGESTED_AMOUNTS, WHAT_IT_FUNDS, WHAT_IT_DOES_NOT_BUY } from "@/lib/support";
+import { DONOR_PERK, getDonateUrl, isDonationConfigured, PRICING_FAQ, SUGGESTED_AMOUNTS, WHAT_IT_FUNDS, WHAT_IT_DOES_NOT_BUY } from "@/lib/support";
 
 let passed = 0;
 let failed = 0;
@@ -99,6 +99,19 @@ assert("the page states what donations fund", WHAT_IT_FUNDS.length > 0);
 // This one is the point. A donation page that only lists benefits is selling
 // a subscription and calling it a gift.
 assert("the page states what donations do NOT buy", WHAT_IT_DOES_NOT_BUY.length > 0);
+
+console.log("\nPRICING FAQ\n" + "─".repeat(64));
+const faqText = PRICING_FAQ.map((f) => `${f.q} ${f.a}`).join(" ");
+assert("the FAQ answers at least five questions", PRICING_FAQ.length >= 5);
+assert("every FAQ entry is a question with an answer", PRICING_FAQ.every((f) => f.q.trim().endsWith("?") && f.a.trim().length > 20));
+assert("it asks whether FreeFlow is really free", PRICING_FAQ.some((f) => /really free/i.test(f.q)));
+assert("it promises notice and export before any charge", /plenty of notice/i.test(faqText) && /export/i.test(faqText));
+assert("it says paying later is a one-time purchase, not a subscription", /one-time purchase/i.test(faqText) && /not a subscription/i.test(faqText));
+assert("it says FreeFlow doesn't create or send invoices", /doesn.t create or send invoices/i.test(faqText));
+assert("it names no price for FreeFlow itself", !/\$\s?\d|\d+\s?(usd|mxn|pesos|dollars)\b|per month|\/mo\b/i.test(faqText));
+assert("the donor perk: any amount, before launch, same email", /any amount/i.test(DONOR_PERK) && /before the paid version launches/i.test(DONOR_PERK) && /same email/i.test(DONOR_PERK));
+assert("the FAQ repeats the donor perk word for word", faqText.includes(DONOR_PERK));
+assert("what it funds doesn't promise CFDI", WHAT_IT_FUNDS.every((l) => !/CFDI/.test(l)));
 
 console.log("─".repeat(64));
 console.log(`  ${passed} passed, ${failed} failed\n`);

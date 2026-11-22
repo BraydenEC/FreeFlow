@@ -13,9 +13,10 @@
 */
 
 import type { Rule } from "./types";
-import { DONATIONS_ENABLED, PER_PROJECT_PRICING_ENABLED } from "@/lib/flags";
+import { DONATIONS_ENABLED, RESEARCH_PAGE_ENABLED } from "@/lib/flags";
+import { DONOR_PERK } from "@/lib/support";
 
-export const CONTENT_RULES: Rule[] = [
+const ALL_RULES: Rule[] = [
   // lib/forecast/model.ts — deadline + terms (30-day default), paid skipped, past-due is "late"
   {
     id: "forecast-zero",
@@ -227,13 +228,13 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["gratis", "refund", "subscription", "costo"],
     phrases: ["how much does it cost", "how much does freeflow cost", "does freeflow cost", "what does it cost", "what does freeflow cost", "how much will it cost", "how much is freeflow", "is it free", "cancel my subscription", "being charged", "was charged", "got charged", "did i get charged", "want a refund", "credit card", "pay for freeflow", "pay in", "is freeflow free", "is this free", "is this app free", "free to use", "what s included", "whats included", "included for free", "es gratis", "cuanto cuesta", "tiene costo"],
     exact: ["how much", "how do i pay", "can i cancel", "how much is it"],
-    answer: DONATIONS_ENABLED
-      ? "FreeFlow is free while it grows: every feature, for everyone, and nothing is charged today. There's no subscription to cancel and nothing to refund. Donations are optional and don't unlock anything."
-      : "FreeFlow is free during early access: every feature, for everyone, and nothing is charged today. At launch it becomes a one-time purchase, and the price isn't set yet. There's no subscription to cancel and nothing to refund.",
+    answer:
+      "FreeFlow is free: every feature, for everyone, and nothing is charged. There's no subscription to cancel and nothing to refund. Someday it becomes a one-time purchase, with plenty of notice first." +
+      (DONATIONS_ENABLED ? " Donations are optional and don't unlock anything." : ""),
     links: DONATIONS_ENABLED
       ? [
           { label: "Pricing", href: "/pricing" },
-          { label: "Support FreeFlow", href: "/support" },
+          { label: "Support FreeFlow", href: "/pricing#support" },
         ]
       : [{ label: "Pricing", href: "/pricing" }],
   },
@@ -245,9 +246,8 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["tier", "tiers", "pro", "studio", "solo", "plans"],
     strong: ["tiers", "tier"],
     phrases: ["pricing page", "pro plan", "studio plan", "get with pro", "with pro", "with studio", "pricing real", "how much is pro", "how much is studio", "how much is solo"],
-    answer: PER_PROJECT_PRICING_ENABLED
-      ? "Solo (free), Project ($9 a month), Pro ($14 a month) and Studio ($12 per seat a month) are the model FreeFlow intends to move to, not a bill. None of it is charged today. The CFDI issuance and seats those paid tiers depend on are not built yet."
-      : "Solo (free), Pro ($14 a month) and Studio ($12 per seat a month) are a possible long-term model, not a bill. None of it is charged today. The CFDI issuance and seats those paid tiers depend on are not built yet.",
+    answer:
+      "FreeFlow has no plans or tiers: every account gets every feature, free. When it starts charging, it will be a one-time purchase, not a subscription, and the price isn't set.",
     links: [{ label: "Pricing", href: "/pricing" }],
   },
   // app/support/page.tsx; lib/support.ts — real running costs, nothing gated on donating
@@ -259,9 +259,9 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["donate", "donation", "donating", "donar", "donacion"],
     phrases: ["support freeflow", "support the project", "i donate", "buy you a coffee", "make a donation", "puedo donar", "como dono"],
     answer: DONATIONS_ENABLED
-      ? "Donations are optional and go to real running costs like hosting and the domain. They don't unlock any features. The Support page has the details; if it says donations aren't set up yet, there's no payment link to use right now."
+      ? `Donations are optional and go to real running costs like hosting and the AI behind Paste a brief. They don't unlock features. ${DONOR_PERK} If the Pricing page says donations open soon, there's no payment link yet.`
       : "FreeFlow doesn't take donations right now. It's free while it grows, and nothing is charged today. The kindest thing you can do is use it and tell us what's broken.",
-    links: DONATIONS_ENABLED ? [{ label: "Support FreeFlow", href: "/support" }] : [{ label: "Pricing", href: "/pricing" }],
+    links: DONATIONS_ENABLED ? [{ label: "Support FreeFlow", href: "/pricing#support" }] : [{ label: "Pricing", href: "/pricing" }],
   },
   // features "Accounts and per-user data" — RLS on every table; chat_sessions notice
   {
@@ -307,8 +307,8 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["cfdi", "factura", "facturar", "timbrar", "materialidad"],
     phrases: ["electronic invoice", "legal invoice", "issue an invoice", "send an invoice", "issue a cfdi", "como facturar", "emitir factura", "hacer factura"],
     answer:
-      "Issuing CFDI invoices and materialidad evidence are not built yet. They're planned, and the Product page shows what's built and what isn't. For now FreeFlow tracks the work and the payment, so issue the CFDI with your usual provider.",
-    links: [{ label: "Product", href: "/product" }],
+      "Issuing CFDI invoices and materialidad evidence are not built yet. CFDI is on the Roadmap, where you can vote for it. For now FreeFlow tracks the work and the payment, so issue the CFDI with your usual provider.",
+    links: [{ label: "Roadmap", href: "/roadmap" }],
     offerTicket: true,
   },
   // lib/product/features.ts — seats, cross-person view, per-person profitability are planned
@@ -320,8 +320,8 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["seats", "seat", "team", "employees"],
     phrases: ["multiple users", "add a user", "add users", "two users", "more users", "second user", "per person", "my team"],
     answer:
-      "Multiple seats, a cross-person project view and per-person profitability are not built yet. FreeFlow is one person per account today, and the Product page shows what's planned.",
-    links: [{ label: "Product", href: "/product" }],
+      "Multiple seats, a cross-person project view and per-person profitability are not built yet. FreeFlow is one person per account today. Studio accounts are on the Roadmap, where you can vote for them.",
+    links: [{ label: "Roadmap", href: "/roadmap" }],
     offerTicket: true,
   },
   // No self-serve account deletion exists in app/ or app/api/
@@ -344,7 +344,7 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["persona", "campaign"],
     phrases: ["marketing page", "video scripts", "what is marketing", "the persona"],
     answer:
-      "The Marketing page is FreeFlow's own campaign: the persona, ten posts, three video scripts, a 14-day calendar and an A/B headline test. Each post and script can be copied or saved, and Export CSV downloads the posts and scripts.",
+      "The Marketing page is a preview of FreeFlow's own campaign: the persona, ten posts, three video scripts, a 14-day calendar and an A/B headline test. It's being reworked into a tool you can use for your own marketing. Each post and script can be copied or saved, and Export CSV downloads the posts and scripts.",
     links: [{ label: "Marketing", href: "/marketing" }],
   },
   // features "Cash-flow dashboard" — derived, not stored
@@ -481,7 +481,7 @@ export const CONTENT_RULES: Rule[] = [
     answer:
       "Clients aren't separate records: each project has one Client field you type into. To rename a client, choose Edit on each of their projects. The search above the table finds every project for a client.",
   },
-  // No limit in app/api/projects; lib/pricing/tiers.ts Solo is the future model
+  // No limit in app/api/projects
   {
     id: "project-limit",
     categories: "any",
@@ -489,7 +489,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["limit", "limits", "maximum"],
     phrases: ["how many projects", "project limit", "limit on projects", "too many projects", "3 active projects", "3 projects"],
     answer:
-      "There's no limit on projects today. The \"up to 3 active projects\" on the Pricing page describes the Solo tier in a future model, and it isn't enforced.",
+      "There's no limit on projects. Every account can add as many as it needs, free.",
     links: [{ label: "Pricing", href: "/pricing" }],
   },
   // ProjectForm stores links only; lib/product/features.ts CFDI issuance planned
@@ -555,7 +555,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["extractions", "widget"],
     phrases: ["recent extractions", "market research", "research widget"],
     answer:
-      "Recent briefs lists the briefs you've turned into projects on Paste a brief, and Market research summarises the Research page. They're there for reference, and you can switch either off in Settings (top right).",
+      "Recent briefs lists the briefs you've turned into projects on Paste a brief. It's there for reference, and you can switch it off or move it in Settings (top right).",
   },
   // components/TopBar.tsx — the Settings label is hidden on small screens
   {
@@ -577,7 +577,7 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["density", "reasoning"],
     phrases: ["show reasoning", "why button", "why note", "what is density"],
     answer:
-      "Density sets how tightly the pages are spaced: compact or comfortable. Show reasoning everywhere opens every \"Why\" note on the Research and Pricing pages; it's off by default, and you can open a single note with its button. Both are in Settings (top right).",
+      "Density sets how tightly the pages are spaced: compact or comfortable. It's in Settings (top right).",
   },
   // lib/prefs/store.ts debounced PUT to /api/prefs
   {
@@ -632,11 +632,11 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["menu", "navigation", "tabs", "dock"],
     phrases: ["what is core", "what does core do", "core page", "main menu", "top bar", "where are the pages", "where is the menu"],
     answer:
-      "Every page is in the Dock, the round button at the bottom of the screen: hover it or tap it to open. Demo is a short tour of FreeFlow. Dashboard is your projects and money. Paste a brief turns a client's message into a project. Help desk is this guide. Research is the market evidence behind FreeFlow. Product lists what's built and planned. Pricing shows a possible long-term model. Marketing is FreeFlow's own campaign. Docs is how FreeFlow was built and what comes next." +
-      (DONATIONS_ENABLED ? " Support is for optional donations." : "") +
-      " Settings and your account stay at the top right.",
+      "Every page is in the Dock, the menu button in the corner: hover it or tap it to open. Your tools: Dashboard is your projects and money, Paste a brief turns a client's message into a project, and Help desk is this guide. About FreeFlow: Tour is a short story of what it does, Features lists everything it does, Pricing says what it costs (nothing)" +
+      (DONATIONS_ENABLED ? " and how to donate" : "") +
+      ", and Roadmap shows what's coming and what's new. Settings and your account stay at the top right.",
   },
-  // app/product/page.tsx; lib/product/features.ts
+  // app/roadmap/page.tsx; app/features/page.tsx
   {
     id: "product-page",
     categories: "any",
@@ -645,8 +645,11 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["roadmap", "planned"],
     phrases: ["product page", "what is planned", "roadmap", "new features", "coming soon", "features are planned", "what s new", "whats new", "changelog"],
     answer:
-      "The Product page lists every capability and marks each one built or planned. CFDI issuance, materialidad evidence and studio features like multiple seats are not built yet, and the page doesn't give dates. To ask for something, submit a ticket.",
-    links: [{ label: "Product", href: "/product" }],
+      "The Roadmap shows what's coming next, with a vote on each item, and a What's new list of recent changes. The Features page lists everything FreeFlow does today. To ask for something, submit a ticket.",
+    links: [
+      { label: "Roadmap", href: "/roadmap" },
+      { label: "Features", href: "/features" },
+    ],
     offerTicket: true,
   },
   // Feedback saved only as a ticket: lib/chat/schema.ts
@@ -918,7 +921,7 @@ export const CONTENT_RULES: Rule[] = [
     phrases: ["use core", "how does core", "brief extraction", "extract core", "how do i extract", "paste a brief", "what is a brief", "what do i paste", "what to paste"],
     answer:
       "Go to Paste a brief, paste a client email, message or call notes, and choose Read the brief. You get the project, client, budget or rate and hours, deadline and status. Choose Add to my projects to check it and add it to your dashboard, or Read it again to try again; use example fills in a sample brief.",
-    links: [{ label: "Paste a brief", href: "/core" }],
+    links: [{ label: "Paste a brief", href: "/brief" }],
   },
   // app/api/core/save inserts into core_outputs only; lib/core/saved.ts limit 8
   {
@@ -1056,22 +1059,17 @@ export const CONTENT_RULES: Rule[] = [
   },
 
   // ── Pricing and support ───────────────────────────────────────────────────
-  // app/support/page.tsx "Will this always be free?"
+  // app/pricing/page.tsx "Will FreeFlow always be free?"
   {
     id: "pricing-future",
     categories: "any",
     areas: "any",
     keywords: ["forever", "eventually"],
     phrases: ["always be free", "stay free", "free forever", "free period", "start charging", "going to charge", "charge later", "will you charge", "pay later", "this free forever", "it free forever", "freeflow free forever", "going to get charged", "will i get charged", "charged later", "charge me later", "will i be charged", "charged in the future"],
-    answer: DONATIONS_ENABLED
-      ? "Honestly, probably not forever. The intention is to charge eventually, and the whole model is public on the Pricing page, but nothing is charged today and no date is set. The Support page says there's no plan to put today's features behind a price."
-      : "Free during early access, with every feature and no limits. At launch FreeFlow becomes a one-time purchase, and the price isn't set yet. Nothing is charged today, and the Pricing page says the same in its first line.",
-    links: DONATIONS_ENABLED
-      ? [
-          { label: "Pricing", href: "/pricing" },
-          { label: "Support FreeFlow", href: "/support" },
-        ]
-      : [{ label: "Pricing", href: "/pricing" }],
+    answer:
+      "Probably not forever. At some point FreeFlow becomes a one-time purchase, not a subscription, and the price isn't set. You'll get plenty of notice first, you can always export your data, and nothing is charged until you choose to buy." +
+      (DONATIONS_ENABLED ? " Anyone who donates before then gets the paid version free." : ""),
+    links: [{ label: "Pricing", href: "/pricing" }],
   },
   // app/pricing/page.tsx "every feature, for everyone"; no billing code
   {
@@ -1093,7 +1091,7 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["simulator", "scenario", "mrr", "arr", "arpu", "churn"],
     phrases: ["revenue simulator", "the simulator", "what is mrr", "what is arr", "what is churn", "what is arpu"],
     answer:
-      "The simulator projects FreeFlow's own revenue under its future pricing, so it isn't your income or a bill. Pick Conservative, Base or Optimistic and move the inputs. MRR is monthly recurring revenue, ARR is the yearly figure, ARPU is average revenue per paying freelancer or studio member, and churn is the share of accounts leaving each month.",
+      "FreeFlow's revenue simulator was business research and isn't on the site any more. For your own money, the dashboard's six-month forecast shows what you can expect to be paid each month.",
     links: [{ label: "Pricing", href: "/pricing" }],
   },
   // components/pricing/SavedScenarios.tsx
@@ -1105,7 +1103,7 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["recomputes"],
     phrases: ["model changed", "recomputes identically", "save a scenario", "save this scenario", "saved scenario"],
     answer:
-      "Save this scenario, while signed in, stores your inputs and the result, and the Saved tab recalculates each one when it loads. \"recomputes identically\" means the numbers still match. \"model changed\" means the formula has changed since you saved it, so the stored figure differs from today's.",
+      "Saved pricing scenarios belonged to FreeFlow's revenue simulator, which was business research and isn't on the site any more. Nothing you saved there affects your projects.",
   },
   // components/pricing/AssumptionsTable.tsx; TierCards "Why this price"; ProjectSegmentPanel
   {
@@ -1116,7 +1114,7 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["assumption", "assumptions"],
     phrases: ["why this price", "assumptions table", "how were the prices", "where do the prices"],
     answer:
-      "The Assumptions tab lists each input in the revenue model and what breaks if it's wrong, and most are estimates. Each tier's \"Why this price\" note names the competitor price it was set against, with a source link.",
+      "The old pricing model and its assumptions were business research and aren't on the site any more. FreeFlow is free today; when it starts charging it will be a one-time purchase, and the price isn't set.",
     links: [{ label: "Pricing", href: "/pricing" }],
   },
   // lib/pricing/tiers.ts USD_TO_MXN 17.21, FX_DATE 2026-09-19
@@ -1127,7 +1125,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["mxn", "pesos", "exchange"],
     phrases: ["exchange rate", "prices in pesos", "price in pesos"],
     answer:
-      "Peso prices on the Pricing page use a fixed rate of 17.21 MXN per US dollar, dated 2026-09-19. It's deliberately not a live rate, and it doesn't affect your own project amounts, which are never converted.",
+      "FreeFlow doesn't convert currencies. Your projects stay in your account's currency, and the suggested donation amounts on the Pricing page are in US dollars (Stripe shows them in your card's currency).",
   },
   // Nothing is charged; lib/pricing annual discount is a model input
   {
@@ -1138,7 +1136,7 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["discount", "coupon", "promo"],
     phrases: ["student discount", "promo code", "discount code", "annual plan"],
     answer:
-      "There are no discounts or codes, because nothing is charged today. The annual discount in the simulator is an assumption in the future pricing model, not an offer.",
+      "There are no discounts or codes, because nothing is charged.",
   },
   // lib/support.ts "the app never learns who donated"; app/support "Handled by Stripe"
   {
@@ -1148,7 +1146,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["donated", "stripe"],
     phrases: ["my donation", "donation receipt", "charged twice", "donation failed", "refund of my donation", "my card", "card details"],
     answer: DONATIONS_ENABLED
-      ? "Donations are handled by Stripe. FreeFlow never sees your card, and the app doesn't record who donated. For a problem or a refund, submit a ticket with the date and amount."
+      ? "Donations are handled by Stripe, and FreeFlow never sees your card. For a problem, a refund, or to link a donation to your account for the paid version, submit a ticket with the date, amount and the email you used."
       : "FreeFlow doesn't take payments or donations right now, so it never asks for or stores a card. If you were charged in FreeFlow's name, submit a ticket with the date and amount.",
     offerTicket: true,
   },
@@ -1603,7 +1601,7 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["rates"],
     phrases: ["should i charge", "what to charge", "raise my prices", "calculate my rate"],
     answer:
-      "I can't advise you on what to charge. FreeFlow records the rates and fees you set, and your exported CSV can show what past projects brought in. The Research page compares software prices, not freelance rates.",
+      "I can't advise you on what to charge. FreeFlow records the rates and fees you set, and your exported CSV can show what past projects brought in.",
   },
   // OverdueAlert; ProjectForm contract link ("the signed contract is what makes an escalation possible")
   {
@@ -1657,7 +1655,7 @@ export const CONTENT_RULES: Rule[] = [
     strong: ["unsubscribe", "newsletter"],
     phrases: ["stop getting emails", "stop emails", "marketing emails", "stop sending"],
     answer:
-      "FreeFlow only sends account emails you ask for, like confirming your address or resetting your password. The one exception is the launch list: if you joined it on the demo page, you get one email before FreeFlow starts charging, and nothing else. To be removed, email hello@freeflow.website; that email also has a remove-me link.",
+      "FreeFlow only sends account emails you ask for, like confirming your address or resetting your password. The one exception is the launch list: if you joined it on the home page, you get one email before FreeFlow starts charging, and nothing else. To be removed, email hello@freeflow.website; that email also has a remove-me link.",
   },
 
   // proxy.ts PRIVATE_PREFIXES; app/page.tsx landing page; app/chat/page.tsx
@@ -1725,7 +1723,7 @@ export const CONTENT_RULES: Rule[] = [
     phrases: ["this page", "what is this", "how does this work", "why is this", "do i need to"],
     answer:
       "Paste a brief reads a client message and pulls out the project, client, budget or rate and hours, deadline and status. Add to my projects turns the result into a project on your dashboard. Tell me which part you mean and I can go further, or submit a ticket.",
-    links: [{ label: "Paste a brief", href: "/core" }],
+    links: [{ label: "Paste a brief", href: "/brief" }],
     offerTicket: true,
   },
   {
@@ -1748,7 +1746,7 @@ export const CONTENT_RULES: Rule[] = [
     keywords: ["pricing", "plan", "plans", "wrong", "confused", "confusing", "explain"],
     phrases: ["this page", "what is this", "how does this work", "why is this", "do i need to"],
     answer:
-      "FreeFlow is free today. The Pricing page shows the model it intends to move to: the tiers, a revenue simulator and the assumptions behind them. None of it is charged. Tell me which part you mean and I can go further, or submit a ticket.",
+      "FreeFlow is free, with every feature. The Pricing page explains optional donations, what they pay for, and what happens when FreeFlow starts charging someday. Tell me which part you mean and I can go further, or submit a ticket.",
     links: [{ label: "Pricing", href: "/pricing" }],
     offerTicket: true,
   },
@@ -1776,3 +1774,19 @@ export const CONTENT_RULES: Rule[] = [
     offerTicket: true,
   },
 ];
+
+/*
+  /research is hidden from the public site (lib/flags.ts). Its rules stay, so
+  they come back with the page, but while it's off they answer honestly that
+  it isn't public and point to what is.
+*/
+const RESEARCH_HIDDEN =
+  "FreeFlow's market research (competitors, benchmarks and Mexico's invoicing rules) was background for building it and isn't on the site any more. The Features page shows what FreeFlow does today.";
+
+const isResearchRule = (r: Rule) => r.id.startsWith("research-") || r.id === "overview-research";
+
+export const CONTENT_RULES: Rule[] = RESEARCH_PAGE_ENABLED
+  ? ALL_RULES
+  : ALL_RULES.map((r) =>
+      isResearchRule(r) ? { ...r, answer: RESEARCH_HIDDEN, links: [{ label: "Features", href: "/features" }] } : r,
+    );

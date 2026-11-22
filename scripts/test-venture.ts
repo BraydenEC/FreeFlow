@@ -75,12 +75,11 @@ assert(
 );
 assert("leaderboard is a later item", ROADMAP.find((r) => r.id === "leaderboard")?.bucket === "later");
 assert(
-  "roadmap holds exactly the spec's V2 list",
+  "roadmap holds the public list (the course item is gone)",
   ROADMAP.map((r) => `${r.bucket}:${r.id}`).join() ===
     [
       "next:simpler-forecast",
       "next:one-time-launch",
-      "next:tester-requests",
       "later:more-countries",
       "later:more-languages",
       "later:more-currencies",
@@ -144,10 +143,21 @@ assert(
   !FunnelEventSchema.safeParse({ event: "round_played", job: "astronaut", visitId: VISIT }).success,
 );
 
-// The database's own list of vote-able items must match ROADMAP_IDS.
+// The database must accept every item on the page (it also still accepts the
+// retired course item "tester-requests", which the vote route refuses).
 const sql = readFileSync("supabase/week6_venture.sql", "utf8");
 const sqlItems = sql.match(/item_id in \(([^)]*)\)/)?.[1].match(/'([^']+)'/g)?.map((x) => x.slice(1, -1)) ?? [];
-assert("SQL vote check lists exactly the roadmap ids", sqlItems.join() === ROADMAP_IDS.join(), sqlItems.join());
+assert("SQL vote check accepts every roadmap id", ROADMAP_IDS.every((id) => sqlItems.includes(id)), sqlItems.join());
+assert("the only extra id the database accepts is the retired course item", sqlItems.filter((id) => !ROADMAP_IDS.includes(id)).join() === "tester-requests");
+
+// What's new: newest first, plain, no course talk.
+{
+  const { WHATS_NEW } = await import("@/lib/venture/whats-new");
+  assert("What's new is newest first", WHATS_NEW.every((c, i) => i === 0 || WHATS_NEW[i - 1].date >= c.date));
+  assert("What's new dates are real dates", WHATS_NEW.every((c) => /^\d{4}-\d{2}-\d{2}$/.test(c.date) && !Number.isNaN(Date.parse(c.date))));
+  assert("What's new has no course talk", WHATS_NEW.every((c) => !/week \d|module|grader|course|tester/i.test(c.title)));
+  assert("/roadmap shows the roadmap and What's new", readFileSync("app/roadmap/page.tsx", "utf8").includes("<Roadmap votes=") && readFileSync("app/roadmap/page.tsx", "utf8").includes("WHATS_NEW.map("));
+}
 
 // Guardrails across all venture content.
 const allText = JSON.stringify({ CHANGES, ROADMAP, JOURNEY, TIMELINE, PROMPTS });

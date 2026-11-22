@@ -131,7 +131,7 @@ export default function AuthForm({ mode }: { mode: Mode }) {
       <p className="text-ink-muted mt-1 text-sm">{copy.sub}</p>
       {params.get("next") && (
         <p role="status" className="border-hairline text-ink mt-4 rounded-lg border px-3 py-2 text-sm">
-          {next === "/core" ? "Sign in to use Paste a brief." : "Sign in to see that page."} You&rsquo;ll go straight back to it.
+          {next === "/brief" ? "Sign in to use Paste a brief." : "Sign in to see that page."} You&rsquo;ll go straight back to it.
         </p>
       )}
 
@@ -248,11 +248,11 @@ export default function AuthForm({ mode }: { mode: Mode }) {
       </p>
 
       <p className="text-ink-faint mt-4 text-center text-xs">
-        <Link href="/research" className="underline-offset-4 hover:underline">Research</Link>
+        <Link href="/demo" className="underline-offset-4 hover:underline">Tour</Link>
+        {" · "}
+        <Link href="/features" className="underline-offset-4 hover:underline">Features</Link>
         {" · "}
         <Link href="/pricing" className="underline-offset-4 hover:underline">Pricing</Link>
-        {" · "}
-        <Link href="/product" className="underline-offset-4 hover:underline">Product</Link>
       </p>
     </div>
   );

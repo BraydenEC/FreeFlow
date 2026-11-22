@@ -14,8 +14,8 @@ import { answer, normalize } from "@/lib/chat/engine";
 import { GUARD_RULES } from "@/lib/chat/guards";
 import { CONTENT_RULES } from "@/lib/chat/rules";
 import { guessIntake } from "@/lib/chat/intake";
-import { DONATIONS_ENABLED, PER_PROJECT_PRICING_ENABLED } from "@/lib/flags";
-import { VISIBLE_TIERS } from "@/lib/pricing/tiers";
+import { DONATIONS_ENABLED, PER_PROJECT_PRICING_ENABLED, RESEARCH_PAGE_ENABLED } from "@/lib/flags";
+import { DONOR_PERK } from "@/lib/support";
 import { SAMPLES } from "@/lib/chat/samples";
 import { SessionRequestSchema } from "@/lib/chat/schema";
 import { canSendMore, canWrite, firstMessage, shouldOfferTicket, needsTranscript, outcomeFor, replay } from "@/lib/chat/session";
@@ -148,7 +148,7 @@ const allRules = [...CONTENT_RULES, ...GUARD_RULES];
 const ids = allRules.map((r) => r.id);
 assert("rule ids unique", new Set(ids).size === ids.length);
 for (const r of allRules) for (const l of r.links ?? []) {
-  assert(`${r.id} links to a real route: ${l.href}`, routes.has(l.href));
+  assert(`${r.id} links to a real route: ${l.href}`, routes.has(l.href.split("#")[0]));
 }
 const PLANNED_TERMS = [/cfdi/i, /materialidad/i, /\bseats?\b/i, /cross-person/i, /per-person profitability/i];
 assert("planned list matches features.ts", featureSummary().planned === 5);
@@ -281,7 +281,9 @@ assert("create uses the real button names", ans("project-create-edit").includes(
 assert("unpaid card counts only invoiced work", /Invoice sent/.test(ans("dashboard-numbers")));
 assert("worked example adds up", ans("tax-worked-example").includes("11,600") && ans("tax-worked-example").includes("9,533.33") && ans("tax-worked-example").includes("10,408.33"));
 assert("reset to defaults warns about currency", /currency/i.test(ans("layout-prefs")));
-assert("every tier on /pricing is named", VISIBLE_TIERS.every((t) => ans("pricing-tiers").includes(t.name)));
+assert("there are no tiers to name: everything is free", /no plans or tiers/.test(ans("pricing-tiers")) && !/\$\d/.test(ans("pricing-tiers")));
+assert("the donation answer repeats the donor perk", ans("donations").includes(DONOR_PERK));
+assert("no answer quotes a FreeFlow price", CONTENT_RULES.every((r) => !/\$\d+ a month|per seat a month/.test(r.answer)));
 
 assert("finding the regime field isn't tax advice", A("where do I set my tax regime", "how_to", "account").ruleId === "tax-regime");
 assert("choosing a regime still is", A("should I switch to resico", "how_to", "account").ruleId === "guard-tax-advice" && A("do I qualify for resico", "how_to", "account").ruleId === "guard-tax-advice");
@@ -328,19 +330,17 @@ assert("no-deadline projects can't exist", !/no deadline/i.test(ans("forecast-ze
 assert("the panel needs value, not just an unpaid project", /worth more than 0/.test(ans("widgets-missing")));
 assert("privacy says first messages are kept", /first message/.test(ans("data-privacy")) && /turn down/.test(ans("data-privacy")));
 assert("the owner can see rows: no 'only you'", !/for you alone/.test(ans("brief-privacy")) && !/only visible to your account/.test(ans("legal-pages")));
-assert("mexico section is verified, not reported", /marked Verified/.test(ans("research-mexico")));
+assert("hidden research answers say it isn't public and point to Features", RESEARCH_PAGE_ENABLED || CONTENT_RULES.filter((r) => r.id.startsWith("research-")).every((r) => /isn't on the site/.test(r.answer) && r.links?.[0]?.href === "/features"));
 assert("empty account: the form is already open", !/\+ New project/.test(ans("dashboard-empty")) && !/\+ New project/.test(ans("getting-started")));
 assert("failed generation falls back quietly", /without an error/.test(ans("marketing-generate")) && !/around a minute/.test(ans("marketing-generate")));
 assert("rate limit wording is Supabase's", !/Too many emails/.test(ans("email-delay")));
 assert("the ticket screen is no preview", !/preview/.test(ans("ticket-help")) && ans("ticket-help").includes("Submit ticket"));
 const secret = GUARD_RULES.find((g) => g.id === "guard-secret")?.answer ?? "";
 assert("the guide never asks, the sign-in form does", /this guide will never ask/.test(secret) && /tried to remove/.test(secret));
-assert("tabs have different names on desktop", /Intake section/.test(ans("research-intake")) && /Benchmarks section/.test(ans("research-mexico")));
-assert("research pricing isn't all sourced", /three/.test(ans("research-page")));
 assert("clear only shows with a filter on", !/First choose Clear/.test(ans("project-missing")));
 assert("export disappears when a filter matches nothing", /matches nothing/.test(ans("csv-export")));
 assert("the visible filter label", ans("project-archive").includes("Paid and unpaid"));
-assert("arpu divides by studio members too", /freelancer or studio member/.test(ans("pricing-simulator")));
+assert("the simulator answer points to the user's own forecast", /isn't on the site/.test(ans("pricing-simulator")) && /forecast/.test(ans("pricing-simulator")));
 assert("amount labels now follow the account", !/always shows/.test(ans("currency-usd-label")) && !/say USD/.test(ans("currency-usd-label")));
 
 assert("a wrong client on a project isn't a brief problem", A("i entered the wrong client", "broken", "projects").ruleId !== "brief-wrong-field");

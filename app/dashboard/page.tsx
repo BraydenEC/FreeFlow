@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Suspense } from "react";
 import CorePreview from "@/components/core/CorePreview";
 import DashboardGrid from "@/components/dashboard/DashboardGrid";
 import DashboardShortcuts from "@/components/dashboard/DashboardShortcuts";
@@ -9,12 +8,8 @@ import ForecastPanel from "@/components/dashboard/ForecastPanel";
 import OverdueAlert from "@/components/dashboard/OverdueAlert";
 import WithholdingPanel from "@/components/dashboard/WithholdingPanel";
 import ProjectsTable from "@/components/ProjectsTable";
-import ResearchWidget from "@/components/research/ResearchWidget";
 import SubNav from "@/components/SubNav";
 import SummaryCards from "@/components/SummaryCards";
-import Tabs from "@/components/prefs/Tabs";
-import PublicNumbers from "@/components/venture/PublicNumbers";
-import { getVentureCounts } from "@/lib/venture/counts";
 import { getSavedOutputs } from "@/lib/core/saved";
 import { lateness } from "@/lib/format";
 import { DEFAULT_CURRENCY } from "@/lib/currency";
@@ -43,16 +38,11 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Dashboard — FreeFlow" };
 
 /*
-  /dashboard has two tabs.
+  /dashboard: the signed-in user's work. Signed out, it is an invitation to
+  sign in instead (the proxy doesn't gate it, so the pitch can show).
 
-  "Your work" is the signed-in dashboard, moved here unchanged from / in Week
-  6. Signed out, that tab is an invitation to sign in instead.
-
-  "FreeFlow in public" is visible to everyone: the venture's own numbers,
-  aggregate counts only, from venture_counts(). The proxy does not gate this
-  page for that reason. It used to be the signed-out default; testers read
-  "People using FreeFlow 2" as "nobody uses this" before learning what
-  FreeFlow was (H10), so a visitor now opens on the pitch.
+  The public tab of venture counts was course material and is
+  gone; the counts stay in the database for the owner.
 */
 export default async function Dashboard({
   searchParams,
@@ -62,7 +52,6 @@ export default async function Dashboard({
   const supabase = await getServerSupabase();
   const user = await getSessionUser(supabase);
   const params = await searchParams;
-  const counts = getVentureCounts(supabase);
 
   if (!user) {
     return (
@@ -73,16 +62,7 @@ export default async function Dashboard({
             Your projects live here once you sign in.
           </p>
         </header>
-        <Suspense fallback={null}>
-          <Tabs
-            tablist="always"
-            initial="work"
-            tabs={[
-              { id: "work", label: "Your work", content: <SignInInvite /> },
-              { id: "public", label: "FreeFlow in public", content: <PublicNumbers counts={await counts} /> },
-            ]}
-          />
-        </Suspense>
+        <SignInInvite />
       </DashboardShell>
     );
   }
@@ -158,16 +138,7 @@ export default async function Dashboard({
               )}
             </header>
 
-            <Suspense fallback={null}>
-              <Tabs
-                tablist="always"
-                initial="work"
-                tabs={[
-                  {
-                    id: "work",
-                    label: "Your work",
-                    content: (
-                      <>
+            <>
 
                       <DashboardGrid
                         hasOverdue={hasOverdue}
@@ -212,7 +183,6 @@ export default async function Dashboard({
                             />
                           ),
                           core: <CorePreview outputs={savedOutputs} now={now} currency={currency} />,
-                          research: <ResearchWidget />,
                         }}
                       />
     
@@ -227,7 +197,7 @@ export default async function Dashboard({
                       <p className="text-ink-faint text-center text-xs">
                         FreeFlow is free while it grows.{" "}
                         <Link
-                          href="/support"
+                          href="/pricing#support"
                           className="text-ink-muted hover:text-ink underline-offset-4 hover:underline"
                         >
                           Chip in for hosting
@@ -235,13 +205,7 @@ export default async function Dashboard({
                         if it is earning its place.
                       </p>
                       )}
-                      </>
-                    ),
-                  },
-                  { id: "public", label: "FreeFlow in public", content: <PublicNumbers counts={await counts} /> },
-                ]}
-              />
-            </Suspense>
+            </>
           </div>
         </div>
       </main>
