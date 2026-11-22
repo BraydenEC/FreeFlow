@@ -27,7 +27,7 @@ export default function PrivacyPage() {
           conversation is kept only for tickets, thumbs-down answers and questions the help desk couldn&rsquo;t
           answer, with secrets removed.
         </li>
-        <li>Anonymous counts on the demo page (for example, how many games were played). No names.</li>
+        <li>Anonymous counts on the home page (for example, how many games were played). No names.</li>
         <li>Your email, if you join the launch list. It is used once, before FreeFlow starts charging.</li>
       </ul>
 

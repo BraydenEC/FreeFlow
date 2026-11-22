@@ -65,7 +65,7 @@ export const WHAT_IT_FUNDS = [
 
 /** What donating does NOT buy. Said out loud so nobody assumes otherwise. */
 export const WHAT_IT_DOES_NOT_BUY = [
-  "Features. Everything in FreeFlow is available to everyone, donor or not.",
+  "Features today. Everything in FreeFlow is available to everyone, donor or not.",
   "Priority support. There is no support queue to be at the front of.",
   "A say in the roadmap beyond what any user gets by asking.",
 ] as const;

@@ -252,7 +252,7 @@ function SignInInvite() {
           Sign in
         </Link>
         <Link href="/demo" className="text-ink-muted hover:text-ink inline-flex min-h-11 items-center px-2 text-sm underline underline-offset-4">
-          See the demo first
+          Take the tour first
         </Link>
       </div>
     </section>
