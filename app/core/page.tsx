@@ -9,7 +9,7 @@ import { getUserPrefs } from "@/lib/prefs/server";
 import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
 
 /*
-  /brief (was /core): Paste a brief, the generative core module.
+  /core: Paste a brief, the generative core module.
 
   Server Component: it reads saved outputs before the HTML is sent, and checks
   model configuration server-side so the key is never involved in client code.
@@ -66,6 +66,13 @@ export default async function CorePage() {
               >
                 ← Back to dashboard
               </Link>
+              {/* Open to visitors while ALL_PAGES_OPEN is on: say what needs an account before they try. */}
+              {!user && (
+                <p className="text-ink-muted mt-3 text-sm">
+                  You&apos;re not signed in, so you can look around, but reading a brief and saving need an account.{" "}
+                  <Link href="/login?next=/core" className="text-ink underline underline-offset-2">Sign in</Link>
+                </p>
+              )}
             </header>
 
             <CoreWorkbench />

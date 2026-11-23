@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import CorePreview from "@/components/core/CorePreview";
 import DashboardGrid from "@/components/dashboard/DashboardGrid";
 import DashboardShortcuts from "@/components/dashboard/DashboardShortcuts";
@@ -8,8 +9,12 @@ import ForecastPanel from "@/components/dashboard/ForecastPanel";
 import OverdueAlert from "@/components/dashboard/OverdueAlert";
 import WithholdingPanel from "@/components/dashboard/WithholdingPanel";
 import ProjectsTable from "@/components/ProjectsTable";
+import ResearchWidget from "@/components/research/ResearchWidget";
 import SubNav from "@/components/SubNav";
 import SummaryCards from "@/components/SummaryCards";
+import Tabs from "@/components/prefs/Tabs";
+import PublicNumbers from "@/components/venture/PublicNumbers";
+import { getVentureCounts } from "@/lib/venture/counts";
 import { getSavedOutputs } from "@/lib/core/saved";
 import { lateness } from "@/lib/format";
 import { DEFAULT_CURRENCY } from "@/lib/currency";
@@ -19,7 +24,7 @@ import { filterFromParams, filterProjects, isFilterActive } from "@/lib/projects
 import { getDashboardData } from "@/lib/projects";
 import { getUserPrefs } from "@/lib/prefs/server";
 import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
-import { DONATIONS_ENABLED } from "@/lib/flags";
+import { DASHBOARD_PUBLIC_TAB_ENABLED, DONATE_HREF, DONATIONS_ENABLED } from "@/lib/flags";
 
 /*
   The dashboard.
@@ -41,8 +46,11 @@ export const metadata = { title: "Dashboard — FreeFlow" };
   /dashboard: the signed-in user's work. Signed out, it is an invitation to
   sign in instead (the proxy doesn't gate it, so the pitch can show).
 
-  The public tab of venture counts was course material and is
-  gone; the counts stay in the database for the owner.
+  While DASHBOARD_PUBLIC_TAB_ENABLED is on (lib/flags.ts) the page has two
+  tabs: "Your work", and "FreeFlow in public", the venture's own numbers
+  (aggregate counts only, from venture_counts()) that anyone can see. Visitors
+  open on the pitch, not the counts: testers read "People using FreeFlow 2"
+  as "nobody uses this" before learning what FreeFlow was (H10).
 */
 export default async function Dashboard({
   searchParams,
@@ -52,6 +60,7 @@ export default async function Dashboard({
   const supabase = await getServerSupabase();
   const user = await getSessionUser(supabase);
   const params = await searchParams;
+  const counts = DASHBOARD_PUBLIC_TAB_ENABLED ? getVentureCounts(supabase) : null;
 
   if (!user) {
     return (
@@ -62,12 +71,26 @@ export default async function Dashboard({
             Your projects live here once you sign in.
           </p>
         </header>
-        <SignInInvite />
+        {counts ? (
+          <Suspense fallback={null}>
+            <Tabs
+              tablist="always"
+              initial="work"
+              tabs={[
+                { id: "work", label: "Your work", content: <SignInInvite /> },
+                { id: "public", label: "FreeFlow in public", content: <PublicNumbers counts={await counts} /> },
+              ]}
+            />
+          </Suspense>
+        ) : (
+          <SignInInvite />
+        )}
       </DashboardShell>
     );
   }
 
   const now = new Date();
+  const publicCounts = counts ? await counts : null;
   const [{ projects, metrics, source }, savedOutputs, prefs] = await Promise.all([
     getDashboardData(now),
     getSavedOutputs(),
@@ -138,7 +161,9 @@ export default async function Dashboard({
               )}
             </header>
 
-            <>
+            {(() => {
+              const work = (
+                <>
 
                       <DashboardGrid
                         hasOverdue={hasOverdue}
@@ -183,6 +208,7 @@ export default async function Dashboard({
                             />
                           ),
                           core: <CorePreview outputs={savedOutputs} now={now} currency={currency} />,
+                          research: <ResearchWidget />,
                         }}
                       />
     
@@ -197,7 +223,7 @@ export default async function Dashboard({
                       <p className="text-ink-faint text-center text-xs">
                         FreeFlow is free while it grows.{" "}
                         <Link
-                          href="/pricing#support"
+                          href={DONATE_HREF}
                           className="text-ink-muted hover:text-ink underline-offset-4 hover:underline"
                         >
                           Chip in for hosting
@@ -205,7 +231,23 @@ export default async function Dashboard({
                         if it is earning its place.
                       </p>
                       )}
-            </>
+                </>
+              );
+              return counts ? (
+                <Suspense fallback={null}>
+                  <Tabs
+                    tablist="always"
+                    initial="work"
+                    tabs={[
+                      { id: "work", label: "Your work", content: work },
+                      { id: "public", label: "FreeFlow in public", content: <PublicNumbers counts={publicCounts} /> },
+                    ]}
+                  />
+                </Suspense>
+              ) : (
+                work
+              );
+            })()}
           </div>
         </div>
       </main>

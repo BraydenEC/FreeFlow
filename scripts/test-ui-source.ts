@@ -9,6 +9,17 @@
 */
 
 import { existsSync, readFileSync } from "node:fs";
+import {
+  ALL_PAGES_OPEN,
+  DASHBOARD_PUBLIC_TAB_ENABLED,
+  DOCS_PAGE_ENABLED,
+  DONATIONS_ENABLED,
+  FEATURES_PAGE_ENABLED,
+  MARKETING_IN_MENUS,
+  PRICING_SIMULATOR_ENABLED,
+  RESEARCH_PAGE_ENABLED,
+  WHATS_NEW_ENABLED,
+} from "@/lib/flags";
 
 let passed = 0;
 let failed = 0;
@@ -126,7 +137,12 @@ assert("the open Dock wraps on phones instead of scrolling sideways", dockSrc.in
 // ── Week 6 /dashboard ───────────────────────────────────────────────────────
 assert("signed-in visitors to / go to the dashboard (in the proxy)", /pathname === "\/"/.test(read("proxy.ts")));
 const dashPage = readOr("app/dashboard/page.tsx");
-assert("the dashboard has no public-numbers tab any more", !dashPage.includes("<Tabs") && !dashPage.includes("FreeFlow in public") && !existsSync("components/venture/PublicNumbers.tsx"));
+assert(
+  "the dashboard's public-numbers tab follows its switch",
+  dashPage.includes("DASHBOARD_PUBLIC_TAB_ENABLED ? getVentureCounts(supabase) : null") &&
+    dashPage.includes("FreeFlow in public") &&
+    existsSync("components/venture/PublicNumbers.tsx"),
+);
 assert("the dashboard stays dynamic", dashPage.includes('export const dynamic = "force-dynamic"'));
 const proxySrc = read("proxy.ts");
 const authBounce = proxySrc.slice(proxySrc.indexOf("AUTH_ROUTES.includes(pathname)"));
@@ -138,7 +154,7 @@ for (const path of [
   "components/auth/FragmentSession.tsx",
   "components/auth/ResetPasswordForm.tsx",
   "components/core/BriefToProject.tsx",
-  "app/brief/page.tsx",
+  "app/core/page.tsx",
 ]) {
   // The logo's home link (L3) is a link home, not a post-sign-in destination.
   const src = read(path).replace(/<Link href="\/" aria-label="FreeFlow home"/g, "");
@@ -402,7 +418,7 @@ for (const path of ["app/api/projects/[id]/route.ts", "app/api/projects/[id]/pai
 
 // ── H9 / H10 / M1 / M6 / H8 ────────────────────────────────────────────────
 {
-  const pricing = read("app/pricing/page.tsx");
+  const pricing = read(PRICING_SIMULATOR_ENABLED ? "components/pricing/SimulatorPricing.tsx" : "components/pricing/DonationPricing.tsx");
   assert("/pricing says FreeFlow doesn't send invoices", pricing.includes("doesn&rsquo;t create or send invoices"));
   const dash = read("app/dashboard/page.tsx");
   const signedOut = dash.slice(dash.indexOf("if (!user)"), dash.indexOf("const now = new Date()"));
@@ -460,19 +476,36 @@ for (const path of ["app/api/projects/[id]/route.ts", "app/api/projects/[id]/pai
   assert("every slider has a number field", read("components/pricing/PricingCalculator.tsx").includes("exact value"));
 }
 
-// ── Public site: pricing is donation-first ─────────────────────────────────
+// ── /pricing: Module 3's revenue model, or the donation-first page ─────────
 {
-  const flags = read("lib/flags.ts");
-  assert("donations are switched on", /export const DONATIONS_ENABLED = true;/.test(flags));
-  const pricing = read("app/pricing/page.tsx");
-  const lead = pricing.indexOf("Free. Every feature, for everyone.");
-  assert("/pricing leads with free", lead > -1 && lead < pricing.indexOf('id="support"'));
-  assert("/pricing has the donation section", pricing.includes('id="support"') && pricing.includes("SUGGESTED_AMOUNTS.map(") && pricing.includes("<DonateButton"));
-  assert("/pricing explains what donations pay for and don't buy", pricing.includes("WHAT_IT_FUNDS.map(") && pricing.includes("WHAT_IT_DOES_NOT_BUY.map("));
-  assert("/pricing answers 'will it always be free?'", pricing.includes("Will FreeFlow always be free?") && pricing.includes("PRICING_FAQ"));
-  assert("/pricing no longer shows the revenue model", !/PricingCalculator|TierCards|SavedScenarios|AssumptionsTable|Build log/.test(pricing));
-  assert("/pricing has no sidebar", !pricing.includes("<SubNav") && !read("lib/nav.tsx").includes('"/pricing": ['));
-  assert("/support sends people to the donation section", /redirect\("\/pricing#support"\)/.test(read("app/support/page.tsx")));
+  const page = read("app/pricing/page.tsx");
+  assert("/pricing picks its version from the switch", /if \(!PRICING_SIMULATOR_ENABLED\) return <DonationPricing \/>;/.test(page) && page.includes("<SimulatorPricing tab={tab} />"));
+  // The donation-first page is kept whole while it is switched off.
+  const donation = read("components/pricing/DonationPricing.tsx");
+  const lead = donation.indexOf("Free. Every feature, for everyone.");
+  assert("the donation page leads with free", lead > -1 && lead < donation.indexOf('id="support"'));
+  assert("the donation page has the donation section", donation.includes('id="support"') && donation.includes("SUGGESTED_AMOUNTS.map(") && donation.includes("<DonateButton"));
+  assert("the donation page explains what donations pay for and don't buy", donation.includes("WHAT_IT_FUNDS.map(") && donation.includes("WHAT_IT_DOES_NOT_BUY.map("));
+  assert("the donation page answers 'will it always be free?'", donation.includes("Will FreeFlow always be free?") && donation.includes("PRICING_FAQ"));
+  assert("the donation page shows no revenue model", !/PricingCalculator|TierCards|SavedScenarios|AssumptionsTable|Build log/.test(donation));
+  // Module 3: tiers, segments, calculator, scenario toggle, assumptions, saved scenarios.
+  const sim = read("components/pricing/SimulatorPricing.tsx");
+  assert("the simulator page has tiers and segments", sim.includes("<TierCards />") && sim.includes("<SegmentPanel />"));
+  assert("the simulator page has the calculator, assumptions and saved scenarios", sim.includes("<PricingCalculator />") && sim.includes("<AssumptionsTable />") && sim.includes("<SavedScenarios scenarios={saved} />"));
+  assert("the simulator page says nothing is charged today", sim.includes("None of this is being charged today."));
+  assert("the calculator has the scenario toggle", /SCENARIOS|scenario/i.test(read("components/pricing/PricingCalculator.tsx")));
+  assert("the /pricing sidebar follows the switch", read("lib/nav.tsx").includes('"/pricing": [') && read("lib/nav.tsx").includes("PRICING_SIMULATOR_ENABLED"));
+  const support = read("app/support/page.tsx");
+  assert("/support sends people to the donation section, or 404s with donations off", support.includes("if (!DONATIONS_ENABLED) notFound();") && /redirect\("\/pricing#support"\)/.test(support));
+  assert("/support is the whole donation page while /pricing is the revenue model", support.includes("if (!PRICING_SIMULATOR_ENABLED) redirect(") && support.includes("<DonationPricing "));
+  assert("no donation link is hard-coded to /pricing#support", ["app/dashboard/page.tsx", "components/pricing/SimulatorPricing.tsx", "lib/nav/dock.ts", "lib/chat/rules.ts"].every((f) => !read(f).includes('"/pricing#support"')));
+  // Donations off hides the legal paragraphs too (kept in the code).
+  assert("/terms hides its donation section with donations off", /\{DONATIONS_ENABLED && \(\s*<>\s*<h2 id="donations">/.test(read("app/terms/page.tsx")));
+  assert("/privacy hides its Stripe line with donations off", /\{DONATIONS_ENABLED && \(\s*<li>\s*Donations are processed by Stripe/.test(read("app/privacy/page.tsx")));
+  assert("the roadmap promises donors nothing with donations off", read("lib/venture/roadmap.ts").includes("DONATIONS_ENABLED\n      ? "));
+  assert("What's new on /roadmap follows its switch", read("app/roadmap/page.tsx").includes("{WHATS_NEW_ENABLED && ("));
+  void DONATIONS_ENABLED;
+  void WHATS_NEW_ENABLED;
 }
 
 // ── Public site: menus ──────────────────────────────────────────────────────
@@ -484,8 +517,10 @@ for (const path of ["app/api/projects/[id]/route.ts", "app/api/projects/[id]/pai
   assert("the footer draws its columns from FOOTER_COLUMNS", footer.includes("FOOTER_COLUMNS.map("));
   assert("the footer keeps the contact address", footer.includes("mailto:${CONTACT_EMAIL}"));
   const sitemap = read("app/sitemap.ts");
-  assert("the sitemap lists the public pages", ["/features", "/roadmap", "/pricing", "/demo", "/privacy", "/terms"].every((p) => sitemap.includes(`"${p}"`)));
-  assert("the sitemap leaves out hidden and private pages", !["/research", "/docs", "/marketing", "/product", "/dashboard", "/core"].some((p) => sitemap.includes(`"${p}"`)));
+  assert("the sitemap lists the public pages", ["/roadmap", "/pricing", "/demo", "/privacy", "/terms"].every((p) => sitemap.includes(`"${p}"`)));
+  assert("the sitemap lists /features or /product by the switch", sitemap.includes('FEATURES_PAGE_ENABLED ? "/features" : "/product"'));
+  assert("the sitemap lists course pages only by their switches", ["RESEARCH_PAGE_ENABLED ? [\"/research\"]", "MARKETING_IN_MENUS ? [\"/marketing\"]", "DOCS_PAGE_ENABLED ? [\"/docs\"]"].every((x) => sitemap.includes(x)));
+  assert("the sitemap leaves out private pages", !sitemap.includes('"/core"'));
   for (const [page, flag] of [["app/research/page.tsx", "RESEARCH_PAGE_ENABLED"], ["app/docs/page.tsx", "DOCS_PAGE_ENABLED"]]) {
     assert(`${page} answers 404 while it's switched off`, new RegExp(`if \\(!${flag}\\) notFound\\(\\);`).test(read(page)));
   }
@@ -494,11 +529,14 @@ for (const path of ["app/api/projects/[id]/route.ts", "app/api/projects/[id]/pai
 // ── Public site: tidy addresses ────────────────────────────────────────────
 {
   const config = read("next.config.ts");
-  assert("/core moves to /brief, permanently", /source: "\/core",\s*destination: "\/brief",\s*permanent: true/.test(config));
-  assert("/product moves to /features, permanently", /source: "\/product",\s*destination: "\/features",\s*permanent: true/.test(config));
-  assert("Paste a brief lives at /brief", existsSync("app/brief/page.tsx") && !existsSync("app/core/page.tsx"));
-  assert("/brief needs an account", /PRIVATE_PREFIXES = \["\/brief"\]/.test(read("proxy.ts")));
-  assert("robots keep crawlers out of /brief", read("app/robots.ts").includes('"/brief"'));
+  assert("/brief goes back to /core, temporarily", /source: "\/brief",\s*destination: "\/core",\s*permanent: false/.test(config));
+  assert("/product is a page again, not a redirect", existsSync("app/product/page.tsx") && !/source: "\/product"/.test(config));
+  assert("/features redirects to /product while switched off", /if \(!FEATURES_PAGE_ENABLED\) redirect\("\/product"\);/.test(read("app/features/page.tsx")));
+  assert("Paste a brief lives at /core", existsSync("app/core/page.tsx") && !existsSync("app/brief/page.tsx"));
+  assert("/core needs an account unless every page is open", /PRIVATE_PREFIXES: string\[\] = ALL_PAGES_OPEN \? \[\] : \["\/core"\];/.test(read("proxy.ts")));
+  assert("/core tells signed-out visitors what needs an account", read("app/core/page.tsx").includes("{!user && (") && read("app/core/page.tsx").includes('href="/login?next=/core"'));
+  void ALL_PAGES_OPEN;
+  assert("robots keep crawlers out of /core", read("app/robots.ts").includes('"/core"'));
   const { readdirSync } = await import("node:fs");
   const { join } = await import("node:path");
   const hidden = /^(app\/(docs|research)|components\/research)\//;
@@ -506,8 +544,9 @@ for (const path of ["app/api/projects/[id]/route.ts", "app/api/projects/[id]/pai
     readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
       e.isDirectory() ? walk(join(dir, e.name)) : /\.tsx?$/.test(e.name) && !/ 2\./.test(e.name) ? [join(dir, e.name)] : [],
     );
-  const stale = ["components", "lib", "app"].flatMap(walk).filter((f) => !hidden.test(f)).filter((f) => /href[=:]\s*["{`]\/core\b|route: "\/core"|"\/product"|"\/support"|\/docs#/.test(read(f)));
-  assert("nothing links to /core, /product, /support or /docs anchors any more", stale.length === 0, stale.join(", "));
+  const staleLink = DOCS_PAGE_ENABLED ? /href[=:]\s*["{`]\/brief\b|route: "\/brief"|"\/support"/ : /href[=:]\s*["{`]\/brief\b|route: "\/brief"|"\/support"|\/docs#/;
+  const stale = ["components", "lib", "app"].flatMap(walk).filter((f) => !hidden.test(f)).filter((f) => staleLink.test(read(f)));
+  assert("nothing links to /brief or /support (or /docs anchors while /docs is off)", stale.length === 0, stale.join(", "));
 }
 
 // ── Public site: /features ──────────────────────────────────────────────────
@@ -518,6 +557,21 @@ for (const path of ["app/api/projects/[id]/route.ts", "app/api/projects/[id]/pai
   assert("/features says what FreeFlow doesn't do", page.includes("doesn&rsquo;t create or send invoices") && page.includes("CFDI"));
   assert("/features links to the roadmap", page.includes('href="/roadmap"'));
   assert("the home page no longer says Chapter 2", !read("components/funnel/ChapterWalkthrough.tsx").includes("Chapter 2"));
+}
+
+// ── Class presentation: every module's required page is on ─────────────────
+{
+  assert("Module 1: /core has the intake, output card and save", existsSync("app/core/page.tsx") && read("app/core/page.tsx").includes("<CoreWorkbench") && read("app/core/page.tsx").includes("<SavedOutputs"));
+  assert("Module 1: the dashboard previews saved briefs", read("app/dashboard/page.tsx").includes("<CorePreview"));
+  assert("Module 2: /research is on", RESEARCH_PAGE_ENABLED);
+  assert("Module 2: the dashboard has the research widget", read("app/dashboard/page.tsx").includes("research: <ResearchWidget />"));
+  assert("Module 3: /product is the feature map", read("app/product/page.tsx").includes("<FeatureMap />"));
+  assert("Module 3: /pricing shows the revenue model", PRICING_SIMULATOR_ENABLED);
+  assert("Module 4: /marketing is in the menus", MARKETING_IN_MENUS && existsSync("app/marketing/page.tsx"));
+  assert("Module 5: /chat exists", existsSync("app/chat/page.tsx"));
+  assert("Module 6: /docs is on (prompt library, build log, agent map, testing, impact)", DOCS_PAGE_ENABLED && ["<PromptLibrary", "<WeekTimeline", "<JourneyStepper", "<TestingSummary", "<ImpactCheck", "<Roadmap"].every((c) => read("app/docs/page.tsx").includes(c)));
+  assert("Module 6: /dashboard shows the public records tab", DASHBOARD_PUBLIC_TAB_ENABLED);
+  assert("not asked for by any module: /features is off", !FEATURES_PAGE_ENABLED);
 }
 
 // ── Speed: fewer round trips, cacheable pages, a Dock that keeps up ─────────

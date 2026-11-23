@@ -1,3 +1,4 @@
+import { FEATURES_PAGE_ENABLED } from "@/lib/flags";
 /*
   /demo chapter 2: every worry has a place.
 
@@ -127,5 +128,7 @@ const STEPS: Omit<WalkthroughStep, "href">[] = [
 
 export const WALKTHROUGH: WalkthroughStep[] = STEPS.map((step) => ({
   ...step,
-  href: `/features#${featureAnchor(step.featureName)}`,
+  // /features is switched off for the class presentation (lib/flags.ts); the
+  // feature map on /product lists every feature instead.
+  href: FEATURES_PAGE_ENABLED ? `/features#${featureAnchor(step.featureName)}` : "/product",
 }));

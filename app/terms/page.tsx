@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import LegalPage from "@/components/LegalPage";
 import { CONTACT_EMAIL } from "@/lib/site";
+import { DONATIONS_ENABLED } from "@/lib/flags";
 
 export const metadata: Metadata = { title: "Terms — FreeFlow" };
 
@@ -26,16 +27,21 @@ export default function TermsPage() {
         <Link className="text-ink underline" href="/pricing">Pricing</Link>.
       </p>
 
-      <h2 id="donations">Donations</h2>
-      <p>
-        Donations are optional gifts toward running FreeFlow. They are handled by Stripe, and FreeFlow never sees your
-        card. A donation doesn&rsquo;t buy features, faster support or a say in what gets built.
-      </p>
-      <p>
-        One thank-you: anyone who donates, of any amount, before the paid version launches gets it free. Donate with the
-        same email as your FreeFlow account, or email us to say which account is yours. If you donated by mistake,
-        email us and we&rsquo;ll sort it out.
-      </p>
+      {/* Hidden while donations are off (lib/flags.ts); the text is kept. */}
+      {DONATIONS_ENABLED && (
+        <>
+          <h2 id="donations">Donations</h2>
+          <p>
+            Donations are optional gifts toward running FreeFlow. They are handled by Stripe, and FreeFlow never sees your
+            card. A donation doesn&rsquo;t buy features, faster support or a say in what gets built.
+          </p>
+          <p>
+            One thank-you: anyone who donates, of any amount, before the paid version launches gets it free. Donate with the
+            same email as your FreeFlow account, or email us to say which account is yours. If you donated by mistake,
+            email us and we&rsquo;ll sort it out.
+          </p>
+        </>
+      )}
       <p>
         It is new software made by one person. Features may change, and things can break. Keep your own copy of
         anything important; the dashboard can export your projects as a CSV at any time.
