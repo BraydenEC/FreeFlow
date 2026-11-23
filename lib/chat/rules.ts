@@ -14,6 +14,7 @@
 
 import type { Rule } from "./types";
 import {
+  ALL_PAGES_OPEN,
   DOCS_PAGE_ENABLED,
   DONATE_HREF,
   DONATE_PAGE_NAME,
@@ -1711,8 +1712,9 @@ const ALL_RULES: Rule[] = [
     areas: "any",
     keywords: ["signup"],
     phrases: ["without an account", "need an account", "without signing up", "without signing in"],
-    answer:
-      "Your projects on the dashboard, Paste a brief and this guide need an account, which is free. Demo, Docs, the dashboard's public numbers tab, Research, Pricing, Product, Marketing and Support can be read without one, though saving anything on them needs you to sign in.",
+    answer: ALL_PAGES_OPEN
+      ? "Every page can be looked at without an account. Your own projects on the dashboard, reading a brief with Paste a brief, saving anything and submitting a ticket need one, which is free."
+      : "Your projects on the dashboard, Paste a brief and this guide need an account, which is free. Demo, Docs, the dashboard's public numbers tab, Research, Pricing, Product, Marketing and Support can be read without one, though saving anything on them needs you to sign in.",
   },
   // Public repository on GitHub
   {

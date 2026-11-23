@@ -66,6 +66,13 @@ export default async function CorePage() {
               >
                 ← Back to dashboard
               </Link>
+              {/* Open to visitors while ALL_PAGES_OPEN is on: say what needs an account before they try. */}
+              {!user && (
+                <p className="text-ink-muted mt-3 text-sm">
+                  You&apos;re not signed in, so you can look around, but reading a brief and saving need an account.{" "}
+                  <Link href="/login?next=/core" className="text-ink underline underline-offset-2">Sign in</Link>
+                </p>
+              )}
             </header>
 
             <CoreWorkbench />

@@ -10,6 +10,7 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import {
+  ALL_PAGES_OPEN,
   DASHBOARD_PUBLIC_TAB_ENABLED,
   DOCS_PAGE_ENABLED,
   DONATIONS_ENABLED,
@@ -532,7 +533,9 @@ for (const path of ["app/api/projects/[id]/route.ts", "app/api/projects/[id]/pai
   assert("/product is a page again, not a redirect", existsSync("app/product/page.tsx") && !/source: "\/product"/.test(config));
   assert("/features redirects to /product while switched off", /if \(!FEATURES_PAGE_ENABLED\) redirect\("\/product"\);/.test(read("app/features/page.tsx")));
   assert("Paste a brief lives at /core", existsSync("app/core/page.tsx") && !existsSync("app/brief/page.tsx"));
-  assert("/core needs an account", /PRIVATE_PREFIXES = \["\/core"\]/.test(read("proxy.ts")));
+  assert("/core needs an account unless every page is open", /PRIVATE_PREFIXES: string\[\] = ALL_PAGES_OPEN \? \[\] : \["\/core"\];/.test(read("proxy.ts")));
+  assert("/core tells signed-out visitors what needs an account", read("app/core/page.tsx").includes("{!user && (") && read("app/core/page.tsx").includes('href="/login?next=/core"'));
+  void ALL_PAGES_OPEN;
   assert("robots keep crawlers out of /core", read("app/robots.ts").includes('"/core"'));
   const { readdirSync } = await import("node:fs");
   const { join } = await import("node:path");

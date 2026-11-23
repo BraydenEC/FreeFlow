@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { ALL_PAGES_OPEN } from "@/lib/flags";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 
 /*
@@ -32,7 +33,8 @@ import { getSupabaseEnv } from "@/lib/supabase/env";
   here rather than in the page, so the page itself stays static and cached.
   /dashboard shows a signed-out visitor the pitch, so the page decides.
 */
-const PRIVATE_PREFIXES = ["/core"];
+// ALL_PAGES_OPEN (lib/flags.ts) opens /core to visitors for now.
+const PRIVATE_PREFIXES: string[] = ALL_PAGES_OPEN ? [] : ["/core"];
 // Pages a signed-in user has no business seeing. /auth/confirm is absent on
 // purpose: it must run even for someone already signed in, or a second click
 // of a confirmation link would bounce before verifying.

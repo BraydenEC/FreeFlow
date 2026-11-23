@@ -47,6 +47,15 @@ export const DONATE_PAGE_NAME = PRICING_SIMULATOR_ENABLED ? "Support FreeFlow" :
 export const PER_PROJECT_PRICING_ENABLED = false;
 
 /*
+  EVERY PAGE IS OPEN WITHOUT SIGNING IN (public site: off)
+  On, the proxy sends nobody to /login: /core (Paste a brief) can be looked
+  at signed out, like every other page. Reading a brief with Claude and saving
+  still need an account (the APIs answer 401), and /core says so up front.
+  Off, /core sends signed-out visitors to /login?next=/core.
+*/
+export const ALL_PAGES_OPEN = true;
+
+/*
   COURSE PAGES ARE ON (public site: off)
   /research (market research, Module 2) and /docs (prompt library, build log,
   agent map, testing summary, impact check, Module 6). Off, they answer 404
