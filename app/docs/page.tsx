@@ -77,7 +77,7 @@ export default async function DocsPage() {
         <PromptLibrary />
       </Section>
 
-      <Section id="testing" title="Testing" intro="Week 6: five people outside the project used FreeFlow on their own devices. Open a tester to see what they asked to change and how it was fixed.">
+      <Section id="testing" title="Testing" intro="Week 6: five external users, the full-site regression test, and what changed because of them.">
         <TestingSummary />
       </Section>
 

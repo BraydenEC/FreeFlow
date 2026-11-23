@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CHANGES } from "@/lib/venture/changes";
-import { BUGS } from "@/lib/venture/testing";
+import { TESTER_FINDINGS } from "@/lib/venture/testing";
 import type { VentureCounts } from "@/lib/venture/counts";
 
 /*
@@ -26,8 +26,6 @@ function Stat({ label, value, note }: { label: string; value: string; note?: str
 }
 
 export default function PublicNumbers({ counts }: { counts: VentureCounts | null }) {
-  const fixed = BUGS.filter((b) => b.fixed).length;
-
   return (
     <section aria-labelledby="public-heading" className="flex flex-col gap-4">
       <div>
@@ -61,8 +59,7 @@ export default function PublicNumbers({ counts }: { counts: VentureCounts | null
         />
         <Stat
           label="Bugs testers found / fixed"
-          value={BUGS.length === 0 ? "—" : `${fmt(BUGS.length)} / ${fmt(fixed)}`}
-          note={BUGS.length === 0 ? "Testing starts this week." : undefined}
+          value={`${fmt(TESTER_FINDINGS.found)} / ${fmt(TESTER_FINDINGS.fixed)}`}
         />
         {counts && (
           <>

@@ -14,7 +14,7 @@ import { ROADMAP, ROADMAP_IDS } from "@/lib/venture/roadmap";
 import { JOURNEY } from "@/lib/venture/journey";
 import { TIMELINE } from "@/lib/venture/timeline";
 import { PROMPTS } from "@/lib/venture/prompts";
-import { BUGS, TESTER_REQUESTS } from "@/lib/venture/testing";
+import { ITERATION_LOG, REGRESSION, TESTER_FINDINGS, TESTER_SESSIONS } from "@/lib/venture/testing";
 import { FunnelEventSchema, LaunchListSchema, VoteSchema } from "@/lib/venture/schemas";
 
 let passed = 0;
@@ -100,9 +100,15 @@ assert(
   [1, 2, 3, 4, 5].every((w) => PROMPTS.some((p) => p.week === w)),
 );
 
-// Testing summary starts empty: nothing is claimed before testers exist.
-assert("no bugs recorded before Week 6 testing", BUGS.length === 0);
-assert("no tester requests recorded before Week 6 testing", TESTER_REQUESTS.length === 0);
+// Testing: five external testers, never named, each with at least one fix.
+assert("five tester sessions", TESTER_SESSIONS.length === 5);
+assert(
+  "testers are identified by number only",
+  TESTER_SESSIONS.every((s, i) => s.tester === `Tester ${i + 1}`),
+);
+assert("every tester session lists what changed", TESTER_SESSIONS.every((s) => s.issues.length > 0 && s.issues.every((x) => x.asked && x.fix)));
+assert("fixed findings never exceed found", TESTER_FINDINGS.fixed <= TESTER_FINDINGS.found);
+assert("regression table and iteration log are filled in", REGRESSION.checks.length > 0 && ITERATION_LOG.length > 0);
 
 // Write-route schemas: what an anonymous visitor may send.
 const VISIT = "7d0c6f5e-0b4a-4e8f-9a51-3c2b1d0e9f87";
