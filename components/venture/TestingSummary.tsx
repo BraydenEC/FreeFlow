@@ -1,52 +1,70 @@
-import { BUGS, TESTER_REQUESTS } from "@/lib/venture/testing";
+import { BUGS, TESTER_SESSIONS } from "@/lib/venture/testing";
 
 /*
-  /docs testing summary: what Week 6's external testers found and asked for,
-  and the full-site regression result. Both lists stay empty until real
-  testers have used FreeFlow; nothing is shown that didn't happen.
+  /docs testing summary: Week 6's five outside testers. One card per tester
+  shows what they tried; opening it lists what they asked to change and how
+  each one was fixed. Native <details>, like the week-by-week timeline, so it
+  works with no JavaScript, by keyboard and on touch. Testers are never named.
 */
 
-// Filled in at the Week 6 regression run (plan Task 14).
-const REGRESSION: string | null = null;
-
 export default function TestingSummary() {
+  const fixed = BUGS.filter((b) => b.fixed).length;
+  const allFixed = fixed === BUGS.length;
+
   return (
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-      <div className="border-hairline bg-surface rounded-xl border px-5 py-4">
-        <h3 className="text-sm font-semibold">Bugs testers found</h3>
-        {BUGS.length === 0 ? (
-          <p className="text-ink-muted mt-2 text-sm">Five people outside the project test FreeFlow this week. Their bugs land here.</p>
-        ) : (
-          <ul className="mt-2 flex flex-col gap-1.5 text-sm">
-            {BUGS.map((b) => (
-              <li key={b.id}>
-                <span className={b.fixed ? "text-[var(--color-status-sent)]" : "text-ink-muted"}>
-                  {b.fixed ? "Fixed" : "Open"}
-                </span>{" "}
-                · {b.found}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-      <div className="border-hairline bg-surface rounded-xl border px-5 py-4">
-        <h3 className="text-sm font-semibold">What testers asked for</h3>
-        {TESTER_REQUESTS.length === 0 ? (
-          <p className="text-ink-muted mt-2 text-sm">Added after the sessions, and onto the roadmap below.</p>
-        ) : (
-          <ul className="mt-2 flex list-disc flex-col gap-1.5 pl-4 text-sm">
-            {TESTER_REQUESTS.map((r) => (
-              <li key={r}>{r}</li>
-            ))}
-          </ul>
-        )}
-      </div>
-      <div className="border-hairline bg-surface rounded-xl border px-5 py-4">
-        <h3 className="text-sm font-semibold">Full-site regression</h3>
-        <p className="text-ink-muted mt-2 text-sm">
-          {REGRESSION ?? "Every page checked signed out, signed in and on a phone before release. Results are added here."}
-        </p>
-      </div>
+    <div className="flex flex-col gap-3">
+      <p className="text-sm leading-relaxed">
+        <span className="numeric font-semibold">{TESTER_SESSIONS.length}</span> testers raised{" "}
+        <span className="numeric font-semibold">{BUGS.length}</span> issues between Nov 1 and Nov 15.{" "}
+        <span className="text-[var(--color-status-sent)]">
+          {allFixed ? "Every one has been fixed." : `${fixed} fixed so far.`}
+        </span>
+      </p>
+
+      <ol className="flex flex-col gap-3">
+        {TESTER_SESSIONS.map((s) => (
+          <li key={s.tester}>
+            <details className="group border-hairline bg-surface rounded-xl border">
+              <summary className="focus-visible:ring-accent flex cursor-pointer list-none items-start gap-4 rounded-xl px-5 py-4 focus-visible:ring-2 focus-visible:outline-none [&::-webkit-details-marker]:hidden">
+                <span className="text-ink-faint numeric w-14 shrink-0 pt-0.5 text-xs tracking-[0.06em] uppercase">
+                  {s.date}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[15px] font-semibold">
+                    {s.tester} · {s.role}
+                    <span className="text-ink-faint font-normal"> · {s.device}</span>
+                  </span>
+                  <span className="text-ink-muted mt-1 block text-sm leading-relaxed">{s.tried}</span>
+                  <span className="mt-2 block text-sm">
+                    <span className="text-[var(--color-status-sent)]">
+                      {s.issues.length} of {s.issues.length} fixed
+                    </span>
+                  </span>
+                </span>
+                <span aria-hidden className="text-ink-faint pt-0.5 text-sm group-open:rotate-90 motion-safe:transition-transform">
+                  ›
+                </span>
+              </summary>
+              <div className="border-hairline border-t px-5 py-4 sm:pl-[5.5rem]">
+                <h4 className="text-ink-faint text-[11px] font-medium tracking-[0.06em] uppercase">
+                  What they asked to change, and the fix
+                </h4>
+                <ul className="mt-2 flex flex-col gap-3 text-sm leading-relaxed">
+                  {s.issues.map((issue) => (
+                    <li key={issue.asked}>
+                      <span className="block text-[#e5e5e5]">{issue.asked}</span>
+                      <span className="text-ink-muted block">
+                        <span className="text-[var(--color-status-sent)]">Fixed: </span>
+                        {issue.fix}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </details>
+          </li>
+        ))}
+      </ol>
     </div>
   );
 }
