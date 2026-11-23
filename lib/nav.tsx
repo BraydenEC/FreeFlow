@@ -17,8 +17,6 @@
   when something is overdue.
 */
 
-import { PER_PROJECT_PRICING_ENABLED, PRICING_SIMULATOR_ENABLED, RESEARCH_PAGE_ENABLED } from "@/lib/flags";
-
 export { DOCK_GROUPS } from "@/lib/nav/dock";
 
 export type SubNavItem = {
@@ -32,8 +30,6 @@ export const SUB_NAV: Record<string, SubNavItem[]> = {
     { label: "Overview", href: "#widget-metrics" },
     { label: "Projects", href: "#widget-projects" },
     { label: "Recent briefs", href: "#widget-core" },
-    // The research widget shows only while /research is on (lib/flags.ts).
-    ...(RESEARCH_PAGE_ENABLED ? [{ label: "Research", href: "#widget-research" }] : []),
   ],
   "/research": [
     { label: "Competitors", href: "?tab=competitors" },
@@ -41,19 +37,6 @@ export const SUB_NAV: Record<string, SubNavItem[]> = {
     { label: "Risks", href: "?tab=risks" },
     { label: "Intake", href: "?tab=intake" },
   ],
-  // Module 3's simulator tabs; the donation-first /pricing has no sidebar.
-  ...(PRICING_SIMULATOR_ENABLED
-    ? {
-        "/pricing": [
-          { label: "Simulator", href: "?tab=simulator" },
-          { label: "Tiers", href: "?tab=tiers" },
-          // Hidden while per-project pricing is off (lib/flags.ts).
-          ...(PER_PROJECT_PRICING_ENABLED ? [{ label: "Per-project", href: "?tab=project" }] : []),
-          { label: "Assumptions", href: "?tab=assumptions" },
-          { label: "Saved", href: "?tab=saved" },
-        ],
-      }
-    : {}),
   "/marketing": [
     { label: "Context", href: "#band-context" },
     { label: "Content", href: "#band-content" },

@@ -19,7 +19,6 @@ import { STORY } from "@/lib/funnel/story";
 import { CHOICE_ORDER, DEFAULT_CHOICE, isChoice, jobForChoice, contentJob, choiceWord, choicePrefix, choiceName, choiceAccentVar, worriesFor, type Choice } from "@/lib/funnel/choice";
 import { NEUTRAL_WORRIES } from "@/lib/funnel/jobs";
 import { fieldCount, gridSlot, FIELD_CARDS, sortedColumns, rowHeight, sortedTarget, counterFor, fieldBand, worryProgress, morph } from "@/lib/funnel/field";
-import { FEATURES_PAGE_ENABLED } from "@/lib/flags";
 
 let passed = 0;
 let failed = 0;
@@ -175,11 +174,7 @@ assert("the story states no price", !PRICE_PATTERN.test(JSON.stringify(STORY)));
 assert("the mission is about ease", STORY.mission.includes("ease"));
 assert("the P.S. gives the public contact", STORY.ps.includes("hello@freeflow.website"));
 assert("every walkthrough step has a labelled sample", WALKTHROUGH.every((s) => s.sample.trim().length > 0));
-if (FEATURES_PAGE_ENABLED) {
-  assert("every walkthrough step links to its own /features section", WALKTHROUGH.every((s) => s.href === `/features#${featureAnchor(s.featureName)}`) && new Set(WALKTHROUGH.map((s) => s.href)).size === WALKTHROUGH.length);
-} else {
-  assert("with /features off, every walkthrough step links to the /product feature map", WALKTHROUGH.every((s) => s.href === "/product"));
-}
+assert("every walkthrough step links to its own /features section", WALKTHROUGH.every((s) => s.href === `/features#${featureAnchor(s.featureName)}`) && new Set(WALKTHROUGH.map((s) => s.href)).size === WALKTHROUGH.length);
 assert("feature anchors are plain slugs", featureAnchor("Project & deadline table") === "project-and-deadline-table" && featureAnchor("Export to CSV") === "export-to-csv");
 
 // No prices anywhere in funnel content.

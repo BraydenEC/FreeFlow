@@ -210,7 +210,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
         status: "built",
         tier: "solo",
         shippedIn: "Week 1",
-        route: "/core",
+        route: "/brief",
       },
       {
         id: "relative-dates",
@@ -220,7 +220,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
         status: "built",
         tier: "solo",
         shippedIn: "Week 1",
-        route: "/core",
+        route: "/brief",
       },
       {
         id: "provenance",
@@ -230,7 +230,7 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
         status: "built",
         tier: "solo",
         shippedIn: "Week 1",
-        route: "/core",
+        route: "/brief",
       },
     ],
   },

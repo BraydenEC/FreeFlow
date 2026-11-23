@@ -7,7 +7,6 @@ import FragmentSession from "@/components/auth/FragmentSession";
 import Logo from "@/components/Logo";
 import { authProblems, friendlyAuthError, PENDING_EMAIL_KEY, safeNext, type AuthProblem } from "@/lib/auth/validate";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
-import { FEATURES_PAGE_ENABLED } from "@/lib/flags";
 
 /*
   One form for both sign-up and sign-in; the mode changes the verb and the
@@ -132,7 +131,7 @@ export default function AuthForm({ mode }: { mode: Mode }) {
       <p className="text-ink-muted mt-1 text-sm">{copy.sub}</p>
       {params.get("next") && (
         <p role="status" className="border-hairline text-ink mt-4 rounded-lg border px-3 py-2 text-sm">
-          {next === "/core" ? "Sign in to use Paste a brief." : "Sign in to see that page."} You&rsquo;ll go straight back to it.
+          {next === "/brief" ? "Sign in to use Paste a brief." : "Sign in to see that page."} You&rsquo;ll go straight back to it.
         </p>
       )}
 
@@ -251,11 +250,7 @@ export default function AuthForm({ mode }: { mode: Mode }) {
       <p className="text-ink-faint mt-4 text-center text-xs">
         <Link href="/demo" className="underline-offset-4 hover:underline">Tour</Link>
         {" · "}
-        {FEATURES_PAGE_ENABLED ? (
-          <Link href="/features" className="underline-offset-4 hover:underline">Features</Link>
-        ) : (
-          <Link href="/product" className="underline-offset-4 hover:underline">Product</Link>
-        )}
+        <Link href="/features" className="underline-offset-4 hover:underline">Features</Link>
         {" · "}
         <Link href="/pricing" className="underline-offset-4 hover:underline">Pricing</Link>
       </p>

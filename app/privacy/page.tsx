@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import LegalPage from "@/components/LegalPage";
 import { CONTACT_EMAIL } from "@/lib/site";
-import { DONATIONS_ENABLED } from "@/lib/flags";
 
 export const metadata: Metadata = { title: "Privacy — FreeFlow" };
 
@@ -55,13 +54,10 @@ export default function PrivacyPage() {
           Anthropic&rsquo;s Claude to be read.
         </li>
         <li>Account emails (confirming your address, resetting your password) are sent through an email provider.</li>
-        {/* Hidden while donations are off (lib/flags.ts); the text is kept. */}
-        {DONATIONS_ENABLED && (
-          <li>
-            Donations are processed by Stripe. FreeFlow never sees your card; Stripe shares your email and the amount
-            with the owner, used only to thank you and to give donors the paid version free when it launches.
-          </li>
-        )}
+        <li>
+          Donations are processed by Stripe. FreeFlow never sees your card; Stripe shares your email and the amount
+          with the owner, used only to thank you and to give donors the paid version free when it launches.
+        </li>
       </ul>
       <p>FreeFlow has no ads and doesn&rsquo;t sell or share your data with anyone else.</p>
 

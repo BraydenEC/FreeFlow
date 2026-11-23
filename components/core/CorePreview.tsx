@@ -62,7 +62,7 @@ export default function CorePreview({
           </p>
         </div>
         <Link
-          href="/core"
+          href="/brief"
           className="focus-visible:ring-accent text-accent-soft hover:bg-accent/10 shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none"
         >
           Open Core →
@@ -82,7 +82,7 @@ export default function CorePreview({
             be turned into a structured project record.
           </p>
           <Link
-            href="/core"
+            href="/brief"
             className="focus-visible:ring-accent bg-accent/10 text-accent-soft hover:bg-accent/15 mt-4 inline-flex rounded-lg px-3.5 py-2 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none"
           >
             Extract your first brief

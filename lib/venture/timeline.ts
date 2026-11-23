@@ -100,6 +100,6 @@ export const TIMELINE: WeekEntry[] = [
       "The finale became Answer gates, a flying memory game, chosen from playable prototypes.",
       "Whole-site code reviews before each release; every important finding was fixed with a test that failed first.",
     ],
-    tests: "A full-site regression and 1,852 automated checks by the end of the week. Five external testers raised 35 findings, all fixed on Nov 19; see Testing below.",
+    tests: "A full-site regression and 1,852 automated checks by the end of the week. Five external testers next; their results are added here after testing.",
   },
 ];

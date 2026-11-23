@@ -14,7 +14,7 @@ import { answer, normalize } from "@/lib/chat/engine";
 import { GUARD_RULES } from "@/lib/chat/guards";
 import { CONTENT_RULES } from "@/lib/chat/rules";
 import { guessIntake } from "@/lib/chat/intake";
-import { DONATIONS_ENABLED, PER_PROJECT_PRICING_ENABLED, PRICING_SIMULATOR_ENABLED, RESEARCH_PAGE_ENABLED } from "@/lib/flags";
+import { DONATIONS_ENABLED, PER_PROJECT_PRICING_ENABLED, RESEARCH_PAGE_ENABLED } from "@/lib/flags";
 import { DONOR_PERK } from "@/lib/support";
 import { SAMPLES } from "@/lib/chat/samples";
 import { SessionRequestSchema } from "@/lib/chat/schema";
@@ -281,18 +281,9 @@ assert("create uses the real button names", ans("project-create-edit").includes(
 assert("unpaid card counts only invoiced work", /Invoice sent/.test(ans("dashboard-numbers")));
 assert("worked example adds up", ans("tax-worked-example").includes("11,600") && ans("tax-worked-example").includes("9,533.33") && ans("tax-worked-example").includes("10,408.33"));
 assert("reset to defaults warns about currency", /currency/i.test(ans("layout-prefs")));
-if (PRICING_SIMULATOR_ENABLED) {
-  // Module 3's /pricing is on: the tiers are a possible model, never a bill.
-  assert("the tiers are named as a model, not a bill", /not a bill/.test(ans("pricing-tiers")) && /charged today/.test(ans("pricing-tiers")));
-} else {
-  assert("there are no tiers to name: everything is free", /no plans or tiers/.test(ans("pricing-tiers")) && !/\$\d/.test(ans("pricing-tiers")));
-  assert("no answer quotes a FreeFlow price", CONTENT_RULES.every((r) => !/\$\d+ a month|per seat a month/.test(r.answer)));
-}
-if (DONATIONS_ENABLED) {
-  assert("the donation answer repeats the donor perk", ans("donations").includes(DONOR_PERK));
-} else {
-  assert("with donations off, no answer mentions the donor perk", CONTENT_RULES.every((r) => !r.answer.includes(DONOR_PERK)));
-}
+assert("there are no tiers to name: everything is free", /no plans or tiers/.test(ans("pricing-tiers")) && !/\$\d/.test(ans("pricing-tiers")));
+assert("the donation answer repeats the donor perk", ans("donations").includes(DONOR_PERK));
+assert("no answer quotes a FreeFlow price", CONTENT_RULES.every((r) => !/\$\d+ a month|per seat a month/.test(r.answer)));
 
 assert("finding the regime field isn't tax advice", A("where do I set my tax regime", "how_to", "account").ruleId === "tax-regime");
 assert("choosing a regime still is", A("should I switch to resico", "how_to", "account").ruleId === "guard-tax-advice" && A("do I qualify for resico", "how_to", "account").ruleId === "guard-tax-advice");
@@ -349,12 +340,7 @@ assert("the guide never asks, the sign-in form does", /this guide will never ask
 assert("clear only shows with a filter on", !/First choose Clear/.test(ans("project-missing")));
 assert("export disappears when a filter matches nothing", /matches nothing/.test(ans("csv-export")));
 assert("the visible filter label", ans("project-archive").includes("Paid and unpaid"));
-assert(
-  "the simulator answer matches whether the simulator is on /pricing",
-  PRICING_SIMULATOR_ENABLED
-    ? /isn't your income or a bill/.test(ans("pricing-simulator"))
-    : /isn't on the site/.test(ans("pricing-simulator")) && /forecast/.test(ans("pricing-simulator")),
-);
+assert("the simulator answer points to the user's own forecast", /isn't on the site/.test(ans("pricing-simulator")) && /forecast/.test(ans("pricing-simulator")));
 assert("amount labels now follow the account", !/always shows/.test(ans("currency-usd-label")) && !/say USD/.test(ans("currency-usd-label")));
 
 assert("a wrong client on a project isn't a brief problem", A("i entered the wrong client", "broken", "projects").ruleId !== "brief-wrong-field");

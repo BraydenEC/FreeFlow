@@ -1,7 +1,6 @@
 import { DEFAULT_TERMS_DAYS } from "@/lib/forecast/model";
 import { DEFAULT_TAX_REGIME, TAX_REGIMES } from "@/lib/tax/withholding";
 import { CURRENCY_CODES, DEFAULT_CURRENCY } from "@/lib/currency";
-import { RESEARCH_PAGE_ENABLED } from "@/lib/flags";
 import { z } from "zod";
 
 /*
@@ -26,12 +25,13 @@ export const WIDGET_IDS = [
 export type WidgetId = (typeof WIDGET_IDS)[number];
 
 /*
-  Widgets that show nowhere right now. They stay in WIDGET_IDS so saved
+  Widgets that no longer show anywhere. They stay in WIDGET_IDS so saved
   preferences that mention them still parse; Settings and the dashboard skip
-  them. "research" (the market-research panel) shows only while /research is
-  switched on in lib/flags.ts.
+  them. "research" was the course's market-research panel.
 */
-export const isRetiredWidget = (id: WidgetId): boolean => id === "research" && !RESEARCH_PAGE_ENABLED;
+export const RETIRED_WIDGETS = ["research"] as const satisfies readonly WidgetId[];
+export type LiveWidgetId = Exclude<WidgetId, (typeof RETIRED_WIDGETS)[number]>;
+export const isRetiredWidget = (id: WidgetId): boolean => (RETIRED_WIDGETS as readonly WidgetId[]).includes(id);
 
 export const WIDGET_LABELS: Record<WidgetId, string> = {
   overdue: "Overdue alert",
@@ -70,13 +70,6 @@ export const PrefsSchema = z.object({
     pinOverdue: z.boolean(),
     widgets: z.array(WidgetSchema),
   }),
-  /*
-    Set once the research widget has been switched on for this account (class
-    presentation, 2026-11-23). Accounts saved before then had it hidden by
-    default, so parsePrefs turns it on one time; after that, hiding it in
-    Settings sticks. Optional so older saved preferences still parse.
-  */
-  researchWidgetShown: z.boolean().optional(),
 });
 
 export type Prefs = z.infer<typeof PrefsSchema>;
@@ -108,12 +101,10 @@ export const DEFAULT_PREFS: Prefs = {
       { id: "forecast", visible: true, width: "full" },
       { id: "withholding", visible: true, width: "half" },
       { id: "core", visible: true, width: "half" },
-      // On by default for the class presentation (lib/flags.ts); it was off
-      // by default from M4 ("the business's homework, not the user's").
-      { id: "research", visible: true, width: "half" },
+      // M4: market research is the business's homework, not the user's; off by default.
+      { id: "research", visible: false, width: "half" },
     ],
   },
-  researchWidgetShown: true,
 };
 
 /**
@@ -141,18 +132,8 @@ export function parsePrefs(raw: unknown): Prefs {
     }
   }
 
-  let widgets = [...deduped, ...missing];
-  let researchWidgetShown = prefs.researchWidgetShown;
-  // Switch the research widget on once for accounts saved before it was on by
-  // default (see researchWidgetShown above).
-  if (RESEARCH_PAGE_ENABLED && !researchWidgetShown) {
-    widgets = widgets.map((w) => (w.id === "research" ? { ...w, visible: true } : w));
-    researchWidgetShown = true;
-  }
-
   return {
     ...prefs,
-    researchWidgetShown,
-    dashboard: { ...prefs.dashboard, widgets },
+    dashboard: { ...prefs.dashboard, widgets: [...deduped, ...missing] },
   };
 }
