@@ -1,6 +1,7 @@
 import {
   DOCS_PAGE_ENABLED,
   DONATIONS_ENABLED,
+  FEATURES_PAGE_ENABLED,
   MARKETING_IN_MENUS,
   RESEARCH_PAGE_ENABLED,
 } from "@/lib/flags";
@@ -14,8 +15,9 @@ import {
                    (features, pricing, roadmap, help), like Cushion or Harvest
     FOOTER_COLUMNS the site footer: Product, Support, Legal
 
-  The course pages (/research, /docs) and the marketing preview join the menus
-  only when their switches in lib/flags.ts are on.
+  The course pages (/research, /docs) and the marketing engine join the menus
+  only when their switches in lib/flags.ts are on. With /features off, the
+  menus link Product (/product, the feature map) in its place.
 
   Plain data (icons are names, drawn in components/nav/Dock.tsx) so it can be
   tested under plain node.
@@ -47,18 +49,27 @@ export type DockGroup = {
 
 const TOOLS: DockItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: "dashboard" },
-  { label: "Paste a brief", href: "/brief", icon: "core" },
+  { label: "Paste a brief", href: "/core", icon: "core" },
   { label: "Help desk", href: "/chat", icon: "help" },
 ];
 
+/** Features (the public page) or Product (the feature map), whichever is on. */
+const FEATURES_LINK: DockItem = FEATURES_PAGE_ENABLED
+  ? { label: "Features", href: "/features", icon: "product" }
+  : { label: "Product", href: "/product", icon: "product" };
+
+const RESEARCH_LINK: DockItem[] = RESEARCH_PAGE_ENABLED ? [{ label: "Research", href: "/research", icon: "research" }] : [];
+const MARKETING_LINK: DockItem[] = MARKETING_IN_MENUS ? [{ label: "Marketing", href: "/marketing", icon: "marketing" }] : [];
+const DOCS_LINK: DockItem[] = DOCS_PAGE_ENABLED ? [{ label: "Docs", href: "/docs", icon: "docs" }] : [];
+
 const ABOUT: DockItem[] = [
   { label: "Tour", href: "/demo", icon: "demo" },
-  { label: "Features", href: "/features", icon: "product" },
+  ...RESEARCH_LINK,
+  FEATURES_LINK,
   { label: "Pricing", href: "/pricing", icon: "pricing" },
+  ...MARKETING_LINK,
   { label: "Roadmap", href: "/roadmap", icon: "roadmap" },
-  ...(RESEARCH_PAGE_ENABLED ? [{ label: "Research", href: "/research", icon: "research" as const }] : []),
-  ...(MARKETING_IN_MENUS ? [{ label: "Marketing", href: "/marketing", icon: "marketing" as const }] : []),
-  ...(DOCS_PAGE_ENABLED ? [{ label: "Docs", href: "/docs", icon: "docs" as const }] : []),
+  ...DOCS_LINK,
 ];
 
 export const DOCK_GROUPS: DockGroup[] = [
@@ -71,7 +82,7 @@ export const TOP_LINKS: DockItem[] = TOOLS;
 
 /** The top bar for a signed-out visitor. */
 export const SITE_LINKS: DockItem[] = [
-  { label: "Features", href: "/features", icon: "product" },
+  FEATURES_LINK,
   { label: "Pricing", href: "/pricing", icon: "pricing" },
   { label: "Roadmap", href: "/roadmap", icon: "roadmap" },
   { label: "Help", href: "/chat", icon: "help" },
@@ -85,10 +96,13 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
     heading: "Product",
     links: [
       { label: "Tour", href: "/demo" },
-      { label: "Features", href: "/features" },
+      ...RESEARCH_LINK,
+      { label: FEATURES_LINK.label, href: FEATURES_LINK.href },
       { label: "Pricing", href: "/pricing" },
+      ...MARKETING_LINK,
       { label: "Roadmap", href: "/roadmap" },
-    ],
+      ...DOCS_LINK,
+    ].map(({ label, href }) => ({ label, href })),
   },
   {
     heading: "Support",

@@ -1,7 +1,7 @@
 "use client";
 
 import { usePrefs } from "@/components/prefs/PrefsProvider";
-import { isRetiredWidget, type LiveWidgetId, type WidgetId } from "@/lib/prefs/schema";
+import { isRetiredWidget, type WidgetId } from "@/lib/prefs/schema";
 
 /*
   Arranges dashboard widgets by preference.
@@ -22,7 +22,7 @@ export default function DashboardGrid({
   hasOverdue,
   hidden = [],
 }: {
-  widgets: Record<LiveWidgetId, React.ReactNode>;
+  widgets: Record<WidgetId, React.ReactNode>;
   hasOverdue: boolean;
   /**
    * Widgets with nothing to say right now. Overdue used to be the only one and
@@ -57,7 +57,7 @@ export default function DashboardGrid({
           id={`widget-${w.id}`}
           className={`scroll-mt-20 ${w.width === "full" ? "lg:col-span-2" : "lg:col-span-1"}`}
         >
-          {widgets[w.id as LiveWidgetId]}
+          {widgets[w.id]}
         </div>
       ))}
     </div>

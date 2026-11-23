@@ -1,3 +1,5 @@
+import { DONATIONS_ENABLED } from "@/lib/flags";
+
 /*
   The roadmap shown on /roadmap, with visitor upvotes.
 
@@ -28,7 +30,9 @@ export const ROADMAP: RoadmapItem[] = [
   {
     id: "one-time-launch",
     title: "The one-time purchase launch",
-    detail: "Buy once, keep full access. Plenty of notice first, and donors get it free.",
+    detail: DONATIONS_ENABLED
+      ? "Buy once, keep full access. Plenty of notice first, and donors get it free."
+      : "Buy once, keep full access. Plenty of notice first, and the free version keeps working until then.",
     bucket: "next",
   },
   {

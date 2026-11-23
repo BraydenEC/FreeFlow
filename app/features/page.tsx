@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import PricingCta from "@/components/pricing/PricingCta";
 import { featureAnchor, WALKTHROUGH, WALKTHROUGH_AREAS } from "@/lib/funnel/walkthrough";
+import { FEATURES_PAGE_ENABLED } from "@/lib/flags";
 
 /*
   /features: everything FreeFlow does, for a visitor deciding whether to try it.
@@ -9,7 +11,8 @@ import { featureAnchor, WALKTHROUGH, WALKTHROUGH_AREAS } from "@/lib/funnel/walk
   (lib/funnel/walkthrough.ts), which is tested against the built features in
   lib/product/features.ts, so this page can only show what exists. Each
   feature has its own anchor; the home page's "See it" links land on it.
-  /product redirects here (next.config.ts).
+  While it is switched off (lib/flags.ts) it redirects to /product, the
+  feature map, temporarily, so browsers don't remember the redirect.
 */
 
 export const metadata = {
@@ -19,6 +22,7 @@ export const metadata = {
 };
 
 export default function FeaturesPage() {
+  if (!FEATURES_PAGE_ENABLED) redirect("/product");
   return (
     <main className="mx-auto max-w-5xl page-stack px-5 sm:px-8">
       <header className="max-w-2xl">

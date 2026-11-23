@@ -8,7 +8,8 @@
   preferences object rather than a crash.
 */
 
-import { DEFAULT_PREFS, parsePrefs, serverReadKey, WIDGET_IDS } from "@/lib/prefs/schema";
+import { DEFAULT_PREFS, isRetiredWidget, parsePrefs, serverReadKey, WIDGET_IDS } from "@/lib/prefs/schema";
+import { RESEARCH_PAGE_ENABLED } from "@/lib/flags";
 
 let passed = 0;
 let failed = 0;
@@ -96,7 +97,29 @@ console.log("\nDEFAULTS — the product is the default\n" + "─".repeat(64));
 assert("default density is compact", DEFAULT_PREFS.density === "compact");
 assert("default is work mode (reasoning hidden)", DEFAULT_PREFS.showReasoning === false);
 assert("overdue pinned by default", DEFAULT_PREFS.dashboard.pinOverdue === true);
-assert("every widget but market research visible by default (M4)", DEFAULT_PREFS.dashboard.widgets.every((w) => w.visible === (w.id !== "research")));
+assert("every widget visible by default (market research too, for the class presentation)", DEFAULT_PREFS.dashboard.widgets.every((w) => w.visible));
+
+// The research widget is switched on once for accounts saved while it was hidden by default.
+{
+  const hiddenResearch = (extra: object) => ({
+    ...DEFAULT_PREFS,
+    researchWidgetShown: undefined,
+    ...extra,
+    dashboard: {
+      ...DEFAULT_PREFS.dashboard,
+      widgets: DEFAULT_PREFS.dashboard.widgets.map((w) => (w.id === "research" ? { ...w, visible: false } : w)),
+    },
+  });
+  const research = (p: ReturnType<typeof parsePrefs>) => p.dashboard.widgets.find((w) => w.id === "research")?.visible;
+  const old = parsePrefs(JSON.parse(JSON.stringify(hiddenResearch({}))));
+  assert("research widget follows its page switch", isRetiredWidget("research") === !RESEARCH_PAGE_ENABLED);
+  if (RESEARCH_PAGE_ENABLED) {
+    assert("an account saved with research hidden gets it switched on once", research(old) === true && old.researchWidgetShown === true);
+    const later = parsePrefs(hiddenResearch({ researchWidgetShown: true }));
+    assert("after that, hiding it in Settings sticks", research(later) === false);
+  }
+  assert("the other widgets keep what was saved", old.dashboard.widgets.filter((w) => w.id !== "research").every((w) => w.visible));
+}
 assert("defaults themselves validate", JSON.stringify(parsePrefs(DEFAULT_PREFS)) === JSON.stringify(DEFAULT_PREFS));
 
 // Currency, regime and terms are read on the server, so changing one means the
