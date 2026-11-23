@@ -21,7 +21,8 @@ import {
   model (tiers, simulator, assumptions) was course work and is no longer shown;
   its components stay in components/pricing.
 
-  /support redirects here (#support).
+  /support redirects here (#support), or shows this page itself while
+  /pricing is the revenue model (heading then reads Support FreeFlow).
 */
 
 
@@ -31,13 +32,13 @@ const usd = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
 });
 
-export default function DonationPricing() {
+export default function DonationPricing({ heading = "Pricing" }: { heading?: string }) {
   const configured = isDonationConfigured();
 
   return (
     <main className="mx-auto max-w-4xl page-stack px-5 sm:px-8">
       <header className="max-w-2xl">
-        <h1 className="page-title">Pricing</h1>
+        <h1 className="page-title">{heading}</h1>
         <p className="mt-3 text-2xl leading-snug font-semibold tracking-tight">Free. Every feature, for everyone.</p>
         <p className="text-ink-muted mt-3 text-sm leading-relaxed">
           No limits, no trial and no card. FreeFlow is made by one freelancer and runs on donations while it grows.

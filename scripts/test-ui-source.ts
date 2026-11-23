@@ -496,6 +496,8 @@ for (const path of ["app/api/projects/[id]/route.ts", "app/api/projects/[id]/pai
   assert("the /pricing sidebar follows the switch", read("lib/nav.tsx").includes('"/pricing": [') && read("lib/nav.tsx").includes("PRICING_SIMULATOR_ENABLED"));
   const support = read("app/support/page.tsx");
   assert("/support sends people to the donation section, or 404s with donations off", support.includes("if (!DONATIONS_ENABLED) notFound();") && /redirect\("\/pricing#support"\)/.test(support));
+  assert("/support is the whole donation page while /pricing is the revenue model", support.includes("if (!PRICING_SIMULATOR_ENABLED) redirect(") && support.includes("<DonationPricing "));
+  assert("no donation link is hard-coded to /pricing#support", ["app/dashboard/page.tsx", "components/pricing/SimulatorPricing.tsx", "lib/nav/dock.ts", "lib/chat/rules.ts"].every((f) => !read(f).includes('"/pricing#support"')));
   // Donations off hides the legal paragraphs too (kept in the code).
   assert("/terms hides its donation section with donations off", /\{DONATIONS_ENABLED && \(\s*<>\s*<h2 id="donations">/.test(read("app/terms/page.tsx")));
   assert("/privacy hides its Stripe line with donations off", /\{DONATIONS_ENABLED && \(\s*<li>\s*Donations are processed by Stripe/.test(read("app/privacy/page.tsx")));

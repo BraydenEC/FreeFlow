@@ -24,7 +24,7 @@ import { filterFromParams, filterProjects, isFilterActive } from "@/lib/projects
 import { getDashboardData } from "@/lib/projects";
 import { getUserPrefs } from "@/lib/prefs/server";
 import { getServerSupabase, getSessionUser } from "@/lib/supabase/server";
-import { DASHBOARD_PUBLIC_TAB_ENABLED, DONATIONS_ENABLED } from "@/lib/flags";
+import { DASHBOARD_PUBLIC_TAB_ENABLED, DONATE_HREF, DONATIONS_ENABLED } from "@/lib/flags";
 
 /*
   The dashboard.
@@ -223,7 +223,7 @@ export default async function Dashboard({
                       <p className="text-ink-faint text-center text-xs">
                         FreeFlow is free while it grows.{" "}
                         <Link
-                          href="/pricing#support"
+                          href={DONATE_HREF}
                           className="text-ink-muted hover:text-ink underline-offset-4 hover:underline"
                         >
                           Chip in for hosting

@@ -11,6 +11,7 @@
 import { DOCK_GROUPS, FOOTER_COLUMNS, SITE_LINKS, TOP_LINKS } from "@/lib/nav/dock";
 import {
   DOCS_PAGE_ENABLED,
+  DONATE_HREF,
   DONATIONS_ENABLED,
   FEATURES_PAGE_ENABLED,
   MARKETING_IN_MENUS,
@@ -77,7 +78,7 @@ assert("nothing links to the old /brief or /support addresses", !everyLink.some(
 
 assert("the footer has Product, Support and Legal columns", FOOTER_COLUMNS.map((c) => c.heading).join() === "Product,Support,Legal");
 assert("the footer links Privacy and Terms", everyLink.includes("/privacy") && everyLink.includes("/terms"));
-assert("the footer links the donation section while donations are on", everyLink.includes("/pricing#support") === DONATIONS_ENABLED);
+assert("the footer links the donation section while donations are on", everyLink.includes(DONATE_HREF) === DONATIONS_ENABLED);
 
 // The sidebar highlights the same tab the page shows: an unknown or hidden
 // ?tab= (an old /pricing?tab=project link) falls back to the first tab.

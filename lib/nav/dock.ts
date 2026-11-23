@@ -1,5 +1,6 @@
 import {
   DOCS_PAGE_ENABLED,
+  DONATE_HREF,
   DONATIONS_ENABLED,
   FEATURES_PAGE_ENABLED,
   MARKETING_IN_MENUS,
@@ -108,7 +109,7 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
     heading: "Support",
     links: [
       { label: "Help desk", href: "/chat" },
-      ...(DONATIONS_ENABLED ? [{ label: "Support FreeFlow", href: "/pricing#support" }] : []),
+      ...(DONATIONS_ENABLED ? [{ label: "Support FreeFlow", href: DONATE_HREF }] : []),
     ],
   },
   {

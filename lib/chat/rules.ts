@@ -15,6 +15,8 @@
 import type { Rule } from "./types";
 import {
   DOCS_PAGE_ENABLED,
+  DONATE_HREF,
+  DONATE_PAGE_NAME,
   DONATIONS_ENABLED,
   FEATURES_PAGE_ENABLED,
   MARKETING_IN_MENUS,
@@ -243,7 +245,7 @@ const ALL_RULES: Rule[] = [
     links: DONATIONS_ENABLED
       ? [
           { label: "Pricing", href: "/pricing" },
-          { label: "Support FreeFlow", href: "/pricing#support" },
+          { label: "Support FreeFlow", href: DONATE_HREF },
         ]
       : [{ label: "Pricing", href: "/pricing" }],
   },
@@ -271,9 +273,9 @@ const ALL_RULES: Rule[] = [
     strong: ["donate", "donation", "donating", "donar", "donacion"],
     phrases: ["support freeflow", "support the project", "i donate", "buy you a coffee", "make a donation", "puedo donar", "como dono"],
     answer: DONATIONS_ENABLED
-      ? `Donations are optional and go to real running costs like hosting and the AI behind Paste a brief. They don't unlock features. ${DONOR_PERK} If the Pricing page says donations open soon, there's no payment link yet.`
+      ? `Donations are optional and go to real running costs like hosting and the AI behind Paste a brief. They don't unlock features. ${DONOR_PERK} If the ${DONATE_PAGE_NAME} page says donations open soon, there's no payment link yet.`
       : "FreeFlow doesn't take donations right now. It's free while it grows, and nothing is charged today. The kindest thing you can do is use it and tell us what's broken.",
-    links: DONATIONS_ENABLED ? [{ label: "Support FreeFlow", href: "/pricing#support" }] : [{ label: "Pricing", href: "/pricing" }],
+    links: DONATIONS_ENABLED ? [{ label: "Support FreeFlow", href: DONATE_HREF }] : [{ label: "Pricing", href: "/pricing" }],
   },
   // features "Accounts and per-user data" — RLS on every table; chat_sessions notice
   {

@@ -13,12 +13,12 @@
 */
 
 /*
-  DONATIONS ARE OFF (public site: on)
+  DONATIONS ARE ON (public site: on)
   Off hides every donation: the /pricing donation section, the Dock and
   footer links, the help desk's donation answers, the dashboard line, and the
   donation paragraphs in /terms and /privacy. lib/support.ts keeps the wording.
 */
-export const DONATIONS_ENABLED = false;
+export const DONATIONS_ENABLED = true;
 
 /*
   PRICING SHOWS THE REVENUE MODEL (public site: off)
@@ -27,6 +27,15 @@ export const DONATIONS_ENABLED = false;
   (components/pricing/DonationPricing.tsx).
 */
 export const PRICING_SIMULATOR_ENABLED = true;
+
+/*
+  WHERE THE DONATION PAGE IS (follows the two switches above)
+  With the revenue model on /pricing, the whole donation page is at /support.
+  With it off, the donation page is /pricing and /support redirects there.
+  Every donation link uses DONATE_HREF.
+*/
+export const DONATE_HREF = PRICING_SIMULATOR_ENABLED ? "/support#support" : "/pricing#support";
+export const DONATE_PAGE_NAME = PRICING_SIMULATOR_ENABLED ? "Support FreeFlow" : "Pricing";
 
 /*
   PER-PROJECT PRICING IS OFF (public site: off)

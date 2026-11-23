@@ -12,7 +12,7 @@ import TierCards from "@/components/pricing/TierCards";
 import { getSavedScenarios } from "@/lib/pricing/saved";
 import { computePricing } from "@/lib/pricing/model";
 import { SCENARIOS } from "@/lib/pricing/scenarios";
-import { DONATIONS_ENABLED, PER_PROJECT_PRICING_ENABLED } from "@/lib/flags";
+import { DONATE_HREF, DONATIONS_ENABLED, PER_PROJECT_PRICING_ENABLED } from "@/lib/flags";
 
 /*
   Module 3's /pricing: tiers, segments, simulator, assumptions, saved scenarios.
@@ -114,7 +114,7 @@ export default async function SimulatorPricing({ tab }: { tab?: string }) {
               <p className="text-ink-muted mt-2 text-sm leading-relaxed">
                 If it is useful to you in the meantime, there is an{" "}
                 <Link
-                  href="/pricing#support"
+                  href={DONATE_HREF}
                   className="text-ink underline-offset-4 hover:underline"
                 >
                   optional donation
